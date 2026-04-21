@@ -182,7 +182,7 @@
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
         
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         const form = document.getElementById('beta-form');
         const submitBtn = document.querySelector('.submit-btn');
@@ -197,20 +197,20 @@
             submitBtn.disabled = true;
 
             try {
-                // Get form values
-                const name = form.name.value;
-                const email = form.email.value;
-                const linkedin = form.linkedin.value;
-                const jobTitles = form.job_titles.value;
-                const file = form.resume.files[0];
-                const validationChecked = form.validation.checked;
+                // Get form values using elements array to prevent native property conflicts
+                const name = form.elements['name'].value;
+                const email = form.elements['email'].value;
+                const linkedin = form.elements['linkedin'].value;
+                const jobTitles = form.elements['job_titles'].value;
+                const file = form.elements['resume'].files[0];
+                const validationChecked = form.elements['validation'].checked;
 
                 if (!file) throw new Error("Please upload your resume.");
 
                 // 2. Upload file to Supabase Storage Bucket (Must be named 'resumes')
                 const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
                 
-                const { data: storageData, error: storageError } = await supabase
+                const { data: storageData, error: storageError } = await supabaseClient
                     .storage
                     .from('resumes') // Make sure this bucket is PUBLIC in Supabase
                     .upload(fileName, file);
@@ -218,7 +218,7 @@
                 if (storageError) throw storageError;
 
                 // Get public URL of resume
-                const { data: publicUrlData } = supabase
+                const { data: publicUrlData } = supabaseClient
                     .storage
                     .from('resumes')
                     .getPublicUrl(fileName);
@@ -226,7 +226,7 @@
                 const resumeUrl = publicUrlData.publicUrl;
 
                 // 3. Insert lead into Supabase Database (Table must be named 'beta_leads')
-                const { data: insertData, error: insertError } = await supabase
+                const { data: insertData, error: insertError } = await supabaseClient
                     .from('beta_leads')
                     .insert([
                         { 
