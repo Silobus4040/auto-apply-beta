@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoApply AI | Fully Automated Job Applications</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060913;
+            --surface-color: rgba(18, 22, 38, 0.7);
+            --primary: #4F46E5;
+            --primary-glow: rgba(79, 70, 229, 0.5);
+            --secondary: #10B981;
+            --text-heading: #F9FAFB;
+            --text-body: #9CA3AF;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-body);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        .background-blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            opacity: 0.6;
+            animation: float 15s ease-in-out infinite;
+        }
+
+        .blob-1 { background: linear-gradient(to right, #4F46E5, #8B5CF6); width: 600px; height: 600px; top: -200px; left: -100px; }
+        .blob-2 { background: linear-gradient(to right, #10B981, #059669); width: 500px; height: 500px; top: 600px; right: -100px; animation-delay: -5s; }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-50px) scale(1.05); }
+        }
+
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0.5rem; }
+        .logo-dot { width: 12px; height: 12px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
+
+        .hero { max-width: 1400px; margin: 4rem auto 2rem; padding: 0 5%; text-align: center; display: flex; flex-direction: column; align-items: center; }
+        .badge { background: rgba(16, 185, 129, 0.1); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.875rem; font-weight: 600; margin-bottom: 2rem; backdrop-filter: blur(10px); }
+        h1 { color: var(--text-heading); font-size: clamp(3rem, 6vw, 5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 1.5rem; max-width: 900px; }
+        .gradient-text { background: linear-gradient(135deg, #fff 0%, #A5B4FC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        p.hero-sub { font-size: 1.25rem; max-width: 700px; margin-bottom: 3rem; color: #D1D5DB; }
+
+        .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
+        .btn { padding: 1rem 2rem; border-radius: 0.75rem; font-size: 1.125rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; display: inline-block; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
+        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid var(--border); backdrop-filter: blur(10px); }
+        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
+
+        .trust-banner { text-align: center; margin: 3rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2rem 5%; background: rgba(0,0,0,0.2); }
+        .spots-left { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.2); }
+        
+        .pulse { width: 8px; height: 8px; background: #EF4444; border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
+        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
+
+        /* Form Section Styles */
+        .form-section { max-width: 650px; margin: 4rem auto 8rem; padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; backdrop-filter: blur(20px); position: relative; }
+        .form-header { text-align: center; margin-bottom: 2rem; }
+        .form-header h2 { color: white; font-size: 2rem; margin-bottom: 0.5rem; }
+        
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; font-size: 0.95rem; }
+        
+        input[type="text"], input[type="email"], select {
+            width: 100%;
+            padding: 0.875rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: white;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        
+        input[type="text"]:focus, input[type="email"]:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        input[type="file"] {
+            width: 100%; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border: 1px dashed var(--border); border-radius: 0.5rem; color: #9CA3AF; cursor: pointer;
+        }
+
+        .checkbox-group { display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 2rem; margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(16, 185, 129, 0.2); }
+        .checkbox-group input { width: 20px; height: 20px; margin-top: 0.15rem; cursor: pointer; accent-color: var(--secondary); }
+        .checkbox-group label { color: white; font-size: 0.95rem; cursor: pointer; line-height: 1.4; }
+        .checkbox-group label span { color: var(--secondary); font-weight: 700; }
+
+        .submit-btn { width: 100%; margin-top: 1rem; }
+    </style>
+</head>
+<body>
+
+    <div class="background-blob blob-1"></div>
+    <div class="background-blob blob-2"></div>
+
+    <nav>
+        <div class="logo"><div class="logo-dot"></div>AutoApply AI</div>
+    </nav>
+
+    <section class="hero">
+        <div class="badge">🚀 Beta Access Now Open</div>
+        <h1>Applying to jobs is a full-time job. <span class="gradient-text">Let AI do it for you.</span></h1>
+        <p class="hero-sub">Tired of tweaking your resume for every application just to get ghosted? Our AI creates a tailored resume per job and physically applies on your behalf while you sleep.</p>
+        
+        <div class="cta-group">
+            <a href="#apply-form" class="btn btn-primary">Secure Your Beta Spot &rarr;</a>
+        </div>
+    </section>
+
+    <div class="trust-banner">
+        <div class="spots-left"><div class="pulse"></div> Only 14 Beta Spots Remaining</div>
+        <p style="margin-top: 0.5rem; color: #9CA3AF; font-size: 0.9rem;">Join the professionals who automated their job search this week.</p>
+    </div>
+
+    <!-- Contact Form embedded on site -->
+    <section class="form-section" id="apply-form">
+        <div class="form-header">
+            <h2>Join the Beta</h2>
+            <p>Fill this out to secure your spot in our fully automated job search program.</p>
+        </div>
+
+        <form id="beta-form" enctype="multipart/form-data">
+            
+            <div class="form-group">
+                <label>Full Name</label>
+                <input type="text" name="name" required placeholder="John Doe">
+            </div>
+
+            <div class="form-group">
+                <label>Best Email Address</label>
+                <input type="email" name="email" required placeholder="john@example.com">
+            </div>
+
+            <div class="form-group">
+                <label>LinkedIn Profile URL</label>
+                <input type="text" name="linkedin" placeholder="https://linkedin.com/in/johndoe">
+            </div>
+
+            <div class="form-group">
+                <label>Top 2-3 Target Job Titles</label>
+                <input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, React Engineer">
+            </div>
+
+            <div class="form-group">
+                <label>Upload Base Resume (PDF)</label>
+                <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="validation" name="validation" required>
+                <label for="validation">Yes, I understand that if selected for the Beta, the cost is <span>$99 for 50 perfectly tailored automated applications</span>.</label>
+            </div>
+
+            <button type="submit" class="btn btn-primary submit-btn">Submit Application</button>
+        </form>
+    </section>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        // 1. Initialize Supabase
+        // You MUST replace these with your actual Supabase project URL and Anon Key
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const form = document.getElementById('beta-form');
+        const submitBtn = document.querySelector('.submit-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Prevent double submission
+            const originalBtnText = submitBtn.innerText;
+            submitBtn.innerText = 'Uploading Request...';
+            submitBtn.style.opacity = '0.7';
+            submitBtn.disabled = true;
+
+            try {
+                // Get form values
+                const name = form.name.value;
+                const email = form.email.value;
+                const linkedin = form.linkedin.value;
+                const jobTitles = form.job_titles.value;
+                const file = form.resume.files[0];
+                const validationChecked = form.validation.checked;
+
+                if (!file) throw new Error("Please upload your resume.");
+
+                // 2. Upload file to Supabase Storage Bucket (Must be named 'resumes')
+                const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
+                
+                const { data: storageData, error: storageError } = await supabase
+                    .storage
+                    .from('resumes') // Make sure this bucket is PUBLIC in Supabase
+                    .upload(fileName, file);
+
+                if (storageError) throw storageError;
+
+                // Get public URL of resume
+                const { data: publicUrlData } = supabase
+                    .storage
+                    .from('resumes')
+                    .getPublicUrl(fileName);
+                    
+                const resumeUrl = publicUrlData.publicUrl;
+
+                // 3. Insert lead into Supabase Database (Table must be named 'beta_leads')
+                const { data: insertData, error: insertError } = await supabase
+                    .from('beta_leads')
+                    .insert([
+                        { 
+                            name: name, 
+                            email: email, 
+                            linkedin: linkedin, 
+                            job_titles: jobTitles, 
+                            resume_url: resumeUrl, 
+                            accepted_pricing: validationChecked 
+                        }
+                    ]);
+
+                if (insertError) throw insertError;
+
+                // Success!
+                submitBtn.innerText = 'Application Submitted! ✅';
+                submitBtn.style.background = 'var(--secondary)';
+                form.reset();
+                alert('Success! Your beta application was submitted. We will contact you soon.');
+
+            } catch (error) {
+                console.error('Error submitting form:', error);
+                alert(`Error: ${error.message || 'Something went wrong. Did you add your Supabase keys?'}`);
+                submitBtn.innerText = originalBtnText;
+                submitBtn.style.opacity = '1';
+                submitBtn.disabled = false;
+            }
+        });
+    </script>
+</body>
+</html>
