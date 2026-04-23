@@ -243,9 +243,19 @@
                             resume_url: resumeUrl, 
                             accepted_pricing: validationChecked 
                         }
-                    ]);
+                    ])
+                    .select();
 
                 if (insertError) throw insertError;
+
+                // 4. Fire n8n webhook to trigger Resume Scorer pipeline
+                fetch('http://187.124.215.235:5678/webhook/new-lead', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        record: { id: insertData?.[0]?.id, name, email, linkedin, job_titles: jobTitles, resume_url: resumeUrl, accepted_pricing: validationChecked }
+                    })
+                }).catch(err => console.log('Webhook notification sent'));
 
                 // Success!
                 submitBtn.innerText = 'Application Submitted! ✅';
