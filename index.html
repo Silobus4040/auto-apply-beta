@@ -225,6 +225,10 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
                 })
             });
             const data = await res.json();
+            console.log('OpenRouter response:', JSON.stringify(data));
+            if (!data.choices || !data.choices[0]) {
+                throw new Error('OpenRouter error: ' + (data.error?.message || JSON.stringify(data)));
+            }
             return JSON.parse(data.choices[0].message.content);
         }
 
