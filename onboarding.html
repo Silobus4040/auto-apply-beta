@@ -76,16 +76,22 @@
         </div>
 
         <div class="card">
-            <h2><span>2</span> Your Dedicated Job Email</h2>
+            <h2><span>2</span> Create Your Job Board Profile</h2>
             <div class="info-box">
-                <p>Because you will be receiving dozens of interview requests and application updates, <strong>we highly recommend creating a brand new, completely free email address</strong> (e.g., yourname.remote@gmail.com).</p>
-                <p>This separates your job hunt from your personal inbox and is required for our system to create your profiles on ATS platforms like Greenhouse.</p>
+                <p>To use the 1-click Auto Apply features, our AI needs to log into your account.</p>
+                <p><strong>Step 1:</strong> Create a brand new, free email address (e.g., yourname.remote@gmail.com) so your personal inbox doesn't get flooded.</p>
+                <p><strong>Step 2:</strong> Go to the target job board, create an account, and upload your optimized resume and profile details.</p>
+                <p><strong>Step 3:</strong> Provide those login credentials below. Our secure VPS automation will log in as you and execute the auto-apply clicks across 10 jobs.</p>
             </div>
             
             <form id="onboarding-form">
                 <div class="form-group">
-                    <label>Enter your Dedicated Job Search Email</label>
+                    <label>Account Login Email</label>
                     <input type="email" id="dedicated_email" required placeholder="yourname.jobs@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>Account Password</label>
+                    <input type="password" id="dedicated_password" required placeholder="Enter the password for the job board account" style="width: 100%; padding: 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem;">
                 </div>
                 <button type="submit" class="btn btn-primary" id="submit-btn">Finalize & Launch My 10 Free Applications &rarr;</button>
             </form>
