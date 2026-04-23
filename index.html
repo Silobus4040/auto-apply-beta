@@ -16,38 +16,12 @@
             --text-body: #9CA3AF;
             --border: rgba(255, 255, 255, 0.1);
         }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-            scroll-behavior: smooth;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-body);
-            overflow-x: hidden;
-            line-height: 1.6;
-        }
-
-        .background-blob {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(120px);
-            z-index: -1;
-            opacity: 0.6;
-            animation: float 15s ease-in-out infinite;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--bg-color); color: var(--text-body); overflow-x: hidden; line-height: 1.6; }
+        .background-blob { position: absolute; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.6; animation: float 15s ease-in-out infinite; }
         .blob-1 { background: linear-gradient(to right, #4F46E5, #8B5CF6); width: 600px; height: 600px; top: -200px; left: -100px; }
         .blob-2 { background: linear-gradient(to right, #10B981, #059669); width: 500px; height: 500px; top: 600px; right: -100px; animation-delay: -5s; }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-50px) scale(1.05); }
-        }
+        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-50px) scale(1.05); } }
 
         nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; }
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0.5rem; }
@@ -63,212 +37,280 @@
         .btn { padding: 1rem 2rem; border-radius: 0.75rem; font-size: 1.125rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; display: inline-block; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
-        .btn-secondary { background: rgba(255, 255, 255, 0.05); color: white; border: 1px solid var(--border); backdrop-filter: blur(10px); }
-        .btn-secondary:hover { background: rgba(255, 255, 255, 0.1); border-color: rgba(255, 255, 255, 0.2); }
 
         .trust-banner { text-align: center; margin: 3rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2rem 5%; background: rgba(0,0,0,0.2); }
         .spots-left { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.2); }
-        
         .pulse { width: 8px; height: 8px; background: #EF4444; border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
         @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
 
-        /* Form Section Styles */
         .form-section { max-width: 650px; margin: 4rem auto 8rem; padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; backdrop-filter: blur(20px); position: relative; }
         .form-header { text-align: center; margin-bottom: 2rem; }
         .form-header h2 { color: white; font-size: 2rem; margin-bottom: 0.5rem; }
-        
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; font-size: 0.95rem; }
-        
-        input[type="text"], input[type="email"], select {
-            width: 100%;
-            padding: 0.875rem 1rem;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border);
-            border-radius: 0.5rem;
-            color: white;
-            font-size: 1rem;
-            transition: border-color 0.3s;
-        }
-        
-        input[type="text"]:focus, input[type="email"]:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-        }
-
-        input[type="file"] {
-            width: 100%; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border: 1px dashed var(--border); border-radius: 0.5rem; color: #9CA3AF; cursor: pointer;
-        }
-
+        input[type="text"], input[type="email"], select { width: 100%; padding: 0.875rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; transition: border-color 0.3s; }
+        input[type="text"]:focus, input[type="email"]:focus, select:focus { outline: none; border-color: var(--primary); }
+        input[type="file"] { width: 100%; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border: 1px dashed var(--border); border-radius: 0.5rem; color: #9CA3AF; cursor: pointer; }
         .checkbox-group { display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 2rem; margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(16, 185, 129, 0.2); }
         .checkbox-group input { width: 20px; height: 20px; margin-top: 0.15rem; cursor: pointer; accent-color: var(--secondary); }
         .checkbox-group label { color: white; font-size: 0.95rem; cursor: pointer; line-height: 1.4; }
         .checkbox-group label span { color: var(--secondary); font-weight: 700; }
-
         .submit-btn { width: 100%; margin-top: 1rem; }
+
+        /* Score Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; overflow-y: auto; }
+        .modal-overlay.active { display: flex; }
+        .score-modal { background: linear-gradient(145deg, #0f1628, #1a1f3a); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
+        .score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 4px solid; }
+        .score-circle .number { font-size: 3rem; font-weight: 900; color: white; line-height: 1; }
+        .score-circle .grade { font-size: 1.2rem; font-weight: 700; }
+        .score-red { border-color: #EF4444; background: rgba(239,68,68,0.1); }
+        .score-red .grade { color: #EF4444; }
+        .score-yellow { border-color: #F59E0B; background: rgba(245,158,11,0.1); }
+        .score-yellow .grade { color: #F59E0B; }
+        .score-green { border-color: #10B981; background: rgba(16,185,129,0.1); }
+        .score-green .grade { color: #10B981; }
+
+        .category-bar { margin-bottom: 0.75rem; }
+        .category-bar .label { display: flex; justify-content: space-between; font-size: 0.85rem; color: #D1D5DB; margin-bottom: 0.25rem; }
+        .category-bar .bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
+        .category-bar .bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+
+        .issues-list { margin: 1.5rem 0; }
+        .issues-list h3 { color: #EF4444; font-size: 1rem; margin-bottom: 0.75rem; }
+        .issues-list li { color: #D1D5DB; font-size: 0.9rem; margin-bottom: 0.5rem; list-style: none; padding-left: 1.5rem; position: relative; }
+        .issues-list li::before { content: "⚠️"; position: absolute; left: 0; }
+        .strengths-list h3 { color: var(--secondary); font-size: 1rem; margin-bottom: 0.75rem; }
+        .strengths-list li { color: #D1D5DB; font-size: 0.9rem; margin-bottom: 0.5rem; list-style: none; padding-left: 1.5rem; position: relative; }
+        .strengths-list li::before { content: "✅"; position: absolute; left: 0; }
+        .recommendation { background: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.3); border-radius: 0.75rem; padding: 1rem; margin: 1.5rem 0; color: #A5B4FC; font-size: 0.95rem; }
+        .modal-cta { width: 100%; margin-top: 1.5rem; text-align: center; font-size: 1.1rem; padding: 1.2rem; }
+        .close-modal { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; color: #9CA3AF; font-size: 1.5rem; cursor: pointer; }
+
+        /* Loading overlay */
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6,9,19,0.95); z-index: 999; justify-content: center; align-items: center; flex-direction: column; gap: 1.5rem; }
+        .loading-overlay.active { display: flex; }
+        .spinner { width: 60px; height: 60px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: white; font-size: 1.25rem; font-weight: 600; text-align: center; }
+        .loading-sub { color: var(--text-body); font-size: 0.95rem; }
     </style>
 </head>
 <body>
-
     <div class="background-blob blob-1"></div>
     <div class="background-blob blob-2"></div>
 
-    <nav>
-        <div class="logo"><div class="logo-dot"></div>AutoApply AI</div>
-    </nav>
+    <nav><div class="logo"><div class="logo-dot"></div>AutoApply AI</div></nav>
 
     <section class="hero">
         <div class="badge">🌍 Global Remote Work Beta</div>
         <h1>How many remote jobs have you <span class="gradient-text">applied to today?</span></h1>
         <p class="hero-sub" style="font-size: 1.15rem; text-align: left; margin: 0 auto 3rem; line-height: 1.8;">
             You can't manually apply to 50 jobs a day while editing your resume and cover letter for each one. But <strong style="color:white;">our AI can apply to 200 a day for you.</strong><br><br>
-            Stop applying to just 10 jobs in a saturated market and claiming "there are no jobs." There are thousands of companies in the USA, UK, Canada, and Australia hiring remote talent globally (yes, including Africa) every single day. <br><br>
+            Stop applying to just 10 jobs in a saturated market and claiming "there are no jobs." There are thousands of companies in the USA, UK, Canada, and Australia hiring remote talent globally (yes, including Africa) every single day.<br><br>
             <span style="color: var(--secondary);">Before you manually submit 1 application... our system has submitted 50, with a custom-tailored resume and cover letter for each one.</span>
         </p>
-        
         <div class="cta-group">
-            <a href="#apply-form" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 2.5rem;">Automate Your Output Today &rarr;</a>
+            <a href="#apply-form" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 2.5rem;">Get Your Free Resume Score &rarr;</a>
         </div>
     </section>
 
     <div class="trust-banner">
         <div class="spots-left"><div class="pulse"></div> Only 14 Beta Spots Remaining</div>
         <p style="margin-top: 1rem; color: #E5E7EB; font-size: 1.05rem; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-            Your competition isn't smarter; they are faster. Some people hold 3-5 remote jobs earning in foreign currency while others complain. <br><strong style="color: white; font-weight: 700;">Beat the ATS by increasing your surface area of luck through sheer volume.</strong>
+            Your competition isn't smarter; they are faster. Some people hold 3-5 remote jobs earning in foreign currency while others complain.<br><strong style="color: white; font-weight: 700;">Beat the ATS by increasing your surface area of luck through sheer volume.</strong>
         </p>
     </div>
 
-    <!-- Contact Form embedded on site -->
     <section class="form-section" id="apply-form">
         <div class="form-header">
-            <h2>Join the Beta</h2>
-            <p>Fill this out to secure your spot in our fully automated job search program.</p>
+            <h2>Get Your Free ATS Resume Score</h2>
+            <p>Upload your resume and our AI will instantly analyze it against real ATS systems used by top remote employers.</p>
         </div>
-
         <form id="beta-form" enctype="multipart/form-data">
-            
-            <div class="form-group">
-                <label>Full Name</label>
-                <input type="text" name="name" required placeholder="John Doe">
-            </div>
-
-            <div class="form-group">
-                <label>Best Email Address</label>
-                <input type="email" name="email" required placeholder="john@example.com">
-            </div>
-
-            <div class="form-group">
-                <label>LinkedIn Profile URL</label>
-                <input type="text" name="linkedin" placeholder="https://linkedin.com/in/johndoe">
-            </div>
-
-            <div class="form-group">
-                <label>Top 2-3 Target Job Titles</label>
-                <input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, React Engineer">
-            </div>
-
-            <div class="form-group">
-                <label>Upload Base Resume (PDF)</label>
-                <input type="file" name="resume" accept=".pdf,.doc,.docx" required>
-            </div>
-
+            <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="John Doe"></div>
+            <div class="form-group"><label>Best Email Address</label><input type="email" name="email" required placeholder="john@example.com"></div>
+            <div class="form-group"><label>LinkedIn Profile URL</label><input type="text" name="linkedin" placeholder="https://linkedin.com/in/johndoe"></div>
+            <div class="form-group"><label>Top 2-3 Target Job Titles</label><input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, React Engineer"></div>
+            <div class="form-group"><label>Upload Base Resume (PDF)</label><input type="file" name="resume" accept=".pdf,.doc,.docx" required></div>
             <div class="checkbox-group">
                 <input type="checkbox" id="validation" name="validation" required>
                 <label for="validation">Yes, I understand that if selected for the Beta, the cost is <span>$99 for 50 perfectly tailored automated applications</span>.</label>
             </div>
-
-            <button type="submit" class="btn btn-primary submit-btn">Submit Application</button>
+            <button type="submit" class="btn btn-primary submit-btn">Analyze My Resume &amp; Submit</button>
         </form>
     </section>
 
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">Uploading your resume...</div>
+        <div class="loading-sub" id="loading-sub">This takes about 15 seconds</div>
+    </div>
+
+    <!-- Score Modal -->
+    <div class="modal-overlay" id="score-modal">
+        <div class="score-modal">
+            <button class="close-modal" onclick="document.getElementById('score-modal').classList.remove('active')">&times;</button>
+            <h2 style="color: white; text-align: center; margin-bottom: 1.5rem;">Your ATS Resume Score</h2>
+            <div class="score-circle" id="score-circle"><div class="number" id="score-number">--</div><div class="grade" id="score-grade">--</div></div>
+            <div id="categories-container"></div>
+            <div class="issues-list" id="issues-container"></div>
+            <div class="strengths-list" id="strengths-container"></div>
+            <div class="recommendation" id="recommendation"></div>
+            <p style="text-align:center; color:#9CA3AF; font-size:0.9rem; margin-top:1rem;">Your data has been saved. We will contact you shortly.</p>
+            <button class="btn btn-primary modal-cta" onclick="document.getElementById('score-modal').classList.remove('active')">Got It — I Want 50 Automated Applications &rarr;</button>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
-        // 1. Initialize Supabase
-        // You MUST replace these with your actual Supabase project URL and Anon Key
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
-        
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const OPENROUTER_KEY = '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';
 
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         const form = document.getElementById('beta-form');
-        const submitBtn = document.querySelector('.submit-btn');
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const loadingText = document.getElementById('loading-text');
+        const loadingSub = document.getElementById('loading-sub');
+
+        // Extract text from PDF using pdf.js
+        async function extractPdfText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let text = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map(item => item.str).join(' ') + '\n';
+            }
+            return text.substring(0, 8000);
+        }
+
+        // Score resume via OpenRouter
+        async function scoreResume(resumeText, jobTitles) {
+            const systemPrompt = `You are an expert ATS resume analyst for US remote jobs.
+
+Analyze the following resume text and return a JSON object with:
+1. overall_score: A score from 0-100 (weighted across 7 categories)
+2. grade: Letter grade (A+ to F)
+3. categories: An object with these 7 keys, each having score, max, and verdict fields:
+   - ats_compatibility (max 20): Check for tables, graphics, headers/footers, text boxes, fancy columns that break ATS parsers. Two-column Canva templates are the number one killer. Single-column layout is required. Standard fonts only. No images, logos, headshots, or skill bars.
+   - keyword_density (max 20): Does it contain industry-standard keywords for remote jobs? Look for terms like cross-functional, stakeholder management, async communication, remote-first, Slack, Jira, Python, etc.
+   - quantified_achievements (max 15): Does every bullet point have a measurable number? "Increased revenue by 40%" beats "Helped grow revenue".
+   - format_structure (max 15): Clear sections in order: Contact, Summary, Experience, Skills, Education. Standard headings. Consistent date format.
+   - contact_remote_readiness (max 10): LinkedIn URL present. Professional email. No full street address. Time zone mention is a bonus.
+   - summary_objective (max 10): Is there a 2-3 line punchy summary at the top a recruiter can read in 6 seconds?
+   - readability (max 10): 1 page for under 5 years exp. Max 2 pages. Bullet points not paragraphs.
+4. critical_issues: Array of max 5 specific issues found
+5. strengths: Array of max 3 things done well
+6. top_recommendation: Single most impactful action to take immediately
+
+Return ONLY valid JSON. No explanation outside the JSON block.`;
+
+            const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${OPENROUTER_KEY}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://jobs.leadscompass.ai', 'X-Title': 'AutoApply Resume Scorer' },
+                body: JSON.stringify({
+                    model: 'openai/gpt-4o',
+                    response_format: { type: 'json_object' },
+                    messages: [
+                        { role: 'system', content: systemPrompt },
+                        { role: 'user', content: `Score this resume. The applicant targets these roles: ${jobTitles}\n\nResume:\n${resumeText}` }
+                    ]
+                })
+            });
+            const data = await res.json();
+            return JSON.parse(data.choices[0].message.content);
+        }
+
+        // Display score modal
+        function showScore(score) {
+            const circle = document.getElementById('score-circle');
+            const s = score.overall_score;
+            circle.className = 'score-circle ' + (s < 60 ? 'score-red' : s < 80 ? 'score-yellow' : 'score-green');
+            document.getElementById('score-number').textContent = s;
+            document.getElementById('score-grade').textContent = score.grade;
+
+            const catNames = { ats_compatibility: 'ATS Compatibility', keyword_density: 'Keyword Density', quantified_achievements: 'Quantified Achievements', format_structure: 'Format & Structure', contact_remote_readiness: 'Remote Readiness', summary_objective: 'Summary Quality', readability: 'Readability' };
+            let catHTML = '';
+            for (const [key, label] of Object.entries(catNames)) {
+                const cat = score.categories[key];
+                if (!cat) continue;
+                const pct = (cat.score / cat.max) * 100;
+                const color = pct < 50 ? '#EF4444' : pct < 75 ? '#F59E0B' : '#10B981';
+                catHTML += `<div class="category-bar"><div class="label"><span>${label}</span><span style="color:${color}">${cat.score}/${cat.max}</span></div><div class="bar"><div class="bar-fill" style="width:${pct}%;background:${color}"></div></div><p style="font-size:0.8rem;color:#9CA3AF;margin-top:2px">${cat.verdict}</p></div>`;
+            }
+            document.getElementById('categories-container').innerHTML = catHTML;
+
+            let issuesHTML = '<h3>⚠️ Critical Issues</h3><ul>';
+            (score.critical_issues || []).forEach(i => issuesHTML += `<li>${i}</li>`);
+            issuesHTML += '</ul>';
+            document.getElementById('issues-container').innerHTML = issuesHTML;
+
+            let strengthsHTML = '<h3>Your Strengths</h3><ul>';
+            (score.strengths || []).forEach(s => strengthsHTML += `<li>${s}</li>`);
+            strengthsHTML += '</ul>';
+            document.getElementById('strengths-container').innerHTML = strengthsHTML;
+
+            document.getElementById('recommendation').innerHTML = `<strong>🎯 Top Recommendation:</strong> ${score.top_recommendation}`;
+
+            loadingOverlay.classList.remove('active');
+            document.getElementById('score-modal').classList.add('active');
+        }
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Prevent double submission
-            const originalBtnText = submitBtn.innerText;
-            submitBtn.innerText = 'Uploading Request...';
-            submitBtn.style.opacity = '0.7';
-            submitBtn.disabled = true;
+            loadingOverlay.classList.add('active');
+            loadingText.textContent = 'Uploading your resume...';
+            loadingSub.textContent = 'Saving your information securely';
 
             try {
-                // Get form values using elements array to prevent native property conflicts
                 const name = form.elements['name'].value;
                 const email = form.elements['email'].value;
                 const linkedin = form.elements['linkedin'].value;
                 const jobTitles = form.elements['job_titles'].value;
                 const file = form.elements['resume'].files[0];
-                const validationChecked = form.elements['validation'].checked;
-
                 if (!file) throw new Error("Please upload your resume.");
 
-                // 2. Upload file to Supabase Storage Bucket (Must be named 'resumes')
+                // 1. Upload resume to Supabase Storage
                 const fileName = `${Date.now()}_${file.name.replace(/[^a-zA-Z0-9.]/g, '_')}`;
-                
-                const { data: storageData, error: storageError } = await supabaseClient
-                    .storage
-                    .from('resumes') // Make sure this bucket is PUBLIC in Supabase
-                    .upload(fileName, file);
-
+                const { error: storageError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
                 if (storageError) throw storageError;
-
-                // Get public URL of resume
-                const { data: publicUrlData } = supabaseClient
-                    .storage
-                    .from('resumes')
-                    .getPublicUrl(fileName);
-                    
+                const { data: publicUrlData } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
                 const resumeUrl = publicUrlData.publicUrl;
 
-                // 3. Insert lead into Supabase Database (Table must be named 'beta_leads')
-                const { data: insertData, error: insertError } = await supabaseClient
-                    .from('beta_leads')
-                    .insert([
-                        { 
-                            name: name, 
-                            email: email, 
-                            linkedin: linkedin, 
-                            job_titles: jobTitles, 
-                            resume_url: resumeUrl, 
-                            accepted_pricing: validationChecked 
-                        }
-                    ])
-                    .select();
-
+                // 2. Insert lead into Supabase
+                loadingText.textContent = 'Saving your application...';
+                const { data: insertData, error: insertError } = await supabaseClient.from('beta_leads').insert([{ name, email, linkedin, job_titles: jobTitles, resume_url: resumeUrl, accepted_pricing: true }]).select();
                 if (insertError) throw insertError;
+                const leadId = insertData[0].id;
 
-                // 4. Fire n8n webhook to trigger Resume Scorer pipeline
-                fetch('http://187.124.215.235:5678/webhook/new-lead', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        record: { id: insertData?.[0]?.id, name, email, linkedin, job_titles: jobTitles, resume_url: resumeUrl, accepted_pricing: validationChecked }
-                    })
-                }).catch(err => console.log('Webhook notification sent'));
+                // 3. Extract text from PDF
+                loadingText.textContent = '🔍 Analyzing your resume against ATS systems...';
+                loadingSub.textContent = 'Checking ATS compatibility, keywords, structure, and more...';
+                const resumeText = await extractPdfText(file);
 
-                // Success!
-                submitBtn.innerText = 'Application Submitted! ✅';
-                submitBtn.style.background = 'var(--secondary)';
+                // 4. Score via OpenRouter GPT-4o
+                loadingText.textContent = '🤖 AI is scoring your resume...';
+                loadingSub.textContent = 'Evaluating 7 critical ATS categories';
+                const score = await scoreResume(resumeText, jobTitles);
+
+                // 5. Save score to Supabase
+                await supabaseClient.from('beta_leads').update({ resume_score: score.overall_score, score_details: score }).eq('id', leadId);
+
+                // 6. Show score popup
+                showScore(score);
                 form.reset();
-                alert('Success! Your beta application was submitted. We will contact you soon.');
 
             } catch (error) {
-                console.error('Error submitting form:', error);
-                alert(`Error: ${error.message || 'Something went wrong. Did you add your Supabase keys?'}`);
-                submitBtn.innerText = originalBtnText;
-                submitBtn.style.opacity = '1';
-                submitBtn.disabled = false;
+                loadingOverlay.classList.remove('active');
+                console.error('Error:', error);
+                alert(`Error: ${error.message || 'Something went wrong.'}`);
             }
         });
     </script>
