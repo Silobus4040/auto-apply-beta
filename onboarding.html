@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoApply AI | Launch Your Automation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060913;
+            --surface-color: rgba(18, 22, 38, 0.7);
+            --primary: #4F46E5;
+            --primary-glow: rgba(79, 70, 229, 0.5);
+            --secondary: #10B981;
+            --text-heading: #F9FAFB;
+            --text-body: #9CA3AF;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-body); overflow-x: hidden; line-height: 1.6; }
+        
+        .background-blob { position: absolute; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.6; animation: float 15s ease-in-out infinite; }
+        .blob-1 { background: linear-gradient(to right, #4F46E5, #8B5CF6); width: 600px; height: 600px; top: -200px; left: -100px; }
+        .blob-2 { background: linear-gradient(to right, #10B981, #059669); width: 500px; height: 500px; top: 600px; right: -100px; animation-delay: -5s; }
+        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-50px) scale(1.05); } }
+
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .logo-dot { width: 12px; height: 12px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
+
+        .container { max-width: 800px; margin: 2rem auto 6rem; padding: 0 5%; }
+        
+        .header-section { text-align: center; margin-bottom: 3rem; }
+        .badge { display: inline-block; background: rgba(16, 185, 129, 0.1); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.875rem; font-weight: 600; margin-bottom: 1rem; }
+        h1 { color: var(--text-heading); font-size: clamp(2.5rem, 4vw, 3.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1px; margin-bottom: 1rem; }
+        
+        .card { background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem; backdrop-filter: blur(20px); margin-bottom: 2rem; }
+        .card h2 { color: white; font-size: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; }
+        .card h2 span { background: var(--primary); color: white; width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; font-size: 1rem; font-weight: 700; }
+        
+        .info-box { background: rgba(255,255,255,0.03); border: 1px dashed var(--border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }
+        .info-box p { margin-bottom: 0.75rem; color: #D1D5DB; }
+        .info-box p:last-child { margin-bottom: 0; }
+        .info-box strong { color: white; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; }
+        input[type="email"] { width: 100%; padding: 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; transition: border-color 0.3s; }
+        input[type="email"]:focus { outline: none; border-color: var(--primary); }
+
+        .btn { padding: 1.2rem 2rem; border-radius: 0.75rem; font-size: 1.125rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; width: 100%; display: block; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
+    </style>
+</head>
+<body>
+    <div class="background-blob blob-1"></div>
+    <div class="background-blob blob-2"></div>
+
+    <nav><a href="index.html" class="logo"><div class="logo-dot"></div>AutoApply AI</a></nav>
+
+    <div class="container">
+        <div class="header-section">
+            <div class="badge">Next Step: Automation Setup</div>
+            <h1>Claim Your 10 Free<br>Automated Applications</h1>
+            <p style="font-size: 1.1rem; color: #A5B4FC; max-width: 600px; margin: 0 auto;">Before we launch your AI application engine, please read how the system works and configure your dedicated job email.</p>
+        </div>
+
+        <div class="card">
+            <h2><span>1</span> How The Sourcing Works</h2>
+            <div class="info-box">
+                <p>We source high-intent, active remote jobs directly from <strong>LinkedIn and Indeed</strong>.</p>
+                <p>Our system then physical navigates to the employer's Applicant Tracking System (ATS) to submit your tailored resume.</p>
+                <p><em>Note: For your 10 free trial applications, the automation will execute exclusively on <strong>Greenhouse.io</strong> boards. Paid users unlock multi-board automation (Lever, Ashby, Workday, etc).</em></p>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2><span>2</span> Your Dedicated Job Email</h2>
+            <div class="info-box">
+                <p>Because you will be receiving dozens of interview requests and application updates, <strong>we highly recommend creating a brand new, completely free email address</strong> (e.g., yourname.remote@gmail.com).</p>
+                <p>This separates your job hunt from your personal inbox and is required for our system to create your profiles on ATS platforms like Greenhouse.</p>
+            </div>
+            
+            <form id="onboarding-form">
+                <div class="form-group">
+                    <label>Enter your Dedicated Job Search Email</label>
+                    <input type="email" id="dedicated_email" required placeholder="yourname.jobs@gmail.com">
+                </div>
+                <button type="submit" class="btn btn-primary" id="submit-btn">Finalize & Launch My 10 Free Applications &rarr;</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('submit-btn');
+            btn.innerText = 'Automation Queued! ✅';
+            btn.style.background = 'var(--secondary)';
+            alert('Setup complete! We have received your dedicated email. Your 10 free trial applications will begin processing shortly. Check your email for updates!');
+        });
+    </script>
+</body>
+</html>
