@@ -158,8 +158,7 @@
             <div class="issues-list" id="issues-container"></div>
             <div class="strengths-list" id="strengths-container"></div>
             <div class="recommendation" id="recommendation"></div>
-            <p style="text-align:center; color:#9CA3AF; font-size:0.9rem; margin-top:1rem;">Your data has been saved. We will contact you shortly.</p>
-            <a href="onboarding.html" class="btn btn-primary modal-cta" style="display:block; text-decoration:none;">Claim My 10 Free Automated Applications &rarr;</a>
+            <div id="cta-container"></div>
         </div>
     </div>
 
@@ -266,6 +265,26 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
             document.getElementById('strengths-container').innerHTML = strengthsHTML;
 
             document.getElementById('recommendation').innerHTML = `<strong>🎯 Top Recommendation:</strong> ${score.top_recommendation}`;
+
+            // 90% Quality Gate
+            const ctaContainer = document.getElementById('cta-container');
+            if (s >= 90) {
+                ctaContainer.innerHTML = `
+                    <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:0.75rem; padding:1.25rem; margin-top:1.5rem; text-align:center;">
+                        <p style="color:#10B981; font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">🎉 Your Resume is Automation-Ready!</p>
+                        <p style="color:#D1D5DB; font-size:0.9rem;">You've passed our quality threshold. Create your account to claim your 10 free automated applications.</p>
+                    </div>
+                    <a href="signup.html" class="btn btn-primary modal-cta" style="display:block; text-decoration:none; margin-top:1rem;">Create Account & Start Free Automation &rarr;</a>
+                `;
+            } else {
+                ctaContainer.innerHTML = `
+                    <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:0.75rem; padding:1.25rem; margin-top:1.5rem; text-align:center;">
+                        <p style="color:#F59E0B; font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">⚡ Almost There! You Need 90% to Unlock Automation</p>
+                        <p style="color:#D1D5DB; font-size:0.9rem;">Your score is ${s}%. Fix the critical issues above, optimize your resume, and rescore to unlock your 10 free automated applications.</p>
+                    </div>
+                    <button class="btn btn-primary modal-cta" style="margin-top:1rem; background:#F59E0B;" onclick="document.getElementById('score-modal').classList.remove('active'); document.getElementById('apply-form').scrollIntoView({behavior:'smooth'});">Optimize My Resume & Rescore &rarr;</button>
+                `;
+            }
 
             loadingOverlay.classList.remove('active');
             document.getElementById('score-modal').classList.add('active');

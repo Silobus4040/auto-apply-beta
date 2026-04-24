@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoApply AI | Log In</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060913;
+            --surface-color: rgba(18, 22, 38, 0.7);
+            --primary: #4F46E5;
+            --primary-glow: rgba(79, 70, 229, 0.5);
+            --secondary: #10B981;
+            --text-heading: #F9FAFB;
+            --text-body: #9CA3AF;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+
+        .background-blob { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.6; }
+        .blob-1 { background: linear-gradient(to right, #4F46E5, #8B5CF6); width: 500px; height: 500px; top: -150px; right: -100px; }
+
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; border-bottom: 1px solid var(--border); background: rgba(6, 9, 19, 0.8); backdrop-filter: blur(10px); }
+        .logo { color: var(--text-heading); font-size: 1.3rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .logo-dot { width: 10px; height: 10px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
+
+        .container { max-width: 450px; margin: 5rem auto; padding: 0 5%; flex: 1; }
+        .header { text-align: center; margin-bottom: 2.5rem; }
+        .header h1 { color: white; font-size: 2rem; font-weight: 900; margin-bottom: 0.5rem; }
+        .header p { color: var(--text-body); font-size: 0.95rem; }
+
+        .card { background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem; backdrop-filter: blur(20px); }
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; font-size: 0.95rem; }
+        input { width: 100%; padding: 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; transition: border-color 0.3s; }
+        input:focus { outline: none; border-color: var(--primary); }
+
+        .btn { padding: 1.1rem 2rem; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; width: 100%; display: block; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        .signup-link { text-align: center; margin-top: 1.5rem; font-size: 0.95rem; }
+        .signup-link a { color: var(--secondary); text-decoration: none; font-weight: 600; }
+        .signup-link a:hover { text-decoration: underline; }
+
+        .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #EF4444; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+    </style>
+</head>
+<body>
+    <div class="background-blob blob-1"></div>
+
+    <nav><a href="index.html" class="logo"><div class="logo-dot"></div>AutoApply AI</a></nav>
+
+    <div class="container">
+        <div class="header">
+            <h1>Welcome Back</h1>
+            <p>Log in to your AutoApply dashboard</p>
+        </div>
+
+        <div class="card">
+            <div class="error-msg" id="error-msg"></div>
+
+            <form id="login-form">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" id="login-email" required placeholder="john@example.com">
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" id="login-password" required placeholder="Enter your password">
+                </div>
+                <button type="submit" class="btn btn-primary" id="login-btn">Log In &rarr;</button>
+            </form>
+
+            <div class="signup-link">
+                Don't have an account? <a href="index.html">Get Your Free Resume Score</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const form = document.getElementById('login-form');
+        const errorMsg = document.getElementById('error-msg');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            errorMsg.style.display = 'none';
+
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.textContent = 'Logging in...';
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+
+                window.location.href = 'dashboard.html';
+
+            } catch (err) {
+                errorMsg.textContent = err.message || 'Invalid email or password.';
+                errorMsg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Log In →';
+            }
+        });
+    </script>
+</body>
+</html>
