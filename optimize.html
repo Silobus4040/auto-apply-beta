@@ -121,6 +121,10 @@
                         <input type="text" id="opt-titles" required placeholder="e.g. Frontend Engineer, Product Manager">
                     </div>
                     <div class="form-group">
+                        <label>Target Locations / Countries</label>
+                        <input type="text" id="opt-locations" required placeholder="e.g. USA, Canada, UK, Australia">
+                    </div>
+                    <div class="form-group">
                         <label>Upload Your Current Resume (PDF)</label>
                         <input type="file" id="opt-resume" accept=".pdf" required>
                     </div>
@@ -188,6 +192,7 @@
             try {
                 const file = document.getElementById('opt-resume').files[0];
                 const titles = document.getElementById('opt-titles').value;
+                const locations = document.getElementById('opt-locations').value;
                 if (!file) throw new Error('Please upload a PDF.');
 
                 const resumeText = await extractPdfText(file);
@@ -195,7 +200,7 @@
                 loadingText.textContent = '🤖 AI is rewriting your resume...';
                 loadingSub.textContent = 'Optimizing format, keywords, and structure — ~20 seconds';
 
-                const systemPrompt = `You are an expert ATS resume optimizer. You receive a raw resume and target job titles.
+                const systemPrompt = `You are an expert ATS resume optimizer. You receive a raw resume, target job titles, and target locations.
 
 Your job is to COMPLETELY REWRITE the resume into a perfect, ATS-optimized format. Output clean HTML that can be printed to a single-page PDF.
 
@@ -205,7 +210,7 @@ STRICT RULES:
 3. Professional Summary: 2-3 punchy lines max. Include key metrics.
 4. Every bullet point MUST have a quantified metric (%, $, numbers). If the original doesn't have one, intelligently estimate a realistic one.
 5. Maximum 5-6 bullet points per role. Cut the weakest ones.
-6. Add "Remote | Flexible across US & EU time zones" to the contact line.
+6. Look at the provided Target Locations. Add a Remote Availability note to the contact line that matches those locations. (e.g. if USA: "Remote | Available EST/PST business hours", if Canada: "Remote | Available across Canadian time zones", if UK: "Remote | Available GMT business hours", if mixed: "Remote | Flexible across target time zones").
 7. If LinkedIn URL is missing, add a placeholder: linkedin.com/in/firstname-lastname
 8. Inject industry-standard keywords naturally: cross-functional, stakeholder management, data-driven, KPI, ROI, etc.
 9. Education on ONE line. Certifications on ONE line.
@@ -235,7 +240,7 @@ Do NOT add any explanation. Output ONLY the HTML resume content.`;
                         model: 'openai/gpt-4o',
                         messages: [
                             { role: 'system', content: systemPrompt },
-                            { role: 'user', content: `Target roles: ${titles}\n\nOriginal Resume:\n${resumeText}` }
+                            { role: 'user', content: `Target roles: ${titles}\nTarget locations: ${locations}\n\nOriginal Resume:\n${resumeText}` }
                         ]
                     })
                 });
