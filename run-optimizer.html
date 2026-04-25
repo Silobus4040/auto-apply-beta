@@ -86,9 +86,9 @@
         <!-- Upload Section -->
         <div id="upload-section">
             <div class="header">
-                <div class="price-tag">₦3,500 — One-Time</div>
-                <h1>AI Resume Rewrite</h1>
-                <p style="color: #D1D5DB; max-width: 550px; margin: 0 auto;">Our AI rewrites your resume from scratch into a perfect ATS-compliant format. Guaranteed to score 90%+ or we rewrite it again for free.</p>
+                <div class="price-tag" style="background: rgba(16,185,129,0.2); border-color: var(--secondary);">✅ Payment Successful</div>
+                <h1>Run the AI Optimizer</h1>
+                <p style="color: #D1D5DB; max-width: 550px; margin: 0 auto;">Upload your current resume below and let our AI rewrite it into a perfect 90%+ ATS format.</p>
             </div>
 
             <div class="features">
@@ -114,10 +114,22 @@
                 </div>
             </div>
 
-            <div class="card" style="text-align: center;">
-                <h3 style="color: white; margin-bottom: 1rem; font-size: 1.5rem;">Ready to beat the ATS?</h3>
-                <p style="color: #9CA3AF; margin-bottom: 2rem;">Secure your payment via Selar to instantly unlock the AI Resume Optimizer tool.</p>
-                <a href="https://selar.com/m/obruche-siloko1" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem;">Proceed to Checkout — ₦3,500 &rarr;</a>
+            <div class="card">
+                <form id="optimize-form">
+                    <div class="form-group">
+                        <label>Your Target Job Titles</label>
+                        <input type="text" id="opt-titles" required placeholder="e.g. Frontend Engineer, Product Manager">
+                    </div>
+                    <div class="form-group">
+                        <label>Target Locations / Countries</label>
+                        <input type="text" id="opt-locations" required placeholder="e.g. USA, Canada, UK, Australia">
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Your Current Resume (PDF)</label>
+                        <input type="file" id="opt-resume" accept=".pdf" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="opt-btn">Run AI Optimizer Now &rarr;</button>
+                </form>
             </div>
         </div>
 
