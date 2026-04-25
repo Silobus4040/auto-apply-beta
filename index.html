@@ -274,10 +274,13 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
             } else {
                 ctaContainer.innerHTML = `
                     <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:0.75rem; padding:1.25rem; margin-top:1.5rem; text-align:center;">
-                        <p style="color:#F59E0B; font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">⚡ Almost There! You Need 90% to Unlock Automation</p>
-                        <p style="color:#D1D5DB; font-size:0.9rem;">Your score is ${s}%. Fix the critical issues above, optimize your resume, and rescore to unlock your 10 free automated applications.</p>
+                        <p style="color:#F59E0B; font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">⚡ You Need 90% to Unlock Automation</p>
+                        <p style="color:#D1D5DB; font-size:0.9rem;">Your score is ${s}%. A resume below 90% gets auto-rejected by ATS before any human sees it. Fix the issues above or let our AI rewrite it for you.</p>
                     </div>
-                    <button class="btn btn-primary modal-cta" style="margin-top:1rem; background:#F59E0B;" onclick="document.getElementById('score-modal').classList.remove('active'); document.getElementById('apply-form').scrollIntoView({behavior:'smooth'});">Optimize My Resume & Rescore &rarr;</button>
+                    <div style="display:flex; gap:0.75rem; margin-top:1rem; flex-wrap:wrap;">
+                        <button class="btn modal-cta" style="flex:1; min-width:200px; background:transparent; border:1px solid var(--border); color:#D1D5DB;" onclick="document.getElementById('score-modal').classList.remove('active'); document.getElementById('apply-form').scrollIntoView({behavior:'smooth'});">Fix It Myself & Rescore</button>
+                        <a href="optimize.html" class="btn btn-primary modal-cta" style="flex:1; min-width:200px; text-decoration:none;">AI Rewrite — ₦3,500 &rarr;</a>
+                    </div>
                 `;
             }
 

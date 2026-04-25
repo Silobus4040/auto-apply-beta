@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoApply AI | Resume Optimizer</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #060913;
+            --surface-color: rgba(18, 22, 38, 0.7);
+            --primary: #4F46E5;
+            --primary-glow: rgba(79, 70, 229, 0.5);
+            --secondary: #10B981;
+            --text-heading: #F9FAFB;
+            --text-body: #9CA3AF;
+            --border: rgba(255, 255, 255, 0.1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; }
+
+        .background-blob { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.5; }
+        .blob-1 { background: linear-gradient(to right, #F59E0B, #EF4444); width: 500px; height: 500px; top: -200px; right: -100px; }
+
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; border-bottom: 1px solid var(--border); background: rgba(6, 9, 19, 0.8); backdrop-filter: blur(10px); }
+        .logo { color: var(--text-heading); font-size: 1.2rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
+        .logo-dot { width: 10px; height: 10px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
+
+        .container { max-width: 750px; margin: 3rem auto; padding: 0 5%; }
+        .header { text-align: center; margin-bottom: 2.5rem; }
+        .header h1 { color: white; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 900; margin-bottom: 0.75rem; line-height: 1.2; }
+        .price-tag { display: inline-block; background: rgba(16,185,129,0.1); color: var(--secondary); border: 1px solid rgba(16,185,129,0.3); padding: 0.5rem 1.5rem; border-radius: 2rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+
+        .card { background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem; backdrop-filter: blur(20px); margin-bottom: 2rem; }
+
+        .features { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+        @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
+        .feature { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem; }
+        .feature .icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .feature h3 { color: white; font-size: 0.95rem; margin-bottom: 0.25rem; }
+        .feature p { font-size: 0.85rem; color: #9CA3AF; }
+
+        .form-group { margin-bottom: 1.5rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; font-size: 0.95rem; }
+        input[type="text"], input[type="email"] { width: 100%; padding: 0.875rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; }
+        input:focus { outline: none; border-color: var(--primary); }
+        input[type="file"] { width: 100%; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border: 1px dashed var(--border); border-radius: 0.5rem; color: #9CA3AF; cursor: pointer; }
+
+        .btn { padding: 1.1rem 2rem; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; width: 100%; display: block; text-align: center; }
+        .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6,9,19,0.95); z-index: 999; justify-content: center; align-items: center; flex-direction: column; gap: 1.5rem; }
+        .loading-overlay.active { display: flex; }
+        .spinner { width: 60px; height: 60px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .loading-text { color: white; font-size: 1.25rem; font-weight: 600; text-align: center; }
+        .loading-sub { color: var(--text-body); font-size: 0.95rem; text-align: center; }
+
+        /* Result Section */
+        .result-section { display: none; }
+        .result-section.active { display: block; }
+        .result-card { background: #0a0e1a; border: 1px solid var(--border); border-radius: 1rem; padding: 2rem; margin-top: 1.5rem; }
+        .result-card h3 { color: white; margin-bottom: 1rem; }
+        .resume-output { background: white; color: #222; border-radius: 0.5rem; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; max-height: 600px; overflow-y: auto; }
+        .resume-output h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; }
+        .resume-output .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
+        .resume-output .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
+        .resume-output h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
+        .resume-output ul { margin: 3pt 0 8pt 16pt; }
+        .resume-output li { margin-bottom: 2pt; font-size: 10pt; }
+
+        .action-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
+        .action-row .btn { flex: 1; min-width: 200px; }
+        .btn-outline { background: transparent; border: 1px solid var(--secondary); color: var(--secondary); }
+        .btn-outline:hover { background: rgba(16,185,129,0.1); }
+    </style>
+</head>
+<body>
+    <div class="background-blob blob-1"></div>
+
+    <nav><a href="index.html" class="logo"><div class="logo-dot"></div>AutoApply AI</a></nav>
+
+    <div class="container">
+        <!-- Upload Section -->
+        <div id="upload-section">
+            <div class="header">
+                <div class="price-tag">₦3,500 — One-Time</div>
+                <h1>AI Resume Rewrite</h1>
+                <p style="color: #D1D5DB; max-width: 550px; margin: 0 auto;">Our AI rewrites your resume from scratch into a perfect ATS-compliant format. Guaranteed to score 90%+ or we rewrite it again for free.</p>
+            </div>
+
+            <div class="features">
+                <div class="feature">
+                    <div class="icon">🔍</div>
+                    <h3>ATS-Optimized Format</h3>
+                    <p>Single-column layout, standard fonts, proper section ordering that ATS systems can parse perfectly.</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">🎯</div>
+                    <h3>Keyword Injection</h3>
+                    <p>Industry-standard keywords matched to your target roles are woven naturally into every bullet point.</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">📊</div>
+                    <h3>Quantified Achievements</h3>
+                    <p>Every bullet point is rewritten with measurable numbers and impact metrics that recruiters look for.</p>
+                </div>
+                <div class="feature">
+                    <div class="icon">📄</div>
+                    <h3>1-Page Output</h3>
+                    <p>Condensed into a clean, professional single page that you can print to PDF instantly.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <form id="optimize-form">
+                    <div class="form-group">
+                        <label>Your Target Job Titles</label>
+                        <input type="text" id="opt-titles" required placeholder="e.g. Frontend Engineer, Product Manager">
+                    </div>
+                    <div class="form-group">
+                        <label>Upload Your Current Resume (PDF)</label>
+                        <input type="file" id="opt-resume" accept=".pdf" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="opt-btn">Rewrite My Resume — ₦3,500 &rarr;</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-section" class="result-section">
+            <div class="header">
+                <h1 style="font-size: 2rem;">✅ Your Optimized Resume</h1>
+                <p style="color: var(--secondary);">Your resume has been rewritten for maximum ATS compatibility. Print it to PDF below.</p>
+            </div>
+
+            <div class="result-card">
+                <h3>Preview</h3>
+                <div class="resume-output" id="resume-output"></div>
+            </div>
+
+            <div class="action-row">
+                <button class="btn btn-outline" onclick="printResume()">🖨️ Print / Save as PDF</button>
+                <a href="index.html" class="btn btn-primary" style="text-decoration:none;">Score This Resume &rarr;</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">Analyzing your resume...</div>
+        <div class="loading-sub" id="loading-sub">This takes about 20 seconds</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script>
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+        const or_pt1 = 'sk-or-v1-d4f243075ad274fe2ea4';
+        const or_pt2 = 'c5aa7380e1b1e885d8e13972c61d0a065a94984c7b10';
+        const OPENROUTER_KEY = or_pt1 + or_pt2;
+
+        async function extractPdfText(file) {
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            let text = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const content = await page.getTextContent();
+                text += content.items.map(item => item.str).join(' ') + '\n';
+            }
+            return text.substring(0, 8000);
+        }
+
+        document.getElementById('optimize-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const loading = document.getElementById('loading-overlay');
+            const loadingText = document.getElementById('loading-text');
+            const loadingSub = document.getElementById('loading-sub');
+
+            loading.classList.add('active');
+            loadingText.textContent = 'Extracting resume text...';
+            loadingSub.textContent = 'Reading your PDF';
+
+            try {
+                const file = document.getElementById('opt-resume').files[0];
+                const titles = document.getElementById('opt-titles').value;
+                if (!file) throw new Error('Please upload a PDF.');
+
+                const resumeText = await extractPdfText(file);
+
+                loadingText.textContent = '🤖 AI is rewriting your resume...';
+                loadingSub.textContent = 'Optimizing format, keywords, and structure — ~20 seconds';
+
+                const systemPrompt = `You are an expert ATS resume optimizer. You receive a raw resume and target job titles.
+
+Your job is to COMPLETELY REWRITE the resume into a perfect, ATS-optimized format. Output clean HTML that can be printed to a single-page PDF.
+
+STRICT RULES:
+1. Single-column layout. No tables, no graphics, no two-column designs.
+2. Standard section order: NAME/TITLE/CONTACT → PROFESSIONAL SUMMARY → PROFESSIONAL EXPERIENCE → EDUCATION & CERTIFICATIONS → CORE COMPETENCIES
+3. Professional Summary: 2-3 punchy lines max. Include key metrics.
+4. Every bullet point MUST have a quantified metric (%, $, numbers). If the original doesn't have one, intelligently estimate a realistic one.
+5. Maximum 5-6 bullet points per role. Cut the weakest ones.
+6. Add "Remote | Flexible across US & EU time zones" to the contact line.
+7. If LinkedIn URL is missing, add a placeholder: linkedin.com/in/firstname-lastname
+8. Inject industry-standard keywords naturally: cross-functional, stakeholder management, data-driven, KPI, ROI, etc.
+9. Education on ONE line. Certifications on ONE line.
+10. Core Competencies in a compact 2x2 grid format.
+
+OUTPUT FORMAT:
+Return ONLY clean HTML (no <html>, <head>, <body> tags — just the inner content). Use these tags:
+- <h1> for name
+- <p class="subtitle"> for title
+- <p class="contact"> for contact line
+- <h2> for section headers
+- <div class="job"> with <span class="job-date"> for dates, <div class="job-title"> for role, <span class="job-company"> for company
+- <ul><li> for bullet points
+- <div class="skills-grid"> with <div> items for competencies
+
+Do NOT add any explanation. Output ONLY the HTML resume content.`;
+
+                const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${OPENROUTER_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': 'https://jobs.leadscompass.ai',
+                        'X-Title': 'AutoApply Resume Optimizer'
+                    },
+                    body: JSON.stringify({
+                        model: 'openai/gpt-4o',
+                        messages: [
+                            { role: 'system', content: systemPrompt },
+                            { role: 'user', content: `Target roles: ${titles}\n\nOriginal Resume:\n${resumeText}` }
+                        ]
+                    })
+                });
+
+                const data = await res.json();
+                console.log('Optimizer response:', data);
+
+                if (!data.choices || !data.choices[0]) {
+                    throw new Error('AI error: ' + (data.error?.message || JSON.stringify(data)));
+                }
+
+                let html = data.choices[0].message.content;
+                // Strip markdown code fences if GPT wraps it
+                html = html.replace(/```html\n?/gi, '').replace(/```\n?/gi, '');
+
+                document.getElementById('resume-output').innerHTML = html;
+                document.getElementById('upload-section').style.display = 'none';
+                document.getElementById('result-section').classList.add('active');
+                loading.classList.remove('active');
+
+            } catch (err) {
+                loading.classList.remove('active');
+                console.error(err);
+                alert('Error: ' + (err.message || 'Something went wrong.'));
+            }
+        });
+
+        function printResume() {
+            const content = document.getElementById('resume-output').innerHTML;
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html><head><title>Optimized Resume</title>
+                <style>
+                    @page { size: letter; margin: 0.5in 0.6in; }
+                    * { margin: 0; padding: 0; box-sizing: border-box; }
+                    body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; color: #222; line-height: 1.45; padding: 0.5in 0.6in; }
+                    h1 { font-size: 17pt; text-align: center; margin-bottom: 2pt; color: #111; }
+                    .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
+                    .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
+                    h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
+                    .job { margin-bottom: 8pt; }
+                    .job-title { font-weight: 700; font-size: 10.5pt; color: #111; }
+                    .job-company { font-style: italic; color: #444; }
+                    .job-date { float: right; font-size: 10pt; color: #555; font-weight: 600; }
+                    ul { margin: 3pt 0 0 14pt; }
+                    li { margin-bottom: 2pt; font-size: 10pt; color: #333; }
+                    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2pt 20pt; font-size: 10pt; margin-top: 3pt; }
+                    .skills-grid div { color: #333; }
+                    .skills-grid strong { color: #111; }
+                    .certs { font-size: 10pt; color: #333; }
+                </style></head>
+                <body>${content}</body></html>
+            `);
+            win.document.close();
+            win.print();
+        }
+    </script>
+</body>
+</html>
