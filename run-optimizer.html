@@ -274,9 +274,10 @@ Do NOT add any explanation. Output ONLY the HTML resume content.`;
             win.document.write(`
                 <html><head><title>Optimized Resume</title>
                 <style>
-                    @page { size: letter; margin: 0.5in 0.6in; }
+                    /* Setting margin:0 hides the browser's default header/footer (date and URL) */
+                    @page { size: letter; margin: 0; }
                     * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; color: #222; line-height: 1.45; padding: 0.5in 0.6in; }
+                    body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; color: #222; line-height: 1.45; padding: 0.6in; }
                     h1 { font-size: 17pt; text-align: center; margin-bottom: 2pt; color: #111; }
                     .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
                     .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
