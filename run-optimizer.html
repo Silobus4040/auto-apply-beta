@@ -160,6 +160,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -202,7 +203,7 @@
 
                 const systemPrompt = `You are an expert ATS resume optimizer. You receive a raw resume, target job titles, and target locations.
 
-Your job is to COMPLETELY REWRITE the resume into a perfect, ATS-optimized format. Output clean HTML that can be printed to a single-page PDF.
+Your job is to COMPLETELY REWRITE the resume into a perfect, ATS-optimized format. Output clean HTML.
 
 STRICT RULES:
 1. Single-column layout. No tables, no graphics, no two-column designs.
@@ -210,7 +211,7 @@ STRICT RULES:
 3. Professional Summary: 2-3 punchy lines max. Include key metrics.
 4. Every bullet point MUST have a quantified metric (%, $, numbers). If the original doesn't have one, intelligently estimate a realistic one.
 5. Maximum 5-6 bullet points per role. Cut the weakest ones.
-6. Look at the provided Target Locations. Add a Remote Availability note to the contact line that matches those locations. (e.g. if USA: "Remote | Available EST/PST business hours", if Canada: "Remote | Available across Canadian time zones", if UK: "Remote | Available GMT business hours", if mixed: "Remote | Flexible across target time zones").
+6. Look at the provided Target Locations. Add a Remote Availability note to the contact line that matches those locations.
 7. If LinkedIn URL is missing, add a placeholder: linkedin.com/in/firstname-lastname
 8. Inject industry-standard keywords naturally: cross-functional, stakeholder management, data-driven, KPI, ROI, etc.
 9. Education on ONE line. Certifications on ONE line.
@@ -220,13 +221,13 @@ OUTPUT FORMAT:
 Return ONLY clean HTML (no <html>, <head>, <body> tags — just the inner content). Use these tags:
 - <h1> for name
 - <p class="subtitle"> for title
-- <p class="contact"> for contact line
-- <h2> for section headers
-- <div class="job"> with <span class="job-date"> for dates, <div class="job-title"> for role, <span class="job-company"> for company
-- <ul><li> for bullet points
-- <div class="skills-grid"> with <div> items for competencies
+- <p class="contact" style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; text-align: center; font-size: 14px; color: #555;"> for contact line
+- <h2 style="border-bottom: 1px solid #ccc; margin-top: 15px; margin-bottom: 10px; text-transform: uppercase; font-size: 16px;"> for section headers
+- <div class="job" style="margin-bottom: 10px;"> with <span class="job-date" style="float: right; font-weight: bold;"> for dates, <div class="job-title" style="font-weight: bold;"> for role, <span class="job-company" style="font-style: italic;"> for company
+- <ul><li style="margin-left: 20px; margin-bottom: 5px;"> for bullet points
+- <div class="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;"> with <div> items for competencies
 
-Do NOT add any explanation. Output ONLY the HTML resume content.`;
+Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styles are inline so they render perfectly in the PDF download. Make the h1 text-align center. Make the subtitle text-align center.`;
 
                 const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
@@ -253,7 +254,6 @@ Do NOT add any explanation. Output ONLY the HTML resume content.`;
                 }
 
                 let html = data.choices[0].message.content;
-                // Strip markdown code fences if GPT wraps it
                 html = html.replace(/```html\n?/gi, '').replace(/```\n?/gi, '');
 
                 document.getElementById('resume-output').innerHTML = html;
@@ -269,34 +269,30 @@ Do NOT add any explanation. Output ONLY the HTML resume content.`;
         });
 
         function printResume() {
-            const content = document.getElementById('resume-output').innerHTML;
-            const win = window.open('', '_blank');
-            win.document.write(`
-                <html><head><title>Optimized Resume</title>
-                <style>
-                    /* Setting margin:0 hides the browser's default header/footer (date and URL) */
-                    @page { size: letter; margin: 0; }
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body { font-family: Calibri, 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; color: #222; line-height: 1.45; padding: 0.6in; }
-                    h1 { font-size: 17pt; text-align: center; margin-bottom: 2pt; color: #111; }
-                    .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
-                    .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
-                    h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
-                    .job { margin-bottom: 8pt; }
-                    .job-title { font-weight: 700; font-size: 10.5pt; color: #111; }
-                    .job-company { font-style: italic; color: #444; }
-                    .job-date { float: right; font-size: 10pt; color: #555; font-weight: 600; }
-                    ul { margin: 3pt 0 0 14pt; }
-                    li { margin-bottom: 2pt; font-size: 10pt; color: #333; }
-                    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2pt 20pt; font-size: 10pt; margin-top: 3pt; }
-                    .skills-grid div { color: #333; }
-                    .skills-grid strong { color: #111; }
-                    .certs { font-size: 10pt; color: #333; }
-                </style></head>
-                <body>${content}</body></html>
-            `);
-            win.document.close();
-            win.print();
+            const element = document.getElementById('resume-output');
+            const btn = document.querySelector('.btn-outline');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Generating PDF...';
+            btn.disabled = true;
+
+            const opt = {
+                margin:       0.5,
+                filename:     'Optimized_Resume.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Force a white background for the PDF rendering
+            element.style.background = 'white';
+            element.style.color = 'black';
+            element.style.padding = '20px';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                element.style.padding = '2rem'; // restore original UI padding
+            });
         }
     </script>
 </body>
