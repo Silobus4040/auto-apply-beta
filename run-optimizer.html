@@ -112,9 +112,7 @@
                     <h3>1-Page Output</h3>
                     <p>Condensed into a clean, professional single page that you can print to PDF instantly.</p>
                 </div>
-            </div>
-
-            <div class="card">
+                  <div class="card">
                 <form id="optimize-form">
                     <div class="form-group">
                         <label>Your Target Job Titles</label>
@@ -123,6 +121,10 @@
                     <div class="form-group">
                         <label>Target Locations / Countries</label>
                         <input type="text" id="opt-locations" required placeholder="e.g. USA, Canada, UK, Australia">
+                    </div>
+                    <div class="form-group">
+                        <label>Your LinkedIn URL (Required for 90%+ score)</label>
+                        <input type="url" id="opt-linkedin" required placeholder="https://linkedin.com/in/yourprofile">
                     </div>
                     <div class="form-group">
                         <label>Upload Your Current Resume (PDF)</label>
@@ -194,6 +196,7 @@
                 const file = document.getElementById('opt-resume').files[0];
                 const titles = document.getElementById('opt-titles').value;
                 const locations = document.getElementById('opt-locations').value;
+                const linkedin = document.getElementById('opt-linkedin').value;
                 if (!file) throw new Error('Please upload a PDF.');
 
                 const resumeText = await extractPdfText(file);
@@ -201,7 +204,7 @@
                 loadingText.textContent = '🤖 AI is rewriting your resume...';
                 loadingSub.textContent = 'Optimizing format, keywords, and structure — ~20 seconds';
 
-                const systemPrompt = `You are an expert ATS resume optimizer. You receive a raw resume, target job titles, and target locations.
+                const systemPrompt = `You are an expert ATS resume optimizer. You receive a raw resume, target job titles, target locations, and the user's correct LinkedIn URL.
 
 Your job is to COMPLETELY REWRITE the resume into a perfect, ATS-optimized format. Output clean HTML.
 
@@ -212,7 +215,7 @@ STRICT RULES:
 4. Every bullet point MUST have a quantified metric (%, $, numbers). If the original doesn't have one, intelligently estimate a realistic one.
 5. Maximum 5-6 bullet points per role. Cut the weakest ones.
 6. Look at the provided Target Locations. Add a Remote Availability note to the contact line that matches those locations.
-7. If LinkedIn URL is missing, add a placeholder: linkedin.com/in/firstname-lastname
+7. Inject the provided LinkedIn URL into the contact line exactly as given. Do not use placeholders.
 8. Inject industry-standard keywords naturally: cross-functional, stakeholder management, data-driven, KPI, ROI, etc.
 9. Education on ONE line. Certifications on ONE line.
 10. Core Competencies in a compact 2x2 grid format.
