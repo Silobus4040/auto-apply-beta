@@ -7,107 +7,105 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #060913;
-            --surface-color: rgba(18, 22, 38, 0.7);
-            --primary: #4F46E5;
-            --primary-glow: rgba(79, 70, 229, 0.5);
-            --secondary: #10B981;
-            --text-heading: #F9FAFB;
-            --text-body: #9CA3AF;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #0a0a0a;
+            --surface-color: #121212;
+            --primary: #D4FF33;
+            --primary-hover: #bde62b;
+            --secondary: #FF6B4A;
+            --text-heading: #FFFFFF;
+            --text-body: #A1A1AA;
+            --border: #27272A;
+            --brutal-shadow: 4px 4px 0px #D4FF33;
+            --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-color); color: var(--text-body); overflow-x: hidden; line-height: 1.6; }
-        .background-blob { position: absolute; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.6; animation: float 15s ease-in-out infinite; }
-        .blob-1 { background: linear-gradient(to right, #4F46E5, #8B5CF6); width: 600px; height: 600px; top: -200px; left: -100px; }
-        .blob-2 { background: linear-gradient(to right, #10B981, #059669); width: 500px; height: 500px; top: 600px; right: -100px; animation-delay: -5s; }
-        @keyframes float { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-50px) scale(1.05); } }
+        
+        /* Grid Background Pattern */
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.3;
+        }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; }
-        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 800; letter-spacing: -0.5px; display: flex; align-items: center; gap: 0.5rem; }
-        .logo-dot { width: 12px; height: 12px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid var(--border); }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; display: flex; align-items: center; gap: 0.5rem; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
 
-        .hero { max-width: 1400px; margin: 4rem auto 2rem; padding: 0 5%; text-align: center; display: flex; flex-direction: column; align-items: center; }
-        .badge { background: rgba(16, 185, 129, 0.1); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.875rem; font-weight: 600; margin-bottom: 2rem; backdrop-filter: blur(10px); }
-        h1 { color: var(--text-heading); font-size: clamp(3rem, 6vw, 5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 1.5rem; max-width: 900px; }
-        .gradient-text { background: linear-gradient(135deg, #fff 0%, #A5B4FC 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        p.hero-sub { font-size: 1.25rem; max-width: 700px; margin-bottom: 3rem; color: #D1D5DB; }
+        .hero { max-width: 1400px; margin: 6rem auto 4rem; padding: 0 5%; text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
+        .badge { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 0.5rem 1rem; border-radius: 0; font-size: 0.875rem; font-weight: 700; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 2px 2px 0px var(--primary); }
+        h1 { color: var(--text-heading); font-size: clamp(3.5rem, 7vw, 6rem); font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.5rem; max-width: 1000px; text-transform: uppercase; }
+        .highlight { color: var(--primary); }
+        p.hero-sub { font-size: 1.25rem; max-width: 700px; margin-bottom: 3rem; color: #D4D4D8; }
 
-        .cta-group { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; }
-        .btn { padding: 1rem 2rem; border-radius: 0.75rem; font-size: 1.125rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; display: inline-block; }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
+        .cta-group { display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap; }
+        .btn { padding: 1rem 2rem; border-radius: 0; font-size: 1.125rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.2s ease; border: 2px solid transparent; display: inline-block; text-transform: uppercase; }
+        .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
+        .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
 
-        .trust-banner { text-align: center; margin: 3rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2rem 5%; background: rgba(0,0,0,0.2); }
-        .spots-left { display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(239, 68, 68, 0.1); color: #EF4444; padding: 0.5rem 1rem; border-radius: 2rem; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .pulse { width: 8px; height: 8px; background: #EF4444; border-radius: 50%; animation: pulse-ring 2s cubic-bezier(0.215, 0.61, 0.355, 1) infinite; }
-        @keyframes pulse-ring { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); } }
-
-        .form-section { max-width: 650px; margin: 4rem auto 8rem; padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; backdrop-filter: blur(20px); position: relative; }
-        .form-header { text-align: center; margin-bottom: 2rem; }
-        .form-header h2 { color: white; font-size: 2rem; margin-bottom: 0.5rem; }
+        .trust-banner { display: flex; justify-content: center; align-items: center; gap: 2rem; margin: 3rem 0; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); padding: 2rem 5%; background: var(--surface-color); }
+        .spots-left { display: inline-flex; align-items: center; gap: 0.5rem; background: var(--secondary); color: #000; padding: 0.5rem 1rem; font-weight: 800; border: 2px solid #000; text-transform: uppercase; box-shadow: 2px 2px 0px #000; }
+        
+        .form-section { max-width: 650px; margin: 4rem auto 8rem; padding: 3rem; background: var(--surface-color); border: 2px solid var(--border); border-radius: 0; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); position: relative; }
+        .form-header { text-align: left; margin-bottom: 2rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+        .form-header h2 { color: white; font-size: 2rem; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 900; }
+        
         .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; font-size: 0.95rem; }
-        input[type="text"], input[type="email"], select { width: 100%; padding: 0.875rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; transition: border-color 0.3s; }
-        input[type="text"]:focus, input[type="email"]:focus, select:focus { outline: none; border-color: var(--primary); }
-        input[type="file"] { width: 100%; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border: 1px dashed var(--border); border-radius: 0.5rem; color: #9CA3AF; cursor: pointer; }
-        .checkbox-group { display: flex; align-items: flex-start; gap: 0.75rem; margin-top: 2rem; margin-bottom: 1.5rem; background: rgba(16, 185, 129, 0.05); padding: 1rem; border-radius: 0.5rem; border: 1px solid rgba(16, 185, 129, 0.2); }
-        .checkbox-group input { width: 20px; height: 20px; margin-top: 0.15rem; cursor: pointer; accent-color: var(--secondary); }
-        .checkbox-group label { color: white; font-size: 0.95rem; cursor: pointer; line-height: 1.4; }
-        .checkbox-group label span { color: var(--secondary); font-weight: 700; }
-        .submit-btn { width: 100%; margin-top: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; }
+        input[type="text"], input[type="email"], select { width: 100%; padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; }
+        input[type="text"]:focus, input[type="email"]:focus, select:focus { outline: none; border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
+        input[type="file"] { width: 100%; padding: 1rem; background: #000; border: 2px dashed var(--border); border-radius: 0; color: #9CA3AF; cursor: pointer; }
+        
+        .submit-btn { width: 100%; margin-top: 1rem; padding: 1.2rem; font-size: 1.2rem; }
 
         /* Score Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; overflow-y: auto; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; overflow-y: auto; }
         .modal-overlay.active { display: flex; }
-        .score-modal { background: linear-gradient(145deg, #0f1628, #1a1f3a); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; }
-        .score-circle { width: 140px; height: 140px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 1.5rem; border: 4px solid; }
-        .score-circle .number { font-size: 3rem; font-weight: 900; color: white; line-height: 1; }
-        .score-circle .grade { font-size: 1.2rem; font-weight: 700; }
-        .score-red { border-color: #EF4444; background: rgba(239,68,68,0.1); }
-        .score-red .grade { color: #EF4444; }
-        .score-yellow { border-color: #F59E0B; background: rgba(245,158,11,0.1); }
+        .score-modal { background: var(--surface-color); border: 2px solid var(--border); padding: 3rem; max-width: 600px; width: 100%; max-height: 90vh; overflow-y: auto; position: relative; box-shadow: 8px 8px 0px var(--primary); }
+        .score-circle { width: 160px; height: 160px; border-radius: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 2rem; border: 4px solid; transform: rotate(-3deg); }
+        .score-circle .number { font-size: 4rem; font-weight: 900; color: white; line-height: 1; }
+        .score-circle .grade { font-size: 1.5rem; font-weight: 800; text-transform: uppercase; margin-top: 0.5rem; }
+        .score-red { border-color: var(--secondary); background: #000; color: var(--secondary); box-shadow: 6px 6px 0px var(--secondary); }
+        .score-red .grade { color: var(--secondary); }
+        .score-yellow { border-color: #F59E0B; background: #000; box-shadow: 6px 6px 0px #F59E0B; }
         .score-yellow .grade { color: #F59E0B; }
-        .score-green { border-color: #10B981; background: rgba(16,185,129,0.1); }
-        .score-green .grade { color: #10B981; }
+        .score-green { border-color: var(--primary); background: #000; box-shadow: 6px 6px 0px var(--primary); }
+        .score-green .grade { color: var(--primary); }
 
-        .category-bar { margin-bottom: 0.75rem; }
-        .category-bar .label { display: flex; justify-content: space-between; font-size: 0.85rem; color: #D1D5DB; margin-bottom: 0.25rem; }
-        .category-bar .bar { height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden; }
-        .category-bar .bar-fill { height: 100%; border-radius: 4px; transition: width 1s ease; }
+        .category-bar { margin-bottom: 1rem; }
+        .category-bar .label { display: flex; justify-content: space-between; font-size: 0.9rem; font-weight: 700; color: #E5E7EB; margin-bottom: 0.25rem; text-transform: uppercase; }
+        .category-bar .bar { height: 12px; background: #000; border: 1px solid var(--border); overflow: hidden; }
+        .category-bar .bar-fill { height: 100%; transition: width 1s ease; }
 
-        .issues-list { margin: 1.5rem 0; }
-        .issues-list h3 { color: #EF4444; font-size: 1rem; margin-bottom: 0.75rem; }
-        .issues-list li { color: #D1D5DB; font-size: 0.9rem; margin-bottom: 0.5rem; list-style: none; padding-left: 1.5rem; position: relative; }
-        .issues-list li::before { content: "⚠️"; position: absolute; left: 0; }
-        .strengths-list h3 { color: var(--secondary); font-size: 1rem; margin-bottom: 0.75rem; }
-        .strengths-list li { color: #D1D5DB; font-size: 0.9rem; margin-bottom: 0.5rem; list-style: none; padding-left: 1.5rem; position: relative; }
-        .strengths-list li::before { content: "✅"; position: absolute; left: 0; }
-        .recommendation { background: rgba(79,70,229,0.1); border: 1px solid rgba(79,70,229,0.3); border-radius: 0.75rem; padding: 1rem; margin: 1.5rem 0; color: #A5B4FC; font-size: 0.95rem; }
-        .modal-cta { width: 100%; margin-top: 1.5rem; text-align: center; font-size: 1.1rem; padding: 1.2rem; }
-        .close-modal { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; color: #9CA3AF; font-size: 1.5rem; cursor: pointer; }
+        .issues-list, .strengths-list { margin: 2rem 0; background: #000; padding: 1.5rem; border: 1px solid var(--border); }
+        .issues-list h3 { color: var(--secondary); font-size: 1.2rem; margin-bottom: 1rem; text-transform: uppercase; }
+        .strengths-list h3 { color: var(--primary); font-size: 1.2rem; margin-bottom: 1rem; text-transform: uppercase; }
+        .issues-list li, .strengths-list li { color: #D1D5DB; font-size: 0.95rem; margin-bottom: 0.75rem; list-style: none; padding-left: 1.5rem; position: relative; }
+        .recommendation { background: #000; border: 2px solid var(--primary); padding: 1.5rem; margin: 2rem 0; color: #fff; font-size: 1rem; font-weight: 600; }
+        .modal-cta { width: 100%; margin-top: 1.5rem; text-align: center; }
+        .close-modal { position: absolute; top: 1rem; right: 1.5rem; background: none; border: none; color: #fff; font-size: 2rem; cursor: pointer; font-weight: 900; }
 
         /* Loading overlay */
-        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6,9,19,0.95); z-index: 999; justify-content: center; align-items: center; flex-direction: column; gap: 1.5rem; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.95); z-index: 999; justify-content: center; align-items: center; flex-direction: column; gap: 1.5rem; }
         .loading-overlay.active { display: flex; }
-        .spinner { width: 60px; height: 60px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 60px; height: 60px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 0; animation: spin 1s linear infinite; transform-origin: center; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: white; font-size: 1.25rem; font-weight: 600; text-align: center; }
-        .loading-sub { color: var(--text-body); font-size: 0.95rem; }
+        .loading-text { color: white; font-size: 1.5rem; font-weight: 800; text-align: center; text-transform: uppercase; }
+        .loading-sub { color: var(--primary); font-size: 1rem; font-weight: 600; text-transform: uppercase; }
     </style>
 </head>
 <body>
-    <div class="background-blob blob-1"></div>
-    <div class="background-blob blob-2"></div>
-
-    <nav><div class="logo"><div class="logo-dot"></div>AutoApply AI</div><a href="login.html" style="color: #A5B4FC; text-decoration: none; font-weight: 600; font-size: 0.95rem;">Log In</a></nav>
+    <nav>
+        <div class="logo">APPLY<span>/BOT</span></div>
+        <a href="login.html" class="btn" style="border: 2px solid var(--border); padding: 0.5rem 1.5rem; color: white;">Log In</a>
+    </nav>
 
     <section class="hero">
         <div class="badge">Free ATS Resume Scanner</div>
-        <h1><span class="gradient-text">Beat the ATS Gatekeeper.</span><br>Then Let Volume Do the Rest.</h1>
-        <p class="hero-sub" style="font-size: 1.15rem; text-align: center; margin: 0 auto 3rem; line-height: 1.8;">
-            Every job application passes through an Applicant Tracking System (ATS) before a human ever sees it. If your resume doesn't score <strong style="color:white;">90% or higher</strong>, it gets auto-rejected &mdash; no matter how many jobs you apply to.<br><br>
-            <span style="color: var(--secondary);">Score your resume for free. Fix it. Then unlock AI-powered bulk applications.</span>
+        <h1>Stop getting ghosted.<br><span class="highlight">Start getting interviews.</span></h1>
+        <p class="hero-sub">
+            Every job application passes through an ATS. If your resume doesn't score <strong>90% or higher</strong>, it gets auto-rejected.<br><br>
+            Score your resume for free. Fix it. Then let our AI bulk-apply for you.
         </p>
         <div class="cta-group">
             <a href="#apply-form" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 2.5rem;">Score My Resume Free &rarr;</a>
@@ -115,16 +113,16 @@
     </section>
 
     <div class="trust-banner">
-        <div class="spots-left"><div class="pulse"></div> Only 14 Beta Spots Remaining</div>
-        <p style="margin-top: 1rem; color: #E5E7EB; font-size: 1.05rem; max-width: 800px; margin-left: auto; margin-right: auto; line-height: 1.6;">
-            <strong style="color: white;">Volume without quality is just automated rejection.</strong><br>We ensure your resume beats the ATS first. Only then do we unleash high-volume automation.
+        <div class="spots-left">Only 14 Beta Spots Remaining</div>
+        <p style="color: #A1A1AA; font-size: 1.1rem; max-width: 600px; font-weight: 500;">
+            <strong style="color: white; font-weight: 800;">Volume without quality is just automated rejection.</strong><br>We ensure your resume beats the ATS first.
         </p>
     </div>
 
     <section class="form-section" id="apply-form">
         <div class="form-header">
             <h2>Free ATS Resume Score</h2>
-            <p>Our AI scans your resume against the same 7 criteria real ATS systems use. No signup required. Instant results.</p>
+            <p>Our AI scans your resume against the same criteria real ATS systems use.</p>
         </div>
         <form id="beta-form" enctype="multipart/form-data">
             <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="John Doe"></div>
@@ -147,7 +145,7 @@
     <div class="modal-overlay" id="score-modal">
         <div class="score-modal">
             <button class="close-modal" onclick="document.getElementById('score-modal').classList.remove('active')">&times;</button>
-            <h2 style="color: white; text-align: center; margin-bottom: 1.5rem;">Your ATS Resume Score</h2>
+            <h2 style="color: white; text-align: center; margin-bottom: 2rem; font-weight: 900; text-transform: uppercase; font-size: 2rem;">Your ATS Score</h2>
             <div class="score-circle" id="score-circle"><div class="number" id="score-number">--</div><div class="grade" id="score-grade">--</div></div>
             <div id="categories-container"></div>
             <div class="issues-list" id="issues-container"></div>
