@@ -343,25 +343,30 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
 
             document.getElementById('recommendation').innerHTML = `<strong>🎯 Top Recommendation:</strong> ${score.top_recommendation}`;
 
+            // Grab dynamic price from the main pricing section
+            const sym = document.getElementById('price-sym') ? document.getElementById('price-sym').textContent : '$';
+            const val = document.getElementById('price-val') ? document.getElementById('price-val').textContent : '16';
+            const dynamicPrice = sym + val;
+
             // 90% Quality Gate
             const ctaContainer = document.getElementById('cta-container');
             if (s >= 90) {
                 ctaContainer.innerHTML = `
                     <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:0.75rem; padding:1.25rem; margin-top:1.5rem; text-align:center;">
                         <p style="color:#10B981; font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">🎉 Your Resume is Automation-Ready!</p>
-                        <p style="color:#D1D5DB; font-size:0.9rem;">You've passed our quality threshold. Create your account to claim your 10 free automated applications.</p>
+                        <p style="color:#D1D5DB; font-size:0.9rem;">You've passed our quality threshold. You can now start the automation engine.</p>
                     </div>
-                    <a href="signup.html" class="btn btn-primary modal-cta" style="display:block; text-decoration:none; margin-top:1rem;">Create Account & Start Free Automation &rarr;</a>
+                    <a href="#" class="selar-checkout-link btn btn-primary modal-cta" style="display:block; text-decoration:none; margin-top:1rem;">Start Automating — ${dynamicPrice} &rarr;</a>
                 `;
             } else {
                 ctaContainer.innerHTML = `
                     <div style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); border-radius:0.75rem; padding:1.25rem; margin-top:1.5rem; text-align:center;">
                         <p style="color:#F59E0B; font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">⚡ You Need 90% to Unlock Automation</p>
-                        <p style="color:#D1D5DB; font-size:0.9rem;">Your score is ${s}%. A resume below 90% gets auto-rejected by ATS before any human sees it. Fix the issues above or let our AI rewrite it for you.</p>
+                        <p style="color:#D1D5DB; font-size:0.9rem;">Your score is ${s}%. A resume below 90% gets auto-rejected by ATS before any human sees it. Fix the issues above or let our AI rebuild it and auto-apply for you.</p>
                     </div>
                     <div style="display:flex; gap:0.75rem; margin-top:1rem; flex-wrap:wrap;">
                         <button class="btn modal-cta" style="flex:1; min-width:200px; background:transparent; border:1px solid var(--border); color:#D1D5DB;" onclick="document.getElementById('score-modal').classList.remove('active'); document.getElementById('form-modal').classList.add('active');">Fix It Myself & Rescore</button>
-                        <a href="optimize.html" class="btn btn-primary modal-cta" style="flex:1; min-width:200px; text-decoration:none;">AI Rewrite — ₦3,500 &rarr;</a>
+                        <a href="#" class="selar-checkout-link btn btn-primary modal-cta" style="flex:1; min-width:200px; text-decoration:none;">Optimize with AI — ${dynamicPrice} &rarr;</a>
                     </div>
                 `;
             }
