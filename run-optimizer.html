@@ -7,88 +7,85 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #060913;
-            --surface-color: rgba(18, 22, 38, 0.7);
-            --primary: #4F46E5;
-            --primary-glow: rgba(79, 70, 229, 0.5);
-            --secondary: #10B981;
-            --text-heading: #F9FAFB;
-            --text-body: #9CA3AF;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #0a0a0a;
+            --surface-color: #121212;
+            --primary: #D4FF33;
+            --primary-hover: #bde62b;
+            --secondary: #FF6B4A;
+            --text-heading: #FFFFFF;
+            --text-body: #A1A1AA;
+            --border: #27272A;
+            --brutal-shadow: 4px 4px 0px #D4FF33;
+            --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; position: relative; }
 
-        .background-blob { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.5; }
-        .blob-1 { background: linear-gradient(to right, #F59E0B, #EF4444); width: 500px; height: 500px; top: -200px; right: -100px; }
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.3;
+        }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; border-bottom: 1px solid var(--border); background: rgba(6, 9, 19, 0.8); backdrop-filter: blur(10px); }
-        .logo { color: var(--text-heading); font-size: 1.2rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .logo-dot { width: 10px; height: 10px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid var(--border); }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
 
-        .container { max-width: 750px; margin: 3rem auto; padding: 0 5%; }
-        .header { text-align: center; margin-bottom: 2.5rem; }
-        .header h1 { color: white; font-size: clamp(2rem, 4vw, 2.8rem); font-weight: 900; margin-bottom: 0.75rem; line-height: 1.2; }
-        .price-tag { display: inline-block; background: rgba(16,185,129,0.1); color: var(--secondary); border: 1px solid rgba(16,185,129,0.3); padding: 0.5rem 1.5rem; border-radius: 2rem; font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+        .container { max-width: 750px; margin: 4rem auto; padding: 0 5%; }
+        .header { text-align: center; margin-bottom: 3rem; }
+        .header h1 { color: var(--text-heading); font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; line-height: 1; letter-spacing: -1px; text-transform: uppercase; margin-bottom: 1.5rem; }
+        .badge { display: inline-block; background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 0.5rem 1rem; font-size: 0.875rem; font-weight: 700; margin-bottom: 1.5rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 2px 2px 0px var(--primary); }
 
-        .card { background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem; backdrop-filter: blur(20px); margin-bottom: 2rem; }
-
-        .features { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1.5rem 0; }
+        .features { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin: 3rem 0; }
         @media (max-width: 600px) { .features { grid-template-columns: 1fr; } }
-        .feature { background: rgba(0,0,0,0.2); border: 1px solid var(--border); border-radius: 0.75rem; padding: 1rem; }
-        .feature .icon { font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .feature h3 { color: white; font-size: 0.95rem; margin-bottom: 0.25rem; }
-        .feature p { font-size: 0.85rem; color: #9CA3AF; }
+        .feature { background: #000; border: 1px solid var(--border); padding: 1.5rem; border-left: 4px solid var(--primary); }
+        .feature .icon { font-size: 2rem; margin-bottom: 1rem; }
+        .feature h3 { color: white; font-size: 1.1rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; }
+        .feature p { font-size: 0.9rem; color: #A1A1AA; }
+
+        .card { background: var(--surface-color); border: 2px solid var(--border); padding: 3rem; margin-bottom: 2rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); text-align: left; }
 
         .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; font-size: 0.95rem; }
-        input[type="text"], input[type="email"] { width: 100%; padding: 0.875rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; }
-        input:focus { outline: none; border-color: var(--primary); }
-        input[type="file"] { width: 100%; padding: 0.75rem; background: rgba(0, 0, 0, 0.3); border: 1px dashed var(--border); border-radius: 0.5rem; color: #9CA3AF; cursor: pointer; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; }
+        input[type="text"], input[type="url"] { width: 100%; padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
+        input[type="file"] { width: 100%; padding: 1rem; background: #000; border: 2px dashed var(--border); border-radius: 0; color: #9CA3AF; cursor: pointer; }
 
-        .btn { padding: 1.1rem 2rem; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; width: 100%; display: block; text-align: center; }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .btn { padding: 1.2rem 2rem; font-size: 1.2rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.2s ease; width: 100%; display: block; text-transform: uppercase; text-align: center; border: none; }
+        .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
+        .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
 
-        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6,9,19,0.95); z-index: 999; justify-content: center; align-items: center; flex-direction: column; gap: 1.5rem; }
+        .loading-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10,10,10,0.95); z-index: 999; justify-content: center; align-items: center; flex-direction: column; gap: 1.5rem; }
         .loading-overlay.active { display: flex; }
-        .spinner { width: 60px; height: 60px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        .spinner { width: 60px; height: 60px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 0; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: white; font-size: 1.25rem; font-weight: 600; text-align: center; }
-        .loading-sub { color: var(--text-body); font-size: 0.95rem; text-align: center; }
+        .loading-text { color: white; font-size: 1.5rem; font-weight: 800; text-align: center; text-transform: uppercase; }
+        .loading-sub { color: var(--primary); font-size: 1rem; font-weight: 600; text-transform: uppercase; text-align: center; }
 
         /* Result Section */
         .result-section { display: none; }
         .result-section.active { display: block; }
-        .result-card { background: #0a0e1a; border: 1px solid var(--border); border-radius: 1rem; padding: 2rem; margin-top: 1.5rem; }
-        .result-card h3 { color: white; margin-bottom: 1rem; }
-        .resume-output { background: white; color: #222; border-radius: 0.5rem; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; max-height: 600px; overflow-y: auto; }
-        .resume-output h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; }
-        .resume-output .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
-        .resume-output .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
-        .resume-output h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
-        .resume-output ul { margin: 3pt 0 8pt 16pt; }
-        .resume-output li { margin-bottom: 2pt; font-size: 10pt; }
-
+        .result-card { background: #000; border: 2px solid var(--border); border-radius: 0; padding: 2rem; margin-top: 1.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); }
+        .result-card h3 { color: white; margin-bottom: 1rem; font-weight: 800; text-transform: uppercase; }
+        .resume-output { background: white; color: #222; border-radius: 0; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; max-height: 600px; overflow-y: auto; }
         .action-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
         .action-row .btn { flex: 1; min-width: 200px; }
-        .btn-outline { background: transparent; border: 1px solid var(--secondary); color: var(--secondary); }
-        .btn-outline:hover { background: rgba(16,185,129,0.1); }
+        .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
+        .btn-outline:hover { background: rgba(255,107,74,0.1); }
     </style>
 </head>
 <body>
-    <div class="background-blob blob-1"></div>
-
-    <nav><a href="index.html" class="logo"><div class="logo-dot"></div>AutoApply AI</a></nav>
+    <nav>
+        <a href="index.html" class="logo">APPLY<span>/BOT</span></a>
+    </nav>
 
     <div class="container">
         <!-- Upload Section -->
         <div id="upload-section">
             <div class="header">
-                <div class="price-tag" style="background: rgba(16,185,129,0.2); border-color: var(--secondary);">✅ Payment Successful</div>
+                <div class="badge">✅ Payment Successful</div>
                 <h1>Run the AI Optimizer</h1>
-                <p style="color: #D1D5DB; max-width: 550px; margin: 0 auto;">Upload your current resume below and let our AI rewrite it into a perfect 90%+ ATS format.</p>
+                <p style="color: #D1D5DB; max-width: 550px; margin: 0 auto; font-size: 1.1rem;">Upload your current resume below and let our AI rewrite it into a perfect 90%+ ATS format.</p>
             </div>
 
             <div class="features">
