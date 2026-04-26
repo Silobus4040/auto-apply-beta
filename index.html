@@ -180,51 +180,21 @@
     </section>
 
     <section id="pricing" class="pricing">
-        <h2 class="section-title">Pricing</h2>
-        <div class="pricing-grid">
-            <!-- Free Plan -->
-            <div class="price-card">
-                <div class="price-name">Free</div>
-                <div class="price-amount">$0</div>
-                <div class="price-sub">Forever. No card.</div>
-                <ul class="price-features">
-                    <li>Unlimited ATS resume scoring</li>
-                    <li>Keyword gap analysis</li>
-                    <li>1 ATS-proof template</li>
-                    <li>Manual application tools</li>
+        <h2 class="section-title" style="text-align: center;">Pricing</h2>
+        <div class="pricing-grid" style="grid-template-columns: 1fr; max-width: 550px; margin: 0 auto;">
+            <div class="price-card popular" style="text-align: center; padding: 4rem 3rem;">
+                <div class="popular-badge" style="font-size: 1.1rem; padding: 0.5rem 2rem;">Full Automation</div>
+                <div class="price-name" style="font-size: 2rem; margin-bottom: 1rem;">Auto-Apply Engine</div>
+                <div class="price-amount" style="font-size: 6rem; margin-bottom: 0.5rem;"><span id="price-sym" style="font-size: 4rem;">$</span><span id="price-val">16</span></div>
+                <div class="price-sub" style="font-size: 1.2rem; color: var(--primary); margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 1px;">500 Applications in 14 days</div>
+                <ul class="price-features" style="text-align: left; margin: 0 auto 3rem; font-size: 1.1rem; display: inline-block;">
+                    <li>Unlimited ATS resume tailoring</li>
+                    <li>Auto-apply to 500 remote jobs</li>
+                    <li>AI cover letters for every role</li>
+                    <li>Keyword gap optimization</li>
+                    <li>24/7 application hunting</li>
                 </ul>
-                <a href="#" onclick="document.getElementById('form-modal').classList.add('active'); return false;" class="btn btn-primary" style="background:transparent; color:white; border-color:white; box-shadow:none;">Get Started</a>
-            </div>
-            
-            <!-- Auto-Apply Plan -->
-            <div class="price-card popular">
-                <div class="popular-badge">Most Popular</div>
-                <div class="price-name">Auto-Apply</div>
-                <div class="price-amount">$29<span>/mo</span></div>
-                <div class="price-sub">Cancel anytime</div>
-                <ul class="price-features">
-                    <li>Everything in Free</li>
-                    <li>Unlimited tailored resumes</li>
-                    <li>Auto-apply to 200 jobs / month</li>
-                    <li>All 10+ premium templates</li>
-                    <li>AI cover letters per role</li>
-                </ul>
-                <a href="#" onclick="document.getElementById('form-modal').classList.add('active'); return false;" class="btn btn-primary">Start Automating</a>
-            </div>
-
-            <!-- Hunter Plan -->
-            <div class="price-card">
-                <div class="price-name">Hunter</div>
-                <div class="price-amount">$59<span>/mo</span></div>
-                <div class="price-sub">For serious job seekers</div>
-                <ul class="price-features">
-                    <li>Everything in Auto-Apply</li>
-                    <li>Unlimited applications</li>
-                    <li>LinkedIn profile optimizer</li>
-                    <li>Salary negotiation toolkit</li>
-                    <li>1:1 human resume review</li>
-                </ul>
-                <a href="#" onclick="document.getElementById('form-modal').classList.add('active'); return false;" class="btn btn-primary" style="background:var(--secondary); border-color:#000; box-shadow:4px 4px 0px #000; color:#000;">Level Up</a>
+                <a href="#" onclick="document.getElementById('form-modal').classList.add('active'); return false;" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block;">Start Automating Now</a>
             </div>
         </div>
     </section>
@@ -451,6 +421,30 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
                 alert(`Error: ${error.message || 'Something went wrong.'}`);
             }
         });
+
+        // Dynamic Pricing Logic
+        async function setLocalPricing() {
+            try {
+                const ipRes = await fetch('https://get.geojs.io/v1/ip/country.json');
+                const ipData = await ipRes.json();
+                
+                if (ipData.country === 'NG') {
+                    document.getElementById('price-sym').textContent = '₦';
+                    document.getElementById('price-val').textContent = '25,000';
+                } else {
+                    const exRes = await fetch('https://open.er-api.com/v6/latest/NGN');
+                    const exData = await exRes.json();
+                    if (exData && exData.rates && exData.rates.USD) {
+                        const usdAmount = Math.ceil(25000 * exData.rates.USD);
+                        document.getElementById('price-sym').textContent = '$';
+                        document.getElementById('price-val').textContent = usdAmount;
+                    }
+                }
+            } catch (err) {
+                console.error("Pricing localization failed, using defaults", err);
+            }
+        }
+        setLocalPricing();
     </script>
 </body>
 </html>
