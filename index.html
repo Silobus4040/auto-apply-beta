@@ -135,14 +135,26 @@
     </nav>
 
     <section class="hero">
-        <a href="#apply-form" style="text-decoration: none;"><div class="badge">Try For Free: ATS Resume Scorer &rarr;</div></a>
+        <div class="badge">Try For Free: ATS Resume Scorer</div>
         <h1>Stop getting ghosted.<br><span class="highlight">Start getting remote interviews.</span></h1>
         <p class="hero-sub">
             Every Job Board application passes through an Applicant Tracking System (ATS). If your resume doesn't meet the ATS standard, it gets auto-rejected even though you're qualified for the role.<br><br>
             Score your remote resume for free. Fix it. Then let our AI bulk-apply for you.
         </p>
-        <div class="cta-group">
-            <a href="#apply-form" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 2.5rem;">Score My Resume Free &rarr;</a>
+
+        <div class="form-section" id="apply-form" style="margin: 2rem 0 4rem; width: 100%;">
+            <div class="form-header">
+                <h2>Free Remote ATS Resume Score</h2>
+                <p>Our AI scans your resume against the exact criteria remote job ATS systems use.</p>
+            </div>
+            <form id="beta-form" enctype="multipart/form-data">
+                <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="John Doe"></div>
+                <div class="form-group"><label>Email Address</label><input type="email" name="email" required placeholder="john@example.com"></div>
+                <div class="form-group"><label>Target Locations</label><input type="text" name="location" required placeholder="e.g. USA, Canada, Worldwide"></div>
+                <div class="form-group"><label>Target Job Titles</label><input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, Product Manager"></div>
+                <div class="form-group"><label>Upload Resume (PDF)</label><input type="file" name="resume" accept=".pdf,.doc,.docx" required></div>
+                <button type="submit" class="btn btn-primary submit-btn">Analyze My Resume &rarr;</button>
+            </form>
         </div>
     </section>
 
@@ -159,52 +171,22 @@
             <div class="step-card">
                 <div class="step-num">01</div>
                 <h3>Upload your resume</h3>
-                <p>Drop a PDF or paste your LinkedIn. We scan it against 50+ ATS rules in seconds and give you a brutal-honest score.</p>
+                <p>Drop your Resume in a PDF Format. We scan it against multiple ATS rules in seconds and give you an honest score and recommendations to optimize your resume with our AI System.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">02</div>
-                <h3>AI rebuilds it for ATS</h3>
-                <p>Our engine rewrites every line to match keywords, kill format killers, and structure the doc the way bots love.</p>
+                <h3>Perfect your master resume</h3>
+                <p>Before automation begins, your base formatting must be flawless. Use our recommendations to fix it yourself, or let our AI instantly rebuild your structure into a perfect, ATS-compliant Master Resume.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">03</div>
                 <h3>Auto-apply to remote jobs</h3>
-                <p>Pick your filters. We hunt fresh remote roles 24/7 and apply with a freshly tailored resume + cover letter for each.</p>
+                <p>Set your remote filters and go to sleep. For every single job, our engine uses your Master Resume to generate a uniquely tailored resume and cover letter, perfectly matching the specific job description.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">04</div>
                 <h3>Wake up to interviews</h3>
-                <p>Replies hit your inbox. You focus on prep, not pasting your work history into another broken form.</p>
-            </div>
-        </div>
-    </section>
-
-    <section id="features" class="features">
-        <h2 class="section-title">The Arsenal</h2>
-        <div class="features-grid">
-            <div class="feature-item">
-                <h3>Real ATS Scorer</h3>
-                <p>We use the same parsing libraries as Workday and Taleo. If our bot can't read it, theirs definitely won't.</p>
-            </div>
-            <div class="feature-item">
-                <h3>Tailored per job</h3>
-                <p>Your resume isn't static. We swap bullets and rewrite your summary for every single application automatically.</p>
-            </div>
-            <div class="feature-item">
-                <h3>Auto-Apply Engine</h3>
-                <p>Connect your LinkedIn or Indeed. We find the "Easy Apply" roles and submit for you while you sleep.</p>
-            </div>
-            <div class="feature-item">
-                <h3>Remote-first hunting</h3>
-                <p>Filter by timezone, salary band, visa-friendly, async culture. Only see roles that fit your life.</p>
-            </div>
-            <div class="feature-item">
-                <h3>Keyword X-ray</h3>
-                <p>Paste any job, see exactly which keywords are missing — and add them with one click, naturally phrased.</p>
-            </div>
-            <div class="feature-item">
-                <h3>Human-reviewed templates</h3>
-                <p>10+ ATS-validated layouts, stress-tested against parsers. No tables, no columns that break, no emoji landmines.</p>
+                <p>Replies hit your inbox directly. You focus entirely on preparing for interviews, not wasting hours filling out repetitive, broken job board forms.</p>
             </div>
         </div>
     </section>
@@ -257,21 +239,6 @@
                 <a href="#apply-form" class="btn btn-primary" style="background:var(--secondary); border-color:#000; box-shadow:4px 4px 0px #000; color:#000;">Level Up</a>
             </div>
         </div>
-    </section>
-
-    <section class="form-section" id="apply-form">
-        <div class="form-header">
-            <h2>Free Remote ATS Resume Score</h2>
-            <p>Our AI scans your resume against the exact criteria remote job ATS systems use.</p>
-        </div>
-        <form id="beta-form" enctype="multipart/form-data">
-            <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="John Doe"></div>
-            <div class="form-group"><label>Email Address</label><input type="email" name="email" required placeholder="john@example.com"></div>
-            <div class="form-group"><label>LinkedIn Profile URL</label><input type="text" name="linkedin" placeholder="https://linkedin.com/in/johndoe"></div>
-            <div class="form-group"><label>Target Job Titles</label><input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, Product Manager"></div>
-            <div class="form-group"><label>Upload Resume (PDF)</label><input type="file" name="resume" accept=".pdf,.doc,.docx" required></div>
-            <button type="submit" class="btn btn-primary submit-btn">Analyze My Resume &rarr;</button>
-        </form>
     </section>
 
     <!-- Loading Overlay -->
@@ -328,7 +295,7 @@
         }
 
         // Score resume via OpenRouter
-        async function scoreResume(resumeText, jobTitles) {
+        async function scoreResume(resumeText, jobTitles, targetLocation) {
             const systemPrompt = `You are an expert ATS resume analyst for US remote jobs.
 
 Analyze the following resume text and return a JSON object with:
@@ -339,7 +306,7 @@ Analyze the following resume text and return a JSON object with:
    - keyword_density (max 20): Does it contain industry-standard keywords for remote jobs? Look for terms like cross-functional, stakeholder management, async communication, remote-first, Slack, Jira, Python, etc.
    - quantified_achievements (max 15): Does every bullet point have a measurable number? "Increased revenue by 40%" beats "Helped grow revenue".
    - format_structure (max 15): Clear sections in order: Contact, Summary, Experience, Skills, Education. Standard headings. Consistent date format.
-   - contact_remote_readiness (max 10): LinkedIn URL present. Professional email. No full street address. Time zone mention is a bonus.
+   - contact_remote_readiness (max 10): Professional email. No full street address. The user targets this location: '${targetLocation}'. Check if the resume explicitly lists remote availability or timezones matching that region.
    - summary_objective (max 10): Is there a 2-3 line punchy summary at the top a recruiter can read in 6 seconds?
    - readability (max 10): 1 page for under 5 years exp. Max 2 pages. Bullet points not paragraphs.
 4. critical_issues: Array of max 5 specific issues found
@@ -350,13 +317,13 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
 
             const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                 method: 'POST',
-                headers: { 'Authorization': `Bearer ${OPENROUTER_KEY}`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://jobs.leadscompass.ai', 'X-Title': 'AutoApply Resume Scorer' },
+                headers: { 'Authorization': \`Bearer \${OPENROUTER_KEY}\`, 'Content-Type': 'application/json', 'HTTP-Referer': 'https://jobs.leadscompass.ai', 'X-Title': 'AutoApply Resume Scorer' },
                 body: JSON.stringify({
                     model: 'openai/gpt-4o',
                     response_format: { type: 'json_object' },
                     messages: [
                         { role: 'system', content: systemPrompt },
-                        { role: 'user', content: `Score this resume. The applicant targets these roles: ${jobTitles}\n\nResume:\n${resumeText}` }
+                        { role: 'user', content: \`Score this resume. The applicant targets these roles: \${jobTitles}\n\nResume:\n\${resumeText}\` }
                     ]
                 })
             });
@@ -435,7 +402,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
             try {
                 const name = form.elements['name'].value;
                 const email = form.elements['email'].value;
-                const linkedin = form.elements['linkedin'].value;
+                const location = form.elements['location'].value;
                 const jobTitles = form.elements['job_titles'].value;
                 const file = form.elements['resume'].files[0];
                 if (!file) throw new Error("Please upload your resume.");
@@ -447,9 +414,9 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
                 const { data: publicUrlData } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
                 const resumeUrl = publicUrlData.publicUrl;
 
-                // 2. Insert lead into Supabase
+                // 2. Insert lead into Supabase (mapping location to linkedin column or custom metadata if preferred, using 'linkedin' col for now to avoid schema changes)
                 loadingText.textContent = 'Saving your application...';
-                const { data: insertData, error: insertError } = await supabaseClient.from('beta_leads').insert([{ name, email, linkedin, job_titles: jobTitles, resume_url: resumeUrl, accepted_pricing: true }]).select();
+                const { data: insertData, error: insertError } = await supabaseClient.from('beta_leads').insert([{ name, email, linkedin: location, job_titles: jobTitles, resume_url: resumeUrl, accepted_pricing: true }]).select();
                 if (insertError) throw insertError;
                 const leadId = insertData[0].id;
 
@@ -461,7 +428,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
                 // 4. Score via OpenRouter GPT-4o
                 loadingText.textContent = '🤖 AI is scoring your resume...';
                 loadingSub.textContent = 'Evaluating 7 critical ATS categories';
-                const score = await scoreResume(resumeText, jobTitles);
+                const score = await scoreResume(resumeText, jobTitles, location);
 
                 // 5. Save score to Supabase
                 await supabaseClient.from('beta_leads').update({ resume_score: score.overall_score, score_details: score }).eq('id', leadId);
