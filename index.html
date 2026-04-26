@@ -146,15 +146,9 @@
         </div>
     </section>
 
-    <div class="trust-banner">
-        <div class="spots-left">Only 14 Beta Spots Remaining</div>
-        <p style="color: #A1A1AA; font-size: 1.1rem; max-width: 600px; font-weight: 500;">
-            <strong style="color: white; font-weight: 800;">Volume without quality is just automated rejection.</strong><br>We ensure your resume beats the remote ATS systems first.
-        </p>
-    </div>
-
-    <section id="how-it-works" class="how-it-works">
-        <h2 class="section-title">How It Works</h2>
+    <section id="how-it-works" class="how-it-works" style="margin-top: 4rem;">
+        <h2 class="section-title" style="margin-bottom: 1rem;">How It Works</h2>
+        <p style="font-size: 0.95rem; color: #9CA3AF; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Volume without quality is just automated rejection. We ensure your resume beats the remote ATS systems first before we auto Apply.</p>
         <div class="steps-grid">
             <div class="step-card">
                 <div class="step-num">01</div>
@@ -206,12 +200,20 @@
             <div class="form-header">
                 <h2>Free Remote ATS Resume Score</h2>
                 <p>Our AI scans your resume against the exact criteria remote job ATS systems use.</p>
+                <div style="background: rgba(255, 107, 74, 0.1); border-left: 3px solid var(--secondary); padding: 0.75rem; margin-top: 1rem; font-size: 0.85rem; color: #D1D5DB;"><strong>NOTE:</strong> This scorer is exclusively for remote roles. Standard remote ATS algorithms weigh location and communication metrics differently than on-site roles.</div>
             </div>
             <form id="beta-form" enctype="multipart/form-data">
                 <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="John Doe"></div>
-                <div class="form-group"><label>Email Address</label><input type="email" name="email" required placeholder="john@example.com"></div>
-                <div class="form-group"><label>Target Locations</label><input type="text" name="location" required placeholder="e.g. USA, Canada, Worldwide"></div>
-                <div class="form-group"><label>Target Job Titles</label><input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, Product Manager"></div>
+                <div class="form-group">
+                    <label>Target Location</label>
+                    <input type="text" name="location" required placeholder="e.g. USA">
+                    <p style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.4rem;">Enter only 1 target country.</p>
+                </div>
+                <div class="form-group">
+                    <label>Target Roles</label>
+                    <input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, Product Manager">
+                    <p style="font-size: 0.75rem; color: #9CA3AF; margin-top: 0.4rem;">You may add multiple roles, but ONLY enter roles that are currently reflected in your resume.</p>
+                </div>
                 <div class="form-group"><label>Upload Resume (PDF)</label><input type="file" name="resume" accept=".pdf,.doc,.docx" required></div>
                 <button type="submit" class="btn btn-primary submit-btn">Analyze My Resume &rarr;</button>
             </form>
@@ -384,7 +386,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
 
             try {
                 const name = form.elements['name'].value;
-                const email = form.elements['email'].value;
+                const dummyEmail = `noemail_${Date.now()}@temp.com`; // Safely bypass DB requirement
                 const location = form.elements['location'].value;
                 const jobTitles = form.elements['job_titles'].value;
                 const file = form.elements['resume'].files[0];
@@ -399,7 +401,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
 
                 // 2. Insert lead into Supabase (mapping location to linkedin column or custom metadata if preferred, using 'linkedin' col for now to avoid schema changes)
                 loadingText.textContent = 'Saving your application...';
-                const { data: insertData, error: insertError } = await supabaseClient.from('beta_leads').insert([{ name, email, linkedin: location, job_titles: jobTitles, resume_url: resumeUrl, accepted_pricing: true }]).select();
+                const { data: insertData, error: insertError } = await supabaseClient.from('beta_leads').insert([{ name, email: dummyEmail, linkedin: location, job_titles: jobTitles, resume_url: resumeUrl, accepted_pricing: true }]).select();
                 if (insertError) throw insertError;
                 const leadId = insertData[0].id;
 
@@ -430,20 +432,30 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
         // Dynamic Pricing Logic
         async function setLocalPricing() {
             try {
-                const ipRes = await fetch('https://get.geojs.io/v1/ip/country.json');
-                const ipData = await ipRes.json();
+                let countryCode = 'US';
+                try {
+                    const ipRes = await fetch('https://ipapi.co/json/');
+                    const ipData = await ipRes.json();
+                    if (ipData && ipData.country_code) countryCode = ipData.country_code;
+                } catch(e) {
+                    const ipRes2 = await fetch('https://get.geojs.io/v1/ip/country.json');
+                    const ipData2 = await ipRes2.json();
+                    if (ipData2 && ipData2.country) countryCode = ipData2.country;
+                }
                 
-                if (ipData.country === 'NG') {
+                if (countryCode === 'NG') {
                     document.getElementById('price-sym').textContent = '₦';
                     document.getElementById('price-val').textContent = '25,000';
                 } else {
-                    const exRes = await fetch('https://open.er-api.com/v6/latest/NGN');
-                    const exData = await exRes.json();
-                    if (exData && exData.rates && exData.rates.USD) {
-                        const usdAmount = Math.ceil(25000 * exData.rates.USD);
-                        document.getElementById('price-sym').textContent = '$';
-                        document.getElementById('price-val').textContent = usdAmount;
-                    }
+                    try {
+                        const exRes = await fetch('https://open.er-api.com/v6/latest/NGN');
+                        const exData = await exRes.json();
+                        if (exData && exData.rates && exData.rates.USD) {
+                            const usdAmount = Math.ceil(25000 * exData.rates.USD);
+                            document.getElementById('price-sym').textContent = '$';
+                            document.getElementById('price-val').textContent = usdAmount;
+                        }
+                    } catch(e) {}
                 }
             } catch (err) {
                 console.error("Pricing localization failed, using defaults", err);
