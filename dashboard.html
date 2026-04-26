@@ -27,8 +27,10 @@
         .logo { color: var(--text-heading); font-size: 1.2rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
         .logo-dot { width: 10px; height: 10px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
         .nav-user { display: flex; align-items: center; gap: 1rem; }
-        .nav-credits { background: rgba(16,185,129,0.1); color: var(--secondary); border: 1px solid rgba(16,185,129,0.2); padding: 0.4rem 1rem; border-radius: 2rem; font-size: 0.85rem; font-weight: 600; }
-        .nav-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.9rem; }
+        .nav-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.4rem 1rem; border-radius: 0; font-size: 0.85rem; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: all 0.2s; box-shadow: 2px 2px 0px var(--primary); }
+        .nav-btn:hover { background: rgba(212,255,51,0.1); transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--primary); }
+        .nav-credits { background: transparent; color: var(--secondary); border: 1px solid var(--secondary); padding: 0.4rem 1rem; border-radius: 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; box-shadow: 2px 2px 0px var(--secondary); }
+        .nav-avatar { width: 36px; height: 36px; border-radius: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; color: black; font-weight: 800; font-size: 0.9rem; border: 1px solid black; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
 
@@ -82,9 +84,11 @@
 
         .job-desc-preview { font-size: 0.88rem; color: #9CA3AF; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 0.75rem; }
         
-        .job-actions { display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem; }
+        .job-actions { display: flex; justify-content: flex-start; align-items: center; margin-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem; gap: 1.5rem; }
         .view-desc-btn { background: none; border: none; color: #A5B4FC; cursor: pointer; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.35rem; transition: color 0.2s; }
         .view-desc-btn:hover { color: white; }
+        .view-cl-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.35rem; transition: color 0.2s; text-transform: uppercase; }
+        .view-cl-btn:hover { color: white; }
         
         .status-pill { padding: 0.35rem 0.85rem; border-radius: 2rem; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 0.35rem; }
         .status-queued { background: rgba(245, 158, 11, 0.1); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
@@ -97,14 +101,22 @@
         /* Description Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; }
         .modal-overlay.active { display: flex; }
-        .desc-modal { background: #0f1628; border: 1px solid var(--border); border-radius: 1rem; padding: 2rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; }
-        .desc-modal h2 { color: white; margin-bottom: 0.25rem; font-size: 1.4rem; }
-        .desc-modal .modal-company { color: var(--secondary); font-weight: 600; margin-bottom: 1rem; }
+        .desc-modal { background: #000; border: 2px solid var(--border); border-radius: 0; padding: 2rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); }
+        .desc-modal h2 { color: white; margin-bottom: 0.25rem; font-size: 1.4rem; text-transform: uppercase; font-weight: 800; }
+        .desc-modal .modal-company { color: var(--secondary); font-weight: 600; margin-bottom: 1rem; text-transform: uppercase; }
         .desc-modal .full-text { color: #D1D5DB; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; }
         .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #9CA3AF; font-size: 1.5rem; cursor: pointer; }
         .close-modal:hover { color: white; }
-        .modal-link { display: inline-block; margin-top: 1rem; color: #A5B4FC; text-decoration: none; font-weight: 600; font-size: 0.95rem; }
+        .modal-link { display: inline-block; margin-top: 1rem; color: var(--primary); text-decoration: none; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; }
         .modal-link:hover { color: white; }
+        
+        .resume-render-area { background: white; color: black; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; min-height: 400px; }
+        .resume-render-area h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; text-transform: none; }
+        .resume-render-area .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
+        .resume-render-area .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
+        .resume-render-area h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
+        .resume-render-area ul { margin: 3pt 0 8pt 16pt; }
+        .resume-render-area li { margin-bottom: 2pt; font-size: 10pt; }
     </style>
 </head>
 <body>
@@ -112,9 +124,10 @@
     <div class="background-blob blob-2"></div>
 
     <nav>
-        <a href="index.html" class="logo"><div class="logo-dot"></div>AutoApply AI</a>
+        <a href="index.html" class="logo">APPLY<span>/BOT</span></a>
         <div class="nav-user">
-            <div class="nav-credits">🎁 10 Free Applications</div>
+            <button class="nav-btn" onclick="openMasterResume()">📄 View Master Resume</button>
+            <div class="nav-credits">✅ Premium Active</div>
             <div class="nav-avatar">JD</div>
         </div>
     </nav>
@@ -187,11 +200,33 @@
     <!-- Description Modal -->
     <div class="modal-overlay" id="desc-modal">
         <div class="desc-modal">
-            <button class="close-modal" onclick="closeModal()">&times;</button>
+            <button class="close-modal" onclick="closeModal('desc-modal')">&times;</button>
             <h2 id="modal-title">Job Title</h2>
             <div class="modal-company" id="modal-company">Company Name</div>
             <div class="full-text" id="modal-text">Loading...</div>
             <a href="#" target="_blank" class="modal-link" id="modal-link">🔗 View Original Posting on LinkedIn →</a>
+        </div>
+    </div>
+
+    <!-- Cover Letter Modal -->
+    <div class="modal-overlay" id="cl-modal">
+        <div class="desc-modal">
+            <button class="close-modal" onclick="closeModal('cl-modal')">&times;</button>
+            <h2>AI Cover Letter</h2>
+            <div class="modal-company" id="cl-company">Tailored for Company Name</div>
+            <div class="full-text" id="cl-text" style="font-family: 'Calibri', sans-serif; font-size: 11pt; padding: 2rem; background: white; color: black;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Master Resume Modal -->
+    <div class="modal-overlay" id="resume-modal">
+        <div class="desc-modal">
+            <button class="close-modal" onclick="closeModal('resume-modal')">&times;</button>
+            <h2>Your Master Resume</h2>
+            <div class="modal-company">Used by AI to generate Cover Letters</div>
+            <div class="resume-render-area" id="resume-content">
+                Loading your saved resume...
+            </div>
         </div>
     </div>
 
@@ -283,6 +318,7 @@
                 applicantsCount: c.applicants,
                 link: '#',
                 descriptionText: `${c.name} is looking for an experienced ${role} to join our ${wpLabel.toLowerCase()} team based in ${country}.\n\nResponsibilities:\n• Lead development and execution of key initiatives\n• Collaborate cross-functionally with engineering, design, and product teams\n• Drive measurable outcomes through data-driven decision making\n• Mentor junior team members and contribute to team culture\n\nRequirements:\n• 3-5+ years of relevant experience\n• Strong communication skills and async collaboration experience\n• Proven track record of delivering impactful results\n• Experience working in fast-paced, high-growth environments\n\nBenefits:\n• Fully remote / flexible work arrangement\n• Competitive salary and equity package\n• Unlimited PTO and wellness stipend\n• Annual learning and development budget`,
+                coverLetterText: `Dear Hiring Manager at ${c.name},\n\nI am writing to express my strong interest in the ${role} position. With my background in driving measurable outcomes and collaborating cross-functionally, I am confident in my ability to make an immediate impact at ${c.name}.\n\nIn my previous roles, I successfully led development initiatives that directly aligned with core business metrics. Your focus on building a strong remote culture and data-driven decision making strongly resonates with my approach to work.\n\nI have attached my resume for your review. I look forward to discussing how my experience aligns with the needs of your team.\n\nBest regards,\n[Your Name]`,
                 status: 'queued'
             }));
         }
@@ -324,6 +360,7 @@
 
                         <div class="job-actions">
                             <button class="view-desc-btn" onclick="openModal(${index})">📄 Read Full Description</button>
+                            <button class="view-cl-btn" onclick="openCoverLetter(${index})">📝 View AI Cover Letter</button>
                         </div>
                     </div>
                 `;
@@ -341,13 +378,32 @@
             document.getElementById('desc-modal').classList.add('active');
         }
 
-        function closeModal() {
-            document.getElementById('desc-modal').classList.remove('active');
+        function openCoverLetter(index) {
+            const job = currentJobs[index];
+            document.getElementById('cl-company').innerText = `Tailored for ${job.companyName}`;
+            document.getElementById('cl-text').innerText = job.coverLetterText;
+            document.getElementById('cl-modal').classList.add('active');
+        }
+
+        function openMasterResume() {
+            const savedHtml = localStorage.getItem('master_resume');
+            if (savedHtml) {
+                document.getElementById('resume-content').innerHTML = savedHtml;
+            } else {
+                document.getElementById('resume-content').innerHTML = '<p style="text-align:center; padding: 2rem;">No Master Resume found. Please run the AI Optimizer first.</p>';
+            }
+            document.getElementById('resume-modal').classList.add('active');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
         }
 
         // Close modal on overlay click
-        document.getElementById('desc-modal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) closeModal();
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal(e.target.id);
+            });
         });
     </script>
 </body>
