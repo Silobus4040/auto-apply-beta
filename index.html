@@ -92,12 +92,46 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: white; font-size: 1.5rem; font-weight: 800; text-align: center; text-transform: uppercase; }
         .loading-sub { color: var(--primary); font-size: 1rem; font-weight: 600; text-transform: uppercase; }
+
+        /* New Sections CSS */
+        .section-title { font-size: 3rem; font-weight: 900; color: white; text-transform: uppercase; margin-bottom: 3rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+        
+        .how-it-works, .features, .pricing { max-width: 1400px; margin: 8rem auto; padding: 0 5%; }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
+        .step-card { background: var(--surface-color); border: 2px solid var(--border); padding: 2rem; position: relative; transition: transform 0.2s; }
+        .step-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .step-num { font-size: 6rem; font-weight: 900; color: var(--primary); opacity: 0.1; position: absolute; top: -1rem; right: 1rem; line-height: 1; z-index: 0; }
+        .step-card h3 { color: white; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; position: relative; z-index: 1; }
+        .step-card p { position: relative; z-index: 1; }
+        
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 3rem; }
+        .feature-item { border-left: 4px solid var(--primary); padding-left: 1.5rem; }
+        .feature-item h3 { color: white; font-weight: 800; font-size: 1.2rem; margin-bottom: 0.5rem; text-transform: uppercase; }
+        
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; align-items: stretch; }
+        .price-card { background: #000; border: 2px solid var(--border); padding: 3rem 2rem; display: flex; flex-direction: column; position: relative; }
+        .price-card.popular { border-color: var(--primary); box-shadow: var(--brutal-shadow); transform: scale(1.02); z-index: 2; background: var(--surface-color); }
+        .popular-badge { position: absolute; top: -1rem; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 0.25rem 1rem; font-weight: 800; text-transform: uppercase; border: 2px solid #000; }
+        .price-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: white; margin-bottom: 0.5rem; }
+        .popular .price-name { color: var(--primary); }
+        .price-amount { font-size: 4rem; font-weight: 900; color: white; margin-bottom: 0.5rem; line-height: 1; }
+        .price-amount span { font-size: 1.5rem; color: var(--text-body); font-weight: 600; }
+        .price-sub { color: var(--text-body); font-size: 0.9rem; margin-bottom: 2rem; font-weight: 600; text-transform: uppercase; }
+        .price-features { list-style: none; margin-bottom: 2.5rem; flex-grow: 1; }
+        .price-features li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); color: #D1D5DB; }
+        .price-features li::before { content: "→"; color: var(--primary); margin-right: 0.5rem; font-weight: bold; }
     </style>
 </head>
 <body>
     <nav>
         <div class="logo">APPLY<span>/BOT</span></div>
-        <a href="login.html" class="btn" style="border: 2px solid var(--border); padding: 0.5rem 1.5rem; color: white;">Log In</a>
+        <div class="nav-links" style="display: flex; gap: 2rem; align-items: center;">
+            <a href="#how-it-works" style="color: white; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">How it works</a>
+            <a href="#features" style="color: white; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Features</a>
+            <a href="#pricing" style="color: white; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Pricing</a>
+            <a href="login.html" style="color: var(--secondary); text-decoration: none; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">Sign In</a>
+            <a href="#apply-form" class="btn" style="border: 2px solid var(--primary); padding: 0.5rem 1.5rem; color: var(--primary); font-size: 0.9rem;">Score Resume - Free</a>
+        </div>
     </nav>
 
     <section class="hero">
@@ -118,6 +152,112 @@
             <strong style="color: white; font-weight: 800;">Volume without quality is just automated rejection.</strong><br>We ensure your resume beats the remote ATS systems first.
         </p>
     </div>
+
+    <section id="how-it-works" class="how-it-works">
+        <h2 class="section-title">How It Works</h2>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <h3>Upload your resume</h3>
+                <p>Drop a PDF or paste your LinkedIn. We scan it against 50+ ATS rules in seconds and give you a brutal-honest score.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <h3>AI rebuilds it for ATS</h3>
+                <p>Our engine rewrites every line to match keywords, kill format killers, and structure the doc the way bots love.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <h3>Auto-apply to remote jobs</h3>
+                <p>Pick your filters. We hunt fresh remote roles 24/7 and apply with a freshly tailored resume + cover letter for each.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">04</div>
+                <h3>Wake up to interviews</h3>
+                <p>Replies hit your inbox. You focus on prep, not pasting your work history into another broken form.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <h2 class="section-title">The Arsenal</h2>
+        <div class="features-grid">
+            <div class="feature-item">
+                <h3>Real ATS Scorer</h3>
+                <p>We use the same parsing libraries as Workday and Taleo. If our bot can't read it, theirs definitely won't.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Tailored per job</h3>
+                <p>Your resume isn't static. We swap bullets and rewrite your summary for every single application automatically.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Auto-Apply Engine</h3>
+                <p>Connect your LinkedIn or Indeed. We find the "Easy Apply" roles and submit for you while you sleep.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Remote-first hunting</h3>
+                <p>Filter by timezone, salary band, visa-friendly, async culture. Only see roles that fit your life.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Keyword X-ray</h3>
+                <p>Paste any job, see exactly which keywords are missing — and add them with one click, naturally phrased.</p>
+            </div>
+            <div class="feature-item">
+                <h3>Human-reviewed templates</h3>
+                <p>10+ ATS-validated layouts, stress-tested against parsers. No tables, no columns that break, no emoji landmines.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="pricing" class="pricing">
+        <h2 class="section-title">Pricing</h2>
+        <div class="pricing-grid">
+            <!-- Free Plan -->
+            <div class="price-card">
+                <div class="price-name">Free</div>
+                <div class="price-amount">$0</div>
+                <div class="price-sub">Forever. No card.</div>
+                <ul class="price-features">
+                    <li>Unlimited ATS resume scoring</li>
+                    <li>Keyword gap analysis</li>
+                    <li>1 ATS-proof template</li>
+                    <li>Manual application tools</li>
+                </ul>
+                <a href="#apply-form" class="btn btn-primary" style="background:transparent; color:white; border-color:white; box-shadow:none;">Get Started</a>
+            </div>
+            
+            <!-- Auto-Apply Plan -->
+            <div class="price-card popular">
+                <div class="popular-badge">Most Popular</div>
+                <div class="price-name">Auto-Apply</div>
+                <div class="price-amount">$29<span>/mo</span></div>
+                <div class="price-sub">Cancel anytime</div>
+                <ul class="price-features">
+                    <li>Everything in Free</li>
+                    <li>Unlimited tailored resumes</li>
+                    <li>Auto-apply to 200 jobs / month</li>
+                    <li>All 10+ premium templates</li>
+                    <li>AI cover letters per role</li>
+                </ul>
+                <a href="#apply-form" class="btn btn-primary">Start Automating</a>
+            </div>
+
+            <!-- Hunter Plan -->
+            <div class="price-card">
+                <div class="price-name">Hunter</div>
+                <div class="price-amount">$59<span>/mo</span></div>
+                <div class="price-sub">For serious job seekers</div>
+                <ul class="price-features">
+                    <li>Everything in Auto-Apply</li>
+                    <li>Unlimited applications</li>
+                    <li>LinkedIn profile optimizer</li>
+                    <li>Salary negotiation toolkit</li>
+                    <li>1:1 human resume review</li>
+                </ul>
+                <a href="#apply-form" class="btn btn-primary" style="background:var(--secondary); border-color:#000; box-shadow:4px 4px 0px #000; color:#000;">Level Up</a>
+            </div>
+        </div>
+    </section>
 
     <section class="form-section" id="apply-form">
         <div class="form-header">
