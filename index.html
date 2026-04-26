@@ -141,20 +141,8 @@
             Every Job Board application passes through an Applicant Tracking System (ATS). If your resume doesn't meet the ATS standard, it gets auto-rejected even though you're qualified for the role.<br><br>
             Score your remote resume for free. Fix it. Then let our AI bulk-apply for you.
         </p>
-
-        <div class="form-section" id="apply-form" style="margin: 2rem 0 4rem; width: 100%;">
-            <div class="form-header">
-                <h2>Free Remote ATS Resume Score</h2>
-                <p>Our AI scans your resume against the exact criteria remote job ATS systems use.</p>
-            </div>
-            <form id="beta-form" enctype="multipart/form-data">
-                <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="John Doe"></div>
-                <div class="form-group"><label>Email Address</label><input type="email" name="email" required placeholder="john@example.com"></div>
-                <div class="form-group"><label>Target Locations</label><input type="text" name="location" required placeholder="e.g. USA, Canada, Worldwide"></div>
-                <div class="form-group"><label>Target Job Titles</label><input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, Product Manager"></div>
-                <div class="form-group"><label>Upload Resume (PDF)</label><input type="file" name="resume" accept=".pdf,.doc,.docx" required></div>
-                <button type="submit" class="btn btn-primary submit-btn">Analyze My Resume &rarr;</button>
-            </form>
+        <div class="cta-group">
+            <a href="#apply-form" class="btn" style="border: 2px solid var(--primary); color: var(--primary); font-size: 1.2rem; padding: 1.2rem 2.5rem; text-transform: uppercase; background: transparent; display: inline-block;">Score Resume - Free</a>
         </div>
     </section>
 
@@ -239,6 +227,21 @@
                 <a href="#apply-form" class="btn btn-primary" style="background:var(--secondary); border-color:#000; box-shadow:4px 4px 0px #000; color:#000;">Level Up</a>
             </div>
         </div>
+    </section>
+
+    <section class="form-section" id="apply-form">
+        <div class="form-header">
+            <h2>Free Remote ATS Resume Score</h2>
+            <p>Our AI scans your resume against the exact criteria remote job ATS systems use.</p>
+        </div>
+        <form id="beta-form" enctype="multipart/form-data">
+            <div class="form-group"><label>Full Name</label><input type="text" name="name" required placeholder="John Doe"></div>
+            <div class="form-group"><label>Email Address</label><input type="email" name="email" required placeholder="john@example.com"></div>
+            <div class="form-group"><label>Target Locations</label><input type="text" name="location" required placeholder="e.g. USA, Canada, Worldwide"></div>
+            <div class="form-group"><label>Target Job Titles</label><input type="text" name="job_titles" required placeholder="e.g. Frontend Developer, Product Manager"></div>
+            <div class="form-group"><label>Upload Resume (PDF)</label><input type="file" name="resume" accept=".pdf,.doc,.docx" required></div>
+            <button type="submit" class="btn btn-primary submit-btn">Analyze My Resume &rarr;</button>
+        </form>
     </section>
 
     <!-- Loading Overlay -->
