@@ -122,14 +122,14 @@
                         <input type="text" id="opt-locations" required placeholder="e.g. USA, Canada, UK, Australia">
                     </div>
                     <div class="form-group">
-                        <label>Your LinkedIn URL (Required for 90%+ score)</label>
-                        <input type="url" id="opt-linkedin" required placeholder="https://linkedin.com/in/yourprofile">
+                        <label>Your LinkedIn URL (Ignore this field if your LinkedIn profile link is already on your resume)</label>
+                        <input type="url" id="opt-linkedin" placeholder="https://linkedin.com/in/yourprofile">
                     </div>
                     <div class="form-group">
                         <label>Upload Your Current Resume (PDF)</label>
                         <input type="file" id="opt-resume" accept=".pdf" required>
                     </div>
-                    <button type="submit" class="btn btn-primary" id="opt-btn">Run AI Optimizer Now &rarr;</button>
+                    <button type="submit" class="btn btn-primary" id="opt-btn">Optimize with AI &rarr;</button>
                 </form>
             </div>
         </div> <!-- Closing #upload-section properly -->
@@ -220,7 +220,7 @@ STRICT RULES:
 4. Every bullet point MUST have a quantified metric (%, $, numbers). If the original doesn't have one, intelligently estimate a realistic one.
 5. Maximum 5-6 bullet points per role. Cut the weakest ones.
 6. Analyze the provided Target Locations and determine the primary standard time zone for that region (e.g., ET for USA/Canada, GMT for UK, AEST for Australia). Add a strict Remote Availability note to the contact line formatted exactly like this: "Remote | Available 9:00–17:00 [Primary Time Zone] ([Abbreviation])". Example: "Remote | Available 9:00–17:00 Eastern Time (ET)". Do NOT use generic phrases.
-7. Inject the user's provided LinkedIn URL as raw text into the contact line so it is visually readable on a printed PDF. Do NOT hide it behind anchor text like `<a href="...">LinkedIn</a>`. It must display the actual URL string.
+7. Inject the user's provided LinkedIn URL as raw text into the contact line so it is visually readable on a printed PDF. Do NOT hide it behind anchor text like '<a href=\"...\">LinkedIn</a>'. It must display the actual URL string.
 8. Inject industry-standard keywords naturally: cross-functional, stakeholder management, data-driven, KPI, ROI, etc.
 9. Education on ONE line. Certifications on ONE line.
 10. Core Competencies in a compact 2x2 grid format.
