@@ -294,19 +294,23 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
                 margin:       0.5,
                 filename:     'Optimized_Resume.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
+                html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Force a white background for the PDF rendering
+            // Force a white background and remove scroll limits for the PDF rendering
             element.style.background = 'white';
             element.style.color = 'black';
             element.style.padding = '20px';
+            element.style.maxHeight = 'none';
+            element.style.overflow = 'visible';
 
             html2pdf().set(opt).from(element).save().then(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
                 element.style.padding = '2rem'; // restore original UI padding
+                element.style.maxHeight = '600px';
+                element.style.overflowY = 'auto';
             });
         }
     </script>
