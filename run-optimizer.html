@@ -72,6 +72,18 @@
         .action-row .btn { flex: 1; min-width: 200px; }
         .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
         .btn-outline:hover { background: rgba(255,107,74,0.1); }
+        
+        @media print {
+            body * { visibility: hidden; }
+            #resume-output, #resume-output * { visibility: visible; }
+            #resume-output { 
+                position: absolute; left: 0; top: 0; width: 100%;
+                max-height: none !important; overflow: visible !important;
+                padding: 0 !important; margin: 0 !important;
+                background: white !important; color: black !important;
+                box-shadow: none !important; border: none !important;
+            }
+        }
     </style>
 </head>
 <body>
@@ -284,47 +296,17 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
         });
 
         function printResume() {
-            const element = document.getElementById('resume-output');
-            const btn = document.querySelector('.btn-outline');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Generating PDF...';
-            btn.disabled = true;
-
-            // Clone the element to avoid UI constraints
-            const clone = element.cloneNode(true);
-            clone.style.background = 'white';
-            clone.style.color = 'black';
-            clone.style.padding = '40px';
-            clone.style.width = '800px'; // Fixed width for consistent A4/Letter size
-            clone.style.maxHeight = 'none';
-            clone.style.overflow = 'visible';
-            clone.style.position = 'absolute';
-            clone.style.top = '-9999px';
-            clone.style.left = '0';
-            
-            document.body.appendChild(clone);
-
-            const opt = {
-                margin:       0.5,
-                filename:     'Optimized_Resume.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-
-            // Short timeout to allow browser layout reflow before capturing
+            // Native print handles large unconstrained content flawlessly.
+            // Ensure the container allows full expansion before print
+            const el = document.getElementById('resume-output');
+            el.style.maxHeight = 'none';
+            el.style.overflow = 'visible';
+            window.print();
+            // Restore UI constraints after print dialog closes
             setTimeout(() => {
-                html2pdf().set(opt).from(clone).save().then(() => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    document.body.removeChild(clone);
-                }).catch(err => {
-                    console.error('PDF error:', err);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    if (document.body.contains(clone)) document.body.removeChild(clone);
-                });
-            }, 150);
+                el.style.maxHeight = '600px';
+                el.style.overflowY = 'auto';
+            }, 1000);
         }
     </script>
 </body>
