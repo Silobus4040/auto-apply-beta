@@ -174,6 +174,22 @@
         const or_pt2 = 'c5aa7380e1b1e885d8e13972c61d0a065a94984c7b10';
         const OPENROUTER_KEY = or_pt1 + or_pt2;
 
+        // Restore previously generated resume to avoid burning AI credits during testing
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedHtml = localStorage.getItem('master_resume');
+            if (savedHtml && savedHtml.trim() !== '' && !savedHtml.includes('undefined')) {
+                document.getElementById('resume-output').innerHTML = savedHtml;
+                document.getElementById('upload-section').style.display = 'none';
+                document.getElementById('result-section').classList.add('active');
+                
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.textContent = '🔄 Restored Previous AI Generation';
+                badge.style.marginBottom = '1rem';
+                document.querySelector('.result-section .header').prepend(badge);
+            }
+        });
+
         async function extractPdfText(file) {
             const arrayBuffer = await file.arrayBuffer();
             const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
@@ -288,46 +304,37 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
             btn.innerHTML = '⏳ Generating PDF...';
             btn.disabled = true;
 
-            // Create a temporary, perfectly-sized print container for html2pdf
-            // This ensures mobile phones don't output a long, narrow PDF
+            // Create a disconnected, perfectly-sized print container for html2pdf
+            // html2pdf renders disconnected nodes flawlessly via an internal iframe
             const printContainer = document.createElement('div');
-            printContainer.style.position = 'absolute';
-            printContainer.style.left = '0';
-            printContainer.style.top = '0';
-            printContainer.style.width = '800px'; // Exact width for a standard paper layout
-            printContainer.style.padding = '40px'; // Standard margins
+            printContainer.innerHTML = document.getElementById('resume-output').innerHTML;
+            
+            // Apply strict paper formatting to the wrapper
+            printContainer.style.width = '800px'; 
+            printContainer.style.padding = '40px'; 
             printContainer.style.background = 'white';
             printContainer.style.color = 'black';
             printContainer.style.fontFamily = "'Calibri', 'Segoe UI', Arial, sans-serif";
             printContainer.style.fontSize = '10.5pt';
             printContainer.style.lineHeight = '1.5';
-            printContainer.style.zIndex = '-9999'; // Hide it behind the actual site
-
-            // Copy the HTML from the visible resume box
-            printContainer.innerHTML = document.getElementById('resume-output').innerHTML;
-            document.body.appendChild(printContainer);
 
             const opt = {
                 margin:       0.5,
                 filename:     'Optimized_Resume.pdf',
                 image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+                html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Wait briefly for the DOM to paint the new element before capturing
-            setTimeout(() => {
-                html2pdf().set(opt).from(printContainer).save().then(() => {
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    document.body.removeChild(printContainer);
-                }).catch(err => {
-                    console.error('PDF error:', err);
-                    btn.innerHTML = originalText;
-                    btn.disabled = false;
-                    if (document.body.contains(printContainer)) document.body.removeChild(printContainer);
-                });
-            }, 300);
+            html2pdf().set(opt).from(printContainer).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error('PDF error:', err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                alert('PDF generation failed. Please try again.');
+            });
         }
     </script>
 </body>
