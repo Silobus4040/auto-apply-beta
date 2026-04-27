@@ -69,21 +69,8 @@
         .result-card h3 { color: white; margin-bottom: 1rem; font-weight: 800; text-transform: uppercase; }
         .resume-output { background: white; color: #222; border-radius: 0; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; max-height: 600px; overflow-y: auto; }
         .action-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
-        .action-row .btn { flex: 1; min-width: 200px; }
         .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
         .btn-outline:hover { background: rgba(255,107,74,0.1); }
-        
-        @media print {
-            body * { visibility: hidden; }
-            #resume-output, #resume-output * { visibility: visible; }
-            #resume-output { 
-                position: absolute; left: 0; top: 0; width: 100%;
-                max-height: none !important; overflow: visible !important;
-                padding: 0 !important; margin: 0 !important;
-                background: white !important; color: black !important;
-                box-shadow: none !important; border: none !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -296,17 +283,51 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
         });
 
         function printResume() {
-            // Native print handles large unconstrained content flawlessly.
-            // Ensure the container allows full expansion before print
-            const el = document.getElementById('resume-output');
-            el.style.maxHeight = 'none';
-            el.style.overflow = 'visible';
-            window.print();
-            // Restore UI constraints after print dialog closes
+            const btn = document.querySelector('.btn-outline');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Generating PDF...';
+            btn.disabled = true;
+
+            // Create a temporary, perfectly-sized print container for html2pdf
+            // This ensures mobile phones don't output a long, narrow PDF
+            const printContainer = document.createElement('div');
+            printContainer.style.position = 'absolute';
+            printContainer.style.left = '0';
+            printContainer.style.top = '0';
+            printContainer.style.width = '800px'; // Exact width for a standard paper layout
+            printContainer.style.padding = '40px'; // Standard margins
+            printContainer.style.background = 'white';
+            printContainer.style.color = 'black';
+            printContainer.style.fontFamily = "'Calibri', 'Segoe UI', Arial, sans-serif";
+            printContainer.style.fontSize = '10.5pt';
+            printContainer.style.lineHeight = '1.5';
+            printContainer.style.zIndex = '-9999'; // Hide it behind the actual site
+
+            // Copy the HTML from the visible resume box
+            printContainer.innerHTML = document.getElementById('resume-output').innerHTML;
+            document.body.appendChild(printContainer);
+
+            const opt = {
+                margin:       0.5,
+                filename:     'Optimized_Resume.pdf',
+                image:        { type: 'jpeg', quality: 1.0 },
+                html2canvas:  { scale: 2, useCORS: true, windowWidth: 800 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // Wait briefly for the DOM to paint the new element before capturing
             setTimeout(() => {
-                el.style.maxHeight = '600px';
-                el.style.overflowY = 'auto';
-            }, 1000);
+                html2pdf().set(opt).from(printContainer).save().then(() => {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    document.body.removeChild(printContainer);
+                }).catch(err => {
+                    console.error('PDF error:', err);
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                    if (document.body.contains(printContainer)) document.body.removeChild(printContainer);
+                });
+            }, 300);
         }
     </script>
 </body>
