@@ -274,6 +274,9 @@
             btn.textContent = 'Searching...';
 
             // Send webhook to n8n
+            // Read the optimized resume HTML saved by the optimizer page
+            const resumeText = localStorage.getItem('master_resume') || '';
+
             fetch('https://n8n.leadscompass.ai/webhook-test/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -281,7 +284,8 @@
                     role: role,
                     country: countryName,
                     workplaceTypes: workplaceTypes,
-                    linkedInUrl: linkedInUrl
+                    linkedInUrl: linkedInUrl,
+                    resumeText: resumeText
                 })
             }).then(res => {
                 console.log('Webhook triggered successfully', res);

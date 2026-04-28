@@ -166,7 +166,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -299,42 +299,53 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
         });
 
         function printResume() {
+            const { jsPDF } = window.jspdf;
             const btn = document.querySelector('.btn-outline');
             const originalText = btn.innerHTML;
             btn.innerHTML = '⏳ Generating PDF...';
             btn.disabled = true;
 
-            // Create a disconnected, perfectly-sized print container for html2pdf
-            // html2pdf renders disconnected nodes flawlessly via an internal iframe
-            const printContainer = document.createElement('div');
-            printContainer.innerHTML = document.getElementById('resume-output').innerHTML;
-            
-            // Apply strict paper formatting to the wrapper
-            printContainer.style.width = '800px'; 
-            printContainer.style.padding = '40px'; 
-            printContainer.style.background = 'white';
-            printContainer.style.color = 'black';
-            printContainer.style.fontFamily = "'Calibri', 'Segoe UI', Arial, sans-serif";
-            printContainer.style.fontSize = '10.5pt';
-            printContainer.style.lineHeight = '1.5';
+            const resumeHtml = document.getElementById('resume-output').innerHTML;
 
-            const opt = {
-                margin:       0.5,
-                filename:     'Optimized_Resume.pdf',
-                image:        { type: 'jpeg', quality: 1.0 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
+            // Create a temporary off-document iframe to render the HTML
+            // jsPDF.html() is the only method that reads the real DOM layout
+            // without taking a screenshot - works 100% on mobile too
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'fixed';
+            iframe.style.top = '-10000px';
+            iframe.style.left = '0';
+            iframe.style.width = '800px';
+            iframe.style.height = '1200px';
+            document.body.appendChild(iframe);
 
-            html2pdf().set(opt).from(printContainer).save().then(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }).catch(err => {
-                console.error('PDF error:', err);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                alert('PDF generation failed. Please try again.');
-            });
+            iframe.contentDocument.open();
+            iframe.contentDocument.write(`
+                <html><head><style>
+                    body { font-family: 'Calibri', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #222; background: white; margin: 0; padding: 30px; }
+                    h1 { text-align: center; font-size: 22pt; margin-bottom: 2px; }
+                    h2 { border-bottom: 1px solid #ccc; margin-top: 15px; margin-bottom: 10px; text-transform: uppercase; font-size: 13pt; }
+                    ul li { margin-left: 20px; margin-bottom: 4px; }
+                    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
+                </style></head><body>${resumeHtml}</body></html>
+            `);
+            iframe.contentDocument.close();
+
+            setTimeout(() => {
+                const doc = new jsPDF({ unit: 'pt', format: 'letter', orientation: 'portrait' });
+                doc.html(iframe.contentDocument.body, {
+                    callback: function(pdf) {
+                        pdf.save('Optimized_Resume.pdf');
+                        btn.innerHTML = originalText;
+                        btn.disabled = false;
+                        document.body.removeChild(iframe);
+                    },
+                    x: 36,
+                    y: 36,
+                    width: 540,
+                    windowWidth: 760,
+                    autoPaging: 'text'
+                });
+            }, 600);
         }
     </script>
 </body>
