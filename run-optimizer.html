@@ -166,7 +166,7 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
@@ -299,53 +299,40 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
         });
 
         function printResume() {
-            const { jsPDF } = window.jspdf;
             const btn = document.querySelector('.btn-outline');
             const originalText = btn.innerHTML;
             btn.innerHTML = '⏳ Generating PDF...';
             btn.disabled = true;
 
+            // Get the resume HTML content
             const resumeHtml = document.getElementById('resume-output').innerHTML;
 
-            // Create a temporary off-document iframe to render the HTML
-            // jsPDF.html() is the only method that reads the real DOM layout
-            // without taking a screenshot - works 100% on mobile too
-            const iframe = document.createElement('iframe');
-            iframe.style.position = 'fixed';
-            iframe.style.top = '-10000px';
-            iframe.style.left = '0';
-            iframe.style.width = '800px';
-            iframe.style.height = '1200px';
-            document.body.appendChild(iframe);
+            // Wrap in a self-contained HTML page with proper styling
+            const fullHtml = `
+                <div style="font-family: Calibri, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #222; background: white; padding: 0;">
+                    ${resumeHtml}
+                </div>
+            `;
 
-            iframe.contentDocument.open();
-            iframe.contentDocument.write(`
-                <html><head><style>
-                    body { font-family: 'Calibri', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #222; background: white; margin: 0; padding: 30px; }
-                    h1 { text-align: center; font-size: 22pt; margin-bottom: 2px; }
-                    h2 { border-bottom: 1px solid #ccc; margin-top: 15px; margin-bottom: 10px; text-transform: uppercase; font-size: 13pt; }
-                    ul li { margin-left: 20px; margin-bottom: 4px; }
-                    .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px; }
-                </style></head><body>${resumeHtml}</body></html>
-            `);
-            iframe.contentDocument.close();
+            const opt = {
+                margin:       0.5,
+                filename:     'Optimized_Resume.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
 
-            setTimeout(() => {
-                const doc = new jsPDF({ unit: 'pt', format: 'letter', orientation: 'portrait' });
-                doc.html(iframe.contentDocument.body, {
-                    callback: function(pdf) {
-                        pdf.save('Optimized_Resume.pdf');
-                        btn.innerHTML = originalText;
-                        btn.disabled = false;
-                        document.body.removeChild(iframe);
-                    },
-                    x: 36,
-                    y: 36,
-                    width: 540,
-                    windowWidth: 760,
-                    autoPaging: 'text'
-                });
-            }, 600);
+            // Pass as a STRING — html2pdf creates its own internal element
+            // This bypasses all scroll/visibility/DOM issues entirely
+            html2pdf().set(opt).from(fullHtml, 'string').save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error('PDF generation error:', err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                alert('PDF failed: ' + err.message);
+            });
         }
     </script>
 </body>
