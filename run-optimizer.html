@@ -299,20 +299,11 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
         });
 
         function printResume() {
+            const element = document.getElementById('resume-output');
             const btn = document.querySelector('.btn-outline');
             const originalText = btn.innerHTML;
             btn.innerHTML = '⏳ Generating PDF...';
             btn.disabled = true;
-
-            // Get the resume HTML content
-            const resumeHtml = document.getElementById('resume-output').innerHTML;
-
-            // Wrap in a self-contained HTML page with proper styling
-            const fullHtml = `
-                <div style="font-family: Calibri, Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; color: #222; background: white; padding: 0;">
-                    ${resumeHtml}
-                </div>
-            `;
 
             const opt = {
                 margin:       0.5,
@@ -322,16 +313,26 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
                 jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
             };
 
-            // Pass as a STRING — html2pdf creates its own internal element
-            // This bypasses all scroll/visibility/DOM issues entirely
-            html2pdf().set(opt).from(fullHtml, 'string').save().then(() => {
+            // Force a white background for the PDF rendering
+            element.style.background = 'white';
+            element.style.color = 'black';
+            element.style.padding = '20px';
+
+            // Remove scroll constraints so full resume is captured
+            const savedMaxHeight = element.style.maxHeight;
+            const savedOverflow = element.style.overflow;
+            element.style.maxHeight = 'none';
+            element.style.overflow = 'visible';
+
+            // Force browser to recalculate layout before capture
+            void element.offsetHeight;
+
+            html2pdf().set(opt).from(element).save().then(() => {
                 btn.innerHTML = originalText;
                 btn.disabled = false;
-            }).catch(err => {
-                console.error('PDF generation error:', err);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                alert('PDF failed: ' + err.message);
+                element.style.padding = '2rem';
+                element.style.maxHeight = savedMaxHeight || '';
+                element.style.overflow = savedOverflow || '';
             });
         }
     </script>
