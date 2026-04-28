@@ -7,21 +7,25 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #060913;
-            --surface-color: rgba(18, 22, 38, 0.7);
-            --primary: #4F46E5;
-            --primary-glow: rgba(79, 70, 229, 0.5);
-            --secondary: #10B981;
-            --text-heading: #F9FAFB;
-            --text-body: #9CA3AF;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #0a0a0a;
+            --surface-color: #121212;
+            --primary: #D4FF33;
+            --primary-hover: #bde62b;
+            --secondary: #FF6B4A;
+            --text-heading: #FFFFFF;
+            --text-body: #A1A1AA;
+            --border: #27272A;
+            --brutal-shadow: 4px 4px 0px #D4FF33;
+            --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; position: relative; min-height: 100vh; }
         
-        .background-blob { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.5; }
-        .blob-1 { background: linear-gradient(to right, #4F46E5, #8B5CF6); width: 500px; height: 500px; top: -200px; left: -100px; }
-        .blob-2 { background: linear-gradient(to right, #10B981, #059669); width: 400px; height: 400px; bottom: -100px; right: -100px; }
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.3;
+        }
 
         nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 5%; border-bottom: 1px solid var(--border); background: rgba(6, 9, 19, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
         .logo { color: var(--text-heading); font-size: 1.2rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
@@ -35,31 +39,31 @@
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
 
         /* Search Section */
-        .search-section { background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2rem; backdrop-filter: blur(20px); margin-bottom: 2rem; }
-        .search-section h2 { color: white; font-size: 1.5rem; margin-bottom: 0.5rem; }
-        .search-section p { color: var(--text-body); margin-bottom: 1.5rem; font-size: 0.95rem; }
+        .search-section { background: var(--surface-color); border: 2px solid var(--border); padding: 3rem; margin-bottom: 2rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); }
+        .search-section h2 { color: white; font-size: 1.8rem; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 900; }
+        .search-section p { color: var(--text-body); margin-bottom: 2rem; font-size: 1rem; }
 
         .search-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: end; }
         @media (max-width: 768px) { .search-row { grid-template-columns: 1fr; } }
 
         .field { display: flex; flex-direction: column; gap: 0.5rem; }
-        .field label { color: #E5E7EB; font-weight: 500; font-size: 0.9rem; }
-        .field input, .field select { padding: 0.875rem 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; }
-        .field input:focus, .field select:focus { outline: none; border-color: var(--primary); }
-        .field select option { background: #1a1f3a; color: white; }
+        .field label { color: #E5E7EB; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; }
+        .field input, .field select { padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; }
+        .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
+        .field select option { background: #000; color: white; }
 
         /* Workplace Type Filter */
-        .filter-row { display: flex; gap: 1rem; margin-top: 1.25rem; align-items: center; flex-wrap: wrap; }
-        .filter-label { color: #E5E7EB; font-weight: 500; font-size: 0.9rem; white-space: nowrap; }
+        .filter-row { display: flex; gap: 1rem; margin-top: 1.5rem; align-items: center; flex-wrap: wrap; }
+        .filter-label { color: #E5E7EB; font-weight: 700; font-size: 0.9rem; white-space: nowrap; text-transform: uppercase; }
         .filter-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .chip { padding: 0.5rem 1rem; border-radius: 2rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: rgba(0,0,0,0.2); color: var(--text-body); transition: all 0.2s; user-select: none; }
-        .chip:hover { border-color: rgba(79, 70, 229, 0.5); color: #E5E7EB; }
-        .chip.active { background: rgba(79, 70, 229, 0.2); border-color: var(--primary); color: #A5B4FC; }
-        .chip .chip-count { color: #6B7280; font-size: 0.8rem; font-weight: 400; margin-left: 0.3rem; }
+        .chip { padding: 0.5rem 1rem; border-radius: 0; font-size: 0.875rem; font-weight: 700; cursor: pointer; border: 2px solid var(--border); background: #000; color: var(--text-body); transition: all 0.2s; user-select: none; text-transform: uppercase; }
+        .chip:hover { border-color: var(--primary); color: #FFF; }
+        .chip.active { background: var(--primary); border-color: #000; color: #000; box-shadow: 2px 2px 0px var(--primary); }
+        .chip .chip-count { color: inherit; font-size: 0.8rem; font-weight: 700; margin-left: 0.3rem; opacity: 0.8; }
 
-        .search-btn { padding: 0.875rem 2rem; border-radius: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: none; background: var(--primary); color: white; box-shadow: 0 0 20px var(--primary-glow); transition: all 0.3s; white-space: nowrap; height: fit-content; }
-        .search-btn:hover { background: #4338ca; transform: translateY(-1px); }
-        .search-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
+        .search-btn { padding: 1rem 2rem; border-radius: 0; font-size: 1rem; font-weight: 800; cursor: pointer; border: 2px solid #000; background: var(--primary); color: #000; box-shadow: var(--brutal-shadow); transition: all 0.2s; white-space: nowrap; height: fit-content; text-transform: uppercase; }
+        .search-btn:hover { background: var(--primary-hover); transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); }
+        .search-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
         /* Stats Bar */
         .stats-bar { display: flex; gap: 2rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
@@ -68,8 +72,8 @@
         .stat-label { color: var(--text-body); font-size: 0.85rem; }
 
         /* Job Cards */
-        .job-card { background: var(--surface-color); border: 1px solid var(--border); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1rem; backdrop-filter: blur(20px); transition: border-color 0.2s; }
-        .job-card:hover { border-color: rgba(79, 70, 229, 0.4); }
+        .job-card { background: var(--surface-color); border: 2px solid var(--border); border-radius: 0; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); transition: border-color 0.2s; }
+        .job-card:hover { border-color: var(--primary); }
         
         .job-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
         .company-info { display: flex; gap: 1rem; align-items: center; }
@@ -90,10 +94,10 @@
         .view-cl-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.35rem; transition: color 0.2s; text-transform: uppercase; }
         .view-cl-btn:hover { color: white; }
         
-        .status-pill { padding: 0.35rem 0.85rem; border-radius: 2rem; font-size: 0.78rem; font-weight: 700; display: flex; align-items: center; gap: 0.35rem; }
-        .status-queued { background: rgba(245, 158, 11, 0.1); color: #F59E0B; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .status-applied { background: rgba(16, 185, 129, 0.1); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .status-interview { background: rgba(79, 70, 229, 0.1); color: #A5B4FC; border: 1px solid rgba(79, 70, 229, 0.3); }
+        .status-pill { padding: 0.35rem 0.85rem; border-radius: 0; font-size: 0.78rem; font-weight: 800; display: flex; align-items: center; gap: 0.35rem; text-transform: uppercase; }
+        .status-queued { background: #000; color: var(--primary); border: 2px solid var(--primary); box-shadow: 2px 2px 0px var(--primary); }
+        .status-applied { background: #000; color: var(--secondary); border: 2px solid var(--secondary); box-shadow: 2px 2px 0px var(--secondary); }
+        .status-interview { background: #000; color: #FFF; border: 2px solid #FFF; box-shadow: 2px 2px 0px #FFF; }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
         .empty-state h3 { color: white; margin-bottom: 0.5rem; font-size: 1.3rem; }
@@ -307,20 +311,26 @@
                 console.error('Failed to trigger webhook', err);
             });
 
-            // Simulate loading with demo data (will be replaced with real Apify/Supabase data)
+            // Simulate loading (Show queue state while building backend)
             setTimeout(() => {
-                currentJobs = generateDemoJobs(role, countryName, workplaceTypes);
-                renderJobs(currentJobs);
+                const container = document.getElementById('job-list');
+                container.innerHTML = `
+                    <div class="job-card" style="text-align:center; padding:4rem 2rem;">
+                        <h3 style="color:var(--primary); font-size:1.5rem; margin-bottom:1rem; text-transform:uppercase;">✅ Jobs Added to Extraction Queue</h3>
+                        <p style="color:#D1D5DB; max-width:500px; margin:0 auto 2rem;">Our backend AI agent is currently extracting matching roles from LinkedIn and Indeed. You will be notified via email once the auto-apply process begins.</p>
+                        <div class="status-pill status-queued" style="display:inline-flex; font-size:1rem; padding:0.5rem 1rem;">⏳ Processing (ETA: 2-4 hours)</div>
+                    </div>
+                `;
                 btn.disabled = false;
                 btn.textContent = 'Search Jobs';
 
                 document.getElementById('stats-bar').style.display = 'flex';
-                document.getElementById('stat-total').textContent = currentJobs.length;
-                document.getElementById('stat-queued').textContent = currentJobs.length;
+                document.getElementById('stat-total').textContent = '-';
+                document.getElementById('stat-queued').textContent = 'Processing';
                 document.getElementById('stat-applied').textContent = '0';
 
                 console.log('Generated LinkedIn URL for Apify:', linkedInUrl);
-            }, 2000);
+            }, 1500);
         }
 
         function generateDemoJobs(role, country, workplaceTypes) {

@@ -7,57 +7,58 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #060913;
-            --surface-color: rgba(18, 22, 38, 0.7);
-            --primary: #4F46E5;
-            --primary-glow: rgba(79, 70, 229, 0.5);
-            --secondary: #10B981;
-            --text-heading: #F9FAFB;
-            --text-body: #9CA3AF;
-            --border: rgba(255, 255, 255, 0.1);
+            --bg-color: #0a0a0a;
+            --surface-color: #121212;
+            --primary: #D4FF33;
+            --primary-hover: #bde62b;
+            --secondary: #FF6B4A;
+            --text-heading: #FFFFFF;
+            --text-body: #A1A1AA;
+            --border: #27272A;
+            --brutal-shadow: 4px 4px 0px #D4FF33;
+            --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
 
-        .background-blob { position: fixed; border-radius: 50%; filter: blur(120px); z-index: -1; opacity: 0.6; }
-        .blob-1 { background: linear-gradient(to right, #4F46E5, #8B5CF6); width: 500px; height: 500px; top: -150px; right: -100px; }
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.3;
+        }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; border-bottom: 1px solid var(--border); background: rgba(6, 9, 19, 0.8); backdrop-filter: blur(10px); }
-        .logo { color: var(--text-heading); font-size: 1.3rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; }
-        .logo-dot { width: 10px; height: 10px; background: var(--secondary); border-radius: 50%; box-shadow: 0 0 15px var(--secondary); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid var(--border); width: 100%; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
 
         .container { max-width: 500px; margin: 4rem auto; padding: 0 5%; flex: 1; }
         .header { text-align: center; margin-bottom: 2.5rem; }
-        .header h1 { color: white; font-size: 2.2rem; font-weight: 900; margin-bottom: 0.75rem; }
+        .header h1 { color: var(--text-heading); font-size: 2.2rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -1px; }
         .header p { color: var(--text-body); font-size: 1rem; }
 
-        .card { background: var(--surface-color); border: 1px solid var(--border); border-radius: 1.5rem; padding: 2.5rem; backdrop-filter: blur(20px); }
+        .card { background: var(--surface-color); border: 2px solid var(--border); padding: 2.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); }
         .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 500; font-size: 0.95rem; }
-        input { width: 100%; padding: 1rem; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--border); border-radius: 0.5rem; color: white; font-size: 1rem; transition: border-color 0.3s; }
-        input:focus { outline: none; border-color: var(--primary); }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 700; font-size: 0.95rem; text-transform: uppercase; }
+        input { width: 100%; padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; }
+        input:focus { outline: none; border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
         .password-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
-        .btn { padding: 1.1rem 2rem; border-radius: 0.75rem; font-size: 1.1rem; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.3s ease; border: none; width: 100%; display: block; text-align: center; }
-        .btn-primary { background: var(--primary); color: white; box-shadow: 0 0 30px var(--primary-glow); }
-        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 40px rgba(79, 70, 229, 0.7); background: #4338ca; }
-        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-
-        .divider { display: flex; align-items: center; gap: 1rem; margin: 1.5rem 0; color: #6B7280; font-size: 0.85rem; }
-        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+        .btn { padding: 1.2rem 2rem; font-size: 1.1rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.2s ease; border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; }
+        .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
+        .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
         .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.95rem; }
-        .login-link a { color: var(--secondary); text-decoration: none; font-weight: 600; }
+        .login-link a { color: var(--primary); text-decoration: none; font-weight: 700; text-transform: uppercase; }
         .login-link a:hover { text-decoration: underline; }
 
-        .error-msg { background: rgba(239,68,68,0.1); border: 1px solid rgba(239,68,68,0.3); color: #EF4444; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
-        .success-msg { background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); color: #10B981; padding: 0.75rem 1rem; border-radius: 0.5rem; font-size: 0.9rem; margin-bottom: 1rem; display: none; }
+        .error-msg { background: rgba(239,68,68,0.1); border: 2px solid #EF4444; color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; }
+        .success-msg { background: rgba(212,255,51,0.1); border: 2px solid var(--primary); color: var(--primary); padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; }
     </style>
 </head>
 <body>
-    <div class="background-blob blob-1"></div>
 
-    <nav><a href="index.html" class="logo"><div class="logo-dot"></div>AutoApply AI</a></nav>
+    <nav><a href="index.html" class="logo">APPLY<span>/BOT</span></a></nav>
 
     <div class="container">
         <div class="header">
