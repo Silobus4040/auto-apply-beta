@@ -224,12 +224,16 @@
             <button class="close-modal" onclick="closeModal('resume-modal')">&times;</button>
             <h2>Your Master Resume</h2>
             <div class="modal-company">Used by AI to generate Cover Letters</div>
+            <div style="text-align:right; margin-bottom: 1rem;">
+                <button id="download-resume-btn" onclick="downloadMasterResume()" style="background:#10B981; color:white; border:none; padding:0.6rem 1.4rem; font-weight:700; font-size:0.9rem; cursor:pointer; border-radius:4px; text-transform:uppercase; letter-spacing:0.5px;">⬇ Download PDF</button>
+            </div>
             <div class="resume-render-area" id="resume-content">
                 Loading your saved resume...
             </div>
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
         let currentJobs = [];
 
@@ -425,6 +429,37 @@
                 if (e.target === e.currentTarget) closeModal(e.target.id);
             });
         });
+
+        function downloadMasterResume() {
+            const element = document.getElementById('resume-content');
+            const btn = document.getElementById('download-resume-btn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '⏳ Generating...';
+            btn.disabled = true;
+
+            const opt = {
+                margin:       0.5,
+                filename:     'Master_Resume.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+
+            // The resume-content div has no max-height or overflow scroll —
+            // html2pdf can capture the full content without any blank page issue
+            element.style.background = 'white';
+            element.style.color = 'black';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }).catch(err => {
+                console.error('PDF error:', err);
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+                alert('Download failed: ' + err.message);
+            });
+        }
     </script>
 </body>
 </html>
