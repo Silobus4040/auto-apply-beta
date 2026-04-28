@@ -117,6 +117,16 @@
         .resume-render-area h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
         .resume-render-area ul { margin: 3pt 0 8pt 16pt; }
         .resume-render-area li { margin-bottom: 2pt; font-size: 10pt; }
+
+        @media print {
+            @page { margin: 0; }
+            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            body > * { display: none !important; }
+            #resume-modal { display: block !important; position: static !important; background: white !important; padding: 0 !important; overflow: visible !important; }
+            #resume-modal .desc-modal { display: block !important; background: white !important; border: none !important; box-shadow: none !important; max-width: 100% !important; padding: 0 !important; max-height: none !important; overflow: visible !important; }
+            #resume-modal .desc-modal > *:not(#resume-content) { display: none !important; }
+            #resume-content { padding: 0.5in 0.8in !important; background: white !important; color: black !important; min-height: 0 !important; }
+        }
     </style>
 </head>
 <body>
@@ -431,34 +441,9 @@
         });
 
         function downloadMasterResume() {
-            const element = document.getElementById('resume-content');
-            const btn = document.getElementById('download-resume-btn');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Generating...';
-            btn.disabled = true;
-
-            const opt = {
-                margin:       0.5,
-                filename:     'Master_Resume.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-
-            // The resume-content div has no max-height or overflow scroll —
-            // html2pdf can capture the full content without any blank page issue
-            element.style.background = 'white';
-            element.style.color = 'black';
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }).catch(err => {
-                console.error('PDF error:', err);
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                alert('Download failed: ' + err.message);
-            });
+            // Using native window.print() ensures a true text-selectable PDF that passes ATS.
+            // The @media print CSS rules (added above) hide the website UI and the browser headers/footers.
+            window.print();
         }
     </script>
 </body>
