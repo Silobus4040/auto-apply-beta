@@ -175,7 +175,24 @@
 
     <section id="pricing" class="pricing">
         <h2 class="section-title" style="text-align: center;">Pricing</h2>
-        <div class="pricing-grid" style="grid-template-columns: 1fr; max-width: 550px; margin: 0 auto;">
+        <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); max-width: 1000px; margin: 0 auto;">
+            
+            <!-- Free Trial Card -->
+            <div class="price-card" style="text-align: center; padding: 4rem 3rem;">
+                <div class="price-name" style="font-size: 2rem; margin-bottom: 1rem;">Free Trial</div>
+                <div class="price-amount" style="font-size: 6rem; margin-bottom: 0.5rem;"><span style="font-size: 4rem;">$</span>0</div>
+                <div class="price-sub" style="font-size: 1.2rem; color: var(--text-body); margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 1px;">Experience the Automation</div>
+                <ul class="price-features" style="text-align: left; margin: 0 auto 3rem; font-size: 1.1rem; display: inline-block;">
+                    <li>Free Remote ATS Resume Scorer</li>
+                    <li>Free Optimization Recommendations</li>
+                    <li><strong>20 Free Automated Job Applications</strong></li>
+                    <li>AI Cover Letters Included</li>
+                    <li>Test the full automation engine</li>
+                </ul>
+                <a href="#" onclick="document.getElementById('form-modal').classList.add('active'); return false;" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block; background: transparent; color: var(--primary); border: 2px solid var(--primary);">Start Free Trial</a>
+            </div>
+
+            <!-- Pro Card -->
             <div class="price-card popular" style="text-align: center; padding: 4rem 3rem;">
                 <div class="popular-badge" style="font-size: 1.1rem; padding: 0.5rem 2rem;">Full Automation</div>
                 <div class="price-name" style="font-size: 2rem; margin-bottom: 1rem;">Auto-Apply Engine</div>
@@ -315,7 +332,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
         }
 
         // Display score modal
-        function showScore(score) {
+        function showScore(score, rawResumeText) {
             const circle = document.getElementById('score-circle');
             const s = score.overall_score;
             circle.className = 'score-circle ' + (s < 60 ? 'score-red' : s < 80 ? 'score-yellow' : 'score-green');
@@ -353,6 +370,11 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
             // 90% Quality Gate
             const ctaContainer = document.getElementById('cta-container');
             if (s >= 90) {
+                // Save to localStorage so n8n can pick it up via dashboard
+                if (rawResumeText) {
+                    localStorage.setItem('master_resume', `<pre style="white-space: pre-wrap; font-family: 'Calibri', sans-serif; font-size: 11pt; color: black; background: white; padding: 2rem; line-height: 1.5;">${rawResumeText}</pre>`);
+                }
+                
                 ctaContainer.innerHTML = `
                     <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:0.75rem; padding:1.25rem; margin-top:1.5rem; text-align:center;">
                         <p style="color:#10B981; font-weight:700; font-size:1.1rem; margin-bottom:0.5rem;">🎉 Your Resume is Automation-Ready!</p>
@@ -419,7 +441,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
                 await supabaseClient.from('beta_leads').update({ resume_score: score.overall_score, score_details: score }).eq('id', leadId);
 
                 // 6. Show score popup
-                showScore(score);
+                showScore(score, resumeText);
                 form.reset();
 
             } catch (error) {
