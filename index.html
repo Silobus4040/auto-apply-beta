@@ -287,6 +287,11 @@
                 const content = await page.getTextContent();
                 text += content.items.map(item => item.str).join(' ') + '\n';
             }
+            
+            if (text.trim() === '') {
+                throw new Error("We couldn't extract any text from this PDF. It appears to be an image-based or scanned PDF. Real Applicant Tracking Systems (ATS) cannot read image-based PDFs either. Please ensure your PDF is text-selectable.");
+            }
+            
             return text.substring(0, 8000);
         }
 
