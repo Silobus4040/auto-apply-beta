@@ -232,6 +232,16 @@
         </div>
     </div>
 
+    <!-- Queue Modal -->
+    <div class="modal-overlay" id="queue-modal">
+        <div class="desc-modal" style="text-align:center; padding:4rem 2rem; border: 2px solid var(--primary);">
+            <button class="close-modal" onclick="closeModal('queue-modal')" style="font-size:2rem; top:1rem; right:1rem;">&times;</button>
+            <h3 style="color:var(--primary); font-size:1.8rem; margin-bottom:1.5rem; text-transform:uppercase;">✅ Jobs Added to Extraction Queue</h3>
+            <p style="color:#D1D5DB; max-width:550px; margin:0 auto 2.5rem; font-size:1.15rem;">We're upgrading backend capabilities. Processing paused temporarily—you'll be notified via email upon resumption.</p>
+            <button class="btn btn-primary" style="margin: 0 auto; max-width: 250px; text-transform: uppercase; padding: 1rem; border-radius: 0; background: var(--primary); color: #000; font-weight: 800; border: 2px solid #000; box-shadow: 4px 4px 0px #FF6B4A; cursor: pointer; transition: all 0.2s;" onclick="closeModal('queue-modal')">Cancel / Close</button>
+        </div>
+    </div>
+
     <!-- Master Resume Modal -->
     <div class="modal-overlay" id="resume-modal">
         <div class="desc-modal">
@@ -311,16 +321,9 @@
                 console.error('Failed to trigger webhook', err);
             });
 
-            // Simulate loading (Show queue state while building backend)
+            // Simulate loading (Show queue modal)
             setTimeout(() => {
-                const container = document.getElementById('job-list');
-                container.innerHTML = `
-                    <div class="job-card" style="text-align:center; padding:4rem 2rem;">
-                        <h3 style="color:var(--primary); font-size:1.5rem; margin-bottom:1rem; text-transform:uppercase;">✅ Jobs Added to Extraction Queue</h3>
-                        <p style="color:#D1D5DB; max-width:550px; margin:0 auto 2rem; font-size:1.05rem;">We're upgrading backend capabilities. Processing paused temporarily—you'll be notified via email upon resumption.</p>
-                        <div class="status-pill status-queued" style="display:inline-flex; font-size:1rem; padding:0.5rem 1rem;">⏳ Processing (ETA: 2-4 hours)</div>
-                    </div>
-                `;
+                document.getElementById('queue-modal').classList.add('active');
                 btn.disabled = false;
                 btn.textContent = 'Search Jobs';
 
