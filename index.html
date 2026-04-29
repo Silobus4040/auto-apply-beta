@@ -441,34 +441,6 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
                 loadingSub.textContent = 'Checking ATS compatibility, keywords, structure, and more...';
                 const resumeText = await extractPdfText(file);
 
-                // --- SHARED CONTEXT: Bypass if already optimized by our system ---
-                if (resumeText.includes('[Optimized by AutoApply AI ATS Engine]') || resumeText.includes('Optimized by AutoApply AI ATS Engine')) {
-                    loadingText.textContent = '✅ Verified AutoApply AI Master Resume';
-                    loadingSub.textContent = 'Perfect score guaranteed. Unlocking automation...';
-                    
-                    const perfectScore = {
-                        overall_score: 96,
-                        categories: {
-                            formatting: { score: 15, max: 15, verdict: "Perfect formatting. Easily parseable by any ATS." },
-                            keywords: { score: 25, max: 25, verdict: "Excellent keyword density and placement." },
-                            impact: { score: 20, max: 20, verdict: "Strong use of metrics and impact statements." },
-                            readability: { score: 10, max: 10, verdict: "Clear, professional, and highly readable." },
-                            contact: { score: 5, max: 5, verdict: "All contact info present and correct." },
-                            skills: { score: 10, max: 10, verdict: "Skills section perfectly aligned with industry standards." },
-                            experience_structure: { score: 11, max: 15, verdict: "Experience is structured optimally." }
-                        },
-                        critical_issues: [],
-                        strengths: ["100% ATS parseable structure", "Data-driven impact statements", "Optimized keyword targeting"],
-                        top_recommendation: "Your resume is perfect. You are ready to start automated applications."
-                    };
-                    
-                    await supabaseClient.from('beta_leads').update({ resume_score: perfectScore.overall_score, score_details: perfectScore }).eq('id', leadId);
-                    showScore(perfectScore, resumeText);
-                    form.reset();
-                    return;
-                }
-                // --- END BYPASS ---
-
                 // 4. Score via OpenRouter GPT-4o
                 loadingText.textContent = '🤖 AI is scoring your resume...';
                 loadingSub.textContent = 'Evaluating 7 critical ATS categories';

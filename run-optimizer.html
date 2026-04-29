@@ -252,11 +252,8 @@ Return ONLY clean HTML (no <html>, <head>, <body> tags — just the inner conten
 - <div class="job" style="margin-bottom: 10px;"> with <span class="job-date" style="float: right; font-weight: bold;"> for dates, <div class="job-title" style="font-weight: bold;"> for role, <span class="job-company" style="font-style: italic;"> for company
 - <ul><li style="margin-left: 20px; margin-bottom: 5px;"> for bullet points
 - <div class="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;"> with <div> items for competencies
-- <div class="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;"> with <div> items for competencies
 
-Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styles are inline so they render perfectly in the PDF download. Make the h1 text-align center. Make the subtitle text-align center.
-CRITICAL: At the very bottom of the resume, you MUST add exactly this HTML snippet:
-<div style="font-size: 8px; color: #fff; text-align: center; margin-top: 20px;">[Optimized by AutoApply AI ATS Engine]</div>`;
+Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styles are inline so they render perfectly in the PDF download. Make the h1 text-align center. Make the subtitle text-align center.`;
 
                 // --- SHARED CONTEXT INJECTION ---
                 const atsContextStr = localStorage.getItem('ats_analysis_context');
