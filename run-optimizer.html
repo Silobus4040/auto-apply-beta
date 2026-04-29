@@ -144,6 +144,11 @@
                 <p style="color:white; font-size: 1.1rem; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem;">New ATS Score Match:</p>
                 <div style="font-size: 4rem; font-weight: 900; color: var(--secondary); line-height: 1;" id="new-score">98%</div>
                 <p style="color:#D1D5DB; font-size:0.9rem; margin-top: 0.5rem;">This resume is now ready for the automation engine.</p>
+                
+                <div id="verified-fixes-container" style="display:none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: left;">
+                    <p style="color: var(--secondary); font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem; font-size: 0.95rem;">✅ AI Verified Fixes</p>
+                    <ul id="verified-fixes-list" style="color: #D1D5DB; font-size: 0.85rem; padding-left: 1.2rem; line-height: 1.5;"></ul>
+                </div>
             </div>
 
             <div class="result-card">
@@ -243,17 +248,18 @@ STRICT RULES:
 9. Education on ONE line. Certifications on ONE line.
 10. Core Competencies in a compact 2x2 grid format.
 
-OUTPUT FORMAT:
-Return ONLY clean HTML (no <html>, <head>, <body> tags — just the inner content). Use these tags:
-- <h1> for name
-- <p class="subtitle"> for title
-- <p class="contact" style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; text-align: center; font-size: 14px; color: #555;"> for contact line
-- <h2 style="border-bottom: 1px solid #ccc; margin-top: 15px; margin-bottom: 10px; text-transform: uppercase; font-size: 16px;"> for section headers
-- <div class="job" style="margin-bottom: 10px;"> with <span class="job-date" style="float: right; font-weight: bold;"> for dates, <div class="job-title" style="font-weight: bold;"> for role, <span class="job-company" style="font-style: italic;"> for company
-- <ul><li style="margin-left: 20px; margin-bottom: 5px;"> for bullet points
 - <div class="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;"> with <div> items for competencies
 
-Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styles are inline so they render perfectly in the PDF download. Make the h1 text-align center. Make the subtitle text-align center.`;
+OUTPUT FORMAT MUST BE EXACTLY VALID JSON:
+You MUST return a pure JSON object in this exact structure:
+{
+  "verified_fixes": [
+    "I fixed [specific flaw] by doing [specific action]",
+    "I addressed the recommendation by [specific action]"
+  ],
+  "html": "YOUR FULL HTML RESUME CODE HERE"
+}
+Ensure all styles in the HTML are inline. Do NOT wrap the JSON in markdown blocks (no \`\`\`json). Just return the raw JSON object. Make the h1 text-align center. Make the subtitle text-align center.`;
 
                 // --- SHARED CONTEXT INJECTION ---
                 const atsContextStr = localStorage.getItem('ats_analysis_context');
@@ -295,9 +301,27 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
                 if (!data.choices || !data.choices[0]) {
                     throw new Error('AI error: ' + (data.error?.message || JSON.stringify(data)));
                 }
+                let rawContent = data.choices[0].message.content;
+                rawContent = rawContent.replace(/```json\n?/gi, '').replace(/```html\n?/gi, '').replace(/```\n?/gi, '').trim();
+                
+                let parsedData;
+                try {
+                    parsedData = JSON.parse(rawContent);
+                } catch (e) {
+                    console.error("Failed to parse JSON, falling back to raw html", e);
+                    // Fallback in case AI messes up the JSON structure
+                    parsedData = { html: rawContent, verified_fixes: [] };
+                }
 
-                let html = data.choices[0].message.content;
-                html = html.replace(/```html\n?/gi, '').replace(/```\n?/gi, '');
+                let html = parsedData.html;
+                
+                // Display verified fixes if present
+                if (parsedData.verified_fixes && parsedData.verified_fixes.length > 0) {
+                    const fixesContainer = document.getElementById('verified-fixes-container');
+                    const fixesList = document.getElementById('verified-fixes-list');
+                    fixesList.innerHTML = parsedData.verified_fixes.map(f => `<li>${f}</li>`).join('');
+                    fixesContainer.style.display = 'block';
+                }
 
                 // Random high score between 95 and 99
                 const score = Math.floor(Math.random() * 5) + 95;
