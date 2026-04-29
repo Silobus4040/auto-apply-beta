@@ -179,6 +179,19 @@
 
         // Restore previously generated resume to avoid burning AI credits during testing
         window.addEventListener('DOMContentLoaded', () => {
+            // Check if link is expired
+            if (localStorage.getItem('link_used_obruche_x79p') === 'true') {
+                document.body.innerHTML = `
+                    <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#0a0a0a; color:white; font-family:Inter, sans-serif; text-align:center; padding:2rem;">
+                        <div>
+                            <h1 style="color:#EF4444; margin-bottom:1rem; font-size:3rem; font-weight:900;">Link Expired</h1>
+                            <p style="color:#D1D5DB; font-size:1.2rem;">This optimization link was a one-time use URL and has already been consumed.</p>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
             const savedHtml = localStorage.getItem('master_resume');
             if (savedHtml && savedHtml.trim() !== '' && !savedHtml.includes('undefined')) {
                 document.getElementById('resume-output').innerHTML = savedHtml;
@@ -288,6 +301,10 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
 
                 // Save to localStorage for signup handoff
                 localStorage.setItem('master_resume', html);
+                
+                // --- ONE TIME LINK CONSUMED ---
+                localStorage.setItem('link_used_obruche_x79p', 'true');
+                localStorage.setItem('free_scan_count', '999'); // Lock out of free scanner
 
                 document.getElementById('resume-output').innerHTML = html;
                 document.getElementById('upload-section').style.display = 'none';
