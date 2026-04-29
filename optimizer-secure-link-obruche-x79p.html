@@ -199,18 +199,7 @@
                 return;
             }
 
-            const savedHtml = localStorage.getItem('master_resume');
-            if (savedHtml && savedHtml.trim() !== '' && !savedHtml.includes('undefined')) {
-                document.getElementById('resume-output').innerHTML = savedHtml;
-                document.getElementById('upload-section').style.display = 'none';
-                document.getElementById('result-section').classList.add('active');
-                
-                const badge = document.createElement('div');
-                badge.className = 'badge';
-                badge.textContent = '🔄 Restored Previous AI Generation';
-                badge.style.marginBottom = '1rem';
-                document.querySelector('.result-section .header').prepend(badge);
-            }
+            // Removed localStorage restore logic to allow fresh AI generation testing
         });
 
         async function extractPdfText(file) {
