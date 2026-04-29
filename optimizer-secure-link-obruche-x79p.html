@@ -168,6 +168,7 @@
         <div class="loading-sub" id="loading-sub">This takes about 20 seconds</div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script>
@@ -177,10 +178,16 @@
         const or_pt2 = 'c5aa7380e1b1e885d8e13972c61d0a065a94984c7b10';
         const OPENROUTER_KEY = or_pt1 + or_pt2;
 
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const LINK_ID = 'obruche-x79p';
+
         // Restore previously generated resume to avoid burning AI credits during testing
-        window.addEventListener('DOMContentLoaded', () => {
-            // Check if link is expired
-            if (localStorage.getItem('link_used_obruche_x79p') === 'true') {
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Check if link is expired via Supabase
+            const { data, error } = await supabaseClient.from('secure_links').select('is_consumed').eq('client_id', LINK_ID).single();
+            if (data && data.is_consumed) {
                 document.body.innerHTML = `
                     <div style="display:flex; justify-content:center; align-items:center; height:100vh; background:#0a0a0a; color:white; font-family:Inter, sans-serif; text-align:center; padding:2rem;">
                         <div>
@@ -302,8 +309,8 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
                 // Save to localStorage for signup handoff
                 localStorage.setItem('master_resume', html);
                 
-                // --- ONE TIME LINK CONSUMED ---
-                localStorage.setItem('link_used_obruche_x79p', 'true');
+                // --- ONE TIME LINK CONSUMED (SUPABASE) ---
+                await supabaseClient.from('secure_links').update({ is_consumed: true }).eq('client_id', LINK_ID);
                 localStorage.setItem('free_scan_count', '999'); // Lock out of free scanner
 
                 document.getElementById('resume-output').innerHTML = html;
