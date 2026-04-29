@@ -84,10 +84,15 @@
         .resume-output p { margin-bottom: 10px; color: black; }
 
         @media print {
-            body * { visibility: hidden; }
-            .resume-output, .resume-output * { visibility: visible; }
-            .resume-output { position: absolute; left: 0; top: 0; width: 100%; max-height: none !important; overflow: visible !important; padding: 0; }
             @page { margin: 0.75in; }
+            body { background: white !important; margin: 0 !important; padding: 0 !important; }
+            body > *:not(.container) { display: none !important; }
+            .container { padding: 0 !important; margin: 0 !important; max-width: none !important; }
+            .container > *:not(#result-section) { display: none !important; }
+            #result-section > *:not(.result-card) { display: none !important; }
+            .result-card { border: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; }
+            .result-card > *:not(#resume-output) { display: none !important; }
+            #resume-output { max-height: none !important; overflow: visible !important; padding: 0 !important; }
         }
 
         .action-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
