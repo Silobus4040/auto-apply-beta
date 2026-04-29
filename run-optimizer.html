@@ -67,7 +67,29 @@
         .result-section.active { display: block; }
         .result-card { background: #000; border: 2px solid var(--border); border-radius: 0; padding: 2rem; margin-top: 1.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); }
         .result-card h3 { color: white; margin-bottom: 1rem; font-weight: 800; text-transform: uppercase; }
-        .resume-output { background: white; color: #222; border-radius: 0; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; max-height: 600px; overflow-y: auto; }
+        .resume-output { background: white; color: black; border-radius: 0; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 11pt; line-height: 1.4; max-height: 600px; overflow-y: auto; text-align: left; }
+        
+        /* Master CSS Template for the generated Resume */
+        .resume-output h1 { text-align: center; font-size: 24pt; font-weight: bold; margin-bottom: 5px; text-transform: uppercase; color: black; line-height: 1.2; }
+        .resume-output .subtitle { text-align: center; font-size: 14pt; font-weight: bold; margin-bottom: 5px; color: black; }
+        .resume-output .contact { text-align: center; font-size: 10pt; border-bottom: 2px solid black; padding-bottom: 10px; margin-bottom: 15px; color: black; }
+        .resume-output h2 { font-size: 13pt; font-weight: bold; text-transform: uppercase; border-bottom: 1px solid black; margin-top: 15px; margin-bottom: 10px; color: black; line-height: 1.2; padding-bottom: 2px; }
+        .resume-output .job-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 2px; }
+        .resume-output .job-title { font-weight: bold; font-size: 11pt; color: black; }
+        .resume-output .job-date { font-weight: bold; font-size: 11pt; color: black; }
+        .resume-output .job-company { font-style: italic; font-size: 11pt; margin-bottom: 5px; display: block; color: black; }
+        .resume-output ul { margin-top: 0; padding-left: 20px; margin-bottom: 10px; color: black; }
+        .resume-output li { margin-bottom: 5px; color: black; }
+        .resume-output .skills-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; color: black; margin-bottom: 10px; }
+        .resume-output p { margin-bottom: 10px; color: black; }
+
+        @media print {
+            body * { visibility: hidden; }
+            .resume-output, .resume-output * { visibility: visible; }
+            .resume-output { position: absolute; left: 0; top: 0; width: 100%; max-height: none !important; overflow: visible !important; padding: 0; }
+            @page { margin: 0.75in; }
+        }
+
         .action-row { display: flex; gap: 1rem; margin-top: 1.5rem; flex-wrap: wrap; }
         .btn-outline { background: transparent; border: 2px solid var(--secondary); color: var(--secondary); }
         .btn-outline:hover { background: rgba(255,107,74,0.1); }
@@ -237,7 +259,13 @@ STRICT RULES:
 9. Education on ONE line. Certifications on ONE line.
 10. Core Competencies in a compact 2x2 grid format.
 
-- <div class="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;"> with <div> items for competencies
+Use ONLY these strict CSS classes for formatting (Do NOT use inline styles, the CSS is already injected globally):
+- <h1>Name</h1>
+- <p class="subtitle">Title</p>
+- <p class="contact">City, State | Phone | Email | LinkedIn | Remote Availability</p>
+- <h2>Section Title</h2>
+- <div class="job"><div class="job-header"><div class="job-title">Role Title</div><div class="job-date">Month Year – Month Year</div></div><div class="job-company">Company Name</div><ul><li>Bullet 1</li></ul></div>
+- <div class="skills-grid"><div>Skill 1</div><div>Skill 2</div></div>
 
 OUTPUT FORMAT:
 Do NOT output a single JSON object for everything. HTML and JSON do not mix well.
@@ -257,7 +285,7 @@ You MUST output EXACTLY two blocks:
 YOUR FULL HTML RESUME CODE HERE
 </html_resume>
 
-Ensure all styles in the HTML are inline. Make the h1 text-align center. Make the subtitle text-align center.`;
+Do NOT add any explanation outside these blocks. Output ONLY the blocks requested. Use the strict CSS classes provided.`;
 
                 // --- SHARED CONTEXT INJECTION ---
                 const atsContextStr = localStorage.getItem('ats_analysis_context');
@@ -348,41 +376,9 @@ DO NOT ignore this data. Ensure every issue is addressed in your reasoning and r
         });
 
         function printResume() {
-            const element = document.getElementById('resume-output');
-            const btn = document.querySelector('.btn-outline');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '⏳ Generating PDF...';
-            btn.disabled = true;
-
-            const opt = {
-                margin:       0.5,
-                filename:     'Optimized_Resume.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2 },
-                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
-            };
-
-            // Force a white background for the PDF rendering
-            element.style.background = 'white';
-            element.style.color = 'black';
-            element.style.padding = '20px';
-
-            // Remove scroll constraints so full resume is captured
-            const savedMaxHeight = element.style.maxHeight;
-            const savedOverflow = element.style.overflow;
-            element.style.maxHeight = 'none';
-            element.style.overflow = 'visible';
-
-            // Force browser to recalculate layout before capture
-            void element.offsetHeight;
-
-            html2pdf().set(opt).from(element).save().then(() => {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-                element.style.padding = '2rem';
-                element.style.maxHeight = savedMaxHeight || '';
-                element.style.overflow = savedOverflow || '';
-            });
+            // Using native window.print() ensures a true text-selectable PDF that passes ATS.
+            // The @media print CSS rules (added above) hide the website UI and the browser headers/footers.
+            window.print();
         }
     </script>
 </body>
