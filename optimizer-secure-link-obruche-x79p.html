@@ -352,8 +352,11 @@ Do NOT add any explanation outside these blocks. Output ONLY the blocks requeste
                 // Save to localStorage for signup handoff
                 localStorage.setItem('master_resume', html);
                 
-                // --- ONE TIME LINK CONSUMED (SUPABASE) ---
-                await supabaseClient.from('secure_links').update({ is_consumed: true }).eq('client_id', LINK_ID);
+                // --- ONE TIME LINK CONSUMED & SAVE HTML (SUPABASE) ---
+                await supabaseClient.from('secure_links').update({ 
+                    is_consumed: true,
+                    optimized_html: html 
+                }).eq('client_id', LINK_ID);
                 localStorage.setItem('free_scan_count', '999'); // Lock out of free scanner
 
                 document.getElementById('resume-output').innerHTML = html;
