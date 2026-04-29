@@ -264,16 +264,23 @@ STRICT RULES:
 10. Core Competencies in a compact 2x2 grid format.
 
 OUTPUT FORMAT:
-Return ONLY clean HTML (no <html>, <head>, <body> tags — just the inner content). Use these tags:
-- <h1> for name
-- <p class="subtitle"> for title
-- <p class="contact" style="border-bottom: 2px solid #333; padding-bottom: 10px; margin-bottom: 15px; text-align: center; font-size: 14px; color: #555;"> for contact line
-- <h2 style="border-bottom: 1px solid #ccc; margin-top: 15px; margin-bottom: 10px; text-transform: uppercase; font-size: 16px;"> for section headers
-- <div class="job" style="margin-bottom: 10px;"> with <span class="job-date" style="float: right; font-weight: bold;"> for dates, <div class="job-title" style="font-weight: bold;"> for role, <span class="job-company" style="font-style: italic;"> for company
-- <ul><li style="margin-left: 20px; margin-bottom: 5px;"> for bullet points
-- <div class="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;"> with <div> items for competencies
+Do NOT output a single JSON object for everything. HTML and JSON do not mix well.
+You MUST output EXACTLY two blocks:
 
-Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styles are inline so they render perfectly in the PDF download. Make the h1 text-align center. Make the subtitle text-align center.`;
+<json>
+{
+  "reasoning_loop": "Step-by-step internal monologue where you map out exactly how to improve the weak areas before writing code.",
+  "verified_fixes": [
+    "I fixed [specific flaw] by doing [specific action]"
+  ]
+}
+</json>
+
+<html_resume>
+YOUR FULL HTML RESUME CODE HERE
+</html_resume>
+
+Do NOT add any explanation outside these blocks. Output ONLY the blocks requested. Ensure all styles are inline so they render perfectly in the PDF download. Make the h1 text-align center. Make the subtitle text-align center.`;
 
                 const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
                     method: 'POST',
@@ -299,8 +306,26 @@ Do NOT add any explanation. Output ONLY the HTML resume content. Ensure all styl
                     throw new Error('AI error: ' + (data.error?.message || JSON.stringify(data)));
                 }
 
-                let html = data.choices[0].message.content;
-                html = html.replace(/```html\n?/gi, '').replace(/```\n?/gi, '');
+                let rawContent = data.choices[0].message.content;
+                let html = '';
+                let verifiedFixes = [];
+                
+                const htmlMatch = rawContent.match(/<html_resume>([\s\S]*?)<\/html_resume>/i);
+                if (htmlMatch) {
+                    html = htmlMatch[1].trim();
+                } else {
+                    html = rawContent.replace(/```html/gi, '').replace(/```json/gi, '').replace(/```/gi, '').trim();
+                }
+                
+                const jsonMatch = rawContent.match(/<json>([\s\S]*?)<\/json>/i);
+                if (jsonMatch) {
+                    try {
+                        const parsedJson = JSON.parse(jsonMatch[1]);
+                        if (parsedJson.verified_fixes) verifiedFixes = parsedJson.verified_fixes;
+                    } catch(e) {
+                        console.error("Failed to parse reasoning JSON", e);
+                    }
+                }
 
                 // Random high score between 95 and 99
                 const score = Math.floor(Math.random() * 5) + 95;

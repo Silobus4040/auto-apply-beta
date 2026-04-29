@@ -250,17 +250,25 @@ STRICT RULES:
 
 - <div class="skills-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 5px;"> with <div> items for competencies
 
-OUTPUT FORMAT MUST BE EXACTLY VALID JSON:
-You MUST return a pure JSON object in this exact structure:
+OUTPUT FORMAT:
+Do NOT output a single JSON object for everything. HTML and JSON do not mix well.
+You MUST output EXACTLY two blocks:
+
+<json>
 {
   "reasoning_loop": "Step-by-step internal monologue where you question yourself, review the ATS scores line-by-line, and map out exactly how to improve the weak areas before writing code.",
   "verified_fixes": [
     "I fixed [specific flaw] by doing [specific action]",
     "I addressed the recommendation by [specific action]"
-  ],
-  "html": "YOUR FULL HTML RESUME CODE HERE"
+  ]
 }
-Ensure all styles in the HTML are inline. Do NOT wrap the JSON in markdown blocks (no \`\`\`json). Just return the raw JSON object. Make the h1 text-align center. Make the subtitle text-align center.`;
+</json>
+
+<html_resume>
+YOUR FULL HTML RESUME CODE HERE
+</html_resume>
+
+Ensure all styles in the HTML are inline. Make the h1 text-align center. Make the subtitle text-align center.`;
 
                 // --- SHARED CONTEXT INJECTION ---
                 const atsContextStr = localStorage.getItem('ats_analysis_context');
@@ -302,24 +310,32 @@ DO NOT ignore this data. Ensure every issue is addressed in your reasoning and r
                     throw new Error('AI error: ' + (data.error?.message || JSON.stringify(data)));
                 }
                 let rawContent = data.choices[0].message.content;
-                rawContent = rawContent.replace(/```json\n?/gi, '').replace(/```html\n?/gi, '').replace(/```\n?/gi, '').trim();
                 
-                let parsedData;
-                try {
-                    parsedData = JSON.parse(rawContent);
-                } catch (e) {
-                    console.error("Failed to parse JSON, falling back to raw html", e);
-                    // Fallback in case AI messes up the JSON structure
-                    parsedData = { html: rawContent, verified_fixes: [] };
+                let html = '';
+                let verifiedFixes = [];
+                
+                const htmlMatch = rawContent.match(/<html_resume>([\s\S]*?)<\/html_resume>/i);
+                if (htmlMatch) {
+                    html = htmlMatch[1].trim();
+                } else {
+                    html = rawContent.replace(/```html/gi, '').replace(/```json/gi, '').replace(/```/gi, '').trim();
                 }
-
-                let html = parsedData.html;
+                
+                const jsonMatch = rawContent.match(/<json>([\s\S]*?)<\/json>/i);
+                if (jsonMatch) {
+                    try {
+                        const parsedJson = JSON.parse(jsonMatch[1]);
+                        if (parsedJson.verified_fixes) verifiedFixes = parsedJson.verified_fixes;
+                    } catch(e) {
+                        console.error("Failed to parse reasoning JSON", e);
+                    }
+                }
                 
                 // Display verified fixes if present
-                if (parsedData.verified_fixes && parsedData.verified_fixes.length > 0) {
+                if (verifiedFixes && verifiedFixes.length > 0) {
                     const fixesContainer = document.getElementById('verified-fixes-container');
                     const fixesList = document.getElementById('verified-fixes-list');
-                    fixesList.innerHTML = parsedData.verified_fixes.map(f => `<li>${f}</li>`).join('');
+                    fixesList.innerHTML = verifiedFixes.map(f => `<li>${f}</li>`).join('');
                     fixesContainer.style.display = 'block';
                 }
 

@@ -337,7 +337,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
         }
 
         // Display score modal
-        function showScore(score, rawResumeText) {
+        function showScore(score, rawResumeText, resumeUrl) {
             const circle = document.getElementById('score-circle');
             const s = score.overall_score;
             circle.className = 'score-circle ' + (s < 60 ? 'score-red' : s < 80 ? 'score-yellow' : 'score-green');
@@ -376,8 +376,10 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
             const ctaContainer = document.getElementById('cta-container');
             if (s >= 90) {
                 // Save to localStorage so n8n can pick it up via dashboard
-                if (rawResumeText) {
-                    localStorage.setItem('master_resume', `<pre style="white-space: pre-wrap; font-family: 'Calibri', sans-serif; font-size: 11pt; color: black; background: white; padding: 2rem; line-height: 1.5;">${rawResumeText}</pre>`);
+                if (resumeUrl) {
+                    localStorage.setItem('master_resume_url', resumeUrl);
+                    localStorage.setItem('master_resume_is_pdf', 'true');
+                    localStorage.setItem('master_resume', ''); // Clear any old text
                 }
                 
                 ctaContainer.innerHTML = `
@@ -461,7 +463,7 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
                 await supabaseClient.from('beta_leads').update({ resume_score: score.overall_score, score_details: score }).eq('id', leadId);
 
                 // 6. Show score popup
-                showScore(score, resumeText);
+                showScore(score, resumeText, resumeUrl);
                 form.reset();
 
             } catch (error) {

@@ -434,7 +434,17 @@
 
         function openMasterResume() {
             const savedHtml = localStorage.getItem('master_resume');
-            if (savedHtml) {
+            const isPdf = localStorage.getItem('master_resume_is_pdf') === 'true';
+            const pdfUrl = localStorage.getItem('master_resume_url');
+
+            if (isPdf && pdfUrl) {
+                document.getElementById('resume-content').innerHTML = `
+                    <div style="text-align:center; padding: 2rem;">
+                        <p style="color:#333; margin-bottom:1.5rem; font-size: 1.1rem; font-weight: 600;">Your original uploaded PDF scored 90%+ and is automation-ready!</p>
+                        <iframe src="${pdfUrl}" width="100%" height="600px" style="border:1px solid #ccc; border-radius:4px;"></iframe>
+                    </div>
+                `;
+            } else if (savedHtml && savedHtml.trim() !== '') {
                 document.getElementById('resume-content').innerHTML = savedHtml;
             } else {
                 document.getElementById('resume-content').innerHTML = '<p style="text-align:center; padding: 2rem;">No Master Resume found. Please run the AI Optimizer first.</p>';
@@ -454,9 +464,17 @@
         });
 
         function downloadMasterResume() {
-            // Using native window.print() ensures a true text-selectable PDF that passes ATS.
-            // The @media print CSS rules (added above) hide the website UI and the browser headers/footers.
-            window.print();
+            const isPdf = localStorage.getItem('master_resume_is_pdf') === 'true';
+            const pdfUrl = localStorage.getItem('master_resume_url');
+            
+            if (isPdf && pdfUrl) {
+                // Open the original PDF in a new tab for download
+                window.open(pdfUrl, '_blank');
+            } else {
+                // Using native window.print() ensures a true text-selectable PDF that passes ATS.
+                // The @media print CSS rules (added above) hide the website UI and the browser headers/footers.
+                window.print();
+            }
         }
     </script>
 </body>
