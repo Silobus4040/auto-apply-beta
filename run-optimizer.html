@@ -253,6 +253,7 @@ STRICT RULES:
 OUTPUT FORMAT MUST BE EXACTLY VALID JSON:
 You MUST return a pure JSON object in this exact structure:
 {
+  "reasoning_loop": "Step-by-step internal monologue where you question yourself, review the ATS scores line-by-line, and map out exactly how to improve the weak areas before writing code.",
   "verified_fixes": [
     "I fixed [specific flaw] by doing [specific action]",
     "I addressed the recommendation by [specific action]"
@@ -267,13 +268,12 @@ Ensure all styles in the HTML are inline. Do NOT wrap the JSON in markdown block
                 if (atsContextStr) {
                     try {
                         const atsData = JSON.parse(atsContextStr);
-                        let flaws = [];
-                        if (atsData.critical_issues) flaws.push(...atsData.critical_issues);
-                        let recommendation = atsData.top_recommendation || "";
-                        
-                        if (flaws.length > 0 || recommendation) {
-                            contextPrompt = `\n\nCRITICAL CONTEXT FROM PREVIOUS ATS SCAN:\nThis resume previously failed an ATS scan. You MUST fix the following exact flaws:\n- ${flaws.join('\n- ')}\n\nTop Recommendation to implement: ${recommendation}\nDO NOT ignore these flaws. Ensure they are explicitly resolved in your rewrite.`;
-                        }
+                        contextPrompt = `\n\nCRITICAL FULL ATS CONTEXT:\nHere is the full ATS breakdown of the original resume. It scored ${atsData.overall_score}/100.
+You must review EVERY category, score, verdict, critical issue, and recommendation line by line in your 'reasoning_loop'. You must loop through this data and explicitly question yourself on how to improve the weak scores (e.g., if keywords are 16/20, plan which keywords to add).
+Full ATS Data JSON:
+${JSON.stringify(atsData, null, 2)}
+
+DO NOT ignore this data. Ensure every issue is addressed in your reasoning and resolved in the HTML rewrite.`;
                     } catch (e) { console.error('Failed to parse ATS context'); }
                 }
                 // --- END INJECTION ---
