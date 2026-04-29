@@ -410,6 +410,17 @@ Return ONLY valid JSON. No explanation outside the JSON block.`;
 
         form.addEventListener('submit', async (e) => {
             e.preventDefault();
+
+            // --- SCAN LIMIT CHECK ---
+            let scanCount = parseInt(localStorage.getItem('free_scan_count') || '0');
+            if (scanCount >= 2) {
+                alert("Free Limit Reached: You have used your 2 free ATS scans.\n\nPlease proceed to the AI Optimizer to automatically fix your flaws and bypass the ATS filters.");
+                window.location.href = 'optimize.html';
+                return;
+            }
+            localStorage.setItem('free_scan_count', scanCount + 1);
+            // --- END LIMIT CHECK ---
+
             document.getElementById('form-modal').classList.remove('active');
             loadingOverlay.classList.add('active');
             loadingText.textContent = 'Uploading your resume...';
