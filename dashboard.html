@@ -258,7 +258,12 @@
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
         let currentJobs = [];
 
         function toggleChip(el) {
@@ -279,7 +284,7 @@
             return url;
         }
 
-        function searchJobs() {
+        async function searchJobs() {
             const role = document.getElementById('search-role').value.trim();
             const countrySelect = document.getElementById('search-country');
             const geoId = countrySelect.value;
@@ -295,20 +300,25 @@
                 return;
             }
 
-            const linkedInUrl = buildLinkedInUrl(role, geoId, workplaceTypes);
-
             const btn = document.getElementById('search-btn');
             btn.disabled = true;
             btn.textContent = 'Searching...';
 
-            // Send webhook to n8n
-            // Read the optimized resume HTML saved by the optimizer page
+            const { data: { user }, error } = await supabaseClient.auth.getUser();
+            if (!user) {
+                alert("You must be logged in to search for jobs.");
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const linkedInUrl = buildLinkedInUrl(role, geoId, workplaceTypes);
             const resumeText = localStorage.getItem('master_resume') || '';
 
             fetch('https://n8n.leadscompass.ai/webhook-test/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
+                    user_id: user.id,
                     role: role,
                     country: countryName,
                     workplaceTypes: workplaceTypes,
