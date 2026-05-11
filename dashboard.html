@@ -35,6 +35,8 @@
         .nav-btn:hover { background: rgba(212,255,51,0.1); transform: translate(-1px, -1px); box-shadow: 3px 3px 0px var(--primary); }
         .nav-credits { background: transparent; color: var(--secondary); border: 1px solid var(--secondary); padding: 0.4rem 1rem; border-radius: 0; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; box-shadow: 2px 2px 0px var(--secondary); }
         .nav-avatar { width: 36px; height: 36px; border-radius: 0; background: var(--primary); display: flex; align-items: center; justify-content: center; color: black; font-weight: 800; font-size: 0.9rem; border: 1px solid black; }
+        .nav-logout { background: transparent; border: 1px solid #EF4444; color: #EF4444; padding: 0.4rem 1rem; border-radius: 0; font-size: 0.85rem; font-weight: 700; cursor: pointer; text-transform: uppercase; transition: all 0.2s; box-shadow: 2px 2px 0px #EF4444; }
+        .nav-logout:hover { background: rgba(239,68,68,0.15); transform: translate(-1px, -1px); box-shadow: 3px 3px 0px #EF4444; }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
 
@@ -143,6 +145,7 @@
             <button class="nav-btn" onclick="openMasterResume()">📄 View Master Resume</button>
             <div class="nav-credits">✅ Premium Active</div>
             <div class="nav-avatar">JD</div>
+            <button class="nav-logout" onclick="logout()">⏻ Logout</button>
         </div>
     </nav>
 
@@ -485,6 +488,17 @@
                 // The @media print CSS rules (added above) hide the website UI and the browser headers/footers.
                 window.print();
             }
+        }
+
+        async function logout() {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) {
+                console.error('Logout failed:', error.message);
+                alert('Logout failed. Please try again.');
+                return;
+            }
+            localStorage.clear();
+            window.location.href = 'login.html';
         }
     </script>
 </body>
