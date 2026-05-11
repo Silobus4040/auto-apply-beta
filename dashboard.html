@@ -269,9 +269,9 @@
 
         let currentJobs = [];
 
-        // ─── Auth Guard: block unverified / unauthenticated users ───
+        // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
         (async function authGuard() {
-            const { data: { session }, error } = await supabaseClient.auth.getSession();
+            const { data: { session } } = await supabaseClient.auth.getSession();
 
             if (!session) {
                 // Not logged in at all → send to login
@@ -283,10 +283,21 @@
 
             // Check if email is confirmed
             if (!user.email_confirmed_at) {
-                // Email not yet verified → send to OTP page
                 sessionStorage.setItem('pending_verification_email', user.email);
                 await supabaseClient.auth.signOut();
                 window.location.href = 'verify.html';
+                return;
+            }
+
+            // Check if onboarding is complete — if not, send back to setup
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('onboarding_complete, greenhouse_email')
+                .eq('id', user.id)
+                .single();
+
+            if (!profile || !profile.onboarding_complete) {
+                window.location.href = 'onboarding.html';
                 return;
             }
 
@@ -295,6 +306,12 @@
             const initials = fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
             const avatarEl = document.querySelector('.nav-avatar');
             if (avatarEl) avatarEl.textContent = initials;
+
+            // Show which Greenhouse account is active (optional UX hint)
+            if (profile.greenhouse_email) {
+                const creditsEl = document.querySelector('.nav-credits');
+                if (creditsEl) creditsEl.title = `Bot account: ${profile.greenhouse_email}`;
+            }
         })();
 
         function toggleChip(el) {

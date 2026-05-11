@@ -248,7 +248,7 @@
                 if (error) throw error;
 
                 // Success
-                successMsg.textContent = '✅ Email verified! Redirecting to your dashboard...';
+                successMsg.textContent = '✅ Email verified! Setting up your account...';
                 successMsg.style.display = 'block';
 
                 // Update progress dots
@@ -258,7 +258,7 @@
                 sessionStorage.removeItem('pending_verification_email');
 
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = 'onboarding.html';
                 }, 1500);
 
             } catch (err) {

@@ -105,7 +105,19 @@
                 const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
                 if (error) throw error;
 
-                window.location.href = 'dashboard.html';
+                // Check onboarding status — route accordingly
+                const userId = data.user.id;
+                const { data: profile } = await supabaseClient
+                    .from('profiles')
+                    .select('onboarding_complete')
+                    .eq('id', userId)
+                    .single();
+
+                if (profile && profile.onboarding_complete) {
+                    window.location.href = 'dashboard.html';
+                } else {
+                    window.location.href = 'onboarding.html';
+                }
 
             } catch (err) {
                 errorMsg.textContent = err.message || 'Invalid email or password.';
