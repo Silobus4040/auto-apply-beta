@@ -136,11 +136,14 @@
 
                 if (error) throw error;
 
-                successMsg.textContent = 'Account created successfully! Redirecting to your dashboard...';
+                // Store email for OTP verification page
+                sessionStorage.setItem('pending_verification_email', email);
+
+                successMsg.textContent = '✅ Account created! Check your email for a 6-digit verification code.';
                 successMsg.style.display = 'block';
 
                 setTimeout(() => {
-                    window.location.href = 'dashboard.html';
+                    window.location.href = 'verify.html';
                 }, 1500);
 
             } catch (err) {

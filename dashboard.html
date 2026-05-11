@@ -269,6 +269,34 @@
 
         let currentJobs = [];
 
+        // ─── Auth Guard: block unverified / unauthenticated users ───
+        (async function authGuard() {
+            const { data: { session }, error } = await supabaseClient.auth.getSession();
+
+            if (!session) {
+                // Not logged in at all → send to login
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = session.user;
+
+            // Check if email is confirmed
+            if (!user.email_confirmed_at) {
+                // Email not yet verified → send to OTP page
+                sessionStorage.setItem('pending_verification_email', user.email);
+                await supabaseClient.auth.signOut();
+                window.location.href = 'verify.html';
+                return;
+            }
+
+            // Populate avatar initials from user metadata
+            const fullName = user.user_metadata?.full_name || user.email || '';
+            const initials = fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
+            const avatarEl = document.querySelector('.nav-avatar');
+            if (avatarEl) avatarEl.textContent = initials;
+        })();
+
         function toggleChip(el) {
             el.classList.toggle('active');
         }

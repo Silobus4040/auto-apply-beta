@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoApply AI | Verify Email</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --surface-color: #121212;
+            --primary: #D4FF33;
+            --primary-hover: #bde62b;
+            --secondary: #FF6B4A;
+            --text-heading: #FFFFFF;
+            --text-body: #A1A1AA;
+            --border: #27272A;
+            --brutal-shadow: 4px 4px 0px #D4FF33;
+            --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.3;
+        }
+
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid var(--border); width: 100%; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; }
+        .logo span { color: var(--primary); }
+
+        .container { max-width: 520px; margin: 4rem auto; padding: 0 5%; flex: 1; }
+        .header { text-align: center; margin-bottom: 2.5rem; }
+        .header h1 { color: var(--text-heading); font-size: 2.2rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -1px; }
+        .header p { color: var(--text-body); font-size: 1rem; }
+        .header .email-highlight { color: var(--primary); font-weight: 700; }
+
+        .card { background: var(--surface-color); border: 2px solid var(--border); padding: 2.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); }
+
+        /* Lock icon animation */
+        .lock-icon { font-size: 3rem; margin-bottom: 1rem; display: block; text-align: center; animation: pulse 2s ease-in-out infinite; }
+        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+        /* OTP Input Boxes */
+        .otp-container { display: flex; gap: 0.75rem; justify-content: center; margin: 2rem 0; }
+        .otp-input {
+            width: 56px; height: 68px;
+            background: #000;
+            border: 2px solid var(--border);
+            border-radius: 0;
+            color: var(--primary);
+            font-size: 1.8rem;
+            font-weight: 900;
+            text-align: center;
+            caret-color: var(--primary);
+            transition: all 0.2s;
+        }
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 4px 4px 0px var(--primary);
+            transform: translate(-2px, -2px);
+        }
+        .otp-input.filled {
+            border-color: var(--primary);
+            background: rgba(212, 255, 51, 0.05);
+        }
+        .otp-input.error-shake {
+            animation: shake 0.4s ease;
+            border-color: #EF4444 !important;
+            box-shadow: 4px 4px 0px #EF4444 !important;
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            50% { transform: translateX(8px); }
+            75% { transform: translateX(-4px); }
+        }
+
+        .btn { padding: 1.2rem 2rem; font-size: 1.1rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.2s ease; border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; }
+        .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
+        .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
+
+        .error-msg { background: rgba(239,68,68,0.1); border: 2px solid #EF4444; color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; text-align: center; }
+        .success-msg { background: rgba(212,255,51,0.1); border: 2px solid var(--primary); color: var(--primary); padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; text-align: center; }
+
+        .resend-section { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
+        .resend-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; text-decoration: underline; transition: color 0.2s; }
+        .resend-btn:hover { color: white; }
+        .resend-btn:disabled { color: var(--text-body); cursor: not-allowed; text-decoration: none; }
+
+        .timer { color: var(--secondary); font-weight: 800; font-size: 1rem; }
+
+        .back-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
+        .back-link a { color: var(--text-body); text-decoration: none; font-weight: 600; }
+        .back-link a:hover { color: white; }
+
+        /* Progress dots */
+        .progress { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; }
+        .progress-dot { width: 10px; height: 10px; background: var(--border); border-radius: 0; transition: all 0.3s; }
+        .progress-dot.done { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
+        .progress-dot.active { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); animation: pulse 1.5s ease-in-out infinite; }
+    </style>
+</head>
+<body>
+
+    <nav><a href="index.html" class="logo">APPLY<span>/BOT</span></a></nav>
+
+    <div class="container">
+        <div class="header">
+            <span class="lock-icon">🔐</span>
+            <h1>Verify Your Email</h1>
+            <p>We sent a 6-digit code to <span class="email-highlight" id="user-email">your email</span>. Enter it below to activate your account.</p>
+        </div>
+
+        <div class="progress">
+            <div class="progress-dot done"></div>
+            <div class="progress-dot done"></div>
+            <div class="progress-dot active"></div>
+        </div>
+
+        <div class="card">
+            <div class="error-msg" id="error-msg"></div>
+            <div class="success-msg" id="success-msg"></div>
+
+            <div class="otp-container" id="otp-container">
+                <input type="text" maxlength="1" class="otp-input" data-index="0" inputmode="numeric" autocomplete="one-time-code">
+                <input type="text" maxlength="1" class="otp-input" data-index="1" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" data-index="2" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" data-index="3" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" data-index="4" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" data-index="5" inputmode="numeric">
+            </div>
+
+            <button class="btn btn-primary" id="verify-btn" onclick="verifyOtp()">Verify & Continue &rarr;</button>
+
+            <div class="resend-section">
+                <p>Didn't get the code? <button class="resend-btn" id="resend-btn" onclick="resendCode()" disabled>Resend Code</button></p>
+                <p class="timer" id="timer-text"></p>
+            </div>
+
+            <div class="back-link">
+                <a href="signup.html">&larr; Back to Sign Up</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Retrieve email from sessionStorage (set during signup)
+        const pendingEmail = sessionStorage.getItem('pending_verification_email');
+        if (!pendingEmail) {
+            // No email to verify, redirect back to signup
+            window.location.href = 'signup.html';
+        }
+        document.getElementById('user-email').textContent = pendingEmail || '';
+
+        // ─── OTP Input Logic ───
+        const inputs = document.querySelectorAll('.otp-input');
+
+        inputs.forEach((input, idx) => {
+            input.addEventListener('input', (e) => {
+                const val = e.target.value;
+                // Only allow digits
+                if (!/^\d$/.test(val)) {
+                    e.target.value = '';
+                    return;
+                }
+                e.target.classList.add('filled');
+                // Auto-focus next
+                if (idx < inputs.length - 1) {
+                    inputs[idx + 1].focus();
+                }
+                // Auto-submit when all 6 filled
+                if (getOtpValue().length === 6) {
+                    verifyOtp();
+                }
+            });
+
+            input.addEventListener('keydown', (e) => {
+                if (e.key === 'Backspace') {
+                    if (input.value === '' && idx > 0) {
+                        inputs[idx - 1].focus();
+                        inputs[idx - 1].value = '';
+                        inputs[idx - 1].classList.remove('filled');
+                    } else {
+                        input.value = '';
+                        input.classList.remove('filled');
+                    }
+                }
+            });
+
+            // Handle paste of full code
+            input.addEventListener('paste', (e) => {
+                e.preventDefault();
+                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
+                if (pasted.length === 6) {
+                    pasted.split('').forEach((ch, i) => {
+                        inputs[i].value = ch;
+                        inputs[i].classList.add('filled');
+                    });
+                    inputs[5].focus();
+                    verifyOtp();
+                }
+            });
+
+            input.addEventListener('focus', () => {
+                input.select();
+            });
+        });
+
+        function getOtpValue() {
+            return Array.from(inputs).map(i => i.value).join('');
+        }
+
+        // ─── Verify OTP ───
+        async function verifyOtp() {
+            const token = getOtpValue();
+            if (token.length !== 6) {
+                showError('Please enter the full 6-digit code.');
+                shakeInputs();
+                return;
+            }
+
+            const btn = document.getElementById('verify-btn');
+            const errorMsg = document.getElementById('error-msg');
+            const successMsg = document.getElementById('success-msg');
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+
+            btn.disabled = true;
+            btn.textContent = 'Verifying...';
+
+            try {
+                const { data, error } = await supabaseClient.auth.verifyOtp({
+                    email: pendingEmail,
+                    token: token,
+                    type: 'signup'
+                });
+
+                if (error) throw error;
+
+                // Success
+                successMsg.textContent = '✅ Email verified! Redirecting to your dashboard...';
+                successMsg.style.display = 'block';
+
+                // Update progress dots
+                document.querySelectorAll('.progress-dot').forEach(d => { d.classList.add('done'); d.classList.remove('active'); });
+
+                // Clean up
+                sessionStorage.removeItem('pending_verification_email');
+
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1500);
+
+            } catch (err) {
+                showError(err.message || 'Invalid code. Please try again.');
+                shakeInputs();
+                btn.disabled = false;
+                btn.textContent = 'Verify & Continue →';
+            }
+        }
+
+        function showError(msg) {
+            const errorMsg = document.getElementById('error-msg');
+            errorMsg.textContent = msg;
+            errorMsg.style.display = 'block';
+        }
+
+        function shakeInputs() {
+            inputs.forEach(i => {
+                i.classList.add('error-shake');
+                setTimeout(() => i.classList.remove('error-shake'), 500);
+            });
+        }
+
+        // ─── Resend Code ───
+        let resendCooldown = 60;
+        let resendTimer = null;
+
+        function startResendTimer() {
+            const timerText = document.getElementById('timer-text');
+            const resendBtn = document.getElementById('resend-btn');
+            resendBtn.disabled = true;
+            resendCooldown = 60;
+
+            resendTimer = setInterval(() => {
+                resendCooldown--;
+                timerText.textContent = `Resend available in ${resendCooldown}s`;
+                if (resendCooldown <= 0) {
+                    clearInterval(resendTimer);
+                    timerText.textContent = '';
+                    resendBtn.disabled = false;
+                }
+            }, 1000);
+        }
+
+        async function resendCode() {
+            const resendBtn = document.getElementById('resend-btn');
+            resendBtn.disabled = true;
+
+            try {
+                const { error } = await supabaseClient.auth.resend({
+                    type: 'signup',
+                    email: pendingEmail
+                });
+
+                if (error) throw error;
+
+                const successMsg = document.getElementById('success-msg');
+                successMsg.textContent = '📧 New code sent! Check your inbox.';
+                successMsg.style.display = 'block';
+                setTimeout(() => { successMsg.style.display = 'none'; }, 4000);
+
+                startResendTimer();
+            } catch (err) {
+                showError(err.message || 'Failed to resend code. Try again later.');
+                resendBtn.disabled = false;
+            }
+        }
+
+        // Start initial timer
+        startResendTimer();
+
+        // Auto-focus first input
+        inputs[0].focus();
+    </script>
+</body>
+</html>
