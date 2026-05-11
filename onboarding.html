@@ -217,6 +217,13 @@
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
 
+            // Guard: session must be loaded
+            if (!currentUserId) {
+                errorMsg.textContent = 'Session not loaded yet — please wait a moment and try again.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
             if (!email || !password) {
                 errorMsg.textContent = 'Please fill in both fields.';
                 errorMsg.style.display = 'block';
