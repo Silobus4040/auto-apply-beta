@@ -164,9 +164,7 @@
             }
         }
 
-        // ─── Forgot Password → Magic Link Login ───
-        // Uses signInWithOtp which shares the same working email pipeline as signup.
-        // User gets a magic link → clicks it → lands on dashboard/onboarding.
+        // ─── Forgot Password → Resend Signup OTP (only confirmed working email type) ───
         async function sendPasswordReset() {
             const email = document.getElementById('login-email').value.trim();
             if (!email) {
@@ -178,19 +176,22 @@
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
 
-            const { error } = await supabaseClient.auth.signInWithOtp({
-                email: email,
-                options: {
-                    shouldCreateUser: false  // only send to existing accounts, don't create new ones
-                }
+            // Resend the signup OTP — same pipeline as account creation (confirmed working).
+            // User enters the 8-digit code on verify.html to get logged in.
+            const { error } = await supabaseClient.auth.resend({
+                type: 'signup',
+                email: email
             });
 
             if (error) {
-                errorMsg.textContent = '❌ ' + (error.message || 'Could not send login link.');
+                errorMsg.textContent = '❌ ' + (error.message || 'Could not send code. Please contact support.');
                 errorMsg.style.display = 'block';
             } else {
-                successMsg.textContent = '✅ Magic login link sent to ' + email + '! Click the link in your email to log straight in — no password needed.';
+                successMsg.textContent = '✅ Verification code sent to ' + email + '! Enter the 8-digit code to log in.';
                 successMsg.style.display = 'block';
+                // Store email and redirect to verify page
+                sessionStorage.setItem('pending_verification_email', email);
+                setTimeout(() => { window.location.href = 'verify.html'; }, 2000);
             }
         }
     </script>
