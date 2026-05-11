@@ -46,12 +46,12 @@
         /* OTP Input Boxes */
         .otp-container { display: flex; gap: 0.75rem; justify-content: center; margin: 2rem 0; }
         .otp-input {
-            width: 56px; height: 68px;
+            width: 48px; height: 62px;
             background: #000;
             border: 2px solid var(--border);
             border-radius: 0;
             color: var(--primary);
-            font-size: 1.8rem;
+            font-size: 1.6rem;
             font-weight: 900;
             text-align: center;
             caret-color: var(--primary);
@@ -113,7 +113,7 @@
         <div class="header">
             <span class="lock-icon">🔐</span>
             <h1>Verify Your Email</h1>
-            <p>We sent a 6-digit code to <span class="email-highlight" id="user-email">your email</span>. Enter it below to activate your account.</p>
+            <p>We sent an 8-digit code to <span class="email-highlight" id="user-email">your email</span>. Enter it below to activate your account.</p>
         </div>
 
         <div class="progress">
@@ -133,6 +133,8 @@
                 <input type="text" maxlength="1" class="otp-input" data-index="3" inputmode="numeric">
                 <input type="text" maxlength="1" class="otp-input" data-index="4" inputmode="numeric">
                 <input type="text" maxlength="1" class="otp-input" data-index="5" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" data-index="6" inputmode="numeric">
+                <input type="text" maxlength="1" class="otp-input" data-index="7" inputmode="numeric">
             </div>
 
             <button class="btn btn-primary" id="verify-btn" onclick="verifyOtp()">Verify & Continue &rarr;</button>
@@ -179,7 +181,7 @@
                     inputs[idx + 1].focus();
                 }
                 // Auto-submit when all 6 filled
-                if (getOtpValue().length === 6) {
+                if (getOtpValue().length === 8) {
                     verifyOtp();
                 }
             });
@@ -200,13 +202,13 @@
             // Handle paste of full code
             input.addEventListener('paste', (e) => {
                 e.preventDefault();
-                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 6);
-                if (pasted.length === 6) {
+                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 8);
+                if (pasted.length === 8) {
                     pasted.split('').forEach((ch, i) => {
                         inputs[i].value = ch;
                         inputs[i].classList.add('filled');
                     });
-                    inputs[5].focus();
+                    inputs[7].focus();
                     verifyOtp();
                 }
             });
@@ -223,8 +225,8 @@
         // ─── Verify OTP ───
         async function verifyOtp() {
             const token = getOtpValue();
-            if (token.length !== 6) {
-                showError('Please enter the full 6-digit code.');
+            if (token.length !== 8) {
+                showError('Please enter the full 8-digit code.');
                 shakeInputs();
                 return;
             }

@@ -164,7 +164,9 @@
             }
         }
 
-        // ─── Forgot Password / Reset ───
+        // ─── Forgot Password → Magic Link Login ───
+        // Uses signInWithOtp which shares the same working email pipeline as signup.
+        // User gets a magic link → clicks it → lands on dashboard/onboarding.
         async function sendPasswordReset() {
             const email = document.getElementById('login-email').value.trim();
             if (!email) {
@@ -174,17 +176,24 @@
             const successMsg = document.getElementById('success-msg');
             const errorMsg = document.getElementById('error-msg');
             errorMsg.style.display = 'none';
-            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.origin + '/reset-password.html'
+            successMsg.style.display = 'none';
+
+            const { error } = await supabaseClient.auth.signInWithOtp({
+                email: email,
+                options: {
+                    shouldCreateUser: false  // only send to existing accounts, don't create new ones
+                }
             });
+
             if (error) {
-                errorMsg.textContent = error.message;
+                errorMsg.textContent = '❌ ' + (error.message || 'Could not send login link.');
                 errorMsg.style.display = 'block';
             } else {
-                successMsg.textContent = '✅ Password reset email sent! Check your inbox.';
+                successMsg.textContent = '✅ Magic login link sent to ' + email + '! Click the link in your email to log straight in — no password needed.';
                 successMsg.style.display = 'block';
             }
         }
     </script>
 </body>
 </html>
+
