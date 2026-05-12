@@ -370,7 +370,7 @@
             const linkedInUrl = buildLinkedInUrl(role, geoId, workplaceTypes);
             const resumeText = localStorage.getItem('master_resume') || '';
 
-            fetch('https://n8n.leadscompass.ai/webhook-test/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
+            fetch('https://n8n.leadscompass.ai/webhook/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
