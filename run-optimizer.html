@@ -202,12 +202,18 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         const or_pt1 = 'sk-or-v1-d4f243075ad274fe2ea4';
         const or_pt2 = 'c5aa7380e1b1e885d8e13972c61d0a065a94984c7b10';
         const OPENROUTER_KEY = or_pt1 + or_pt2;
+
+        // Supabase client — used to persist master resume across all devices
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         // Restore previously generated resume to avoid burning AI credits during testing
         window.addEventListener('DOMContentLoaded', () => {
@@ -367,8 +373,26 @@ DO NOT ignore this data. Ensure every issue is addressed in your reasoning and r
                 const score = Math.floor(Math.random() * 5) + 95;
                 document.getElementById('new-score').textContent = score + '%';
 
-                // Save to localStorage for signup handoff
+                // Save to localStorage (session cache)
                 localStorage.setItem('master_resume', html);
+
+                // Save to Supabase as source of truth (works across all devices)
+                try {
+                    const { data: { user } } = await supabaseClient.auth.getUser();
+                    if (user) {
+                        const { error: saveError } = await supabaseClient
+                            .from('profiles')
+                            .update({ master_resume: html, updated_at: new Date().toISOString() })
+                            .eq('id', user.id);
+                        if (saveError) console.warn('Could not save resume to Supabase:', saveError.message);
+                        else console.log('Master resume saved to Supabase profiles.');
+                    } else {
+                        // User not logged in yet (pre-signup flow) — localStorage only until they sign up
+                        console.log('No active session — resume saved to localStorage only (will sync on signup).');
+                    }
+                } catch (e) {
+                    console.warn('Supabase save skipped:', e.message);
+                }
 
                 document.getElementById('resume-output').innerHTML = html;
                 document.getElementById('upload-section').style.display = 'none';

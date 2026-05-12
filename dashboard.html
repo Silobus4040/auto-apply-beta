@@ -292,13 +292,21 @@
             // Check if onboarding is complete — if not, send back to setup
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('onboarding_complete, greenhouse_email')
+                .select('onboarding_complete, greenhouse_email, master_resume')
                 .eq('id', user.id)
                 .single();
 
             if (!profile || !profile.onboarding_complete) {
                 window.location.href = 'onboarding.html';
                 return;
+            }
+
+            // ── Sync master resume from Supabase → localStorage (cross-device support) ──
+            if (profile.master_resume) {
+                localStorage.setItem('master_resume', profile.master_resume);
+                console.log('Master resume loaded from Supabase into localStorage.');
+            } else {
+                console.warn('No master resume found in Supabase profile. User may need to run the optimizer.');
             }
 
             // Populate avatar initials from user metadata
