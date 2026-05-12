@@ -235,6 +235,9 @@
 
             try {
                 // Upsert profile with greenhouse credentials and mark onboarding complete
+                // Grab resume from localStorage (set during pre-signup optimizer flow)
+                const masterResume = localStorage.getItem('master_resume') || null;
+
                 const { error } = await supabaseClient
                     .from('profiles')
                     .upsert({
@@ -242,6 +245,7 @@
                         greenhouse_email: email,
                         greenhouse_password: password,
                         onboarding_complete: true,
+                        ...(masterResume && { master_resume: masterResume }),
                         updated_at: new Date().toISOString()
                     }, { onConflict: 'id' });
 
