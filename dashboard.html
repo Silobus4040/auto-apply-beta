@@ -320,6 +320,10 @@
                 const creditsEl = document.querySelector('.nav-credits');
                 if (creditsEl) creditsEl.title = `Bot account: ${profile.greenhouse_email}`;
             }
+
+            // Initialize Production Dashboard Data
+            await fetchUserJobs();
+            setupRealtime(user.id);
         })();
 
         function toggleChip(el) {
@@ -402,38 +406,59 @@
             }, 1500);
         }
 
-        function generateDemoJobs(role, country, workplaceTypes) {
-            const workplaceLabels = { '1': 'On-site', '2': 'Remote', '3': 'Hybrid' };
-            const wpLabel = workplaceTypes.map(w => workplaceLabels[w]).join(' / ');
+        async function fetchUserJobs() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
 
-            const companies = [
-                { name: 'Stripe', logo: 'S', salary: '$140,000 - $190,000', applicants: 842 },
-                { name: 'Vercel', logo: 'V', salary: null, applicants: 1204 },
-                { name: 'Airbnb', logo: 'A', salary: '$130,000 - $175,000', applicants: 567 },
-                { name: 'Notion', logo: 'N', salary: '$120,000 - $160,000', applicants: 923 },
-                { name: 'Figma', logo: 'F', salary: null, applicants: 1589 },
-                { name: 'Shopify', logo: 'S', salary: '$115,000 - $155,000', applicants: 734 },
-                { name: 'GitLab', logo: 'G', salary: '$125,000 - $170,000', applicants: 456 },
-                { name: 'Datadog', logo: 'D', salary: null, applicants: 678 },
-                { name: 'HubSpot', logo: 'H', salary: '$110,000 - $150,000', applicants: 891 },
-                { name: 'Twilio', logo: 'T', salary: '$135,000 - $180,000', applicants: 345 },
-            ];
+            const { data: jobs, error } = await supabaseClient
+                .from('job_applications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
 
-            const times = ['2 hours ago', '4 hours ago', '6 hours ago', '8 hours ago', '12 hours ago', '18 hours ago', '1 day ago', '1 day ago', '2 days ago', '2 days ago'];
+            if (error) {
+                console.error('Error fetching jobs:', error);
+                return;
+            }
 
-            return companies.map((c, i) => ({
-                companyName: c.name,
-                companyLogo: c.logo,
-                title: `${role}${i % 3 === 0 ? ', Senior' : i % 3 === 1 ? '' : ', Mid-Level'}`,
-                location: `${country} (${wpLabel})`,
-                postedAt: times[i],
-                salary: c.salary,
-                applicantsCount: c.applicants,
-                link: '#',
-                descriptionText: `${c.name} is looking for an experienced ${role} to join our ${wpLabel.toLowerCase()} team based in ${country}.\n\nResponsibilities:\n• Lead development and execution of key initiatives\n• Collaborate cross-functionally with engineering, design, and product teams\n• Drive measurable outcomes through data-driven decision making\n• Mentor junior team members and contribute to team culture\n\nRequirements:\n• 3-5+ years of relevant experience\n• Strong communication skills and async collaboration experience\n• Proven track record of delivering impactful results\n• Experience working in fast-paced, high-growth environments\n\nBenefits:\n• Fully remote / flexible work arrangement\n• Competitive salary and equity package\n• Unlimited PTO and wellness stipend\n• Annual learning and development budget`,
-                coverLetterText: `Dear Hiring Manager at ${c.name},\n\nI am writing to express my strong interest in the ${role} position. With my background in driving measurable outcomes and collaborating cross-functionally, I am confident in my ability to make an immediate impact at ${c.name}.\n\nIn my previous roles, I successfully led development initiatives that directly aligned with core business metrics. Your focus on building a strong remote culture and data-driven decision making strongly resonates with my approach to work.\n\nI have attached my resume for your review. I look forward to discussing how my experience aligns with the needs of your team.\n\nBest regards,\n[Your Name]`,
-                status: 'queued'
-            }));
+            currentJobs = jobs.map(dbJob => {
+                return {
+                    id: dbJob.id,
+                    companyName: dbJob.companyName || 'Unknown Company',
+                    title: dbJob.title || 'Role',
+                    location: dbJob.location || 'Remote',
+                    postedAt: dbJob.postedAt || new Date(dbJob.created_at).toLocaleDateString(),
+                    link: dbJob.link || '#',
+                    descriptionText: dbJob.descriptionText || 'No description provided.',
+                    status: dbJob.status || 'queued',
+                    atsType: dbJob.ats_type || 'Unknown',
+                    applyUrl: dbJob.applyUrl || '#',
+                    companyWebsite: dbJob.companyWebsite || '',
+                    seniorityLevel: dbJob.seniorityLevel || '',
+                    employmentType: dbJob.employmentType || '',
+                    jobFunction: dbJob.jobFunction || '',
+                    industries: dbJob.industries || ''
+                };
+            });
+
+            updateStats(currentJobs);
+            renderJobs(currentJobs);
+        }
+
+        function updateStats(jobs) {
+            document.getElementById('stats-bar').style.display = 'flex';
+            document.getElementById('stat-total').textContent = jobs.length;
+            document.getElementById('stat-queued').textContent = jobs.filter(j => j.status === 'queued').length;
+            document.getElementById('stat-applied').textContent = jobs.filter(j => j.status === 'applied').length;
+        }
+
+        function setupRealtime(userId) {
+            supabaseClient.channel('jobs-updates')
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'job_applications', filter: `user_id=eq.${userId}` }, payload => {
+                  console.log('Realtime job update:', payload);
+                  fetchUserJobs(); // Refresh the dashboard on any change (scrape inserts, apply updates)
+              })
+              .subscribe();
         }
 
         function renderJobs(jobs) {
@@ -445,15 +470,19 @@
 
             let html = '';
             jobs.forEach((job, index) => {
-                const salaryHtml = job.salary ? `<span class="salary-tag">💰 ${job.salary}</span>` : '';
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : 'status-queued';
                 const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : '⏳ In Queue';
+
+                // Construct extra details based on available fields from Supabase
+                const extraMeta = [];
+                if (job.seniorityLevel && job.seniorityLevel !== 'Not Applicable') extraMeta.push(`👔 ${job.seniorityLevel}`);
+                if (job.employmentType) extraMeta.push(`⏱️ ${job.employmentType}`);
+                if (job.atsType) extraMeta.push(`🤖 ATS: ${job.atsType}`);
 
                 html += `
                     <div class="job-card">
                         <div class="job-header">
                             <div class="company-info">
-                                <div class="company-logo">${job.companyLogo}</div>
                                 <div>
                                     <div class="job-title">${job.title}</div>
                                     <div class="company-name">${job.companyName}</div>
@@ -465,15 +494,13 @@
                         <div class="job-meta">
                             <div class="meta-item">📍 ${job.location}</div>
                             <div class="meta-item">🕒 ${job.postedAt}</div>
-                            <div class="meta-item">👥 ${job.applicantsCount.toLocaleString()} Applicants</div>
-                            ${salaryHtml}
+                            ${extraMeta.map(m => `<div class="meta-item">${m}</div>`).join('')}
                         </div>
 
                         <div class="job-desc-preview">${job.descriptionText}</div>
 
                         <div class="job-actions">
                             <button class="view-desc-btn" onclick="openModal(${index})">📄 Read Full Description</button>
-                            <button class="view-cl-btn" onclick="openCoverLetter(${index})">📝 View AI Cover Letter</button>
                         </div>
                     </div>
                 `;
