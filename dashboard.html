@@ -292,7 +292,7 @@
             // Check if onboarding is complete — if not, send back to setup
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('onboarding_complete, greenhouse_email, master_resume')
+                .select('onboarding_complete, Application_email, master_resume')
                 .eq('id', user.id)
                 .single();
 
@@ -316,9 +316,9 @@
             if (avatarEl) avatarEl.textContent = initials;
 
             // Show which Greenhouse account is active (optional UX hint)
-            if (profile.greenhouse_email) {
+            if (profile.Application_email) {
                 const creditsEl = document.querySelector('.nav-credits');
-                if (creditsEl) creditsEl.title = `Bot account: ${profile.greenhouse_email}`;
+                if (creditsEl) creditsEl.title = `Bot account: ${profile.Application_email}`;
             }
 
             // Initialize Production Dashboard Data

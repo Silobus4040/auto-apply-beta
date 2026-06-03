@@ -242,8 +242,8 @@
                     .from('profiles')
                     .upsert({
                         id: currentUserId,
-                        greenhouse_email: email,
-                        greenhouse_password: password,
+                        Application_email: email,
+                        Application_Password: password,
                         onboarding_complete: true,
                         ...(masterResume && { master_resume: masterResume }),
                         updated_at: new Date().toISOString()
