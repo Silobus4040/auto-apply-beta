@@ -170,7 +170,7 @@
                                 <div style="display: flex; gap: 0.5rem;">
                                     <div style="position: relative; flex-shrink: 0; width: 85px;">
                                         <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">+</span>
-                                        <input type="text" id="phone-code" placeholder="1" style="width: 100%; padding-left: 2.2rem; text-align: left;">
+                                        <input type="text" id="phone-code" placeholder="1" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
                                     <input type="text" id="phone" placeholder="(555) 000-0000" style="flex-grow: 1;">
                                 </div>
