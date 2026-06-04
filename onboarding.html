@@ -109,8 +109,11 @@
                             
                             <div class="form-group">
                                 <label>Target Job Titles</label>
-                                <input type="text" id="job-titles" placeholder="e.g. Frontend Engineer, Product Manager">
-                                <p class="form-hint">The specific roles you want the bot to find and apply to.</p>
+                                <div id="job-titles-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <input type="text" class="job-title-input" placeholder="e.g. Frontend Engineer">
+                                </div>
+                                <button type="button" class="btn btn-secondary" onclick="addJobTitleField()" style="padding: 0.6rem 1rem; font-size: 0.8rem; margin-top: 0.5rem; margin-bottom: 0;">+ Add Another Role</button>
+                                <p class="form-hint" style="margin-top: 0.5rem;">The specific roles you want the bot to find and apply to.</p>
                             </div>
 
                             <div class="form-group">
@@ -306,6 +309,16 @@
             if (profile && profile.onboarding_complete) { window.location.href = 'dashboard.html'; return; }
         })();
 
+        // Dynamic Job Titles Logic
+        function addJobTitleField() {
+            const container = document.getElementById('job-titles-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'job-title-input';
+            input.placeholder = 'e.g. Product Manager';
+            container.appendChild(input);
+        }
+
         // Slider Logic
         const btnNext = document.getElementById('btn-next');
         const btnBack = document.getElementById('btn-back');
@@ -314,7 +327,8 @@
         const stepIndicator = document.getElementById('step-indicator');
 
         btnNext.addEventListener('click', () => {
-            const jobTitles = document.getElementById('job-titles').value.trim();
+            const jobTitleInputs = document.querySelectorAll('.job-title-input');
+            const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
             const countries = Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value);
             const workplaces = Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value);
             const file = document.getElementById('resume-file').files[0];
@@ -384,7 +398,7 @@
                 loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
-                    target_job_titles: document.getElementById('job-titles').value.trim(),
+                    target_job_titles: Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
                     target_location: Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value).join(', '),
                     workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
                     phone: phone,
