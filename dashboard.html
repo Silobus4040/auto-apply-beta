@@ -287,6 +287,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentJobs = [];
+        let userProfile = null;
 
         // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
         (async function authGuard() {
@@ -333,6 +334,8 @@
                 console.warn('No master resume found in Supabase profile. User may need to run the optimizer.');
             }
 
+            userProfile = profile;
+
             // Populate avatar initials from user metadata
             const fullName = user.user_metadata?.full_name || user.email || '';
             const initials = fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
@@ -343,9 +346,6 @@
             if (profile.Application_email) {
                 const creditsEl = document.querySelector('.nav-credits');
                 if (creditsEl) creditsEl.title = `Bot account: ${profile.Application_email}`;
-                document.getElementById('inbox-banner').style.display = 'none';
-            } else {
-                document.getElementById('inbox-banner').style.display = 'flex';
             }
 
             // Initialize Production Dashboard Data
@@ -505,6 +505,18 @@
 
             updateStats(currentJobs);
             renderJobs(currentJobs);
+            updateInboxBannerVisibility();
+        }
+
+        function updateInboxBannerVisibility() {
+            const banner = document.getElementById('inbox-banner');
+            if (!banner || !userProfile) return;
+            
+            if (!userProfile.Application_email && currentJobs.length > 0) {
+                banner.style.display = 'flex';
+            } else {
+                banner.style.display = 'none';
+            }
         }
 
         function updateStats(jobs) {
@@ -646,8 +658,11 @@
                 return;
             }
 
+            if (userProfile) {
+                userProfile.Application_email = email;
+            }
             closeModal('inbox-modal');
-            document.getElementById('inbox-banner').style.display = 'none';
+            updateInboxBannerVisibility();
             alert("Inbox connected successfully! The Auto-Apply Engine is now armed.");
         }
     </script>
