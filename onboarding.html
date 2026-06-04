@@ -344,18 +344,53 @@
             errorMsg.style.display = 'none';
             slider.style.transform = 'translateX(-50%)';
             stepIndicator.textContent = 'Step 2 of 2';
+            localStorage.setItem('onb_step', '2');
         });
 
         btnBack.addEventListener('click', () => {
             errorMsg.style.display = 'none';
             slider.style.transform = 'translateX(0)';
             stepIndicator.textContent = 'Step 1 of 2';
+            localStorage.setItem('onb_step', '1');
         });
+
+        // Auto-Save Form State
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="number"], #onboarding-form select');
+        formInputs.forEach(input => {
+            if (input.id) {
+                const saved = localStorage.getItem('onb_' + input.id);
+                if (saved) input.value = saved;
+                input.addEventListener('input', () => localStorage.setItem('onb_' + input.id, input.value));
+            }
+        });
+        
+        const checkboxes = document.querySelectorAll('#onboarding-form input[type="checkbox"]');
+        checkboxes.forEach(cb => {
+            const saved = localStorage.getItem('onb_cb_' + cb.value);
+            if (saved) cb.checked = (saved === 'true');
+            cb.addEventListener('change', () => localStorage.setItem('onb_cb_' + cb.value, cb.checked));
+        });
+
+        // Resume Step State
+        if (localStorage.getItem('onb_step') === '2') {
+            slider.style.transform = 'translateX(-50%)';
+            stepIndicator.textContent = 'Step 2 of 2';
+        }
 
         // Form Submit Logic
         document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             errorMsg.style.display = 'none';
+
+            const file = document.getElementById('resume-file').files[0];
+            if (!file) {
+                errorMsg.textContent = "Please re-select your resume PDF. Browser refreshes clear file uploads for security.";
+                errorMsg.style.display = 'block';
+                slider.style.transform = 'translateX(0)';
+                stepIndicator.textContent = 'Step 1 of 2';
+                localStorage.setItem('onb_step', '1');
+                return;
+            }
 
             const phoneCode = document.getElementById('phone-code').value.trim();
             const phoneRaw = document.getElementById('phone').value.trim();
@@ -421,6 +456,9 @@
                 }, { onConflict: 'id' });
 
                 if (profileError) throw profileError;
+
+                // Clear cached data on success
+                Object.keys(localStorage).forEach(key => { if (key.startsWith('onb_')) localStorage.removeItem(key); });
 
                 loadingText.textContent = "Setup Complete!";
                 setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
