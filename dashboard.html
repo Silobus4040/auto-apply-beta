@@ -380,7 +380,12 @@
         }
 
         function buildLinkedInUrl(role, geoId, workplaceTypes) {
-            const encodedRole = encodeURIComponent(role);
+            const rolesArray = role.split(',').map(r => r.trim()).filter(r => r);
+            let finalRoleQuery = role;
+            if (rolesArray.length > 1) {
+                finalRoleQuery = rolesArray.map(r => `"${r}"`).join(' OR ');
+            }
+            const encodedRole = encodeURIComponent(finalRoleQuery);
             let url = `https://www.linkedin.com/jobs/search?keywords=${encodedRole}&geoId=${geoId}&f_TPR=r86400&position=1&pageNum=0`;
             if (workplaceTypes.length > 0) {
                 url += `&f_WT=${workplaceTypes.join('%2C')}`;
