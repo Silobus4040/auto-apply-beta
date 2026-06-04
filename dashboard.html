@@ -133,6 +133,11 @@
             #resume-modal .desc-modal > *:not(#resume-content) { display: none !important; }
             #resume-content { padding: 0.5in 0.8in !important; background: white !important; color: black !important; min-height: 0 !important; }
         }
+        @keyframes pulse {
+            0% { transform: scale(0.96); opacity: 0.7; }
+            50% { transform: scale(1.04); opacity: 1; }
+            100% { transform: scale(0.96); opacity: 0.7; }
+        }
     </style>
 </head>
 <body>
@@ -159,39 +164,34 @@
             <button onclick="document.getElementById('inbox-modal').classList.add('active')" class="btn" style="background: var(--secondary); color: #000; border: 2px solid #000; font-size: 0.9rem; padding: 0.8rem 1.5rem; width: auto; box-shadow: 3px 3px 0px #000; flex-shrink: 0;">Connect Inbox &rarr;</button>
         </div>
 
-        <!-- Search & Job Discovery -->
-        <div class="search-section">
-            <h2>🔍 Search & Discover Jobs</h2>
-            <p>Enter your target role and country. Our AI will source matching jobs from LinkedIn and Indeed, then auto-apply on your behalf.</p>
-            
-            <div class="search-row">
-                <div class="field">
-                    <label>Target Role</label>
-                    <input type="text" id="search-role" placeholder="e.g. Frontend Engineer, Product Manager" required>
+        <!-- Automation Profile & Active Status -->
+        <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 2px solid var(--border); margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+                <div style="flex: 1; min-width: 300px;">
+                    <h2 style="color: white; font-size: 1.6rem; margin-bottom: 0.5rem; text-transform: uppercase; font-weight: 900; letter-spacing: 0.5px;">🤖 Job Agent Active</h2>
+                    <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem;">The AI workflow automatically sources and queues matching jobs based on your onboarding preferences.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.25); padding: 1.25rem; border: 1px solid var(--border);">
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--secondary); display: block; margin-bottom: 0.2rem;">Target Roles</span>
+                            <span id="pref-roles" style="color: white; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--secondary); display: block; margin-bottom: 0.2rem;">Target Countries</span>
+                            <span id="pref-countries" style="color: white; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--secondary); display: block; margin-bottom: 0.2rem;">Workplace Types</span>
+                            <span id="pref-workplaces" style="color: white; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                        </div>
+                    </div>
                 </div>
-                <div class="field">
-                    <label>Country</label>
-                    <select id="search-country">
-                        <option value="103644278" data-name="United States">United States</option>
-                        <option value="101165590" data-name="United Kingdom">United Kingdom</option>
-                        <option value="101174742" data-name="Canada">Canada</option>
-                    </select>
-                </div>
-                <button class="search-btn" id="search-btn" onclick="searchJobs()">Search Jobs</button>
-            </div>
-
-            <div class="filter-row">
-                <span class="filter-label">Workplace:</span>
-                <div class="filter-chips">
-                    <div class="chip active" data-value="2" onclick="toggleChip(this)">
-                        🏠 Remote
-                    </div>
-                    <div class="chip" data-value="3" onclick="toggleChip(this)">
-                        🔀 Hybrid
-                    </div>
-                    <div class="chip" data-value="1" onclick="toggleChip(this)">
-                        🏢 On-site
-                    </div>
+                
+                <!-- Scanning Status Card -->
+                <div id="scanning-indicator" style="background: rgba(212, 255, 51, 0.03); border: 2px dashed var(--border); padding: 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
+                    <div id="scanning-dot" class="pulsing-dot" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px var(--primary); animation: pulse 1.5s infinite;"></div>
+                    <h4 id="scanning-title" style="color: white; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 800;">🤖 Scraper Active</h4>
+                    <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Sourcing matching jobs into your dashboard. Feel free to leave this page; the scan runs in the cloud.</p>
                 </div>
             </div>
         </div>
@@ -333,7 +333,7 @@
             // Check if onboarding is complete — if not, send back to setup
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('onboarding_complete, Application_email, master_resume')
+                .select('onboarding_complete, Application_email, master_resume, target_job_titles, target_location, workplace_type')
                 .eq('id', user.id)
                 .single();
 
@@ -341,6 +341,11 @@
                 window.location.href = 'onboarding.html';
                 return;
             }
+
+            // Populate user preference labels
+            document.getElementById('pref-roles').textContent = profile.target_job_titles || 'Not specified';
+            document.getElementById('pref-countries').textContent = profile.target_location || 'Not specified';
+            document.getElementById('pref-workplaces').textContent = profile.workplace_type || 'Not specified';
 
             // ── Sync master resume from Supabase → localStorage (cross-device support) ──
             if (profile.master_resume) {
@@ -368,75 +373,111 @@
             // Initialize Production Dashboard Data
             await fetchUserJobs();
             setupRealtime(user.id);
+
+            // Check if we need to trigger the initial scrape
+            if (localStorage.getItem('trigger_initial_scrape') === 'true') {
+                localStorage.removeItem('trigger_initial_scrape');
+                triggerInitialScrape(user, profile);
+            }
         })();
 
-        function toggleChip(el) {
-            el.classList.toggle('active');
+        let pollingInterval = null;
+        let pollCount = 0;
+
+        function startPolling() {
+            if (pollingInterval) return;
+            pollCount = 0;
+            console.log("Starting polling fallback...");
+            pollingInterval = setInterval(async () => {
+                pollCount++;
+                if (pollCount > 12) { // Stop polling after 3 minutes (12 * 15s) to save resources
+                    stopPolling();
+                    updateScanningIndicator(false, currentJobs.length);
+                    return;
+                }
+                await fetchUserJobs();
+            }, 15000);
         }
 
-        function getSelectedWorkplaceTypes() {
-            const chips = document.querySelectorAll('.chip.active');
-            return Array.from(chips).map(c => c.dataset.value);
+        function stopPolling() {
+            if (pollingInterval) {
+                console.log("Stopping polling fallback.");
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
         }
 
-        async function searchJobs() {
-            const role = document.getElementById('search-role').value.trim();
-            const countrySelect = document.getElementById('search-country');
-            const geoId = countrySelect.value;
-            const countryName = countrySelect.options[countrySelect.selectedIndex].dataset.name;
-            const workplaceTypes = getSelectedWorkplaceTypes();
+        function updateScanningIndicator(isScanningActive, jobCount) {
+            const indicator = document.getElementById('scanning-indicator');
+            const dot = document.getElementById('scanning-dot');
+            const title = document.getElementById('scanning-title');
+            const text = document.getElementById('scanning-text');
+            
+            if (!indicator) return;
 
-            if (!role) {
-                alert('Please enter a target role.');
-                return;
+            if (isScanningActive && jobCount === 0) {
+                indicator.style.background = 'rgba(212, 255, 51, 0.03)';
+                indicator.style.borderColor = 'var(--primary)';
+                dot.style.background = 'var(--primary)';
+                dot.style.boxShadow = '0 0 10px var(--primary)';
+                dot.style.animation = 'pulse 1.5s infinite';
+                title.textContent = '🤖 Scraper Active';
+                title.style.color = 'white';
+                text.textContent = 'Sourcing matching jobs into your dashboard. Feel free to leave this page; the scan runs in the cloud.';
+            } else {
+                indicator.style.background = 'rgba(255, 255, 255, 0.02)';
+                indicator.style.borderColor = 'var(--border)';
+                dot.style.background = '#10B981';
+                dot.style.boxShadow = '0 0 10px #10B981';
+                dot.style.animation = 'none';
+                title.textContent = '🟢 Monitoring';
+                title.style.color = '#10B981';
+                text.textContent = 'Our job agent is active and checking for new listings on your cron schedule.';
             }
-            if (workplaceTypes.length === 0) {
-                alert('Please select at least one workplace type.');
-                return;
-            }
+        }
 
-            const btn = document.getElementById('search-btn');
-            btn.disabled = true;
-            btn.textContent = 'Searching...';
-
-            const { data: { user }, error } = await supabaseClient.auth.getUser();
-            if (!user) {
-                alert("You must be logged in to search for jobs.");
-                window.location.href = 'login.html';
-                return;
-            }
+        async function triggerInitialScrape(user, profile) {
+            console.log('Triggering initial scrape for user:', user.id);
+            
+            const roles = profile.target_job_titles || '';
+            const country = profile.target_location || 'United States';
+            
+            const workplaceMap = {
+                'remote': '2',
+                'hybrid': '3',
+                'on-site': '1'
+            };
+            const workplaceTypes = (profile.workplace_type || '')
+                .split(',')
+                .map(w => w.trim().toLowerCase())
+                .map(w => workplaceMap[w] || w)
+                .filter(w => w);
 
             const resumeText = localStorage.getItem('master_resume') || '';
 
-            fetch('https://n8n.leadscompass.ai/webhook-test/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    user_id: user.id,
-                    role: role,
-                    country: countryName,
-                    workplaceTypes: workplaceTypes,
-                    resumeText: resumeText
-                })
-            }).then(res => {
-                console.log('Webhook triggered successfully', res);
-            }).catch(err => {
-                console.error('Failed to trigger webhook', err);
-            });
+            // Start polling as the scraping workflow starts in the background
+            startPolling();
+            updateScanningIndicator(true, 0);
 
-            // Simulate loading (Show queue modal)
-            setTimeout(() => {
-                document.getElementById('queue-modal').classList.add('active');
-                btn.disabled = false;
-                btn.textContent = 'Search Jobs';
-
-                document.getElementById('stats-bar').style.display = 'flex';
-                document.getElementById('stat-total').textContent = '-';
-                document.getElementById('stat-queued').textContent = 'Processing';
-                document.getElementById('stat-applied').textContent = '0';
-
-                console.log('Webhook payload sent to n8n successfully.');
-            }, 1500);
+            try {
+                fetch('https://n8n.leadscompass.ai/webhook-test/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: user.id,
+                        role: roles,
+                        country: country,
+                        workplaceTypes: workplaceTypes,
+                        resumeText: resumeText
+                    })
+                }).then(res => {
+                    console.log('Initial scrape webhook triggered successfully', res);
+                }).catch(err => {
+                    console.error('Failed to trigger initial scrape webhook', err);
+                });
+            } catch (err) {
+                console.error('Error triggering initial scrape:', err);
+            }
         }
 
         async function fetchUserJobs() {
@@ -452,6 +493,15 @@
             if (error) {
                 console.error('Error fetching jobs:', error);
                 return;
+            }
+
+            // Manage polling and scanning state
+            if (jobs && jobs.length > 0) {
+                stopPolling();
+                updateScanningIndicator(false, jobs.length);
+            } else {
+                startPolling();
+                updateScanningIndicator(true, 0);
             }
 
             currentJobs = jobs.map(dbJob => {
@@ -526,7 +576,6 @@
                         
                         <div class="job-meta">
                             <div class="meta-item">📍 ${job.location}</div>
-                            <div class="meta-item">🕒 ${job.postedAt}</div>
                             ${extraMeta.map(m => `<div class="meta-item">${m}</div>`).join('')}
                         </div>
 

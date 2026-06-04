@@ -471,6 +471,9 @@
                 // Clear cached data on success
                 Object.keys(localStorage).forEach(key => { if (key.startsWith('onb_')) localStorage.removeItem(key); });
 
+                // Set a flag to trigger the initial scrape on the dashboard
+                localStorage.setItem('trigger_initial_scrape', 'true');
+
                 loadingText.textContent = "Setup Complete!";
                 setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
 
