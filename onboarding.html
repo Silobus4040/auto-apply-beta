@@ -48,7 +48,7 @@
 
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input[type="text"], .form-group input[type="number"], .form-group select { width: 100%; padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; -webkit-appearance: none; appearance: none; }
+        .form-group input[type="text"], .form-group input[type="number"], .form-group input[type="url"], .form-group select { width: 100%; padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; -webkit-appearance: none; appearance: none; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
         .form-group input[type="file"] { width: 100%; padding: 1rem; background: #000; border: 2px dashed var(--border); color: #9CA3AF; cursor: pointer; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
@@ -165,12 +165,7 @@
                             <div class="form-group">
                                 <label>Phone Number</label>
                                 <div style="display: flex; gap: 0.5rem;">
-                                    <div class="select-wrapper" style="flex-shrink: 0; width: 130px;">
-                                        <select id="phone-code" style="padding: 1rem 0.5rem; text-align: center;">
-                                            <option value="+1">+1 (US/CA)</option>
-                                            <option value="+44">+44 (UK)</option>
-                                        </select>
-                                    </div>
+                                    <input type="text" id="phone-code" placeholder="+1" style="flex-shrink: 0; width: 80px; text-align: center;">
                                     <input type="text" id="phone" placeholder="(555) 000-0000" style="flex-grow: 1;">
                                 </div>
                             </div>
@@ -345,8 +340,15 @@
             e.preventDefault();
             errorMsg.style.display = 'none';
 
-            const phoneCode = document.getElementById('phone-code').value;
+            const phoneCode = document.getElementById('phone-code').value.trim();
             const phoneRaw = document.getElementById('phone').value.trim();
+            
+            if (phoneCode && !phoneCode.startsWith('+')) {
+                errorMsg.textContent = "Country code must start with a '+' (e.g. +1, +44).";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
             const phone = phoneRaw ? `${phoneCode} ${phoneRaw}` : '';
             const linkedin = document.getElementById('linkedin').value.trim();
             const portfolio = document.getElementById('portfolio').value.trim();
