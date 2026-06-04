@@ -164,12 +164,25 @@
                         <div class="row-grid">
                             <div class="form-group">
                                 <label>Phone Number</label>
-                                <input type="text" id="phone" placeholder="+1 (555) 000-0000">
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <div class="select-wrapper" style="flex-shrink: 0; width: 130px;">
+                                        <select id="phone-code" style="padding: 1rem 0.5rem; text-align: center;">
+                                            <option value="+1">+1 (US/CA)</option>
+                                            <option value="+44">+44 (UK)</option>
+                                        </select>
+                                    </div>
+                                    <input type="text" id="phone" placeholder="(555) 000-0000" style="flex-grow: 1;">
+                                </div>
                             </div>
                             <div class="form-group">
                                 <label>LinkedIn URL</label>
-                                <input type="text" id="linkedin" placeholder="linkedin.com/in/yourname">
+                                <input type="url" id="linkedin" placeholder="linkedin.com/in/yourname">
                             </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Portfolio / Website URL (Optional)</label>
+                            <input type="url" id="portfolio" placeholder="https://yourwebsite.com">
                         </div>
 
                         <div class="row-grid">
@@ -332,13 +345,16 @@
             e.preventDefault();
             errorMsg.style.display = 'none';
 
-            const phone = document.getElementById('phone').value.trim();
+            const phoneCode = document.getElementById('phone-code').value;
+            const phoneRaw = document.getElementById('phone').value.trim();
+            const phone = phoneRaw ? `${phoneCode} ${phoneRaw}` : '';
             const linkedin = document.getElementById('linkedin').value.trim();
+            const portfolio = document.getElementById('portfolio').value.trim();
             const authWork = document.getElementById('auth-work').value;
             const sponsorship = document.getElementById('sponsorship').value;
             const salary = document.getElementById('salary').value.trim();
 
-            if (!phone || !linkedin || !salary) {
+            if (!phoneRaw || !linkedin || !salary) {
                 errorMsg.textContent = "Please fill out all contact and logistics fields.";
                 errorMsg.style.display = 'block';
                 return;
@@ -371,6 +387,7 @@
                     workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
                     phone: phone,
                     linkedin: linkedin,
+                    portfolio: portfolio,
                     auth_work: authWork,
                     sponsorship_needed: sponsorship,
                     desired_salary: salary,
