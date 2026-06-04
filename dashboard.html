@@ -124,15 +124,7 @@
         .resume-render-area ul { margin: 3pt 0 8pt 16pt; }
         .resume-render-area li { margin-bottom: 2pt; font-size: 10pt; }
 
-        @media print {
-            @page { margin: 0; }
-            body { background: white !important; margin: 0 !important; padding: 0 !important; }
-            body > * { display: none !important; }
-            #resume-modal { display: block !important; position: static !important; background: white !important; padding: 0 !important; overflow: visible !important; }
-            #resume-modal .desc-modal { display: block !important; background: white !important; border: none !important; box-shadow: none !important; max-width: 100% !important; padding: 0 !important; max-height: none !important; overflow: visible !important; }
-            #resume-modal .desc-modal > *:not(#resume-content) { display: none !important; }
-            #resume-content { padding: 0.5in 0.8in !important; background: white !important; color: black !important; min-height: 0 !important; }
-        }
+
         @keyframes pulse {
             0% { transform: scale(0.96); opacity: 0.7; }
             50% { transform: scale(1.04); opacity: 1; }
@@ -147,7 +139,6 @@
     <nav>
         <a href="index.html" class="logo">APPLY<span>/BOT</span></a>
         <div class="nav-user">
-            <button class="nav-btn" onclick="openMasterResume()">📄 View Master Resume</button>
             <div class="nav-credits">✅ Premium Active</div>
             <div class="nav-avatar">JD</div>
             <button class="nav-logout" onclick="logout()">⏻ Logout</button>
@@ -252,20 +243,7 @@
         </div>
     </div>
 
-    <!-- Master Resume Modal -->
-    <div class="modal-overlay" id="resume-modal">
-        <div class="desc-modal">
-            <button class="close-modal" onclick="closeModal('resume-modal')">&times;</button>
-            <h2>Your Master Resume</h2>
-            <div class="modal-company">Used by AI to generate Cover Letters</div>
-            <div style="text-align:right; margin-bottom: 1rem;">
-                <button id="download-resume-btn" onclick="downloadMasterResume()" style="background:#10B981; color:white; border:none; padding:0.6rem 1.4rem; font-weight:700; font-size:0.9rem; cursor:pointer; border-radius:4px; text-transform:uppercase; letter-spacing:0.5px;">⬇ Download PDF</button>
-            </div>
-            <div class="resume-render-area" id="resume-content">
-                Loading your saved resume...
-            </div>
-        </div>
-    </div>
+
 
     <!-- Inbox Connection Modal -->
     <div class="modal-overlay" id="inbox-modal">
@@ -520,7 +498,8 @@
                     seniorityLevel: dbJob.seniorityLevel || '',
                     employmentType: dbJob.employmentType || '',
                     jobFunction: dbJob.jobFunction || '',
-                    industries: dbJob.industries || ''
+                    industries: dbJob.industries || '',
+                    resumeUrl: dbJob.resume_url || ''
                 };
             });
 
@@ -583,6 +562,7 @@
 
                         <div class="job-actions">
                             <button class="view-desc-btn" onclick="openModal(${index})">📄 Read Full Description</button>
+                            ${job.resumeUrl ? `<a href="${job.resumeUrl}" target="_blank" class="view-cl-btn" style="text-decoration: none;">📄 Tailored Resume</a>` : ''}
                         </div>
                     </div>
                 `;
@@ -607,25 +587,7 @@
             document.getElementById('cl-modal').classList.add('active');
         }
 
-        function openMasterResume() {
-            const savedHtml = localStorage.getItem('master_resume');
-            const isPdf = localStorage.getItem('master_resume_is_pdf') === 'true';
-            const pdfUrl = localStorage.getItem('master_resume_url');
 
-            if (isPdf && pdfUrl) {
-                document.getElementById('resume-content').innerHTML = `
-                    <div style="text-align:center; padding: 2rem;">
-                        <p style="color:#333; margin-bottom:1.5rem; font-size: 1.1rem; font-weight: 600;">Your original uploaded PDF scored 90%+ and is automation-ready!</p>
-                        <iframe src="${pdfUrl}" width="100%" height="600px" style="border:1px solid #ccc; border-radius:4px;"></iframe>
-                    </div>
-                `;
-            } else if (savedHtml && savedHtml.trim() !== '') {
-                document.getElementById('resume-content').innerHTML = savedHtml;
-            } else {
-                document.getElementById('resume-content').innerHTML = '<p style="text-align:center; padding: 2rem;">No Master Resume found. Please run the AI Optimizer first.</p>';
-            }
-            document.getElementById('resume-modal').classList.add('active');
-        }
 
         function closeModal(id) {
             document.getElementById(id).classList.remove('active');
@@ -638,19 +600,7 @@
             });
         });
 
-        function downloadMasterResume() {
-            const isPdf = localStorage.getItem('master_resume_is_pdf') === 'true';
-            const pdfUrl = localStorage.getItem('master_resume_url');
-            
-            if (isPdf && pdfUrl) {
-                // Open the original PDF in a new tab for download
-                window.open(pdfUrl, '_blank');
-            } else {
-                // Using native window.print() ensures a true text-selectable PDF that passes ATS.
-                // The @media print CSS rules (added above) hide the website UI and the browser headers/footers.
-                window.print();
-            }
-        }
+
 
         async function logout() {
             const { error } = await supabaseClient.auth.signOut();
