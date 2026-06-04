@@ -103,9 +103,6 @@
                     <div class="form-step">
                         <div class="card">
                             <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
-                            <div class="info-box">
-                                <p>Upload your current PDF resume. Our backend AI will extract your experience, fix any ATS formatting errors, and prepare a <strong>Master HTML Resume</strong>.</p>
-                            </div>
                             
                             <div class="form-group">
                                 <label>Target Job Titles</label>
@@ -408,15 +405,15 @@
                     target_location: Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value).join(', '),
                     workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
                     phone: phone,
-                    linkedin: linkedin,
+                    linkedin_url: linkedin,
                     portfolio: portfolio,
-                    auth_work: authWork,
-                    sponsorship_needed: sponsorship,
+                    work_authorization: authWork,
+                    requires_sponsorship: sponsorship,
                     desired_salary: salary,
                     gender: document.getElementById('gender').value,
                     race: document.getElementById('race').value,
-                    veteran: document.getElementById('veteran').value,
-                    disability: document.getElementById('disability').value,
+                    veteran_status: document.getElementById('veteran').value,
+                    disability_status: document.getElementById('disability').value,
                     pronouns: document.getElementById('pronouns').value,
                     resume_url: resumeUrl,
                     onboarding_complete: true,
