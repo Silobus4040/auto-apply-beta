@@ -150,6 +150,15 @@
     </nav>
 
     <div class="container">
+        <!-- Inbox Connect Banner -->
+        <div id="inbox-banner" style="display: none; background: rgba(255, 107, 74, 0.1); border: 2px solid var(--secondary); padding: 1.5rem; margin-bottom: 2rem; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+            <div>
+                <h3 style="color: var(--secondary); font-size: 1.2rem; margin-bottom: 0.2rem; text-transform: uppercase;">⚠️ Auto-Apply Engine Paused</h3>
+                <p style="color: #D1D5DB; font-size: 0.95rem;">You need to connect a dedicated Job-Search Inbox so our bot can verify login codes and submit applications.</p>
+            </div>
+            <button onclick="document.getElementById('inbox-modal').classList.add('active')" class="btn" style="background: var(--secondary); color: #000; border: 2px solid #000; font-size: 0.9rem; padding: 0.8rem 1.5rem; width: auto; box-shadow: 3px 3px 0px #000; flex-shrink: 0;">Connect Inbox &rarr;</button>
+        </div>
+
         <!-- Search & Job Discovery -->
         <div class="search-section">
             <h2>🔍 Search & Discover Jobs</h2>
@@ -260,6 +269,40 @@
         </div>
     </div>
 
+    <!-- Inbox Connection Modal -->
+    <div class="modal-overlay" id="inbox-modal">
+        <div class="desc-modal">
+            <button class="close-modal" onclick="closeModal('inbox-modal')">&times;</button>
+            <h2 style="color: var(--secondary);">Connect Job-Search Inbox</h2>
+            <div class="modal-company" style="color: #D1D5DB; text-transform: none; font-weight: normal; margin-bottom: 1.5rem;">
+                To apply autonomously, our bot must verify ATS login codes and interact with recruiters on your behalf. We strongly recommend creating a fresh, dedicated Gmail address (e.g. yourname.jobs@gmail.com).
+            </div>
+
+            <div style="background: rgba(255,255,255,0.05); border: 1px solid var(--border); padding: 1.5rem; margin-bottom: 1.5rem;">
+                <h4 style="color: white; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.9rem;">How to get your App Password (30 seconds):</h4>
+                <ol style="padding-left: 1.2rem; color: #9CA3AF; font-size: 0.9rem;">
+                    <li style="margin-bottom: 0.5rem;">Ensure 2-Step Verification is ON for your Google Account.</li>
+                    <li style="margin-bottom: 0.5rem;">Go to the <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: var(--primary);">Google App Passwords page</a>.</li>
+                    <li style="margin-bottom: 0.5rem;">Name the app "AutoApply Bot" and click <strong>Create</strong>.</li>
+                    <li>Copy the 16-letter password and paste it below.</li>
+                </ol>
+            </div>
+
+            <div class="field" style="margin-bottom: 1rem;">
+                <label>Dedicated Job-Search Gmail</label>
+                <input type="email" id="gmail-email" placeholder="yourname.jobs@gmail.com">
+            </div>
+            <div class="field" style="margin-bottom: 1.5rem;">
+                <label>16-Letter App Password</label>
+                <input type="password" id="gmail-password" placeholder="abcd efgh ijkl mnop">
+            </div>
+            
+            <div id="inbox-error" style="color: #EF4444; font-size: 0.9rem; margin-bottom: 1rem; display: none; font-weight: bold;"></div>
+            
+            <button onclick="saveInbox()" id="save-inbox-btn" class="btn btn-primary" style="background: var(--primary); color: #000; border: 2px solid #000; font-size: 1rem; padding: 1rem;">Launch Auto-Apply Engine &rarr;</button>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -319,6 +362,9 @@
             if (profile.Application_email) {
                 const creditsEl = document.querySelector('.nav-credits');
                 if (creditsEl) creditsEl.title = `Bot account: ${profile.Application_email}`;
+                document.getElementById('inbox-banner').style.display = 'none';
+            } else {
+                document.getElementById('inbox-banner').style.display = 'flex';
             }
 
             // Initialize Production Dashboard Data
@@ -579,6 +625,44 @@
             }
             localStorage.clear();
             window.location.href = 'login.html';
+        }
+        async function saveInbox() {
+            const email = document.getElementById('gmail-email').value.trim();
+            const password = document.getElementById('gmail-password').value.trim();
+            const errorEl = document.getElementById('inbox-error');
+            const btn = document.getElementById('save-inbox-btn');
+
+            if (!email || !password) {
+                errorEl.textContent = "Please provide both the email and the App Password.";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Connecting...';
+
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            const currentUserId = session.user.id;
+
+            const { error } = await supabaseClient.from('profiles').upsert({
+                id: currentUserId,
+                Application_email: email,
+                Application_Password: password,
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'id' });
+
+            if (error) {
+                errorEl.textContent = error.message;
+                errorEl.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Launch Auto-Apply Engine →';
+                return;
+            }
+
+            closeModal('inbox-modal');
+            document.getElementById('inbox-banner').style.display = 'none';
+            alert("Inbox connected successfully! The Auto-Apply Engine is now armed.");
         }
     </script>
 </body>

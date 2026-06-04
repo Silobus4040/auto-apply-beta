@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AutoApply AI | Setup Your AI Bot</title>
+    <title>AutoApply AI | Profile Setup</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -19,7 +19,7 @@
             --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; position: relative; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; position: relative; overflow-x: hidden; }
 
         body::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
@@ -31,12 +31,16 @@
         .logo { color: var(--text-heading); font-size: 1.2rem; font-weight: 900; text-decoration: none; text-transform: uppercase; letter-spacing: -0.5px; }
         .logo span { color: var(--primary); }
 
-        .container { max-width: 800px; margin: 3rem auto 5rem; padding: 0 5%; }
+        .container { max-width: 700px; margin: 3rem auto 5rem; padding: 0 5%; overflow: hidden; position: relative; }
 
-        .header-section { text-align: center; margin-bottom: 3rem; }
+        .header-section { text-align: center; margin-bottom: 2rem; }
         .step-badge { display: inline-block; background: rgba(212,255,51,0.08); color: var(--primary); border: 2px solid rgba(212,255,51,0.25); padding: 0.4rem 1rem; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; }
-        h1 { color: var(--text-heading); font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; letter-spacing: -2px; margin-bottom: 1rem; text-transform: uppercase; }
+        h1 { color: var(--text-heading); font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 1rem; text-transform: uppercase; }
         .header-sub { color: var(--text-body); font-size: 1.05rem; max-width: 560px; margin: 0 auto; }
+
+        /* Multi-Step Slider */
+        .form-slider { display: flex; width: 200%; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .form-step { width: 50%; padding: 0 10px; flex-shrink: 0; }
 
         .card { background: var(--surface-color); border: 2px solid var(--border); padding: 2.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.04); margin-bottom: 1.5rem; }
         .card-title { color: white; font-size: 1.2rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
@@ -44,34 +48,34 @@
 
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; color: #E5E7EB; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input[type="text"], .form-group input[type="email"], .form-group input[type="password"] { width: 100%; padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; }
-        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
+        .form-group input[type="text"], .form-group input[type="number"], .form-group select { width: 100%; padding: 1rem; background: #000; border: 2px solid var(--border); border-radius: 0; color: white; font-size: 1rem; transition: all 0.2s; -webkit-appearance: none; appearance: none; }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 4px 4px 0px var(--primary); }
         .form-group input[type="file"] { width: 100%; padding: 1rem; background: #000; border: 2px dashed var(--border); color: #9CA3AF; cursor: pointer; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
+
+        .select-wrapper { position: relative; }
+        .select-wrapper::after { content: "▼"; font-size: 0.8rem; color: var(--primary); position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); pointer-events: none; }
 
         .info-box { background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-left: 3px solid var(--primary); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; }
         .info-box p { color: #D1D5DB; font-size: 0.93rem; line-height: 1.65; margin-bottom: 0.6rem; }
         .info-box strong { color: white; }
 
-        /* App Password Instruction Box */
-        .app-pass-box { background: rgba(255, 107, 74, 0.05); border: 1px solid var(--secondary); padding: 1.5rem; margin-bottom: 1.5rem; border-radius: 4px; }
-        .app-pass-box h4 { color: var(--secondary); margin-bottom: 1rem; font-size: 1rem; text-transform: uppercase; }
-        .app-pass-box ol { padding-left: 1.2rem; color: #D1D5DB; font-size: 0.9rem; margin-bottom: 1rem; }
-        .app-pass-box li { margin-bottom: 0.5rem; }
-        .app-pass-box a { color: var(--primary); font-weight: bold; text-decoration: none; }
-        .app-pass-box a:hover { text-decoration: underline; }
-
         .btn { padding: 1.2rem 2rem; font-size: 1.05rem; font-weight: 800; cursor: pointer; border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; transition: all 0.2s ease; letter-spacing: 0.5px; }
         .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
         .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
+        .btn-secondary { background: transparent; color: var(--text-body); border: 2px solid var(--border); margin-bottom: 1rem; }
+        .btn-secondary:hover { color: white; border-color: white; }
 
-        .error-msg { background: rgba(239,68,68,0.08); border: 2px solid #EF4444; color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; text-transform: uppercase; }
+        .error-msg { background: rgba(239,68,68,0.08); border: 2px solid #EF4444; color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; text-transform: uppercase; text-align: center; }
         
         .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; }
         .loading-overlay.active { display: flex; }
         .spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .loading-text { color: var(--primary); font-weight: 800; font-size: 1rem; text-transform: uppercase; letter-spacing: 1px; }
+
+        .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        @media(max-width: 600px) { .row-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
 <body>
@@ -79,71 +83,104 @@
 
     <div class="loading-overlay" id="loading-overlay">
         <div class="spinner"></div>
-        <div class="loading-text" id="loading-text">Saving your setup...</div>
+        <div class="loading-text" id="loading-text">Optimizing Profile...</div>
     </div>
 
     <div class="container">
         <div class="header-section">
-            <div class="step-badge">Final Setup</div>
-            <h1>Initialize Your AI Bot</h1>
-            <p class="header-sub">Provide your base information once. Our internal AI will optimize your resume and begin applying on your behalf 24/7.</p>
+            <div class="step-badge" id="step-indicator">Step 1 of 2</div>
+            <h1>Initialize Your Profile</h1>
+            <p class="header-sub">Provide your base data once. Our backend AI will optimize your resume and prepare your ATS passport.</p>
         </div>
 
         <div class="error-msg" id="error-msg"></div>
 
         <form id="onboarding-form">
-            <!-- Section 1: Resume & Targets -->
-            <div class="card">
-                <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
-                <div class="info-box">
-                    <p>Upload your current PDF resume. Our backend AI will secretly analyze it, fix any ATS formatting errors, and prepare a <strong>Master HTML Resume</strong> to use for automation.</p>
-                </div>
+            <div class="form-slider" id="form-slider">
                 
-                <div class="form-group">
-                    <label>Target Job Titles</label>
-                    <input type="text" id="job-titles" required placeholder="e.g. Frontend Engineer, Product Manager">
-                    <p class="form-hint">The specific roles you want the bot to find and apply to.</p>
-                </div>
-                <div class="form-group">
-                    <label>Target Location</label>
-                    <input type="text" id="location" required placeholder="e.g. United States, Remote">
-                </div>
-                <div class="form-group">
-                    <label>Upload Current Resume (PDF)</label>
-                    <input type="file" id="resume-file" accept=".pdf" required>
-                </div>
-            </div>
-
-            <!-- Section 2: Inbox Connection -->
-            <div class="card">
-                <div class="card-title"><div class="num">2</div> Connect Inbox for Interviews</div>
-                <div class="info-box">
-                    <p>To automatically submit applications and ensure recruiters can contact you, the bot needs to send applications via your email. We require an <strong>App Password</strong>, not your actual password, so you stay completely secure.</p>
-                </div>
-
-                <div class="app-pass-box">
-                    <h4>How to get your Gmail App Password (Takes 30 seconds):</h4>
-                    <ol>
-                        <li>Ensure 2-Step Verification is turned on for your Google Account.</li>
-                        <li>Click here: <a href="https://myaccount.google.com/apppasswords" target="_blank">Google App Passwords page</a></li>
-                        <li>Name the app "AutoApply Bot" and click <strong>Create</strong>.</li>
-                        <li>Copy the 16-letter password they give you and paste it below.</li>
-                    </ol>
-                    <p style="font-size: 0.8rem; color: #9CA3AF; margin-top: 0.5rem;">*We recommend creating a fresh, dedicated Gmail address (e.g. yourname.jobs@gmail.com) specifically for your job hunt to keep your personal inbox clean.</p>
+                <!-- STEP 1: RESUME & TARGETS -->
+                <div class="form-step">
+                    <div class="card">
+                        <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
+                        <div class="info-box">
+                            <p>Upload your current PDF resume. Our backend AI will extract your experience, fix any ATS formatting errors, and prepare a <strong>Master HTML Resume</strong>.</p>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label>Target Job Titles</label>
+                            <input type="text" id="job-titles" placeholder="e.g. Frontend Engineer, Product Manager">
+                            <p class="form-hint">The specific roles you want the bot to find and apply to.</p>
+                        </div>
+                        <div class="form-group">
+                            <label>Target Location</label>
+                            <input type="text" id="location" placeholder="e.g. United States, Remote">
+                        </div>
+                        <div class="form-group">
+                            <label>Upload Current Resume (PDF)</label>
+                            <input type="file" id="resume-file" accept=".pdf">
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" id="btn-next" style="margin-top: 2rem;">
+                            Continue &rarr;
+                        </button>
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Job Search Gmail Address</label>
-                    <input type="email" id="gmail-email" required placeholder="yourname.jobs@gmail.com">
-                </div>
-                <div class="form-group">
-                    <label>16-Letter App Password</label>
-                    <input type="password" id="gmail-password" required placeholder="abcd efgh ijkl mnop">
+                <!-- STEP 2: ATS LOGISTICS -->
+                <div class="form-step">
+                    <div class="card">
+                        <div class="card-title"><div class="num">2</div> ATS Logistics</div>
+                        <div class="info-box">
+                            <p>Almost every company uses Greenhouse or Lever. They require this standard data to process your application. <strong>Note: EEO Demographics (Race, Gender, Disability) will automatically be set to "Decline to Self-Identify" to protect your privacy.</strong></p>
+                        </div>
+                        
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="text" id="phone" placeholder="+1 (555) 000-0000">
+                            </div>
+                            <div class="form-group">
+                                <label>LinkedIn URL</label>
+                                <input type="text" id="linkedin" placeholder="linkedin.com/in/yourname">
+                            </div>
+                        </div>
+
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>Authorized to work in location?</label>
+                                <div class="select-wrapper">
+                                    <select id="auth-work">
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Require Visa Sponsorship?</label>
+                                <div class="select-wrapper">
+                                    <select id="sponsorship">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Desired Salary (Numbers Only)</label>
+                            <input type="number" id="salary" placeholder="e.g. 120000">
+                            <p class="form-hint">Used when applications force a numeric salary expectation.</p>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary" id="btn-back" style="margin-top: 2rem;">
+                            &larr; Back
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            Complete Setup &rarr;
+                        </button>
+                    </div>
                 </div>
 
-                <button type="submit" class="btn btn-primary" id="submit-btn" style="margin-top: 2rem;">
-                    Launch Autonomous Bot &rarr;
-                </button>
             </div>
         </form>
     </div>
@@ -166,18 +203,50 @@
             if (profile && profile.onboarding_complete) { window.location.href = 'dashboard.html'; return; }
         })();
 
+        // Slider Logic
+        const btnNext = document.getElementById('btn-next');
+        const btnBack = document.getElementById('btn-back');
+        const slider = document.getElementById('form-slider');
+        const errorMsg = document.getElementById('error-msg');
+        const stepIndicator = document.getElementById('step-indicator');
+
+        btnNext.addEventListener('click', () => {
+            const jobTitles = document.getElementById('job-titles').value.trim();
+            const location = document.getElementById('location').value.trim();
+            const file = document.getElementById('resume-file').files[0];
+
+            if (!jobTitles || !location || !file) {
+                errorMsg.textContent = "Please fill all fields and upload a resume before continuing.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+            errorMsg.style.display = 'none';
+            slider.style.transform = 'translateX(-50%)';
+            stepIndicator.textContent = 'Step 2 of 2';
+        });
+
+        btnBack.addEventListener('click', () => {
+            errorMsg.style.display = 'none';
+            slider.style.transform = 'translateX(0)';
+            stepIndicator.textContent = 'Step 1 of 2';
+        });
+
+        // Form Submit Logic
         document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const errorMsg = document.getElementById('error-msg');
             errorMsg.style.display = 'none';
 
-            const jobTitles = document.getElementById('job-titles').value;
-            const location = document.getElementById('location').value;
-            const file = document.getElementById('resume-file').files[0];
-            const email = document.getElementById('gmail-email').value;
-            const password = document.getElementById('gmail-password').value;
+            const phone = document.getElementById('phone').value.trim();
+            const linkedin = document.getElementById('linkedin').value.trim();
+            const authWork = document.getElementById('auth-work').value;
+            const sponsorship = document.getElementById('sponsorship').value;
+            const salary = document.getElementById('salary').value.trim();
 
-            if (!file) { errorMsg.textContent = "Please upload a resume."; errorMsg.style.display = 'block'; return; }
+            if (!phone || !linkedin || !salary) {
+                errorMsg.textContent = "Please fill out all contact and logistics fields.";
+                errorMsg.style.display = 'block';
+                return;
+            }
 
             const btn = document.getElementById('submit-btn');
             const loadingOverlay = document.getElementById('loading-overlay');
@@ -189,6 +258,7 @@
             try {
                 // 1. Upload Resume
                 loadingText.textContent = "Uploading Resume...";
+                const file = document.getElementById('resume-file').files[0];
                 const fileName = `${currentUserId}_${Date.now()}.pdf`;
                 const { error: storageError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
                 if (storageError) throw storageError;
@@ -196,14 +266,17 @@
                 const { data: publicUrlData } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
                 const resumeUrl = publicUrlData.publicUrl;
 
-                // 2. Update Profile
-                loadingText.textContent = "Initializing AI Engine...";
+                // 2. Update Profile with ALL data
+                loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
-                    target_job_titles: jobTitles,
-                    target_location: location,
-                    Application_email: email,
-                    Application_Password: password,
+                    target_job_titles: document.getElementById('job-titles').value.trim(),
+                    target_location: document.getElementById('location').value.trim(),
+                    phone: phone,
+                    linkedin: linkedin,
+                    auth_work: authWork,
+                    sponsorship_needed: sponsorship,
+                    desired_salary: salary,
                     resume_url: resumeUrl,
                     onboarding_complete: true,
                     updated_at: new Date().toISOString()
