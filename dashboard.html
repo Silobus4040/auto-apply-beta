@@ -438,9 +438,15 @@
             updateScanningIndicator(true, 0);
 
             try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const jwt = session ? session.access_token : '';
+
                 fetch('https://n8n.leadscompass.ai/webhook/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwt}`
+                    },
                     body: JSON.stringify({
                         user_id: user.id,
                         role: roles,
