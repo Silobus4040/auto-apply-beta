@@ -131,7 +131,7 @@
                     <div class="card">
                         <div class="card-title"><div class="num">2</div> ATS Logistics</div>
                         <div class="info-box">
-                            <p>Almost every company uses Greenhouse or Lever. They require this standard data to process your application. <strong>Note: EEO Demographics (Race, Gender, Disability) will automatically be set to "Decline to Self-Identify" to protect your privacy.</strong></p>
+                            <p>Almost every company uses Greenhouse or Lever. They require this standard data to process your application. By default, EEO demographics are set to "Decline to identify", but you may change them below.</p>
                         </div>
                         
                         <div class="row-grid">
@@ -170,6 +170,73 @@
                             <label>Desired Salary (Numbers Only)</label>
                             <input type="number" id="salary" placeholder="e.g. 120000">
                             <p class="form-hint">Used when applications force a numeric salary expectation.</p>
+                        </div>
+
+                        <!-- EEO Demographics Section -->
+                        <div style="border-top: 1px solid var(--border); margin: 2rem 0; padding-top: 1.5rem;">
+                            <h3 style="color: white; font-size: 1rem; margin-bottom: 1.5rem; text-transform: uppercase;">EEO Demographics</h3>
+                            
+                            <div class="row-grid">
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <div class="select-wrapper">
+                                        <select id="gender">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Non-Binary">Non-Binary</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Race / Ethnicity</label>
+                                    <div class="select-wrapper">
+                                        <select id="race">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="White">White</option>
+                                            <option value="Hispanic or Latino">Hispanic or Latino</option>
+                                            <option value="Black or African American">Black or African American</option>
+                                            <option value="Asian">Asian</option>
+                                            <option value="Native American">Native American</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row-grid">
+                                <div class="form-group">
+                                    <label>Veteran Status</label>
+                                    <div class="select-wrapper">
+                                        <select id="veteran">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="I am not a protected veteran">I am not a protected veteran</option>
+                                            <option value="I identify as one or more of the classifications of a protected veteran">I am a protected veteran</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Disability Status</label>
+                                    <div class="select-wrapper">
+                                        <select id="disability">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="No, I don't have a disability">No</option>
+                                            <option value="Yes, I have a disability">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pronouns</label>
+                                <div class="select-wrapper">
+                                    <select id="pronouns">
+                                        <option value="Prefer not to say">Prefer not to say</option>
+                                        <option value="He/Him">He/Him</option>
+                                        <option value="She/Her">She/Her</option>
+                                        <option value="They/Them">They/Them</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
 
                         <button type="button" class="btn btn-secondary" id="btn-back" style="margin-top: 2rem;">
@@ -277,6 +344,11 @@
                     auth_work: authWork,
                     sponsorship_needed: sponsorship,
                     desired_salary: salary,
+                    gender: document.getElementById('gender').value,
+                    race: document.getElementById('race').value,
+                    veteran: document.getElementById('veteran').value,
+                    disability: document.getElementById('disability').value,
+                    pronouns: document.getElementById('pronouns').value,
                     resume_url: resumeUrl,
                     onboarding_complete: true,
                     updated_at: new Date().toISOString()
