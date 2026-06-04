@@ -96,25 +96,52 @@
         <div class="error-msg" id="error-msg"></div>
 
         <form id="onboarding-form">
-            <div class="form-slider" id="form-slider">
-                
-                <!-- STEP 1: RESUME & TARGETS -->
-                <div class="form-step">
-                    <div class="card">
-                        <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
-                        <div class="info-box">
-                            <p>Upload your current PDF resume. Our backend AI will extract your experience, fix any ATS formatting errors, and prepare a <strong>Master HTML Resume</strong>.</p>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label>Target Job Titles</label>
-                            <input type="text" id="job-titles" placeholder="e.g. Frontend Engineer, Product Manager">
-                            <p class="form-hint">The specific roles you want the bot to find and apply to.</p>
-                        </div>
-                        <div class="form-group">
-                            <label>Target Location</label>
-                            <input type="text" id="location" placeholder="e.g. United States, Remote">
-                        </div>
+            <div style="overflow: hidden; width: 100%;">
+                <div class="form-slider" id="form-slider">
+                    
+                    <!-- STEP 1: RESUME & TARGETS -->
+                    <div class="form-step">
+                        <div class="card">
+                            <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
+                            <div class="info-box">
+                                <p>Upload your current PDF resume. Our backend AI will extract your experience, fix any ATS formatting errors, and prepare a <strong>Master HTML Resume</strong>.</p>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>Target Job Titles</label>
+                                <input type="text" id="job-titles" placeholder="e.g. Frontend Engineer, Product Manager">
+                                <p class="form-hint">The specific roles you want the bot to find and apply to.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="margin-bottom: 0.8rem;">Target Countries (Select all that apply)</label>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="United States" style="width: 16px; height: 16px; margin: 0; padding: 0;"> United States
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="United Kingdom" style="width: 16px; height: 16px; margin: 0; padding: 0;"> United Kingdom
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="Canada" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Canada
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply)</label>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Remote" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Hybrid" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Hybrid
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="On-site" style="width: 16px; height: 16px; margin: 0; padding: 0;"> On-site
+                                    </label>
+                                </div>
+                            </div>
                         <div class="form-group">
                             <label>Upload Current Resume (PDF)</label>
                             <input type="file" id="resume-file" accept=".pdf">
@@ -249,6 +276,7 @@
                 </div>
 
             </div>
+            </div>
         </form>
     </div>
 
@@ -279,11 +307,12 @@
 
         btnNext.addEventListener('click', () => {
             const jobTitles = document.getElementById('job-titles').value.trim();
-            const location = document.getElementById('location').value.trim();
+            const countries = Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value);
+            const workplaces = Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value);
             const file = document.getElementById('resume-file').files[0];
 
-            if (!jobTitles || !location || !file) {
-                errorMsg.textContent = "Please fill all fields and upload a resume before continuing.";
+            if (!jobTitles || countries.length === 0 || workplaces.length === 0 || !file) {
+                errorMsg.textContent = "Please fill all fields, select at least one country and workplace, and upload a resume before continuing.";
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -338,7 +367,8 @@
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
                     target_job_titles: document.getElementById('job-titles').value.trim(),
-                    target_location: document.getElementById('location').value.trim(),
+                    target_location: Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value).join(', '),
+                    workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
                     phone: phone,
                     linkedin: linkedin,
                     auth_work: authWork,
