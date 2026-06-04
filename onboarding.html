@@ -326,18 +326,42 @@
         const errorMsg = document.getElementById('error-msg');
         const stepIndicator = document.getElementById('step-indicator');
 
-        btnNext.addEventListener('click', () => {
+        btnNext.addEventListener('click', async () => {
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
             const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
             const countries = Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value);
             const workplaces = Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value);
             const file = document.getElementById('resume-file').files[0];
+            const savedResumeUrl = localStorage.getItem('onb_resume_url');
 
-            if (!jobTitles || countries.length === 0 || workplaces.length === 0 || !file) {
+            if (!jobTitles || countries.length === 0 || workplaces.length === 0 || (!file && !savedResumeUrl)) {
                 errorMsg.textContent = "Please fill all fields, select at least one country and workplace, and upload a resume before continuing.";
                 errorMsg.style.display = 'block';
                 return;
             }
+
+            if (file) {
+                btnNext.disabled = true;
+                const originalText = btnNext.innerHTML;
+                btnNext.innerHTML = "Uploading Resume...";
+                try {
+                    const fileName = `${currentUserId}_${Date.now()}.pdf`;
+                    const { error: storageError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
+                    if (storageError) throw storageError;
+                    
+                    const { data: publicUrlData } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
+                    localStorage.setItem('onb_resume_url', publicUrlData.publicUrl);
+                } catch (err) {
+                    errorMsg.textContent = "Failed to upload resume: " + err.message;
+                    errorMsg.style.display = 'block';
+                    btnNext.disabled = false;
+                    btnNext.innerHTML = originalText;
+                    return;
+                }
+                btnNext.disabled = false;
+                btnNext.innerHTML = originalText;
+            }
+
             errorMsg.style.display = 'none';
             slider.style.transform = 'translateX(-50%)';
             stepIndicator.textContent = 'Step 2 of 2';
@@ -379,9 +403,9 @@
             e.preventDefault();
             errorMsg.style.display = 'none';
 
-            const file = document.getElementById('resume-file').files[0];
-            if (!file) {
-                errorMsg.textContent = "Please re-select your resume PDF. Browser refreshes clear file uploads for security.";
+            const resumeUrl = localStorage.getItem('onb_resume_url');
+            if (!resumeUrl) {
+                errorMsg.textContent = "Resume not found. Please go back to Step 1 and upload your PDF.";
                 errorMsg.style.display = 'block';
                 slider.style.transform = 'translateX(0)';
                 stepIndicator.textContent = 'Step 1 of 2';
@@ -419,17 +443,7 @@
             loadingOverlay.classList.add('active');
 
             try {
-                // 1. Upload Resume
-                loadingText.textContent = "Uploading Resume...";
-                const file = document.getElementById('resume-file').files[0];
-                const fileName = `${currentUserId}_${Date.now()}.pdf`;
-                const { error: storageError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
-                if (storageError) throw storageError;
-                
-                const { data: publicUrlData } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
-                const resumeUrl = publicUrlData.publicUrl;
-
-                // 2. Update Profile with ALL data
+                // Update Profile with ALL data
                 loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
