@@ -379,20 +379,6 @@
             return Array.from(chips).map(c => c.dataset.value);
         }
 
-        function buildLinkedInUrl(role, geoId, workplaceTypes) {
-            const rolesArray = role.split(',').map(r => r.trim()).filter(r => r);
-            let finalRoleQuery = role;
-            if (rolesArray.length > 1) {
-                finalRoleQuery = rolesArray.map(r => `"${r}"`).join(' OR ');
-            }
-            const encodedRole = encodeURIComponent(finalRoleQuery);
-            let url = `https://www.linkedin.com/jobs/search?keywords=${encodedRole}&geoId=${geoId}&f_TPR=r86400&position=1&pageNum=0`;
-            if (workplaceTypes.length > 0) {
-                url += `&f_WT=${workplaceTypes.join('%2C')}`;
-            }
-            return url;
-        }
-
         async function searchJobs() {
             const role = document.getElementById('search-role').value.trim();
             const countrySelect = document.getElementById('search-country');
@@ -420,7 +406,6 @@
                 return;
             }
 
-            const linkedInUrl = buildLinkedInUrl(role, geoId, workplaceTypes);
             const resumeText = localStorage.getItem('master_resume') || '';
 
             fetch('https://n8n.leadscompass.ai/webhook-test/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
@@ -431,7 +416,6 @@
                     role: role,
                     country: countryName,
                     workplaceTypes: workplaceTypes,
-                    linkedInUrl: linkedInUrl,
                     resumeText: resumeText
                 })
             }).then(res => {
@@ -451,7 +435,7 @@
                 document.getElementById('stat-queued').textContent = 'Processing';
                 document.getElementById('stat-applied').textContent = '0';
 
-                console.log('Generated LinkedIn URL for Apify:', linkedInUrl);
+                console.log('Webhook payload sent to n8n successfully.');
             }, 1500);
         }
 
