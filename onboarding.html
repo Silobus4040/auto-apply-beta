@@ -168,7 +168,10 @@
                             <div class="form-group">
                                 <label>Phone Number</label>
                                 <div style="display: flex; gap: 0.5rem;">
-                                    <input type="text" id="phone-code" placeholder="+1" style="flex-shrink: 0; width: 80px; text-align: center;">
+                                    <div style="position: relative; flex-shrink: 0; width: 85px;">
+                                        <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">+</span>
+                                        <input type="text" id="phone-code" placeholder="1" style="width: 100%; padding-left: 2.2rem; text-align: left;">
+                                    </div>
                                     <input type="text" id="phone" placeholder="(555) 000-0000" style="flex-grow: 1;">
                                 </div>
                             </div>
@@ -357,13 +360,13 @@
             const phoneCode = document.getElementById('phone-code').value.trim();
             const phoneRaw = document.getElementById('phone').value.trim();
             
-            if (phoneCode && !phoneCode.startsWith('+')) {
-                errorMsg.textContent = "Country code must start with a '+' (e.g. +1, +44).";
+            if (phoneCode && !/^\d+$/.test(phoneCode)) {
+                errorMsg.textContent = "Country code must contain ONLY numbers (e.g. 1, 44, 234). Do not include the '+' sign.";
                 errorMsg.style.display = 'block';
                 return;
             }
 
-            const phone = phoneRaw ? `${phoneCode} ${phoneRaw}` : '';
+            const phone = phoneRaw ? `+${phoneCode} ${phoneRaw}` : '';
             const linkedin = document.getElementById('linkedin').value.trim();
             const portfolio = document.getElementById('portfolio').value.trim();
             const authWork = document.getElementById('auth-work').value;
