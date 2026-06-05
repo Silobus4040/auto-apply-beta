@@ -130,6 +130,8 @@
             50% { transform: scale(1.04); opacity: 1; }
             100% { transform: scale(0.96); opacity: 0.7; }
         }
+        .spinner { width: 40px; height: 40px; border: 3px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -312,7 +314,7 @@
             // Check if onboarding is complete — if not, send back to setup
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('onboarding_complete, Application_email, master_resume, target_job_titles, target_location, workplace_type')
+                .select('onboarding_complete, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status')
                 .eq('id', user.id)
                 .single();
 
@@ -438,6 +440,8 @@
             updateScanningIndicator(true, 0);
 
             try {
+                await supabaseClient.from('profiles').update({ scraper_status: 'scanning' }).eq('id', user.id);
+
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 const jwt = session ? session.access_token : '';
 
@@ -479,13 +483,22 @@
                 return;
             }
 
+            // Fetch profile scraper status
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('scraper_status')
+                .eq('id', user.id)
+                .single();
+
+            const scraperStatus = profile ? profile.scraper_status : 'idle';
+
             // Manage polling and scanning state
-            if (jobs && jobs.length > 0) {
-                stopPolling();
-                updateScanningIndicator(false, jobs.length);
-            } else {
+            if (scraperStatus === 'scanning') {
                 startPolling();
-                updateScanningIndicator(true, 0);
+                updateScanningIndicator(true, jobs ? jobs.length : 0);
+            } else {
+                stopPolling();
+                updateScanningIndicator(false, jobs ? jobs.length : 0);
             }
 
             currentJobs = jobs.map(dbJob => {
@@ -510,7 +523,7 @@
             });
 
             updateStats(currentJobs);
-            renderJobs(currentJobs);
+            renderJobs(currentJobs, scraperStatus === 'scanning');
             updateInboxBannerVisibility();
         }
 
@@ -539,12 +552,28 @@
                   fetchUserJobs(); // Refresh the dashboard on any change (scrape inserts, apply updates)
               })
               .subscribe();
+
+            supabaseClient.channel('profile-updates')
+              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` }, payload => {
+                  console.log('Realtime profile update:', payload);
+                  fetchUserJobs();
+              })
+              .subscribe();
         }
 
-        function renderJobs(jobs) {
+        function renderJobs(jobs, isScanning = false) {
             const container = document.getElementById('job-list');
             if (!jobs.length) {
-                container.innerHTML = `<div class="empty-state"><h3>No jobs found</h3><p>Try adjusting your search criteria.</p></div>`;
+                if (isScanning) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 6rem 2rem;">
+                            <div class="spinner"></div>
+                            <h3>AI Agent is Sourcing Jobs</h3>
+                            <p>Analyzing LinkedIn listings against your resume in the cloud. This takes 2-3 minutes.</p>
+                        </div>`;
+                } else {
+                    container.innerHTML = `<div class="empty-state"><h3>No jobs found</h3><p>Try adjusting your search criteria.</p></div>`;
+                }
                 return;
             }
 
