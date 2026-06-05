@@ -4,18 +4,13 @@ const WORKFLOW_ID = 'i4sCnNwAeNQjLZ6J';
 
 const headers = { 'X-N8N-API-KEY': KEY, 'Content-Type': 'application/json' };
 
+const fs = require('fs');
+
 async function run() {
   const res = await fetch(`${BASE}/workflows/${WORKFLOW_ID}`, { headers });
   const wf = await res.json();
-
-  console.log('=== ALL NODES ===');
-  wf.nodes.forEach(n => {
-    console.log(`\nNode: "${n.name}" | ID: ${n.id} | Type: ${n.type}`);
-    console.log('Parameters:', JSON.stringify(n.parameters, null, 2));
-  });
-
-  console.log('\n=== CONNECTIONS ===');
-  console.log(JSON.stringify(wf.connections, null, 2));
+  fs.writeFileSync('workflow.json', JSON.stringify(wf, null, 2));
+  console.log('Successfully wrote workflow.json');
 }
 
 run().catch(console.error);

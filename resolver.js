@@ -1,7 +1,23 @@
 const express = require('express');
 const { chromium } = require('playwright');
+const { spawn } = require('child_process');
+const http = require('http');
+const net = require('net');
+
 const app = express();
 const PORT = 3010;
+
+function getFreePort() {
+  return new Promise((resolve, reject) => {
+    const server = net.createServer();
+    server.unref();
+    server.on('error', reject);
+    server.listen(0, '127.0.0.1', () => {
+      const port = server.address().port;
+      server.close(() => resolve(port));
+    });
+  });
+}
 
 app.get('/resolve', async (req, res) => {
   const jobUrl = req.query.url;
@@ -11,18 +27,46 @@ app.get('/resolve', async (req, res) => {
 
   console.log(`[RESOLVER] Resolving: ${jobUrl}`);
   let browser;
+  let chromeProcess;
   try {
-    browser = await chromium.launch({ 
-      headless: true,
-      args: [
-        '--no-sandbox', 
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-gpu',
-        '--no-first-run',
-        '--no-zygote'
-      ] 
+    const port = await getFreePort();
+    const executablePath = chromium.executablePath();
+    console.log(`[RESOLVER] Spawning standalone Chromium on port ${port}...`);
+
+    chromeProcess = spawn(executablePath, [
+      '--headless=new',
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-gpu',
+      `--remote-debugging-port=${port}`
+    ], {
+      stdio: 'ignore',
+      detached: true
     });
+    chromeProcess.unref();
+
+    // Poll to make sure the debugging port is active
+    let connected = false;
+    for (let i = 0; i < 15; i++) {
+      const isReady = await new Promise((resolve) => {
+        const req = http.get(`http://127.0.0.1:${port}/json/version`, { timeout: 500 }, (res) => resolve(res.statusCode === 200));
+        req.on('error', () => resolve(false));
+      });
+      if (isReady) {
+        connected = true;
+        break;
+      }
+      await new Promise(r => setTimeout(r, 500));
+    }
+
+    if (!connected) {
+      throw new Error(`Could not start standalone Chromium process on port ${port}`);
+    }
+
+    console.log(`[RESOLVER] Connecting to Chromium via CDP on port ${port}...`);
+    browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
+    
     const context = await browser.newContext({
       userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
     });
@@ -49,7 +93,14 @@ app.get('/resolve', async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   } finally {
     if (browser) {
-      await browser.close();
+      await browser.close().catch(() => {});
+    }
+    if (chromeProcess) {
+      try {
+        process.kill(-chromeProcess.pid); // Kill process group if detached
+      } catch (e) {
+        chromeProcess.kill();
+      }
     }
   }
 });
@@ -57,3 +108,4 @@ app.get('/resolve', async (req, res) => {
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 LinkedIn URL Resolver running on http://0.0.0.0:${PORT}`);
 });
+
