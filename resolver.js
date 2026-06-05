@@ -73,59 +73,39 @@ app.get('/resolve', async (req, res) => {
     const page = await context.newPage();
 
     await page.goto(jobUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // Wait for page content to stabilize
+    const html = await page.content();
     const currentUrl = page.url();
-    console.log(`[RESOLVER] Loaded page. URL: ${currentUrl}`);
+    const pageTitle = await page.title().catch(() => 'Unknown');
+    console.log(`[RESOLVER] Loaded: "${pageTitle}" at ${currentUrl}`);
 
-    const applyButtonSelector = 'button.jobs-apply-button, a.jobs-apply-button, .apply-button, [data-is-link-to-external-site="true"]';
-    
-    try {
-      await page.waitForSelector(applyButtonSelector, { timeout: 10000, state: 'attached' });
-    } catch (e) {
-      const pageTitle = await page.title().catch(() => 'Unknown Title');
-      const pageContent = await page.content().catch(() => 'Could not get content');
-      console.error(`[RESOLVER] Selector timeout on job page. URL: "${currentUrl}", Title: "${pageTitle}"`);
-      const fs = require('fs');
-      try {
-        fs.writeFileSync('/root/linkedin-resolver/error_dump.html', pageContent);
-        console.log('[RESOLVER] Saved HTML dump to /root/linkedin-resolver/error_dump.html');
-      } catch (fsErr) {
-        fs.writeFileSync('./error_dump.html', pageContent);
-        console.log('[RESOLVER] Saved HTML dump to ./error_dump.html');
-      }
-      throw e;
+    // Detect job status from HTML markers
+    const isOffsite = html.includes('apply-link-offsite') || html.includes('offsite-apply-icon');
+    const isOnsite = html.includes('apply-link-onsite');
+    const isExpired = html.includes('no longer accepting') || html.includes('No longer accepting');
+
+    console.log(`[RESOLVER] Detection: onsite=${isOnsite}, offsite=${isOffsite}, expired=${isExpired}`);
+
+    if (isExpired) {
+      console.log('[RESOLVER] Job is expired/closed.');
+      return res.json({ success: true, applyUrl: null, applyMethod: 'expired' });
     }
 
-    const button = await page.$(applyButtonSelector);
-    const trackingName = (await button.getAttribute('data-tracking-control-name').catch(() => '')) || '';
-    const buttonText = (await button.innerText().catch(() => '')) || '';
-    const href = (await button.getAttribute('href').catch(() => '')) || '';
-
-    console.log(`[RESOLVER] Button text: "${buttonText}", Tracking name: "${trackingName}", href: "${href}"`);
-
-    // 1. Detect Onsite Application (Easy Apply)
-    if (trackingName.includes('onsite') || buttonText.toLowerCase().includes('easy apply')) {
-      console.log('[RESOLVER] Onsite application (Easy Apply) detected.');
+    if (isOnsite) {
+      console.log('[RESOLVER] Easy Apply (onsite) detected.');
       return res.json({ success: true, applyUrl: jobUrl, applyMethod: 'onsite' });
     }
 
-    // 2. Direct external href optimization
-    if (href && !href.startsWith('/') && !href.includes('linkedin.com/')) {
-      console.log(`[RESOLVER] Success (Direct href) → ${href}`);
-      return res.json({ success: true, applyUrl: href, applyMethod: 'offsite' });
+    if (isOffsite) {
+      // LinkedIn hides the external URL behind a login wall on guest pages.
+      // We cannot extract it without authentication.
+      console.log('[RESOLVER] Offsite apply detected. External URL not available on guest page.');
+      return res.json({ success: true, applyUrl: null, applyMethod: 'offsite' });
     }
 
-    // 3. Click and intercept page redirection
-    console.log('[RESOLVER] External application detected. Clicking Apply...');
-    const [newPage] = await Promise.all([
-      context.waitForEvent('page'),
-      page.click(applyButtonSelector)
-    ]);
-
-    await newPage.waitForLoadState('domcontentloaded', { timeout: 15000 });
-    const finalUrl = newPage.url();
-
-    console.log(`[RESOLVER] Success → ${finalUrl}`);
-    res.json({ success: true, applyUrl: finalUrl, applyMethod: 'offsite' });
+    // Fallback: no apply button found at all
+    console.log('[RESOLVER] No apply method detected.');
+    res.json({ success: true, applyUrl: null, applyMethod: 'unknown' });
 
   } catch (error) {
     console.error(`[RESOLVER] Error: ${error.message}`);
