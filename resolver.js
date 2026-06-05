@@ -79,7 +79,7 @@ app.get('/resolve', async (req, res) => {
     const applyButtonSelector = 'button.jobs-apply-button, a.jobs-apply-button, .apply-button, [data-is-link-to-external-site="true"]';
     
     try {
-      await page.waitForSelector(applyButtonSelector, { timeout: 10000 });
+      await page.waitForSelector(applyButtonSelector, { timeout: 10000, state: 'attached' });
     } catch (e) {
       const pageTitle = await page.title().catch(() => 'Unknown Title');
       const pageContent = await page.content().catch(() => 'Could not get content');
