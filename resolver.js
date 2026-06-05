@@ -76,7 +76,7 @@ app.get('/resolve', async (req, res) => {
     const currentUrl = page.url();
     console.log(`[RESOLVER] Loaded page. URL: ${currentUrl}`);
 
-    const applyButtonSelector = 'button.jobs-apply-button, a.jobs-apply-button, [data-is-link-to-external-site="true"]';
+    const applyButtonSelector = 'button.jobs-apply-button, a.jobs-apply-button, .apply-button, [data-is-link-to-external-site="true"]';
     
     try {
       await page.waitForSelector(applyButtonSelector, { timeout: 10000 });
@@ -95,6 +95,27 @@ app.get('/resolve', async (req, res) => {
       throw e;
     }
 
+    const button = await page.$(applyButtonSelector);
+    const trackingName = (await button.getAttribute('data-tracking-control-name').catch(() => '')) || '';
+    const buttonText = (await button.innerText().catch(() => '')) || '';
+    const href = (await button.getAttribute('href').catch(() => '')) || '';
+
+    console.log(`[RESOLVER] Button text: "${buttonText}", Tracking name: "${trackingName}", href: "${href}"`);
+
+    // 1. Detect Onsite Application (Easy Apply)
+    if (trackingName.includes('onsite') || buttonText.toLowerCase().includes('easy apply')) {
+      console.log('[RESOLVER] Onsite application (Easy Apply) detected.');
+      return res.json({ success: true, applyUrl: jobUrl, applyMethod: 'onsite' });
+    }
+
+    // 2. Direct external href optimization
+    if (href && !href.startsWith('/') && !href.includes('linkedin.com/')) {
+      console.log(`[RESOLVER] Success (Direct href) → ${href}`);
+      return res.json({ success: true, applyUrl: href, applyMethod: 'offsite' });
+    }
+
+    // 3. Click and intercept page redirection
+    console.log('[RESOLVER] External application detected. Clicking Apply...');
     const [newPage] = await Promise.all([
       context.waitForEvent('page'),
       page.click(applyButtonSelector)
@@ -104,7 +125,7 @@ app.get('/resolve', async (req, res) => {
     const finalUrl = newPage.url();
 
     console.log(`[RESOLVER] Success → ${finalUrl}`);
-    res.json({ success: true, applyUrl: finalUrl });
+    res.json({ success: true, applyUrl: finalUrl, applyMethod: 'offsite' });
 
   } catch (error) {
     console.error(`[RESOLVER] Error: ${error.message}`);
