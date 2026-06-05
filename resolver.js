@@ -73,9 +73,27 @@ app.get('/resolve', async (req, res) => {
     const page = await context.newPage();
 
     await page.goto(jobUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    const currentUrl = page.url();
+    console.log(`[RESOLVER] Loaded page. URL: ${currentUrl}`);
 
     const applyButtonSelector = 'button.jobs-apply-button, a.jobs-apply-button, [data-is-link-to-external-site="true"]';
-    await page.waitForSelector(applyButtonSelector, { timeout: 10000 });
+    
+    try {
+      await page.waitForSelector(applyButtonSelector, { timeout: 10000 });
+    } catch (e) {
+      const pageTitle = await page.title().catch(() => 'Unknown Title');
+      const pageContent = await page.content().catch(() => 'Could not get content');
+      console.error(`[RESOLVER] Selector timeout on job page. URL: "${currentUrl}", Title: "${pageTitle}"`);
+      const fs = require('fs');
+      try {
+        fs.writeFileSync('/root/linkedin-resolver/error_dump.html', pageContent);
+        console.log('[RESOLVER] Saved HTML dump to /root/linkedin-resolver/error_dump.html');
+      } catch (fsErr) {
+        fs.writeFileSync('./error_dump.html', pageContent);
+        console.log('[RESOLVER] Saved HTML dump to ./error_dump.html');
+      }
+      throw e;
+    }
 
     const [newPage] = await Promise.all([
       context.waitForEvent('page'),
