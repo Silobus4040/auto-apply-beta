@@ -252,31 +252,6 @@
             <button onclick="document.getElementById('inbox-modal').classList.add('active')" style="background: var(--primary); color: white; border: none; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 600; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Connect Inbox &rarr;</button>
         </div>
 
-        <!-- Search Section -->
-        <div class="search-section">
-            <h2>Source New Jobs</h2>
-            <p>Enter a role and location to scan LinkedIn and trigger applications.</p>
-            <div class="search-row">
-                <div class="field">
-                    <label for="search-role">Target Role</label>
-                    <input type="text" id="search-role" name="prevent_autofill_role_123" placeholder="e.g. Frontend Engineer" autocomplete="new-password">
-                </div>
-                <div class="field">
-                    <label for="search-location">Location</label>
-                    <input type="text" id="search-location" name="prevent_autofill_location_123" placeholder="e.g. United States" autocomplete="new-password">
-                </div>
-                <button class="search-btn" id="search-btn" onclick="startNewSearch()">Scan & Apply</button>
-            </div>
-            <div class="filter-row">
-                <span class="filter-label">Workplace:</span>
-                <div class="filter-chips">
-                    <div class="chip active" data-type="remote" onclick="toggleChip(this)">Remote</div>
-                    <div class="chip active" data-type="hybrid" onclick="toggleChip(this)">Hybrid</div>
-                    <div class="chip active" data-type="on-site" onclick="toggleChip(this)">On-site</div>
-                </div>
-            </div>
-        </div>
-
         <!-- Automation Profile & Active Status -->
         <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
@@ -329,7 +304,7 @@
         <div id="job-list">
             <div class="empty-state">
                 <h3>No jobs loaded yet</h3>
-                <p>Search for your target role above to discover and queue jobs for automation.</p>
+                <p>Jobs will appear here once they are processed by the automated backend scraper.</p>
             </div>
         </div>
     </div>
@@ -719,7 +694,7 @@
                             <p>Analyzing LinkedIn listings against your resume in the cloud. This takes 2-3 minutes.</p>
                         </div>`;
                 } else {
-                    container.innerHTML = `<div class="empty-state"><h3>No jobs found</h3><p>Try adjusting your search criteria.</p></div>`;
+                    container.innerHTML = `<div class="empty-state"><h3>No jobs found</h3><p>Jobs will appear here once they are processed by the automated backend scraper.</p></div>`;
                 }
                 return;
             }
