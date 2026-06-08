@@ -73,30 +73,109 @@
         .stat-number { color: white; font-size: 1.5rem; font-weight: 800; }
         .stat-label { color: var(--text-body); font-size: 0.85rem; }
 
-        /* Job Cards */
-        .job-card { background: var(--surface-color); border: 2px solid var(--border); border-radius: 0; padding: 2rem; margin-bottom: 1.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); transition: border-color 0.2s; }
-        .job-card:hover { border-color: var(--primary); }
-        
-        .job-header { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
-        .company-info { display: flex; gap: 1rem; align-items: center; }
-        .company-logo { width: 48px; height: 48px; border-radius: 0.5rem; background: rgba(255,255,255,0.05); display: flex; align-items: center; justify-content: center; font-weight: 800; color: white; font-size: 1.2rem; border: 1px solid var(--border); overflow: hidden; flex-shrink: 0; }
-        .company-logo img { width: 100%; height: 100%; object-fit: cover; }
-        .job-title { color: white; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.2rem; }
-        .company-name { color: var(--secondary); font-weight: 600; font-size: 0.9rem; }
-
-        .job-meta { display: flex; gap: 1.25rem; font-size: 0.85rem; color: #D1D5DB; margin-top: 0.75rem; flex-wrap: wrap; }
-        .meta-item { display: flex; align-items: center; gap: 0.35rem; }
-        .salary-tag { color: #10B981; font-weight: 600; background: rgba(16,185,129,0.1); padding: 0.15rem 0.5rem; border-radius: 1rem; border: 1px solid rgba(16,185,129,0.2); }
-
-        .job-desc-preview { font-size: 0.88rem; color: #9CA3AF; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-top: 0.75rem; }
-        
-        .job-actions { display: flex; justify-content: flex-start; align-items: center; margin-top: 0.75rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 0.75rem; gap: 1.5rem; }
-        .view-desc-btn { background: none; border: none; color: #A5B4FC; cursor: pointer; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.35rem; transition: color 0.2s; }
-        .view-desc-btn:hover { color: white; }
-        .view-cl-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-size: 0.88rem; font-weight: 600; display: flex; align-items: center; gap: 0.35rem; transition: color 0.2s; text-transform: uppercase; }
-        .view-cl-btn:hover { color: white; }
-        
-        .status-pill { padding: 0.35rem 0.85rem; border-radius: 0; font-size: 0.78rem; font-weight: 800; display: flex; align-items: center; gap: 0.35rem; text-transform: uppercase; }
+        /* Table Style Dashboard */
+        .jobs-table-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 2px solid var(--border);
+            background: var(--surface-color);
+            margin-bottom: 2rem;
+            box-shadow: 8px 8px 0px rgba(255,255,255,0.05);
+        }
+        .jobs-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .jobs-table th {
+            background: #000;
+            color: white;
+            font-weight: 700;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            padding: 1rem 1.5rem;
+            border-bottom: 2px solid var(--border);
+        }
+        .jobs-table td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+            color: #D1D5DB;
+        }
+        .jobs-table tr:hover td {
+            background: rgba(255, 255, 255, 0.02);
+        }
+        .jobs-table tr:last-child td {
+            border-bottom: none;
+        }
+        .table-role-title {
+            color: white;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+        .table-company-name {
+            color: var(--secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+        }
+        .table-workplace-tag {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            background: rgba(212, 255, 51, 0.1);
+            color: var(--primary);
+            border: 1px solid rgba(212, 255, 51, 0.2);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+        }
+        .table-salary {
+            color: #10B981;
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .table-ats {
+            font-size: 0.75rem;
+            color: var(--text-body);
+            margin-top: 0.25rem;
+            text-transform: uppercase;
+        }
+        .table-actions {
+            display: flex;
+            gap: 0.75rem;
+            align-items: center;
+        }
+        .table-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-body);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            box-shadow: 2px 2px 0px var(--border);
+        }
+        .table-btn:hover {
+            border-color: var(--primary);
+            color: white;
+            background: rgba(212, 255, 51, 0.05);
+            transform: translate(-1px, -1px);
+            box-shadow: 3px 3px 0px var(--primary);
+        }
+        .table-btn-primary {
+            border-color: var(--primary);
+            color: var(--primary);
+            box-shadow: 2px 2px 0px var(--primary);
+        }
+        .table-btn-primary:hover {
+            background: var(--primary);
+            color: black;
+            box-shadow: 3px 3px 0px var(--secondary);
+        }
+        .status-pill { padding: 0.35rem 0.85rem; border-radius: 0; font-size: 0.78rem; font-weight: 800; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; }
         .status-queued { background: #000; color: var(--primary); border: 2px solid var(--primary); box-shadow: 2px 2px 0px var(--primary); }
         .status-applied { background: #000; color: var(--secondary); border: 2px solid var(--secondary); box-shadow: 2px 2px 0px var(--secondary); }
         .status-interview { background: #000; color: #FFF; border: 2px solid #FFF; box-shadow: 2px 2px 0px #FFF; }
@@ -155,6 +234,31 @@
                 <p style="color: #D1D5DB; font-size: 0.95rem;">You need to connect a dedicated Job-Search Inbox so our bot can verify login codes and submit applications.</p>
             </div>
             <button onclick="document.getElementById('inbox-modal').classList.add('active')" class="btn" style="background: var(--secondary); color: #000; border: 2px solid #000; font-size: 0.9rem; padding: 0.8rem 1.5rem; width: auto; box-shadow: 3px 3px 0px #000; flex-shrink: 0;">Connect Inbox &rarr;</button>
+        </div>
+
+        <!-- Search Section -->
+        <div class="search-section">
+            <h2>Source New Jobs</h2>
+            <p>Enter a role and location to scan LinkedIn and trigger applications.</p>
+            <div class="search-row">
+                <div class="field">
+                    <label for="search-role">Target Role</label>
+                    <input type="text" id="search-role" placeholder="e.g. Frontend Engineer">
+                </div>
+                <div class="field">
+                    <label for="search-location">Location</label>
+                    <input type="text" id="search-location" placeholder="e.g. United States">
+                </div>
+                <button class="search-btn" id="search-btn" onclick="startNewSearch()">Scan & Apply</button>
+            </div>
+            <div class="filter-row">
+                <span class="filter-label">Workplace:</span>
+                <div class="filter-chips">
+                    <div class="chip active" data-type="remote" onclick="toggleChip(this)">Remote</div>
+                    <div class="chip active" data-type="hybrid" onclick="toggleChip(this)">Hybrid</div>
+                    <div class="chip active" data-type="on-site" onclick="toggleChip(this)">On-site</div>
+                </div>
+            </div>
         </div>
 
         <!-- Automation Profile & Active Status -->
@@ -221,7 +325,16 @@
             <h2 id="modal-title">Job Title</h2>
             <div class="modal-company" id="modal-company">Company Name</div>
             <div class="full-text" id="modal-text">Loading...</div>
-            <a href="#" target="_blank" class="modal-link" id="modal-link">🔗 View Original Posting on LinkedIn →</a>
+        </div>
+    </div>
+
+    <!-- Resume Modal -->
+    <div class="modal-overlay" id="resume-modal">
+        <div class="desc-modal" style="max-width: 900px; width: 90%; max-height: 90vh; display: flex; flex-direction: column;">
+            <button class="close-modal" onclick="closeModal('resume-modal')">&times;</button>
+            <h2 id="resume-modal-title">Tailored Resume</h2>
+            <div class="modal-company" id="resume-modal-company">Company Name</div>
+            <iframe id="resume-iframe" src="" style="width: 100%; height: 70vh; border: none; background: white; margin-top: 1rem;"></iframe>
         </div>
     </div>
 
@@ -561,6 +674,8 @@
               .subscribe();
         }
 
+        let currentResumeObjectUrl = null;
+
         function renderJobs(jobs, isScanning = false) {
             const container = document.getElementById('job-list');
             if (!jobs.length) {
@@ -577,44 +692,60 @@
                 return;
             }
 
-            let html = '';
+            let html = `
+                <div class="jobs-table-container">
+                    <table class="jobs-table">
+                        <thead>
+                            <tr>
+                                <th>Role / Company</th>
+                                <th>Location & Workplace</th>
+                                <th>Salary Range</th>
+                                <th>Status / ATS</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
             jobs.forEach((job, index) => {
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : 'status-queued';
                 const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : '⏳ In Queue';
-
-                // Construct extra details based on available fields from Supabase
-                const extraMeta = [];
-                if (job.seniorityLevel && job.seniorityLevel !== 'Not Applicable') extraMeta.push(`👔 ${job.seniorityLevel}`);
-                if (job.employmentType) extraMeta.push(`⏱️ ${job.employmentType}`);
-                if (job.atsType) extraMeta.push(`🤖 ATS: ${job.atsType}`);
+                const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag">${job.workplaceType}</span>` : '';
+                const salaryLabel = job.salary_range ? `<span class="table-salary">${job.salary_range}</span>` : '<span style="opacity: 0.4;">-</span>';
+                const atsLabel = job.atsType ? `<div class="table-ats">🤖 ATS: ${job.atsType}</div>` : '';
 
                 html += `
-                    <div class="job-card">
-                        <div class="job-header">
-                            <div class="company-info">
-                                <div>
-                                    <div class="job-title">${job.title}</div>
-                                    <div class="company-name">${job.companyName}</div>
-                                </div>
+                    <tr>
+                        <td>
+                            <div class="table-role-title">${job.title}</div>
+                            <div class="table-company-name">${job.companyName}</div>
+                        </td>
+                        <td>
+                            <div>📍 ${job.location}</div>
+                            ${workplaceLabel}
+                        </td>
+                        <td>
+                            ${salaryLabel}
+                        </td>
+                        <td>
+                            <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content; margin-bottom: 0.25rem;">${statusLabel}</div>
+                            ${atsLabel}
+                        </td>
+                        <td>
+                            <div class="table-actions">
+                                <button class="table-btn table-btn-primary" onclick="openModal(${index})">📄 Read Description</button>
+                                ${job.resumeUrl ? `<button class="table-btn" onclick="openResume(${index})">📄 Tailored Resume</button>` : ''}
                             </div>
-                            <div class="status-pill ${statusClass}">${statusLabel}</div>
-                        </div>
-                        
-                        <div class="job-meta">
-                            <div class="meta-item">📍 ${job.location}</div>
-                            ${extraMeta.map(m => `<div class="meta-item">${m}</div>`).join('')}
-                        </div>
-
-                        <div class="job-desc-preview">${job.descriptionText}</div>
-
-                        <div class="job-actions">
-                            <button class="view-desc-btn" onclick="openModal(${index})">📄 Read Full Description</button>
-                            ${job.resumeUrl ? `<a href="${job.resumeUrl}" target="_blank" class="view-cl-btn" style="text-decoration: none;">📄 Tailored Resume</a>` : ''}
-                        </div>
-                    </div>
+                        </td>
+                    </tr>
                 `;
             });
 
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
             container.innerHTML = html;
         }
 
@@ -622,9 +753,102 @@
             const job = currentJobs[index];
             document.getElementById('modal-title').innerText = job.title;
             document.getElementById('modal-company').innerText = job.companyName;
-            document.getElementById('modal-text').innerText = job.descriptionText;
-            document.getElementById('modal-link').href = job.link || '#';
+            document.getElementById('modal-text').innerText = job.descriptionText || 'No description provided.';
             document.getElementById('desc-modal').classList.add('active');
+        }
+
+        async function openResume(index) {
+            const job = currentJobs[index];
+            document.getElementById('resume-modal-title').innerText = `Resume for ${job.title}`;
+            document.getElementById('resume-modal-company').innerText = job.companyName;
+
+            // Revoke previous blob URL if exists
+            if (currentResumeObjectUrl) {
+                URL.revokeObjectURL(currentResumeObjectUrl);
+                currentResumeObjectUrl = null;
+            }
+
+            const iframe = document.getElementById('resume-iframe');
+            iframe.src = '';
+
+            document.getElementById('resume-modal').classList.add('active');
+
+            try {
+                // Fetch the PDF as a blob to avoid exposing the raw Supabase URL in the address bar / network inspection where possible
+                const response = await fetch(job.resumeUrl);
+                if (!response.ok) throw new Error('Fetch failed');
+                const blob = await response.blob();
+                currentResumeObjectUrl = URL.createObjectURL(blob);
+                iframe.src = currentResumeObjectUrl;
+            } catch (error) {
+                console.error('Error fetching resume blob, falling back to direct URL:', error);
+                // Fallback to direct URL if there's any CORS or fetch issue
+                iframe.src = job.resumeUrl;
+            }
+        }
+
+        function toggleChip(chip) {
+            chip.classList.toggle('active');
+        }
+
+        async function startNewSearch() {
+            const roleInput = document.getElementById('search-role').value.trim();
+            const locationInput = document.getElementById('search-location').value.trim();
+            const searchBtn = document.getElementById('search-btn');
+
+            if (!roleInput) {
+                alert('Please enter a target role.');
+                return;
+            }
+
+            const activeChips = Array.from(document.querySelectorAll('.filter-chips .chip.active'))
+                .map(chip => chip.getAttribute('data-type'));
+
+            if (!activeChips.length) {
+                alert('Please select at least one workplace type.');
+                return;
+            }
+
+            searchBtn.disabled = true;
+            searchBtn.textContent = 'Triggering Scrape...';
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            // Update user profile with new preferences in Supabase
+            const { error } = await supabaseClient.from('profiles').update({
+                target_job_titles: roleInput,
+                target_location: locationInput || 'United States',
+                workplace_type: activeChips.join(', '),
+                scraper_status: 'scanning',
+                updated_at: new Date().toISOString()
+            }).eq('id', user.id);
+
+            if (error) {
+                console.error('Error updating preferences:', error);
+                alert('Failed to update preferences: ' + error.message);
+                searchBtn.disabled = false;
+                searchBtn.textContent = 'Scan & Apply';
+                return;
+            }
+
+            // Update local pref elements
+            document.getElementById('pref-roles').textContent = roleInput;
+            document.getElementById('pref-countries').textContent = locationInput || 'United States';
+            document.getElementById('pref-workplaces').textContent = activeChips.join(', ').toUpperCase();
+
+            // Trigger the scrape
+            const mockProfile = {
+                target_job_titles: roleInput,
+                target_location: locationInput || 'United States',
+                workplace_type: activeChips.join(', ')
+            };
+
+            await triggerInitialScrape(user, mockProfile);
+            
+            searchBtn.disabled = false;
+            searchBtn.textContent = 'Scan & Apply';
+            alert('A new cloud scan has been initiated. Jobs will begin appearing shortly!');
         }
 
         function openCoverLetter(index) {
