@@ -122,12 +122,12 @@
         }
         .table-role-title {
             color: white;
-            font-weight: 600;
-            font-size: 0.95rem;
+            font-weight: 500;
+            font-size: 0.82rem;
         }
         .table-company-name {
             color: #9CA3AF;
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             font-weight: 500;
             margin-top: 0.2rem;
         }
@@ -135,8 +135,8 @@
             display: inline-block;
             padding: 0.2rem 0.6rem;
             border-radius: 20px;
-            font-size: 0.68rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            font-weight: 500;
             background: rgba(59, 130, 246, 0.08);
             color: #60A5FA;
             margin-top: 0.35rem;
@@ -146,8 +146,8 @@
         }
         .table-salary {
             color: #10B981;
-            font-weight: 600;
-            font-size: 0.88rem;
+            font-weight: 500;
+            font-size: 0.82rem;
             background: rgba(16, 185, 129, 0.06);
             padding: 0.2rem 0.6rem;
             border-radius: 4px;
@@ -172,8 +172,8 @@
             border: 1px solid rgba(255, 255, 255, 0.08);
             color: #E5E7EB;
             padding: 0.45rem 0.9rem;
-            font-size: 0.78rem;
-            font-weight: 600;
+            font-size: 0.82rem;
+            font-weight: 500;
             cursor: pointer;
             border-radius: 6px;
             text-transform: uppercase;
@@ -188,13 +188,13 @@
             border: none;
             background: var(--primary);
             color: white;
-            font-weight: 600;
+            font-weight: 500;
         }
         .table-btn-primary:hover {
             background: var(--primary-hover);
             color: white;
         }
-        .status-pill { padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .status-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.82rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
         .status-queued { background: rgba(59, 130, 246, 0.08); color: #60A5FA; border-color: rgba(59, 130, 246, 0.15); }
         .status-applied { background: rgba(245, 158, 11, 0.08); color: #FBBF24; border-color: rgba(245, 158, 11, 0.15); }
         .status-interview { background: rgba(16, 185, 129, 0.08); color: #34D399; border-color: rgba(16, 185, 129, 0.15); }
@@ -734,7 +734,7 @@
                                 <th>Employment & Workplace type</th>
                                 <th>Role & Salary Range</th>
                                 <th>Application Link & Date Posted</th>
-                                <th>Status & Resume</th>
+                                <th>Resume & Application Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -745,23 +745,22 @@
                 const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : '⏳ In Queue';
                 const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag" style="margin-top: 0;">${job.workplaceType}</span>` : '';
                 const salaryLabel = job.salary_range ? `<span class="table-salary" style="margin-top: 0.25rem;">${job.salary_range}</span>` : '<span style="opacity: 0.4;">-</span>';
-                const atsLabel = job.atsType ? `<div class="table-ats">🤖 ATS: ${job.atsType}</div>` : '';
                 
                 // Get job posting link
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
-                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0.45rem 0.9rem; font-size: 0.75rem;">🔗 View Posting</a>` : '<span style="opacity: 0.4;">-</span>';
+                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-primary" style="text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 0.45rem 0.9rem; font-size: 0.82rem;">🔗 View Posting</a>` : '<span style="opacity: 0.4;">-</span>';
 
                 html += `
                     <tr>
                         <!-- 1. Company & Website -->
                         <td>
-                            <div class="table-role-title" style="font-size: 0.95rem; font-weight: 700; color: white;">${job.companyName}</div>
-                            ${job.companyWebsite ? `<a href="http://${job.companyWebsite}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.8rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">🔗 ${job.companyWebsite}</a>` : '<span style="opacity: 0.4; font-size: 0.8rem;">-</span>'}
+                            <div style="font-size: 0.82rem; font-weight: 500; color: white;">${job.companyName}</div>
+                            ${job.companyWebsite ? `<a href="http://${job.companyWebsite}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.82rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">🔗 ${job.companyWebsite}</a>` : '<span style="opacity: 0.4; font-size: 0.82rem;">-</span>'}
                         </td>
                         
                         <!-- 2. Location -->
                         <td>
-                            <div>📍 ${job.location}</div>
+                            <div style="font-size: 0.82rem; font-weight: 500; color: #D1D5DB;">📍 ${job.location}</div>
                         </td>
                         
                         <!-- 3. Employment & Workplace type -->
@@ -774,7 +773,7 @@
                         
                         <!-- 4. Role & Salary Range -->
                         <td>
-                            <div class="table-role-title" style="margin-bottom: 0.35rem; font-weight: 600;">${job.title}</div>
+                            <div style="font-size: 0.82rem; font-weight: 500; color: white; margin-bottom: 0.35rem;">${job.title}</div>
                             ${salaryLabel}
                         </td>
                         
@@ -782,16 +781,15 @@
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
                                 ${jobLinkButton}
-                                <div style="font-size: 0.75rem; color: #9CA3AF; font-weight: 500; margin-top: 0.15rem;">📅 ${job.postedAt}</div>
+                                <div style="font-size: 0.82rem; color: #9CA3AF; font-weight: 500; margin-top: 0.15rem;">📅 ${job.postedAt}</div>
                             </div>
                         </td>
                         
-                        <!-- 6. Status & Resume -->
+                        <!-- 6. Resume & Application Status -->
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
+                                ${job.resumeUrl ? `<button class="table-btn" onclick="openResume(${index})" style="padding: 0.35rem 0.75rem; font-size: 0.82rem; margin-bottom: 0.15rem; width: fit-content;">📄 Tailored Resume</button>` : ''}
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
-                                ${atsLabel}
-                                ${job.resumeUrl ? `<button class="table-btn" onclick="openResume(${index})" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; margin-top: 0.15rem; width: fit-content;">📄 Tailored Resume</button>` : ''}
                             </div>
                         </td>
                     </tr>
