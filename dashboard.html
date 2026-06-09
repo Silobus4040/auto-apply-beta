@@ -75,17 +75,17 @@
         .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Stats Bar */
-        .stats-bar { display: flex; gap: 2.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; padding-left: 0.5rem; }
-        .stat { display: flex; align-items: baseline; gap: 0.5rem; }
-        .stat-number { color: #000000; font-size: 1.6rem; font-weight: 900; }
-        .stat-label { color: #52525B; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        .stats-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .stat-number { color: #000000; font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
 
         /* Table Style Dashboard */
         .jobs-table-container {
             width: 100%;
             overflow-x: auto;
             border: 1px solid var(--border);
-            border-radius: 20px;
+            border-radius: 12px;
             background: var(--surface-color);
             margin-bottom: 2rem;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
@@ -105,14 +105,24 @@
             padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border);
         }
+        .jobs-table th:nth-child(1) { width: 16%; }
+        .jobs-table th:nth-child(2) { width: 16%; }
+        .jobs-table th:nth-child(3) { width: 14%; }
+        .jobs-table th:nth-child(4) { width: 22%; }
+        .jobs-table th:nth-child(5) { width: 16%; }
+        .jobs-table th:nth-child(6) { width: 16%; }
         .jobs-table td {
-            padding: 1.25rem 1.5rem;
+            padding: 1.35rem 1.5rem;
             border-bottom: 1px solid var(--border);
             vertical-align: middle;
             color: var(--text-body);
+            font-size: 0.875rem;
+        }
+        .jobs-table tbody tr:nth-child(even) td {
+            background: #fafafa;
         }
         .jobs-table tr:hover td {
-            background: rgba(212, 255, 51, 0.03);
+            background: rgba(0, 255, 204, 0.06);
         }
         .jobs-table tr:last-child td {
             border-bottom: none;
@@ -120,31 +130,42 @@
         .table-role-title {
             color: #000000;
             font-weight: 600;
-            font-size: 0.82rem;
+            font-size: 0.875rem;
         }
         .table-company-name {
             color: #52525B;
-            font-size: 0.82rem;
+            font-size: 0.875rem;
             font-weight: 600;
             margin-top: 0.2rem;
         }
         .table-workplace-tag {
             display: inline-block;
-            padding: 0.2rem 0.6rem;
+            padding: 0.25rem 0.7rem;
             border-radius: 20px;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 600;
-            background: rgba(212, 255, 51, 0.08);
-            color: #000000;
-            margin-top: 0.35rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border: 1px solid rgba(212, 255, 51, 0.25);
+        }
+        .tag-remote {
+            background: rgba(0, 255, 204, 0.12);
+            color: #00997a;
+            border: 1px solid rgba(0, 255, 204, 0.25);
+        }
+        .tag-hybrid {
+            background: rgba(245, 158, 11, 0.12);
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        .tag-onsite {
+            background: rgba(99, 102, 241, 0.12);
+            color: #4338ca;
+            border: 1px solid rgba(99, 102, 241, 0.25);
         }
         .table-salary {
             color: #10B981;
             font-weight: 600;
-            font-size: 0.82rem;
+            font-size: 0.875rem;
             background: rgba(16, 185, 129, 0.06);
             padding: 0.2rem 0.6rem;
             border-radius: 4px;
@@ -169,7 +190,7 @@
             border: 1px solid var(--border);
             color: var(--text-body);
             padding: 0.45rem 0.9rem;
-            font-size: 0.82rem;
+            font-size: 0.875rem;
             font-weight: 600;
             cursor: pointer;
             border-radius: 6px;
@@ -247,21 +268,7 @@
             background: #00FFCC;
         }
         
-        .resume-render-area { background: white; color: black; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; min-height: 400px; }
-        .resume-render-area h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; text-transform: none; }
-        .resume-render-area .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
-        .resume-render-area .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
-        .resume-render-area h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
-        .resume-render-area ul { margin: 3pt 0 8pt 16pt; }
-        .resume-render-area li { margin-bottom: 2pt; font-size: 10pt; }
 
-        @keyframes pulse {
-            0% { transform: scale(0.96); opacity: 0.7; }
-            50% { transform: scale(1.04); opacity: 1; }
-            100% { transform: scale(0.96); opacity: 0.7; }
-        }
-        .spinner { width: 36px; height: 36px; border: 3px solid rgba(255,255,255,0.06); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -816,52 +823,43 @@
             jobs.forEach((job, index) => {
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : 'status-queued';
                 const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : '⏳ In Queue';
-                const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag" style="margin-top: 0;">${job.workplaceType}</span>` : '';
+                const wpType = (job.workplaceType || '').toLowerCase();
+                const tagClass = wpType.includes('remote') ? 'tag-remote' : wpType.includes('hybrid') ? 'tag-hybrid' : 'tag-onsite';
+                const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag ${tagClass}" style="margin-top: 0;">${job.workplaceType}</span>` : '';
                 const salaryLabel = job.salary_range ? `<span class="table-salary" style="margin-top: 0.25rem;">${job.salary_range}</span>` : '';
                 
                 // Get job posting link
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
-                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" style="color: #00b38f; text-decoration: none; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">🔗 View Posting</a>` : '';
+                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" style="color: #00b38f; text-decoration: none; font-size: 0.875rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">View Posting ↗</a>` : '';
 
                 html += `
                     <tr>
-                        <!-- 1. Company & Website -->
                         <td>
-                            <div style="font-size: 0.82rem; font-weight: 600; color: #000000;">${job.companyName}</div>
-                            ${job.companyWebsite ? `<a href="http://${job.companyWebsite}" target="_blank" style="color: #00b38f; text-decoration: none; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">🔗 ${job.companyWebsite}</a>` : ''}
+                            <div style="font-weight: 600; color: #000000;">${job.companyName}</div>
+                            ${job.companyWebsite ? `<a href="http://${job.companyWebsite}" target="_blank" style="color: #52525B; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">${job.companyWebsite}</a>` : ''}
                         </td>
-                        
-                        <!-- 2. Location -->
                         <td>
-                            <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-body);">📍 ${job.location}</div>
+                            <div style="font-weight: 600; color: var(--text-body);">${job.location}</div>
                         </td>
-                        
-                        <!-- 3. Employment & Workplace type -->
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
                                 ${workplaceLabel}
-                                ${job.employmentType ? `<div style="font-size: 0.82rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">💼 ${job.employmentType}</div>` : ''}
+                                ${job.employmentType ? `<div style="color: #52525B; font-weight: 600; margin-top: 0.15rem;">${job.employmentType}</div>` : ''}
                             </div>
                         </td>
-                        
-                        <!-- 4. Role & Salary Range -->
                         <td>
-                            <div style="font-size: 0.82rem; font-weight: 600; color: #000000; margin-bottom: 0.35rem;">${job.title}</div>
+                            <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">${job.title}</div>
                             ${salaryLabel}
                         </td>
-                        
-                        <!-- 5. Application Link & Date Posted -->
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
                                 ${jobLinkButton}
-                                <div style="font-size: 0.82rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">📅 ${job.postedAt}</div>
+                                <div style="color: #52525B; font-weight: 600; margin-top: 0.15rem;">${job.postedAt}</div>
                             </div>
                         </td>
-                        
-                        <!-- 6. Resume & Application Status -->
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
-                                ${job.resumeUrl ? `<button class="table-btn" onclick="openResume(${index})" style="padding: 0.35rem 0.75rem; font-size: 0.82rem; margin-bottom: 0.15rem; width: fit-content;">📄 Tailored Resume</button>` : ''}
+                                ${job.resumeUrl ? `<button class="table-btn" onclick="openResume(${index})" style="padding: 0.35rem 0.75rem; margin-bottom: 0.15rem; width: fit-content;">Tailored Resume</button>` : ''}
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                             </div>
                         </td>
