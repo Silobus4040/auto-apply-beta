@@ -234,7 +234,7 @@
     <div class="background-blob blob-2"></div>
 
     <nav>
-        <a href="index.html" class="logo">APPLY<span>/BOT</span></a>
+        <a href="index.html" class="logo">APPLY<span>/AI</span></a>
         <div class="nav-user">
             <div class="nav-credits">✅ Premium Active</div>
             <div class="nav-avatar">JD</div>
@@ -247,7 +247,7 @@
         <div id="inbox-banner" style="display: none; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
             <div>
                 <h3 style="color: var(--accent); font-size: 1.15rem; margin-bottom: 0.25rem; font-weight: 700;">⚠️ Auto-Apply Engine Paused</h3>
-                <p style="color: #D1D5DB; font-size: 0.92rem;">You need to connect a dedicated Job-Search Inbox so our bot can verify login codes and submit applications.</p>
+                <p style="color: #D1D5DB; font-size: 0.92rem;">You need to connect a dedicated Job-Search Inbox so our AI can verify login codes and submit applications.</p>
             </div>
             <button onclick="document.getElementById('inbox-modal').classList.add('active')" style="background: var(--primary); color: white; border: none; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 600; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Auto-Apply &rarr;</button>
         </div>
@@ -256,7 +256,7 @@
         <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
                 <div style="flex: 1; min-width: 300px;">
-                    <h2 style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.2px;">🤖 Job Agent Active</h2>
+                    <h2 style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.2px;">⚡ AI Agent Active</h2>
                     <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem;">The AI workflow automatically sources and queues matching jobs based on your onboarding preferences.</p>
                     
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.15); padding: 1.25rem; border: 1px solid var(--border); border-radius: 8px;">
@@ -424,7 +424,7 @@
                                 <img src="assets/google_2step_guide.png" style="width: 100%; border-radius: 6px; border: 1px solid var(--border); margin-top: 0.5rem;" alt="2-Step Verification Guide">
                             </li>
                             <li>Go to the <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: 600;">Google App Passwords page</a>.</li>
-                            <li>Enter <strong>"AutoApply Bot"</strong> as the app name and click <strong>Create</strong>.</li>
+                            <li>Enter <strong>"AutoApply AI"</strong> as the app name and click <strong>Create</strong>.</li>
                             <li>Google will display a <strong>16-letter password</strong> in a yellow box (e.g., <code>abcd efgh ijkl mnop</code>). <strong>Copy it</strong> and paste it below.</li>
                         </ol>
                     </div>
@@ -518,7 +518,7 @@
             // Show which Greenhouse account is active (optional UX hint)
             if (profile.Application_email) {
                 const creditsEl = document.querySelector('.nav-credits');
-                if (creditsEl) creditsEl.title = `Bot account: ${profile.Application_email}`;
+                if (creditsEl) creditsEl.title = `AI account: ${profile.Application_email}`;
             }
 
             // Initialize Production Dashboard Data

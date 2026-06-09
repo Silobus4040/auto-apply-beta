@@ -7,15 +7,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --surface-color: #121212;
+            --bg-color: #ffffff;
+            --surface-color: #ffffff;
             --primary: #D4FF33;
             --primary-hover: #bde62b;
             --secondary: #FF6B4A;
-            --text-heading: #FFFFFF;
-            --text-body: #A1A1AA;
-            --border: #27272A;
-            --brutal-shadow: 4px 4px 0px #D4FF33;
+            --text-heading: #000000;
+            --text-body: #18181B;
+            --border: #000000;
+            --brutal-shadow: 4px 4px 0px #000000;
             --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
@@ -24,84 +24,90 @@
         /* Grid Background Pattern */
         body::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.3;
+            background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
+            background-size: 40px 40px;
         }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid var(--border); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 2px solid var(--border); }
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; display: flex; align-items: center; gap: 0.5rem; text-transform: uppercase; }
-        .logo span { color: var(--primary); }
+        .logo span { background: #000000; color: #ffffff; padding: 0.1rem 0.4rem; margin-left: 0.25rem; font-size: 1.2rem; display: inline-block; vertical-align: middle; }
 
         .hero { max-width: 1400px; margin: 6rem auto 4rem; padding: 0 5%; text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
-        .badge { background: transparent; color: var(--primary); border: 1px solid var(--primary); padding: 0.5rem 1rem; border-radius: 0; font-size: 0.875rem; font-weight: 700; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 2px 2px 0px var(--primary); }
+        .badge { background: var(--primary); color: #000000; border: 2px solid #000000; padding: 0.5rem 1rem; border-radius: 0; font-size: 0.875rem; font-weight: 800; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 2px 2px 0px #000000; }
         h1 { color: var(--text-heading); font-size: clamp(3.5rem, 7vw, 6rem); font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.5rem; max-width: 1100px; text-transform: uppercase; }
-        .highlight { color: var(--primary); }
-        p.hero-sub { font-size: 1.25rem; max-width: 800px; margin-bottom: 3rem; color: #D4D4D8; }
+        .highlight { background: var(--primary); color: #000000; padding: 0.1rem 0.6rem; display: inline-block; border: 2px solid #000000; }
+        p.hero-sub { font-size: 1.25rem; max-width: 800px; margin-bottom: 3rem; color: #27272A; font-weight: 500; }
 
         .cta-group { display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap; }
         .btn { padding: 1rem 2rem; border-radius: 0; font-size: 1.125rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.2s ease; border: 2px solid transparent; display: inline-block; text-transform: uppercase; }
         .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
         .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
 
-        /* New Sections CSS */
-        .section-title { font-size: 3rem; font-weight: 900; color: white; text-transform: uppercase; margin-bottom: 3rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+        .section-title { font-size: 3rem; font-weight: 900; color: #000000; text-transform: uppercase; margin-bottom: 3rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
         
         .how-it-works, .pricing { max-width: 1400px; margin: 8rem auto; padding: 0 5%; }
         .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-        .step-card { background: var(--surface-color); border: 2px solid var(--border); padding: 2rem; position: relative; transition: transform 0.2s; }
-        .step-card:hover { transform: translateY(-5px); border-color: var(--primary); }
-        .step-num { font-size: 6rem; font-weight: 900; color: var(--primary); opacity: 0.1; position: absolute; top: -1rem; right: 1rem; line-height: 1; z-index: 0; }
-        .step-card h3 { color: white; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; position: relative; z-index: 1; }
-        .step-card p { position: relative; z-index: 1; }
+        .step-card { background: #ffffff; border: 2px solid #000000; padding: 2rem; position: relative; transition: transform 0.2s; box-shadow: 4px 4px 0px #000000; }
+        .step-card:hover { transform: translateY(-5px); border-color: #000000; box-shadow: 6px 6px 0px var(--secondary); }
+        .step-num { font-size: 6rem; font-weight: 900; color: #000000; opacity: 0.08; position: absolute; top: -1rem; right: 1rem; line-height: 1; z-index: 0; }
+        .step-card h3 { color: #000000; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; position: relative; z-index: 1; }
+        .step-card p { position: relative; z-index: 1; color: #27272A; font-weight: 500; }
         
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; align-items: stretch; }
-        .price-card { background: #000; border: 2px solid var(--border); padding: 3rem 2rem; display: flex; flex-direction: column; position: relative; }
-        .price-card.popular { border-color: var(--primary); box-shadow: var(--brutal-shadow); transform: scale(1.02); z-index: 2; background: var(--surface-color); }
+        .price-card { background: #ffffff; border: 2px solid #000000; padding: 3rem 2rem; display: flex; flex-direction: column; position: relative; box-shadow: 4px 4px 0px #000000; }
+        .price-card .price-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: #000000; margin-bottom: 0.5rem; }
+        .price-card .price-amount { font-size: 4rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; line-height: 1; }
+        .price-card .price-amount span { font-size: 1.5rem; color: #71717a; font-weight: 600; }
+        .price-card .price-sub { color: #52525b; font-size: 0.9rem; margin-bottom: 2rem; font-weight: 600; text-transform: uppercase; }
+        .price-card .price-features { list-style: none; margin-bottom: 2.5rem; flex-grow: 1; }
+        .price-card .price-features li { padding: 0.75rem 0; border-bottom: 1px solid #e4e4e7; color: #27272a; }
+        .price-card .price-features li::before { content: "→"; color: #000000; margin-right: 0.5rem; font-weight: bold; }
+
+        /* Popular card is black background */
+        .price-card.popular { background: #000000; border-color: #000000; box-shadow: 6px 6px 0px var(--primary); transform: scale(1.02); z-index: 2; }
+        .price-card.popular .price-name { color: var(--primary); }
+        .price-card.popular .price-amount { color: #ffffff; }
+        .price-card.popular .price-amount span { color: #a1a1aa; }
+        .price-card.popular .price-sub { color: var(--primary); }
+        .price-card.popular .price-features li { border-bottom: 1px solid #27272a; color: #e4e4e7; }
+        .price-card.popular .price-features li::before { color: var(--primary); }
         .popular-badge { position: absolute; top: -1rem; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 0.25rem 1rem; font-weight: 800; text-transform: uppercase; border: 2px solid #000; }
-        .price-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: white; margin-bottom: 0.5rem; }
-        .popular .price-name { color: var(--primary); }
-        .price-amount { font-size: 4rem; font-weight: 900; color: white; margin-bottom: 0.5rem; line-height: 1; }
-        .price-amount span { font-size: 1.5rem; color: var(--text-body); font-weight: 600; }
-        .price-sub { color: var(--text-body); font-size: 0.9rem; margin-bottom: 2rem; font-weight: 600; text-transform: uppercase; }
-        .price-features { list-style: none; margin-bottom: 2.5rem; flex-grow: 1; }
-        .price-features li { padding: 0.75rem 0; border-bottom: 1px solid var(--border); color: #D1D5DB; }
-        .price-features li::before { content: "→"; color: var(--primary); margin-right: 0.5rem; font-weight: bold; }
     </style>
 </head>
 <body>
     <nav>
-        <div class="logo">APPLY<span>/BOT</span></div>
+        <div class="logo">APPLY<span>/AI</span></div>
         <div class="nav-links" style="display: flex; gap: 2rem; align-items: center;">
-            <a href="#how-it-works" style="color: white; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">How it works</a>
-            <a href="#pricing" style="color: white; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Pricing</a>
+            <a href="#how-it-works" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">How it works</a>
+            <a href="#pricing" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Pricing</a>
             <a href="login.html" style="color: var(--secondary); text-decoration: none; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">Sign In</a>
-            <a href="signup.html" class="btn" style="border: 2px solid var(--primary); padding: 0.5rem 1.5rem; color: var(--primary); font-size: 0.9rem;">Start Automating</a>
+            <a href="signup.html" class="btn" style="border: 2px solid #000000; background: var(--primary); box-shadow: 2px 2px 0px #000000; padding: 0.5rem 1.5rem; color: #000000; font-size: 0.9rem;">Start Automating</a>
         </div>
     </nav>
 
     <section class="hero">
         <div class="badge">10 Free Applications</div>
-        <h1><span class="highlight">Speed Is Everything.</span><br>Let AI apply while you sleep.</h1>
+        <h1><span class="highlight">Land Interviews.</span><br>Stop getting ghosted.</h1>
         <p class="hero-sub">
-            If you're applying manually, you're already too late. Remote jobs get hundreds of applicants in minutes. Our autonomous bot monitors job boards 24/7, detects new openings instantly, tailors your resume, and applies while you sleep. Stop missing out.
+            If you're applying manually, you're already too late. Remote jobs get hundreds of applicants in minutes. Our autonomous AI monitors job boards 24/7, detects new openings instantly, tailors your resume, and applies while you sleep. Stop missing out.
         </p>
         <div class="cta-group">
-            <a href="signup.html" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 2.5rem;">Launch Your AI Bot &rarr;</a>
+            <a href="signup.html" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 2.5rem; color: #000000; border: 2px solid #000000;">Activate Your AI Agent &rarr;</a>
         </div>
-        <div style="margin-top: 3rem; display: flex; align-items: center; gap: 1.5rem; border-top: 1px solid var(--border); padding-top: 2rem; width: 100%; max-width: 850px;">
-            <div style="font-size: 1.75rem; font-weight: 900; color: var(--primary); white-space: nowrap; text-transform: uppercase;">100K+ Jobs</div>
-            <div style="font-size: 0.95rem; color: #A1A1AA; line-height: 1.5;">24/7 Monitoring across major ATS platforms, tracking over 100K+ active job opportunities globally.</div>
+        <div style="margin-top: 3rem; display: flex; align-items: center; gap: 1.5rem; border-top: 2px solid #000000; padding-top: 2rem; width: 100%; max-width: 850px;">
+            <div style="font-size: 1.75rem; font-weight: 900; color: #000000; background: var(--primary); border: 2px solid #000000; padding: 0.25rem 0.75rem; white-space: nowrap; text-transform: uppercase; box-shadow: 2px 2px 0px #000000;">100K+ Jobs</div>
+            <div style="font-size: 0.95rem; color: #27272A; line-height: 1.5; font-weight: 500;">24/7 Monitoring across major ATS platforms, tracking over 100K+ active job opportunities globally.</div>
         </div>
     </section>
 
     <section class="mission" style="max-width: 1400px; margin: 4rem auto 0; padding: 0 5%;">
-        <div style="background: var(--surface-color); border: 2px solid var(--border); padding: 3rem; border-left: 6px solid var(--primary); box-shadow: var(--brutal-shadow);">
-            <span style="color: var(--primary); font-weight: 800; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1.5px; display: block; margin-bottom: 0.75rem;">Our Mission</span>
-            <h2 style="color: white; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; text-transform: uppercase; margin-bottom: 1.5rem;">Land Interviews Effortlessly.</h2>
-            <p style="font-size: 1.15rem; color: #D4D4D8; max-width: 900px; line-height: 1.7; margin-bottom: 0.75rem;">
+        <div style="background: #ffffff; border: 2px solid #000000; padding: 3rem; border-left: 6px solid #000000; box-shadow: var(--brutal-shadow);">
+            <span style="color: #000000; background: var(--primary); border: 2px solid #000000; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; margin-bottom: 1rem; padding: 0.25rem 0.75rem; box-shadow: 2px 2px 0px #000000;">Our Goal</span>
+            <h2 style="color: #000000; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; text-transform: uppercase; margin-bottom: 1.5rem;">Land Interviews Effortlessly.</h2>
+            <p style="font-size: 1.15rem; color: #27272A; max-width: 900px; line-height: 1.7; margin-bottom: 0.75rem; font-weight: 500;">
                 We built this so you never have to waste your valuable time filling out tedious application forms or miss out on life-changing opportunities again.
             </p>
-            <p style="font-size: 1.15rem; color: #D4D4D8; max-width: 900px; line-height: 1.7;">
+            <p style="font-size: 1.15rem; color: #27272A; max-width: 900px; line-height: 1.7; font-weight: 500;">
                 Our ultimate goal is to help you land interviews effortlessly, generating multiple offers so you have real options and career leverage.
             </p>
         </div>
@@ -109,7 +115,7 @@
 
     <section id="how-it-works" class="how-it-works" style="margin-top: 4rem;">
         <h2 class="section-title" style="margin-bottom: 1rem;">How It Works</h2>
-        <p style="font-size: 0.95rem; color: #9CA3AF; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">You build your profile once. Our bot takes over forever.</p>
+        <p style="font-size: 0.95rem; color: #52525B; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">You build your profile once. Our AI Agent takes over forever.</p>
         <div class="steps-grid">
             <div class="step-card">
                 <div class="step-num">01</div>
@@ -124,7 +130,7 @@
             <div class="step-card">
                 <div class="step-num">03</div>
                 <h3>Automated Submissions</h3>
-                <p>Our bot handles the entire application form. It uploads documents, answers standard questions, and registers candidate profiles on portals requiring accounts (e.g. SuccessFactors, Workday).</p>
+                <p>Our AI Agent handles the entire application form. It uploads documents, answers standard questions, and registers candidate profiles on portals requiring accounts (e.g. SuccessFactors, Workday).</p>
             </div>
             <div class="step-card">
                 <div class="step-num">04</div>
@@ -149,7 +155,7 @@
                     <li>AI Cover Letters Included</li>
                     <li>Test the full automation engine</li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block; background: transparent; color: var(--primary); border: 2px solid var(--primary);">Start Free Trial</a>
+                <a href="signup.html" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block; background: #ffffff; color: #000000; border: 2px solid #000000; box-shadow: 4px 4px 0px #000000;">Start Free Trial</a>
             </div>
 
             <!-- Pro Card -->
@@ -164,7 +170,7 @@
                     <li>AI cover letters for every role</li>
                     <li>24/7 rapid application speed <span style="display:block; font-size:0.85rem; color:#9CA3AF; margin-top:0.3rem; line-height:1.4;">(We exclusively apply to fresh jobs posted within 24 hours)</span></li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block;">Start Automating Now</a>
+                <a href="signup.html" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block; color: #000000; border: 2px solid #000000;">Start Automating Now</a>
             </div>
         </div>
     </section>
