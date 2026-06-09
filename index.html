@@ -102,6 +102,51 @@
         .price-card.popular .price-features li { border-bottom: 1px solid #27272a; color: #e4e4e7; }
         .price-card.popular .price-features li::before { content: "✓"; color: var(--primary); }
         .popular-badge { position: absolute; top: -1.25rem; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 0.5rem 2rem; font-weight: 800; text-transform: uppercase; border-radius: 30px; font-size: 0.85rem; box-shadow: 0 10px 20px rgba(212, 255, 51, 0.25); border: none; letter-spacing: 0.5px; }
+
+        /* Mockup Dashboard Preview */
+        .mockup-section { max-width: 1400px; margin: 8rem auto; padding: 0 5%; }
+        .mockup-container { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 24px; padding: 2.5rem; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.04); overflow: hidden; position: relative; }
+        .mockup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f4f4f5; padding-bottom: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
+        .mockup-logo { font-size: 1.25rem; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; display: flex; align-items: center; gap: 0.35rem; }
+        .mockup-logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000; padding: 0.15rem 0.5rem; font-size: 0.95rem; font-weight: 800; border-radius: 6px; }
+        .mockup-badge { background: rgba(16, 185, 129, 0.06); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
+        
+        .mockup-agent-card { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
+        .mockup-agent-info { flex: 1; min-width: 280px; }
+        .mockup-agent-status { background: rgba(212, 255, 51, 0.03); border: 1px dashed #e4e4e7; border-radius: 12px; padding: 1.25rem; text-align: center; width: 100%; max-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .mockup-dot { width: 10px; height: 10px; background: #D4FF33; border-radius: 50%; margin-bottom: 0.5rem; box-shadow: 0 0 8px #D4FF33; animation: mockup-pulse 1.5s infinite; }
+        @keyframes mockup-pulse {
+            0% { transform: scale(0.96); opacity: 0.7; }
+            50% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(0.96); opacity: 0.7; }
+        }
+        
+        .mockup-stats { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .mockup-stat-card { display: flex; align-items: baseline; gap: 0.5rem; background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 1rem 1.5rem; min-width: 140px; }
+        .mockup-stat-val { font-size: 1.75rem; font-weight: 900; color: #000000; }
+        .mockup-stat-lbl { font-size: 0.72rem; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        
+        .mockup-table-container { width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: 12px; }
+        .mockup-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; min-width: 800px; }
+        .mockup-table th { background: #00FFCC; color: #000; font-weight: 850; font-size: 0.75rem; text-transform: uppercase; padding: 1.25rem 1.5rem; border-bottom: 1px solid #e4e4e7; letter-spacing: 0.75px; }
+        .mockup-table td { padding: 1.35rem 1.5rem; border-bottom: 1px solid #e4e4e7; vertical-align: middle; }
+        .mockup-table tbody tr:nth-child(even) td { background: #fafafa; }
+        .mockup-table tr:hover td { background: rgba(0, 255, 204, 0.06); }
+        .mockup-table tr:last-child td { border-bottom: none; }
+        
+        .mockup-tag { display: inline-block; padding: 0.25rem 0.7rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; text-transform: uppercase; }
+        .mockup-tag.remote { background: rgba(0, 255, 204, 0.12); color: #00997a; border: 1px solid rgba(0, 255, 204, 0.25); }
+        .mockup-tag.hybrid { background: rgba(245, 158, 11, 0.12); color: #92400e; border: 1px solid rgba(245, 158, 11, 0.25); }
+        .mockup-tag.onsite { background: rgba(99, 102, 241, 0.12); color: #4338ca; border: 1px solid rgba(99, 102, 241, 0.25); }
+        
+        .mockup-salary { color: #10B981; font-weight: 600; font-size: 0.875rem; background: rgba(16, 185, 129, 0.06); padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.15); display: inline-block; }
+        
+        .mockup-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; border: 1px solid transparent; }
+        .mockup-pill.queued { background: rgba(0, 255, 204, 0.08); color: #00b38f; border-color: rgba(0, 255, 204, 0.2); }
+        .mockup-pill.applied { background: rgba(245, 158, 11, 0.08); color: #b45309; border-color: rgba(245, 158, 11, 0.15); }
+        
+        .mockup-btn { background: transparent; border: 1px solid #e4e4e7; color: #27272A; padding: 0.45rem 0.9rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; border-radius: 6px; text-transform: uppercase; transition: all 0.2s; }
+        .mockup-btn:hover { border-color: #000000; background: rgba(0,0,0,0.03); color: #000; }
     </style>
 </head>
 <body>
@@ -299,6 +344,183 @@
                     </tr>
                 </tbody>
             </table>
+        </div>
+    </section>
+
+    <!-- Dashboard Mockup Section -->
+    <section class="mockup-section">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Inside the Autopilot Dashboard</h2>
+        <p style="font-size: 0.95rem; color: #52525B; text-align: center; margin-bottom: 4rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Monitor live sourcing, AI customization, and auto-applied status in real time.</p>
+        
+        <div class="mockup-container">
+            <!-- Mockup Header -->
+            <div class="mockup-header">
+                <div class="mockup-logo">APPLY<span>/AI</span></div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="mockup-badge">✅ Premium Active</div>
+                    <div style="width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid #e4e4e7;">JD</div>
+                </div>
+            </div>
+            
+            <!-- Mockup Preference Summary -->
+            <div class="mockup-agent-card">
+                <div class="mockup-agent-info">
+                    <h3 style="color: #000000; font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase;">🤖 AI Agent Live</h3>
+                    <p style="color: #52525B; font-size: 0.9rem; margin-bottom: 1.25rem;">Our cloud engine automatically scouts and matches listings to your profile 24/7.</p>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.01); padding: 1.25rem; border: 1px solid #e4e4e7; border-radius: 12px;">
+                        <div>
+                            <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 750; color: #71717A; display: block; margin-bottom: 0.2rem; letter-spacing: 0.5px;">Target Roles</span>
+                            <span style="color: #000000; font-weight: 600; font-size: 0.85rem;">Senior Software Engineer, Full Stack Engineer</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 750; color: #71717A; display: block; margin-bottom: 0.2rem; letter-spacing: 0.5px;">Target Countries</span>
+                            <span style="color: #000000; font-weight: 600; font-size: 0.85rem;">United States, Canada, United Kingdom</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 750; color: #71717A; display: block; margin-bottom: 0.2rem; letter-spacing: 0.5px;">Workplace Types</span>
+                            <span style="color: #000000; font-weight: 600; font-size: 0.85rem;">Remote, Hybrid</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Scanning Indicator -->
+                <div class="mockup-agent-status">
+                    <div class="mockup-dot"></div>
+                    <h4 style="color: #000000; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 850; letter-spacing: 0.5px;">Scraper Scanning</h4>
+                    <p style="color: #71717A; font-size: 0.8rem; line-height: 1.4; margin: 0;">Sourcing new matches in real-time</p>
+                </div>
+            </div>
+            
+            <!-- Stats Cards -->
+            <div class="mockup-stats">
+                <div class="mockup-stat-card" style="border-left: 3px solid #00FFCC;">
+                    <span class="mockup-stat-val">12</span>
+                    <span class="mockup-stat-lbl">Jobs Sourced</span>
+                </div>
+                <div class="mockup-stat-card" style="border-left: 3px solid #00b38f;">
+                    <span class="mockup-stat-val">4</span>
+                    <span class="mockup-stat-lbl">In Queue</span>
+                </div>
+                <div class="mockup-stat-card" style="border-left: 3px solid #10B981;">
+                    <span class="mockup-stat-val">8</span>
+                    <span class="mockup-stat-lbl">Auto-Applied</span>
+                </div>
+            </div>
+            
+            <!-- Mock Table -->
+            <div class="mockup-table-container">
+                <table class="mockup-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">Company & Website</th>
+                            <th style="width: 14%;">Location</th>
+                            <th style="width: 16%;">Workplace & Type</th>
+                            <th style="width: 24%;">Role & Salary Range</th>
+                            <th style="width: 14%;">Date Sourced</th>
+                            <th style="width: 14%;">Application Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Google</div>
+                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">google.com</div>
+                            </td>
+                            <td style="font-weight: 600; color: #27272A;">Mountain View, CA</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <span class="mockup-tag remote">Remote</span>
+                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Full-time</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Senior Software Engineer</div>
+                                <span class="mockup-salary">$190,000 - $250,000</span>
+                            </td>
+                            <td style="font-weight: 600; color: #52525B;">Just now</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
+                                    <button class="mockup-btn" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; width: fit-content; font-weight: 700;">Tailored Resume</button>
+                                    <span class="mockup-pill applied" style="background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15);">✅ Applied</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Stripe</div>
+                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">stripe.com</div>
+                            </td>
+                            <td style="font-weight: 600; color: #27272A;">San Francisco, CA</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <span class="mockup-tag hybrid">Hybrid</span>
+                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Full-time</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Full Stack Engineer</div>
+                                <span class="mockup-salary">$160,000 - $210,000</span>
+                            </td>
+                            <td style="font-weight: 600; color: #52525B;">2 hours ago</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
+                                    <button class="mockup-btn" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; width: fit-content; font-weight: 700;">Tailored Resume</button>
+                                    <span class="mockup-pill applied" style="background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15);">✅ Applied</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Netflix</div>
+                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">netflix.com</div>
+                            </td>
+                            <td style="font-weight: 600; color: #27272A;">Los Gatos, CA</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <span class="mockup-tag remote">Remote</span>
+                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Contract</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Senior Frontend Architect</div>
+                                <span class="mockup-salary">$220,000 - $310,000</span>
+                            </td>
+                            <td style="font-weight: 600; color: #52525B;">5 hours ago</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
+                                    <button class="mockup-btn" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; width: fit-content; font-weight: 700;">Tailored Resume</button>
+                                    <span class="mockup-pill queued">⏳ In Queue</span>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Airbnb</div>
+                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">airbnb.com</div>
+                            </td>
+                            <td style="font-weight: 600; color: #27272A;">San Francisco, CA</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <span class="mockup-tag onsite">On-Site</span>
+                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Full-time</div>
+                                </div>
+                            </td>
+                            <td>
+                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Staff Product Engineer</div>
+                                <span class="mockup-salary">$200,000 - $260,000</span>
+                            </td>
+                            <td style="font-weight: 600; color: #52525B;">Yesterday</td>
+                            <td>
+                                <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
+                                    <button class="mockup-btn" style="padding: 0.3rem 0.6rem; font-size: 0.78rem; width: fit-content; font-weight: 700;">Tailored Resume</button>
+                                    <span class="mockup-pill queued">⏳ In Queue</span>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </section>
 
