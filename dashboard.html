@@ -298,29 +298,29 @@
 
     <div class="container">
         <!-- Automation Profile & Active Status -->
-        <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+        <div class="search-section" style="padding: 1.25rem 1.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
                 <div style="flex: 1; min-width: 300px;">
-                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; margin-bottom: 0.75rem; letter-spacing: 0.5px;">Target Criteria</h3>
+                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin-bottom: 0.75rem; letter-spacing: 0.5px;">Target Criteria</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
                         <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Target Roles</span>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Roles</span>
                             <span id="pref-roles" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
                         </div>
                         <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Target Countries</span>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Countries</span>
                             <span id="pref-countries" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
                         </div>
                         <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Workplace Types</span>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Workplace Types</span>
                             <span id="pref-workplaces" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Job Automation Status Card -->
-                <div id="scanning-indicator" style="background: rgba(0, 0, 0, 0.015); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
-                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Job Automation Status</h3>
+                <div id="scanning-indicator" style="background: rgba(0, 0, 0, 0.015); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
+                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Job Automation Status</h3>
                     <div id="scanning-dot" style="width: 12px; height: 12px; background: #10B981; border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px #10B981;"></div>
                     <h4 id="scanning-title" style="color: #047857; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 850;">🟢 Monitoring</h4>
                     <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Your AI Job Agent is active and checks for new listings twice daily.</p>
@@ -889,7 +889,7 @@
                         </td>
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
-                                ${job.postedAt ? `<div style="line-height: 1.3; margin-left: 1rem;"><span style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: #A1A1AA; font-weight: 700; display: block;">Posted On</span><span style="font-weight: 600; color: var(--text-body); font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
+                                ${job.postedAt ? `<div style="line-height: 1.3; margin-left: 1rem;"><span style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: #A1A1AA; font-weight: 700; display: block;">Posted On</span><span style="font-weight: 500; color: #71717A; font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
                                 ${jobLinkButton}
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                             </div>
