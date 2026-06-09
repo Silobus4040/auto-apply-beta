@@ -1115,9 +1115,9 @@
                 statusText.innerHTML = "🔒 Establishing secure connection...";
                 await new Promise(r => setTimeout(r, 700));
 
-                // Step 2 — real IMAP validation via apply-server on VPS
+                // Step 2 — real IMAP validation via secure n8n webhook
                 statusText.innerHTML = "🔑 Verifying credentials...";
-                const validationRes = await fetch('http://187.124.215.235:3005/validate-inbox', {
+                const validationRes = await fetch('https://n8n.leadscompass.ai/webhook/validate-inbox', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email, appPassword: cleanPassword })
