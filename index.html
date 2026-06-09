@@ -13,65 +13,85 @@
             --primary-hover: #bde62b;
             --secondary: #FF6B4A;
             --text-heading: #000000;
-            --text-body: #18181B;
-            --border: #000000;
-            --brutal-shadow: 4px 4px 0px #000000;
-            --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
+            --text-body: #27272A;
+            --border: #e4e4e7;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; scroll-behavior: smooth; }
-        body { background-color: var(--bg-color); color: var(--text-body); overflow-x: hidden; line-height: 1.6; }
+        body { background-color: var(--bg-color); color: var(--text-body); overflow-x: hidden; line-height: 1.6; position: relative; }
         
-        /* Grid Background Pattern */
+        /* Soft background glows */
         body::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background-image: linear-gradient(rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.05) 1px, transparent 1px);
-            background-size: 40px 40px;
+            content: '';
+            position: absolute;
+            top: 20%; left: -10%;
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(212,255,51,0.06) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: absolute;
+            top: 60%; right: -10%;
+            width: 40vw; height: 40vw;
+            background: radial-gradient(circle, rgba(0,255,204,0.06) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
         }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 2px solid var(--border); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid rgba(0,0,0,0.06); }
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; display: flex; align-items: center; gap: 0.5rem; text-transform: uppercase; }
-        .logo span { background: #000000; color: #ffffff; padding: 0.1rem 0.4rem; margin-left: 0.25rem; font-size: 1.2rem; display: inline-block; vertical-align: middle; }
+        .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
 
         .hero { max-width: 1400px; margin: 6rem auto 4rem; padding: 0 5%; text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
-        .badge { background: var(--primary); color: #000000; border: 2px solid #000000; padding: 0.5rem 1rem; border-radius: 0; font-size: 0.875rem; font-weight: 800; margin-bottom: 2rem; text-transform: uppercase; letter-spacing: 1px; box-shadow: 2px 2px 0px #000000; }
         h1 { color: var(--text-heading); font-size: clamp(3.5rem, 7vw, 6rem); font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.5rem; max-width: 1100px; text-transform: uppercase; }
-        .highlight { background: var(--primary); color: #000000; padding: 0.1rem 0.6rem; display: inline-block; border: 2px solid #000000; }
-        p.hero-sub { font-size: 1.25rem; max-width: 800px; margin-bottom: 3rem; color: #27272A; font-weight: 500; }
+        .highlight { background: linear-gradient(135deg, rgba(212, 255, 51, 0.15) 0%, rgba(0, 255, 204, 0.15) 100%); color: #000000; padding: 0.2rem 0.8rem; display: inline-block; border-radius: 12px; border: 1px solid rgba(212, 255, 51, 0.4); }
+        p.hero-sub { font-size: 1.25rem; max-width: 800px; margin-bottom: 3rem; color: #52525B; font-weight: 500; }
 
         .cta-group { display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap; }
-        .btn { padding: 1rem 2rem; border-radius: 0; font-size: 1.125rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.2s ease; border: 2px solid transparent; display: inline-block; text-transform: uppercase; }
-        .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
-        .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
+        .btn { padding: 1.1rem 2.5rem; border-radius: 50px; font-size: 1.125rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; text-transform: uppercase; letter-spacing: 0.5px; text-align: center; }
+        
+        /* Modern Liquid Motion Button */
+        @keyframes liquid-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .btn-primary { background: linear-gradient(135deg, #D4FF33, #00FFCC, #D4FF33); background-size: 200% auto; animation: liquid-gradient 3s linear infinite; color: #000000; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(212, 255, 51, 0.35); position: relative; }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.55); }
+        .btn-primary:active { transform: translateY(-1px) scale(0.99); }
 
-        .section-title { font-size: 3rem; font-weight: 900; color: #000000; text-transform: uppercase; margin-bottom: 3rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+        .section-title { font-size: 3rem; font-weight: 900; color: #000000; text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: -1px; text-align: left; }
         
         .how-it-works, .pricing { max-width: 1400px; margin: 8rem auto; padding: 0 5%; }
         .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-        .step-card { background: #ffffff; border: 2px solid #000000; padding: 2rem; position: relative; transition: transform 0.2s; box-shadow: 4px 4px 0px #000000; }
-        .step-card:hover { transform: translateY(-5px); border-color: #000000; box-shadow: 6px 6px 0px var(--secondary); }
-        .step-num { font-size: 6rem; font-weight: 900; color: #000000; opacity: 0.08; position: absolute; top: -1rem; right: 1rem; line-height: 1; z-index: 0; }
-        .step-card h3 { color: #000000; font-size: 1.25rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1rem; position: relative; z-index: 1; }
-        .step-card p { position: relative; z-index: 1; color: #27272A; font-weight: 500; }
+        .step-card { background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%); border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 20px; padding: 3rem 2.25rem; position: relative; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0, 0, 0, 0.015); overflow: hidden; }
+        .step-card:hover { transform: translateY(-6px); border-color: rgba(212, 255, 51, 0.8); box-shadow: 0 20px 40px rgba(212, 255, 51, 0.12), 0 1px 3px rgba(0,0,0,0.02); }
+        .step-num { font-size: 5.5rem; font-weight: 950; background: linear-gradient(135deg, rgba(212, 255, 51, 0.25), rgba(0, 255, 204, 0.25)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; position: absolute; top: -0.5rem; right: 1.5rem; line-height: 1; z-index: 0; pointer-events: none; }
+        .step-card h3 { color: #000000; font-size: 1.35rem; font-weight: 800; text-transform: uppercase; margin-bottom: 1.25rem; position: relative; z-index: 1; letter-spacing: -0.5px; }
+        .step-card p { position: relative; z-index: 1; color: #52525B; font-weight: 500; font-size: 0.98rem; line-height: 1.65; }
         
-        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; align-items: stretch; }
-        .price-card { background: #ffffff; border: 2px solid #000000; padding: 3rem 2rem; display: flex; flex-direction: column; position: relative; box-shadow: 4px 4px 0px #000000; }
-        .price-card .price-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: #000000; margin-bottom: 0.5rem; }
-        .price-card .price-amount { font-size: 4rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; line-height: 1; }
-        .price-card .price-amount span { font-size: 1.5rem; color: #71717a; font-weight: 600; }
-        .price-card .price-sub { color: #52525b; font-size: 0.9rem; margin-bottom: 2rem; font-weight: 600; text-transform: uppercase; }
-        .price-card .price-features { list-style: none; margin-bottom: 2.5rem; flex-grow: 1; }
-        .price-card .price-features li { padding: 0.75rem 0; border-bottom: 1px solid #e4e4e7; color: #27272a; }
-        .price-card .price-features li::before { content: "→"; color: #000000; margin-right: 0.5rem; font-weight: bold; }
+        .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; align-items: stretch; }
+        .price-card { background: #ffffff; border: 1px solid rgba(0, 0, 0, 0.08); border-radius: 24px; padding: 4rem 3rem; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .price-card:hover { transform: translateY(-6px); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06); }
+        .price-card .price-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: #000000; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        .price-card .price-amount { font-size: 4.5rem; font-weight: 950; color: #000000; margin-bottom: 0.75rem; line-height: 1; letter-spacing: -2px; }
+        .price-card .price-amount span { font-size: 1.5rem; color: #71717a; font-weight: 600; letter-spacing: 0; }
+        .price-card .price-sub { color: #52525b; font-size: 0.9rem; margin-bottom: 2.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+        .price-card .price-features { list-style: none; margin-bottom: 3rem; flex-grow: 1; }
+        .price-card .price-features li { padding: 0.9rem 0; border-bottom: 1px solid #f4f4f5; color: #3f3f46; font-weight: 500; font-size: 0.95rem; }
+        .price-card .price-features li::before { content: "✓"; color: #00FFCC; margin-right: 0.75rem; font-weight: 900; }
 
-        /* Popular card is black background */
-        .price-card.popular { background: #000000; border-color: #000000; box-shadow: 6px 6px 0px var(--primary); transform: scale(1.02); z-index: 2; }
+        /* Popular Card Redesign (Premium Dark Theme) */
+        .price-card.popular { background: linear-gradient(135deg, #09090b 0%, #18181b 100%); border: 1px solid rgba(255, 255, 255, 0.04); box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2), 0 0 40px rgba(212, 255, 51, 0.05); transform: scale(1.02); z-index: 2; }
+        .price-card.popular:hover { transform: translateY(-8px) scale(1.03); box-shadow: 0 40px 80px rgba(0, 0, 0, 0.25), 0 0 50px rgba(212, 255, 51, 0.1); }
         .price-card.popular .price-name { color: var(--primary); }
         .price-card.popular .price-amount { color: #ffffff; }
         .price-card.popular .price-amount span { color: #a1a1aa; }
         .price-card.popular .price-sub { color: var(--primary); }
         .price-card.popular .price-features li { border-bottom: 1px solid #27272a; color: #e4e4e7; }
-        .price-card.popular .price-features li::before { color: var(--primary); }
-        .popular-badge { position: absolute; top: -1rem; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 0.25rem 1rem; font-weight: 800; text-transform: uppercase; border: 2px solid #000; }
+        .price-card.popular .price-features li::before { content: "✓"; color: var(--primary); }
+        .popular-badge { position: absolute; top: -1.25rem; left: 50%; transform: translateX(-50%); background: var(--primary); color: #000; padding: 0.5rem 2rem; font-weight: 800; text-transform: uppercase; border-radius: 30px; font-size: 0.85rem; box-shadow: 0 10px 20px rgba(212, 255, 51, 0.25); border: none; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -81,33 +101,32 @@
             <a href="#how-it-works" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">How it works</a>
             <a href="#pricing" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Pricing</a>
             <a href="login.html" style="color: var(--secondary); text-decoration: none; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">Sign In</a>
-            <a href="signup.html" class="btn" style="border: 2px solid #000000; background: var(--primary); box-shadow: 2px 2px 0px #000000; padding: 0.5rem 1.5rem; color: #000000; font-size: 0.9rem;">Start Automating</a>
         </div>
     </nav>
 
     <section class="hero">
-        <div class="badge">10 Free Applications</div>
         <h1><span class="highlight">Land Interviews.</span><br>Stop getting ghosted.</h1>
         <p class="hero-sub">
             If you're applying manually, you're already too late. Remote jobs get hundreds of applicants in minutes. Our autonomous AI monitors job boards 24/7, detects new openings instantly, tailors your resume, and applies while you sleep. Stop missing out.
         </p>
         <div class="cta-group">
-            <a href="signup.html" class="btn btn-primary" style="font-size: 1.2rem; padding: 1.2rem 2.5rem; color: #000000; border: 2px solid #000000;">Activate Your AI Agent &rarr;</a>
+            <a href="signup.html" class="btn btn-primary">Activate Your AI Job Agent</a>
         </div>
-        <div style="margin-top: 3rem; display: flex; align-items: center; gap: 1.5rem; border-top: 2px solid #000000; padding-top: 2rem; width: 100%; max-width: 850px;">
-            <div style="font-size: 1.75rem; font-weight: 900; color: #000000; background: var(--primary); border: 2px solid #000000; padding: 0.25rem 0.75rem; white-space: nowrap; text-transform: uppercase; box-shadow: 2px 2px 0px #000000;">100K+ Jobs</div>
-            <div style="font-size: 0.95rem; color: #27272A; line-height: 1.5; font-weight: 500;">24/7 Monitoring across major ATS platforms, tracking over 100K+ active job opportunities globally.</div>
+        <div style="margin-top: 3rem; display: flex; align-items: center; gap: 1.5rem; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 2rem; width: 100%; max-width: 850px;">
+            <div style="font-size: 1.75rem; font-weight: 900; color: #000000; background: linear-gradient(135deg, #D4FF33, #00FFCC); border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 0.35rem 1rem; white-space: nowrap; text-transform: uppercase; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.15); display: inline-block;">100K+ Jobs</div>
+            <div style="font-size: 0.95rem; color: #52525B; line-height: 1.5; font-weight: 500;">24/7 Monitoring across major ATS platforms, tracking over 100K+ active job opportunities globally.</div>
         </div>
     </section>
 
     <section class="mission" style="max-width: 1400px; margin: 4rem auto 0; padding: 0 5%;">
-        <div style="background: #ffffff; border: 2px solid #000000; padding: 3rem; border-left: 6px solid #000000; box-shadow: var(--brutal-shadow);">
-            <span style="color: #000000; background: var(--primary); border: 2px solid #000000; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; margin-bottom: 1rem; padding: 0.25rem 0.75rem; box-shadow: 2px 2px 0px #000000;">Our Goal</span>
-            <h2 style="color: #000000; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; text-transform: uppercase; margin-bottom: 1.5rem;">Land Interviews Effortlessly.</h2>
-            <p style="font-size: 1.15rem; color: #27272A; max-width: 900px; line-height: 1.7; margin-bottom: 0.75rem; font-weight: 500;">
+        <div style="background: linear-gradient(135deg, rgba(212, 255, 51, 0.03) 0%, rgba(0, 255, 204, 0.03) 100%); border: 1px solid rgba(212, 255, 51, 0.15); border-radius: 24px; padding: 3.5rem; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.02); position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(212,255,51,0.2) 0%, transparent 70%); pointer-events: none;"></div>
+            <span style="color: #000000; background: #ffffff; border: 1px solid rgba(0,0,0,0.1); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; margin-bottom: 1.5rem; padding: 0.35rem 0.9rem; border-radius: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">Our Goal</span>
+            <h2 style="color: #000000; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: -1px;">Land Interviews Effortlessly.</h2>
+            <p style="font-size: 1.15rem; color: #3f3f46; max-width: 900px; line-height: 1.7; margin-bottom: 0.75rem; font-weight: 500;">
                 We built this so you never have to waste your valuable time filling out tedious application forms or miss out on life-changing opportunities again.
             </p>
-            <p style="font-size: 1.15rem; color: #27272A; max-width: 900px; line-height: 1.7; font-weight: 500;">
+            <p style="font-size: 1.15rem; color: #3f3f46; max-width: 900px; line-height: 1.7; font-weight: 500;">
                 Our ultimate goal is to help you land interviews effortlessly, generating multiple offers so you have real options and career leverage.
             </p>
         </div>
@@ -141,36 +160,36 @@
     </section>
 
     <section id="pricing" class="pricing">
-        <h2 class="section-title" style="text-align: center;">Pricing</h2>
-        <div class="pricing-grid" style="grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); max-width: 1000px; margin: 0 auto;">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Pricing</h2>
+        <div class="pricing-grid" style="max-width: 1000px; margin: 0 auto;">
             
             <!-- Free Trial Card -->
-            <div class="price-card" style="text-align: center; padding: 4rem 3rem;">
-                <div class="price-name" style="font-size: 2rem; margin-bottom: 1rem;">Free Trial</div>
-                <div class="price-amount" style="font-size: 6rem; margin-bottom: 0.5rem;"><span style="font-size: 4rem;">$</span>0</div>
-                <div class="price-sub" style="font-size: 1.2rem; color: var(--text-body); margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 1px;">Experience the Automation</div>
-                <ul class="price-features" style="text-align: left; margin: 0 auto 3rem; font-size: 1.1rem; display: inline-block;">
+            <div class="price-card" style="text-align: center;">
+                <div class="price-name">Free Trial</div>
+                <div class="price-amount"><span>$</span>0</div>
+                <div class="price-sub">Experience the Automation</div>
+                <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
                     <li>Silent AI Resume Optimization</li>
                     <li><strong>10 Free Automated Job Applications</strong></li>
                     <li>AI Cover Letters Included</li>
                     <li>Test the full automation engine</li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block; background: #ffffff; color: #000000; border: 2px solid #000000; box-shadow: 4px 4px 0px #000000;">Start Free Trial</a>
+                <a href="signup.html" class="btn btn-primary" style="background: #ffffff; color: #000000; border: 1px solid rgba(0,0,0,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 1.5rem;">Start Free Trial</a>
             </div>
 
             <!-- Pro Card -->
-            <div class="price-card popular" style="text-align: center; padding: 4rem 3rem;">
-                <div class="popular-badge" style="font-size: 1.1rem; padding: 0.5rem 2rem;">Full Automation</div>
-                <div class="price-name" style="font-size: 2rem; margin-bottom: 1rem;">Auto-Apply Engine</div>
-                <div class="price-amount" style="font-size: 6rem; margin-bottom: 0.5rem;"><span id="price-sym" style="font-size: 4rem;">$</span><span id="price-val">16</span></div>
-                <div class="price-sub" style="font-size: 1.2rem; color: var(--primary); margin-bottom: 2.5rem; text-transform: uppercase; letter-spacing: 1px;">500 Applications in 1-10 days</div>
-                <ul class="price-features" style="text-align: left; margin: 0 auto 3rem; font-size: 1.1rem; display: inline-block;">
+            <div class="price-card popular" style="text-align: center;">
+                <div class="popular-badge">Full Automation</div>
+                <div class="price-name">Auto-Apply Engine</div>
+                <div class="price-amount"><span id="price-sym">$</span><span id="price-val">16</span></div>
+                <div class="price-sub">500 Applications in 1-10 days</div>
+                <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
                     <li>Unlimited ATS resume tailoring</li>
                     <li>Auto-apply to 500 remote jobs</li>
                     <li>AI cover letters for every role</li>
-                    <li>24/7 rapid application speed <span style="display:block; font-size:0.85rem; color:#9CA3AF; margin-top:0.3rem; line-height:1.4;">(We exclusively apply to fresh jobs posted within 24 hours)</span></li>
+                    <li>24/7 rapid application speed <span style="display:block; font-size:0.85rem; color:#a1a1aa; margin-top:0.3rem; line-height:1.4;">(We exclusively apply to fresh jobs posted within 24 hours)</span></li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="font-size: 1.4rem; padding: 1.5rem 2rem; width: 100%; display: block; color: #000000; border: 2px solid #000000;">Start Automating Now</a>
+                <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Start Automating Now</a>
             </div>
         </div>
     </section>
