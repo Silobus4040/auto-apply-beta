@@ -850,7 +850,6 @@
                                 <th>Role</th>
                                 <th>Application Details</th>
                                 <th>Tailored Resume</th>
-                                <th>Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -889,16 +888,14 @@
                             ${salaryLabel}
                         </td>
                         <td>
-                            <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                <div style="font-weight: 600; color: var(--text-body);">${job.postedAt}</div>
+                            <div style="display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start;">
+                                <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
+                                ${job.postedAt ? `<div><span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #71717A; font-weight: 700; display: block; margin-bottom: 0.1rem;">Posted On</span><span style="font-weight: 600; color: var(--text-body); font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
                                 ${jobLinkButton}
                             </div>
                         </td>
                         <td>
                             ${resumeButton}
-                        </td>
-                        <td>
-                            <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                         </td>
                     </tr>
                 `;
