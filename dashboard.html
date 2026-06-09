@@ -299,7 +299,7 @@
     <div class="container">
         <!-- Inbox Connect Banner -->
         <div id="inbox-banner" style="display: none; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <button onclick="document.getElementById('inbox-modal').classList.add('active')" style="background: var(--primary); color: #000000; border: none; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 750; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Enable Auto-Apply &rarr;</button>
+            <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 750; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Enable Auto-Apply &rarr;</button>
         </div>
 
         <!-- Automation Profile & Active Status -->
@@ -401,91 +401,87 @@
 
     <!-- Inbox Connection Modal -->
     <div class="modal-overlay" id="inbox-modal">
-        <div class="desc-modal" style="max-width: 800px;">
+        <div class="desc-modal" style="max-width: 800px; padding: 2.5rem 2.5rem 1.5rem;">
             <button class="close-modal" onclick="closeModal('inbox-modal')">&times;</button>
             
             <div style="text-align: center; margin-bottom: 2rem;">
                 <span style="background: rgba(212, 255, 51, 0.15); color: #000000; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 1px;">AI Feature Configuration</span>
-                <h2 style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Configure Auto-Apply Engine</h2>
-                <p style="color: var(--text-body); font-size: 0.95rem; max-width: 580px; margin: 0 auto;">Enable our AI to submit job applications on your behalf 24/7.</p>
+                <h2 id="modal-wizard-title" style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Configure Auto-Apply Engine</h2>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.5rem; margin-bottom: 2rem;">
-                <!-- Column 1: What it does -->
-                <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
-                    <h4 style="color: #000000; font-size: 0.85rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="color: var(--secondary);">✓</span> What the AI Agent Does
-                    </h4>
-                    <ul style="list-style: none; padding-left: 0; color: var(--text-body); font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
-                        <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: #00b38f; font-weight: 900;">•</span>
-                            <span><strong>Fills Form Data:</strong> Automatically fills out application forms and tailors your answers using AI.</span>
-                        </li>
-                        <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: #00b38f; font-weight: 900;">•</span>
-                            <span><strong>Attaches Resumes:</strong> Dynamically uploads your optimized resume and cover letter.</span>
-                        </li>
-                        <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: #00b38f; font-weight: 900;">•</span>
-                            <span><strong>Creates Profiles:</strong> Registers candidate profiles on ATS portals requiring account Creation (e.g. SuccessFactors, Workday).</span>
-                        </li>
-                        <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: #00b38f; font-weight: 900;">•</span>
-                            <span><strong>OTP Verification:</strong> Intercepts sign-up/sign-in verification codes sent to your inbox to bypass blocks.</span>
-                        </li>
-                        <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: #00b38f; font-weight: 900;">•</span>
-                            <span><strong>Hiring Manager Outreach:</strong> Sends a professional follow-up email directly to the hiring manager to get your application noticed.</span>
-                        </li>
-                    </ul>
-                    <div style="margin-top: 1rem;">
-                        <span style="font-size: 0.75rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Inbox Verification Code Capture</span>
+            <!-- Slide 1: What the AI Agent Does -->
+            <div id="wizard-slide-1">
+                <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <!-- Column 1: Task AI Agent Does -->
+                    <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: left;">
+                        <h4 style="color: #000000; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="color: var(--secondary); font-size: 1.1rem;">✓</span> The Task AI Agent Does
+                        </h4>
+                        <ol style="padding-left: 1.2rem; color: var(--text-body); font-size: 0.875rem; display: flex; flex-direction: column; gap: 0.85rem; font-weight: 500; line-height: 1.55;">
+                            <li><strong>Creates Profiles:</strong> Registers candidate profiles on ATS portals requiring account Creation (e.g. SuccessFactors, Workday).</li>
+                            <li><strong>OTP Verification:</strong> Intercepts sign-up/sign-in verification codes sent to your inbox to bypass blocks.</li>
+                            <li><strong>Fills Form Data:</strong> Automatically fills out application forms and tailors your answers using AI.</li>
+                            <li><strong>Attaches Resumes:</strong> Dynamically uploads your optimized resume and cover letter.</li>
+                            <li><strong>Hiring Manager Outreach:</strong> Sends a professional follow-up email directly to the hiring manager to get your application noticed.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Column 2: Visual Preview -->
+                    <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center; text-align: left;">
+                        <span style="font-size: 0.72rem; color: #52525B; display: block; margin-bottom: 0.5rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">Inbox Verification Code Capture</span>
                         <img src="assets/ats_logo_inbox_mockup.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="Inbox OTP Verification Mockup">
                     </div>
                 </div>
+            </div>
 
-                <!-- Column 2: Why it needs email -->
-                <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
-                    <div>
-                        <h4 style="color: #000000; font-size: 0.85rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                            <span style="color: var(--accent);">✉</span> Why a Dedicated Email is Required
-                        </h4>
-                        <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
-                            To submit forms, verify one-time password (OTP) codes, and send follow-up emails directly to hiring managers without requiring your manual intervention, the AI agent needs access to a dedicated job-search email inbox.
-                        </p>
+            <!-- Slide 2: Your Task & Setup Guide -->
+            <div id="wizard-slide-2" style="display: none; margin-bottom: 1.5rem; text-align: left;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+                    
+                    <!-- Left Column: Your Task & Guide Text -->
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <!-- Your Task Card -->
+                        <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="color: #000000; font-size: 0.88rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: var(--accent); font-size: 1.1rem;">✉</span> Your Task
+                            </h4>
+                            <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.6; font-weight: 500; margin: 0;">
+                                To Perform task 1, 2 & 4 The AI Agent needs verify one-time password (OTP) codes, access to a dedicated job-search email inbox. We Highly recommended you Create a brand new, Gmail account (e.g., <em>yourname.jobs@gmail.com</em>) specifically for job hunting. This keeps your personal inbox completely private and submit the Email address and APP Passwords (Not Email Password) below so our app can programmatically access your Emails.
+                            </p>
+                        </div>
+                        
+                        <!-- Guide Card -->
+                        <div style="background: rgba(0, 255, 204, 0.03); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="color: #000000; margin-bottom: 0.75rem; text-transform: uppercase; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="background: #000000; color: #ffffff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem;">ℹ</span>
+                                How to Link Your Gmail in 30 Seconds
+                            </h4>
+                            <ol style="padding-left: 1.2rem; color: var(--text-body); font-size: 0.82rem; line-height: 1.55; display: flex; flex-direction: column; gap: 0.5rem; font-weight: 500;">
+                                <li>Ensure <strong>2-Step Verification</strong> is turned <strong>ON</strong> under your Google Account Security settings.</li>
+                                <li>Go to the <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: #00b38f; text-decoration: underline; font-weight: 700;">Google App Passwords page</a>.</li>
+                                <li>Enter <strong>"AutoApply AI"</strong> as the app name and click <strong>Create</strong>.</li>
+                                <li>Google will display a <strong>16-letter password</strong> in a yellow box (e.g., <code>abcd efgh ijkl mnop</code>). <strong>Copy it</strong> and paste it below.</li>
+                            </ol>
+                        </div>
                     </div>
-                    <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 1rem; font-size: 0.82rem; color: #b45309; line-height: 1.5; font-weight: 500;">
-                        <strong>💡 Highly Recommended:</strong> Create a brand new, clean Google/Gmail account (e.g., <em>yourname.jobs@gmail.com</em>) specifically for job hunting. This keeps your personal inbox completely private.
+
+                    <!-- Right Column: Visual Guides -->
+                    <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; justify-content: center;">
+                        <div>
+                            <span style="font-size: 0.7rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">1. Enable 2-Step Verification</span>
+                            <img src="assets/google_2step_guide.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="2-Step Verification Guide">
+                        </div>
+                        <div>
+                            <span style="font-size: 0.7rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">2. Generate 16-Letter App Password</span>
+                            <img src="assets/google_app_password_creation.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="App Password Setup">
+                        </div>
                     </div>
+                    
                 </div>
             </div>
 
-            <!-- App Password Guide -->
-            <div style="background: rgba(0, 255, 204, 0.03); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
-                <h4 style="color: #000000; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="background: #000000; color: #ffffff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem;">ℹ</span>
-                    How to Link Your Gmail in 30 Seconds
-                </h4>
-                
-                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem;">
-                    <div>
-                        <ol style="padding-left: 1.2rem; color: var(--text-body); font-size: 0.85rem; line-height: 1.6; display: flex; flex-direction: column; gap: 0.75rem;">
-                            <li>Ensure <strong>2-Step Verification</strong> is turned <strong>ON</strong> under your Google Account Security settings.
-                                <img src="assets/google_2step_guide.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); margin-top: 0.5rem;" alt="2-Step Verification Guide">
-                            </li>
-                            <li>Go to the <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: #00b38f; text-decoration: underline; font-weight: 700;">Google App Passwords page</a>.</li>
-                            <li>Enter <strong>"AutoApply AI"</strong> as the app name and click <strong>Create</strong>.</li>
-                            <li>Google will display a <strong>16-letter password</strong> in a yellow box (e.g., <code>abcd efgh ijkl mnop</code>). <strong>Copy it</strong> and paste it below.</li>
-                        </ol>
-                    </div>
-                    <div style="display: flex; flex-direction: column; justify-content: center;">
-                        <span style="font-size: 0.75rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">App Password Box Mockup</span>
-                        <img src="assets/google_app_password_creation.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="App Password Setup">
-                    </div>
-                </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
+            <!-- Persistent Inputs & Action buttons -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem; border-top: 1px solid #f4f4f5; padding-top: 1.5rem; text-align: left;">
                 <div class="field">
                     <label style="font-size: 0.75rem; font-weight: 750; color: #52525B;">Dedicated Job-Search Gmail</label>
                     <input type="email" id="gmail-email" placeholder="yourname.jobs@gmail.com" style="padding: 0.75rem 1rem;">
@@ -498,7 +494,13 @@
             
             <div id="inbox-error" style="color: #EF4444; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; font-weight: 600; background: rgba(239, 68, 68, 0.05); padding: 0.75rem; border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 6px;"></div>
             
-            <button onclick="saveInbox()" id="save-inbox-btn" style="background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Activate Auto-Apply Agent &rarr;</button>
+            <!-- Wizard Action Buttons -->
+            <div id="wizard-buttons" style="display: flex; gap: 1rem;">
+                <button id="btn-next-slide" onclick="nextSlide()" style="background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Next: Setup Instructions &rarr;</button>
+                
+                <button id="btn-prev-slide" onclick="prevSlide()" style="display: none; background: transparent; border: 1px solid var(--border); color: var(--text-body); font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; width: 25%;">Back</button>
+                <button id="save-inbox-btn" onclick="saveInbox()" style="display: none; background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; width: 75%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Activate Auto-Apply Agent &rarr;</button>
+            </div>
         </div>
     </div>
 
@@ -1023,6 +1025,34 @@
             localStorage.clear();
             window.location.href = 'login.html';
         }
+
+        function openInboxModal() {
+            prevSlide(); // Reset to slide 1
+            document.getElementById('inbox-modal').classList.add('active');
+        }
+
+        function nextSlide() {
+            document.getElementById('wizard-slide-1').style.display = 'none';
+            document.getElementById('wizard-slide-2').style.display = 'block';
+            
+            document.getElementById('btn-next-slide').style.display = 'none';
+            document.getElementById('btn-prev-slide').style.display = 'block';
+            document.getElementById('save-inbox-btn').style.display = 'block';
+            
+            document.getElementById('modal-wizard-title').textContent = 'Link Your Gmail Account';
+        }
+
+        function prevSlide() {
+            document.getElementById('wizard-slide-1').style.display = 'block';
+            document.getElementById('wizard-slide-2').style.display = 'none';
+            
+            document.getElementById('btn-next-slide').style.display = 'block';
+            document.getElementById('btn-prev-slide').style.display = 'none';
+            document.getElementById('save-inbox-btn').style.display = 'none';
+            
+            document.getElementById('modal-wizard-title').textContent = 'Configure Auto-Apply Engine';
+        }
+
         async function saveInbox() {
             const email = document.getElementById('gmail-email').value.trim();
             const password = document.getElementById('gmail-password').value.trim();
@@ -1053,7 +1083,7 @@
                 errorEl.textContent = error.message;
                 errorEl.style.display = 'block';
                 btn.disabled = false;
-                btn.textContent = 'Launch Auto-Apply Engine →';
+                btn.textContent = 'Activate Auto-Apply Agent →';
                 return;
             }
 
