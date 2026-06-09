@@ -738,12 +738,12 @@
                 try {
                     const rawDate = dbJob.postedAt || dbJob.created_at;
                     if (rawDate) {
-                        formattedDate = new Date(rawDate).toLocaleDateString(undefined, { 
-                            month: 'short', 
-                            day: 'numeric', 
-                            year: 'numeric' 
-                        });
-                    }
+                            const d = new Date(rawDate);
+                            const mm = String(d.getMonth() + 1).padStart(2, '0');
+                            const dd = String(d.getDate()).padStart(2, '0');
+                            const yyyy = d.getFullYear();
+                            formattedDate = `${mm}-${dd}-${yyyy}`;
+                        }
                 } catch (e) {
                     formattedDate = dbJob.postedAt || '';
                 }
@@ -889,7 +889,7 @@
                         </td>
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
-                                ${job.postedAt ? `<div style="line-height: 1.3;"><span style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: #A1A1AA; font-weight: 700; display: block;">Posted On</span><span style="font-weight: 600; color: var(--text-body); font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
+                                ${job.postedAt ? `<div style="line-height: 1.3; margin-left: 1rem;"><span style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: #A1A1AA; font-weight: 700; display: block;">Posted On</span><span style="font-weight: 600; color: var(--text-body); font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
                                 ${jobLinkButton}
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                             </div>
