@@ -1117,7 +1117,7 @@
 
                 // Step 2 — real IMAP validation via apply-server on VPS
                 statusText.innerHTML = "🔑 Verifying credentials...";
-                const validationRes = await fetch('http://84.38.133.158:3006/validate-inbox', {
+                const validationRes = await fetch('http://84.38.133.158:3005/validate-inbox', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email: email, appPassword: cleanPassword })
