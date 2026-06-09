@@ -446,11 +446,14 @@
                                 <span style="color: var(--accent); font-size: 1.1rem;">✉</span> Your Task
                             </h4>
                             <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.6; font-weight: 500; margin-bottom: 0.75rem;">
-                                To perform <strong>Profile Creation</strong>, <strong>OTP Verification</strong>, and <strong>Resume Attachment</strong>, the AI Agent needs to verify one-time password (OTP) codes and access a dedicated job-search email inbox.
+                                To perform <strong>Profile Creation</strong> &amp; application submission that requires <strong>OTP Verification</strong> — including sending a personalised automated email to the hiring manager — the AI Job Agent needs access to a dedicated job-search email inbox.
                             </p>
-                            <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.6; font-weight: 500; margin: 0;">
-                                We highly recommend you <strong>Create A new Gmail Account (Never use your private email)</strong> (e.g., <em>yourname.jobs@gmail.com</em>) specifically for job hunting. This keeps your personal inbox completely private. Submit the Email address and App Password (Not your Email Password) below so our app can programmatically access your emails.
+                            <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.6; font-weight: 500; margin-bottom: 0.75rem;">
+                                We highly recommend you <strong>Create A New Gmail Account</strong> (e.g., <em>yourname.jobs@gmail.com</em>, <em>anything@gmail.com</em>) specifically for job hunting and submit the Email address and App Password below. This keeps your personal inbox completely private. <em>(Not your Email Password)</em> — this allows our app to programmatically gain access to your emails to perform operations automatically.
                             </p>
+                            <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 0.65rem 1rem; margin-top: 0.25rem;">
+                                <p style="color: #DC2626; font-size: 0.82rem; font-weight: 800; margin: 0; letter-spacing: 0.3px;">⛔ DO NOT USE YOUR EXISTING PERSONAL EMAIL. Create a brand new dedicated Gmail account for this purpose only.</p>
+                            </div>
                         </div>
                         
                         <!-- Guide Card -->
@@ -1108,25 +1111,39 @@
             const runTimeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
             try {
-                // Step 1: Connection Handshake
+                // Step 1 — show connecting state
                 statusText.innerHTML = "🔗 Connecting to imap.gmail.com:993...";
-                await runTimeout(1000);
+                await new Promise(r => setTimeout(r, 700));
 
-                // Step 2: Credential Check
-                statusText.innerHTML = "🔐 Verifying 2-Step Verification bypass and App Password...";
-                await runTimeout(1000);
+                // Step 2 — real IMAP validation via apply-server on VPS
+                statusText.innerHTML = "🔐 Verifying App Password with Google...";
+                const validationRes = await fetch('http://84.38.133.158:3006/validate-inbox', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, appPassword: cleanPassword })
+                });
 
-                // Step 3: SSL/TLS handshakes
+                if (!validationRes.ok) {
+                    throw new Error('Validation server unreachable. Please try again shortly.');
+                }
+
+                const validationResult = await validationRes.json();
+
+                if (!validationResult.valid) {
+                    throw new Error(validationResult.error || 'Authentication failed. Check your credentials.');
+                }
+
+                // Step 3 — credentials confirmed good
                 statusText.innerHTML = "🛡️ Validating SSL/TLS Handshake...";
-                await runTimeout(1000);
+                await new Promise(r => setTimeout(r, 500));
 
-                // Verification Successful
+                // All good
                 statusSpinner.style.display = 'none';
                 statusEl.style.background = 'rgba(16, 185, 129, 0.08)';
                 statusEl.style.borderColor = 'rgba(16, 185, 129, 0.3)';
                 statusEl.style.color = '#047857';
-                statusText.innerHTML = "🎉 The Job Agent now have Acess to your dedicated Job hunt Email";
-                await runTimeout(2000);
+                statusText.innerHTML = "🎉 The Job Agent now has Access to your dedicated Job hunt Email";
+                await new Promise(r => setTimeout(r, 2000));
 
                 // Save to database
                 const { data: { session } } = await supabaseClient.auth.getSession();
