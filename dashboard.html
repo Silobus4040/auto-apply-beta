@@ -7,15 +7,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0A0F1D;
-            --surface-color: #151B2E;
-            --primary: #3B82F6;
-            --primary-hover: #2563EB;
+            --bg-color: #ffffff;
+            --surface-color: #ffffff;
+            --primary: #D4FF33;
+            --primary-hover: #bde62b;
             --secondary: #10B981;
-            --accent: #F59E0B;
-            --text-heading: #F3F4F6;
-            --text-body: #9CA3AF;
-            --border: rgba(255, 255, 255, 0.06);
+            --accent: #FF6B4A;
+            --text-heading: #000000;
+            --text-body: #27272A;
+            --border: #e4e4e7;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; position: relative; min-height: 100vh; }
@@ -23,75 +23,72 @@
         body::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
             background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.1;
+            background-size: 40px 40px; opacity: 0.25;
         }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 5%; border-bottom: 1px solid var(--border); background: rgba(10, 15, 29, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-        .logo { color: var(--text-heading); font-size: 1.2rem; font-weight: 800; text-decoration: none; display: flex; align-items: center; gap: 0.5rem; letter-spacing: 0.5px; }
-        .logo span { color: var(--primary); }
-        .logo-dot { width: 8px; height: 8px; background: var(--primary); border-radius: 50%; box-shadow: 0 0 10px var(--primary); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 5%; border-bottom: 1px solid rgba(0, 0, 0, 0.06); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
+        .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
         .nav-user { display: flex; align-items: center; gap: 1rem; }
-        .nav-btn { background: transparent; border: 1px solid var(--primary); color: var(--primary); padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
-        .nav-btn:hover { background: rgba(59, 130, 246, 0.08); transform: translateY(-1px); }
         .nav-credits { background: rgba(16, 185, 129, 0.06); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
-        .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--bg-color); }
+        .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--border); }
         .nav-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
         .nav-logout:hover { background: rgba(239,68,68,0.08); border-color: rgba(239, 68, 68, 0.4); }
 
         .container { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
 
         /* Search Section */
-        .search-section { background: var(--surface-color); border: 1px solid var(--border); border-radius: 10px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); }
-        .search-section h2 { color: white; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.2px; }
+        .search-section { background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03); }
+        .search-section h2 { color: var(--text-heading); font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase; }
         .search-section p { color: var(--text-body); margin-bottom: 1.75rem; font-size: 0.95rem; }
 
         .search-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1.25rem; align-items: end; }
         @media (max-width: 768px) { .search-row { grid-template-columns: 1fr; } }
 
         .field { display: flex; flex-direction: column; gap: 0.5rem; }
-        .field label { color: #9CA3AF; font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .field input, .field select { padding: 0.85rem 1rem; background: #0E1220; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 6px; color: white; font-size: 0.95rem; transition: all 0.2s; }
-        .field input:focus, .field select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15); }
-        .field select option { background: #0E1220; color: white; }
+        .field label { color: #52525B; font-weight: 750; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .field input, .field select { padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; color: #000000; font-size: 0.95rem; transition: all 0.2s; }
+        .field input:focus, .field select:focus { outline: none; border-color: #00FFCC; box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
+        .field select option { background: #ffffff; color: #000000; }
 
         /* Prevent browser autofill from overriding dark styles */
         input:-webkit-autofill,
         input:-webkit-autofill:hover, 
         input:-webkit-autofill:focus, 
         input:-webkit-autofill:active {
-            -webkit-box-shadow: 0 0 0 30px #0E1220 inset !important;
-            -webkit-text-fill-color: white !important;
+            -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+            -webkit-text-fill-color: #000000 !important;
             transition: background-color 5000s ease-in-out 0s;
         }
 
         /* Workplace Type Filter */
         .filter-row { display: flex; gap: 1rem; margin-top: 1.25rem; align-items: center; flex-wrap: wrap; }
-        .filter-label { color: #9CA3AF; font-weight: 600; font-size: 0.8rem; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-label { color: #52525B; font-weight: 750; font-size: 0.8rem; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
         .filter-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .chip { padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.08); background: #0E1220; color: var(--text-body); transition: all 0.2s; user-select: none; text-transform: uppercase; }
-        .chip:hover { border-color: rgba(255, 255, 255, 0.2); color: #FFF; }
-        .chip.active { background: var(--primary); border-color: var(--primary); color: #FFF; font-weight: 600; }
+        .chip { padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #ffffff; color: var(--text-body); transition: all 0.2s; user-select: none; text-transform: uppercase; }
+        .chip:hover { border-color: #a1a1aa; color: #000000; }
+        .chip.active { background: var(--primary); border-color: var(--primary); color: #000000; font-weight: 700; }
         .chip .chip-count { color: inherit; font-size: 0.75rem; font-weight: 700; margin-left: 0.3rem; opacity: 0.8; }
 
-        .search-btn { padding: 0.85rem 2rem; border-radius: 6px; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; background: var(--primary); color: white; transition: all 0.2s; white-space: nowrap; height: fit-content; text-transform: uppercase; letter-spacing: 0.5px; }
-        .search-btn:hover { background: var(--primary-hover); }
+        .search-btn { padding: 0.85rem 2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 800; cursor: pointer; border: none; background: var(--primary); color: #000000; transition: all 0.2s; white-space: nowrap; height: fit-content; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); }
+        .search-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212, 255, 51, 0.35); }
         .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Stats Bar */
         .stats-bar { display: flex; gap: 2.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; padding-left: 0.5rem; }
         .stat { display: flex; align-items: baseline; gap: 0.5rem; }
-        .stat-number { color: white; font-size: 1.6rem; font-weight: 700; }
-        .stat-label { color: var(--text-body); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .stat-number { color: #000000; font-size: 1.6rem; font-weight: 900; }
+        .stat-label { color: #52525B; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
 
         /* Table Style Dashboard */
         .jobs-table-container {
             width: 100%;
             overflow-x: auto;
             border: 1px solid var(--border);
-            border-radius: 10px;
+            border-radius: 20px;
             background: var(--surface-color);
             margin-bottom: 2rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
         }
         .jobs-table {
             width: 100%;
@@ -99,9 +96,9 @@
             text-align: left;
         }
         .jobs-table th {
-            background: rgba(0, 0, 0, 0.12);
-            color: #9CA3AF;
-            font-weight: 600;
+            background: rgba(0, 0, 0, 0.015);
+            color: #52525B;
+            font-weight: 750;
             font-size: 0.75rem;
             text-transform: uppercase;
             letter-spacing: 0.75px;
@@ -112,23 +109,23 @@
             padding: 1.25rem 1.5rem;
             border-bottom: 1px solid var(--border);
             vertical-align: middle;
-            color: #D1D5DB;
+            color: var(--text-body);
         }
         .jobs-table tr:hover td {
-            background: rgba(255, 255, 255, 0.01);
+            background: rgba(212, 255, 51, 0.03);
         }
         .jobs-table tr:last-child td {
             border-bottom: none;
         }
         .table-role-title {
-            color: white;
-            font-weight: 500;
+            color: #000000;
+            font-weight: 600;
             font-size: 0.82rem;
         }
         .table-company-name {
-            color: #9CA3AF;
+            color: #52525B;
             font-size: 0.82rem;
-            font-weight: 500;
+            font-weight: 600;
             margin-top: 0.2rem;
         }
         .table-workplace-tag {
@@ -136,22 +133,22 @@
             padding: 0.2rem 0.6rem;
             border-radius: 20px;
             font-size: 0.82rem;
-            font-weight: 500;
-            background: rgba(59, 130, 246, 0.08);
-            color: #60A5FA;
+            font-weight: 600;
+            background: rgba(212, 255, 51, 0.08);
+            color: #000000;
             margin-top: 0.35rem;
             text-transform: uppercase;
             letter-spacing: 0.5px;
-            border: 1px solid rgba(59, 130, 246, 0.15);
+            border: 1px solid rgba(212, 255, 51, 0.25);
         }
         .table-salary {
             color: #10B981;
-            font-weight: 500;
+            font-weight: 600;
             font-size: 0.82rem;
             background: rgba(16, 185, 129, 0.06);
             padding: 0.2rem 0.6rem;
             border-radius: 4px;
-            border: 1px solid rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.15);
             display: inline-block;
         }
         .table-ats {
@@ -169,48 +166,86 @@
         }
         .table-btn {
             background: transparent;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            color: #E5E7EB;
+            border: 1px solid var(--border);
+            color: var(--text-body);
             padding: 0.45rem 0.9rem;
             font-size: 0.82rem;
-            font-weight: 500;
+            font-weight: 600;
             cursor: pointer;
             border-radius: 6px;
             text-transform: uppercase;
             transition: all 0.2s;
         }
         .table-btn:hover {
-            border-color: rgba(255, 255, 255, 0.2);
-            background: rgba(255, 255, 255, 0.04);
-            color: white;
+            border-color: #000000;
+            background: rgba(0, 0, 0, 0.03);
+            color: #000000;
         }
         .table-btn-primary {
             border: none;
             background: var(--primary);
-            color: white;
-            font-weight: 500;
+            color: #000000;
+            font-weight: 700;
         }
         .table-btn-primary:hover {
             background: var(--primary-hover);
-            color: white;
+            color: #000000;
         }
-        .status-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.82rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
-        .status-queued { background: rgba(59, 130, 246, 0.08); color: #60A5FA; border-color: rgba(59, 130, 246, 0.15); }
-        .status-applied { background: rgba(245, 158, 11, 0.08); color: #FBBF24; border-color: rgba(245, 158, 11, 0.15); }
-        .status-interview { background: rgba(16, 185, 129, 0.08); color: #34D399; border-color: rgba(16, 185, 129, 0.15); }
+        .status-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .status-queued { background: rgba(0, 255, 204, 0.08); color: #00b38f; border-color: rgba(0, 255, 204, 0.2); }
+        .status-applied { background: rgba(245, 158, 11, 0.08); color: #b45309; border-color: rgba(245, 158, 11, 0.15); }
+        .status-interview { background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15); }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
-        .empty-state h3 { color: white; margin-bottom: 0.5rem; font-size: 1.3rem; }
+        .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
 
         /* Description Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 7, 13, 0.85); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(4px); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(8px); }
         .modal-overlay.active { display: flex; }
-        .desc-modal { background: #111625; border: 1px solid var(--border); border-radius: 10px; padding: 2.5rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.4); }
-        .desc-modal h2 { color: white; margin-bottom: 0.25rem; font-size: 1.35rem; font-weight: 700; letter-spacing: 0.2px; }
-        .desc-modal .modal-company { color: var(--primary); font-weight: 600; margin-bottom: 1.25rem; text-transform: uppercase; font-size: 0.88rem; }
-        .desc-modal .full-text { color: #D1D5DB; font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; }
-        .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #9CA3AF; font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
-        .close-modal:hover { color: white; }
+        .desc-modal { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.08); }
+        .desc-modal h2 { color: #000000; margin-bottom: 0.25rem; font-size: 1.35rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase; }
+        .desc-modal .modal-company { color: #00b38f; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; font-size: 0.88rem; }
+        .desc-modal .full-text { color: var(--text-body); font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; }
+        .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #71717A; font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
+        .close-modal:hover { color: #000000; }
+        
+        .resume-render-area { background: white; color: black; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; min-height: 400px; }
+        .resume-render-area h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; text-transform: none; }
+        .resume-render-area .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
+        .resume-render-area .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
+        .resume-render-area h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
+        .resume-render-area ul { margin: 3pt 0 8pt 16pt; }
+        .resume-render-area li { margin-bottom: 2pt; font-size: 10pt; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.96); opacity: 0.7; }
+            50% { transform: scale(1.04); opacity: 1; }
+            100% { transform: scale(0.96); opacity: 0.7; }
+        }
+        .spinner { width: 36px; height: 36px; border: 3px solid rgba(0, 0, 0, 0.06); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Background Glow Blobs */
+        .background-blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.08;
+        }
+        .blob-1 {
+            top: -100px;
+            left: -100px;
+            background: #D4FF33;
+        }
+        .blob-2 {
+            bottom: -100px;
+            right: -100px;
+            background: #00FFCC;
+        }
         
         .resume-render-area { background: white; color: black; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; min-height: 400px; }
         .resume-render-area h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; text-transform: none; }
@@ -245,36 +280,36 @@
     <div class="container">
         <!-- Inbox Connect Banner -->
         <div id="inbox-banner" style="display: none; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <button onclick="document.getElementById('inbox-modal').classList.add('active')" style="background: var(--primary); color: white; border: none; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 600; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Enable Auto-Apply &rarr;</button>
+            <button onclick="document.getElementById('inbox-modal').classList.add('active')" style="background: var(--primary); color: #000000; border: none; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 750; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Enable Auto-Apply &rarr;</button>
         </div>
 
         <!-- Automation Profile & Active Status -->
-        <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 2rem;">
+        <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
                 <div style="flex: 1; min-width: 300px;">
-                    <h2 style="color: white; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 700; letter-spacing: 0.2px;">⚡ AI Agent Active</h2>
+                    <h2 style="color: #000000; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase;">⚡ AI Agent Active</h2>
                     <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem;">The AI workflow automatically sources and queues matching jobs based on your onboarding preferences.</p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.15); padding: 1.25rem; border: 1px solid var(--border); border-radius: 8px;">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
                         <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--primary); display: block; margin-bottom: 0.2rem;">Target Roles</span>
-                            <span id="pref-roles" style="color: white; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Target Roles</span>
+                            <span id="pref-roles" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
                         </div>
                         <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--primary); display: block; margin-bottom: 0.2rem;">Target Countries</span>
-                            <span id="pref-countries" style="color: white; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Target Countries</span>
+                            <span id="pref-countries" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
                         </div>
                         <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: var(--primary); display: block; margin-bottom: 0.2rem;">Workplace Types</span>
-                            <span id="pref-workplaces" style="color: white; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Workplace Types</span>
+                            <span id="pref-workplaces" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
                         </div>
                     </div>
                 </div>
                 
                 <!-- Scanning Status Card -->
-                <div id="scanning-indicator" style="background: rgba(59, 130, 246, 0.02); border: 1px dashed var(--border); border-radius: 8px; padding: 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
+                <div id="scanning-indicator" style="background: rgba(212, 255, 51, 0.03); border: 1px dashed var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
                     <div id="scanning-dot" class="pulsing-dot" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px var(--primary); animation: pulse 1.5s infinite;"></div>
-                    <h4 id="scanning-title" style="color: white; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 800;">🤖 Scraper Active</h4>
+                    <h4 id="scanning-title" style="color: #000000; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 850;">🤖 Scraper Active</h4>
                     <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Sourcing matching jobs into your dashboard. Feel free to leave this page; the scan runs in the cloud.</p>
                 </div>
             </div>
@@ -339,9 +374,9 @@
     <div class="modal-overlay" id="queue-modal">
         <div class="desc-modal" style="text-align: center; padding: 3rem 2rem; max-width: 580px;">
             <button class="close-modal" onclick="closeModal('queue-modal')" style="font-size: 2rem; top: 1rem; right: 1rem;">&times;</button>
-            <h3 style="color: var(--primary); font-size: 1.4rem; margin-bottom: 1rem; font-weight: 700;">✅ Jobs Added to Extraction Queue</h3>
-            <p style="color: #D1D5DB; max-width: 500px; margin: 0 auto 2rem; font-size: 0.95rem; line-height: 1.6;">We're upgrading backend capabilities. Processing paused temporarily—you'll be notified via email upon resumption.</p>
-            <button onclick="closeModal('queue-modal')" style="margin: 0 auto; display: block; max-width: 200px; width: 100%; border-radius: 6px; padding: 0.75rem; border: none; background: var(--primary); color: white; font-weight: 600; cursor: pointer; transition: background 0.2s;">Close</button>
+            <h3 style="color: #000000; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 850;">✅ Jobs Added to Extraction Queue</h3>
+            <p style="color: var(--text-body); max-width: 500px; margin: 0 auto 2rem; font-size: 0.95rem; line-height: 1.6;">We're upgrading backend capabilities. Processing paused temporarily—you'll be notified via email upon resumption.</p>
+            <button onclick="closeModal('queue-modal')" style="margin: 0 auto; display: block; max-width: 200px; width: 100%; border-radius: 6px; padding: 0.75rem; border: none; background: var(--primary); color: #000000; font-weight: 750; cursor: pointer; transition: background 0.2s;">Close</button>
         </div>
     </div>
 
@@ -351,100 +386,100 @@
             <button class="close-modal" onclick="closeModal('inbox-modal')">&times;</button>
             
             <div style="text-align: center; margin-bottom: 2rem;">
-                <span style="background: rgba(59, 130, 246, 0.1); color: var(--primary); padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;">AI Feature Configuration</span>
-                <h2 style="color: white; font-weight: 800; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem;">Configure Auto-Apply Engine</h2>
-                <p style="color: #9CA3AF; font-size: 0.95rem; max-width: 580px; margin: 0 auto;">Enable our AI to submit job applications on your behalf 24/7.</p>
+                <span style="background: rgba(212, 255, 51, 0.15); color: #000000; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 1px;">AI Feature Configuration</span>
+                <h2 style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Configure Auto-Apply Engine</h2>
+                <p style="color: var(--text-body); font-size: 0.95rem; max-width: 580px; margin: 0 auto;">Enable our AI to submit job applications on your behalf 24/7.</p>
             </div>
 
             <div style="display: grid; grid-template-columns: 1.15fr 0.85fr; gap: 1.5rem; margin-bottom: 2rem;">
                 <!-- Column 1: What it does -->
-                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem;">
-                    <h4 style="color: white; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
+                    <h4 style="color: #000000; font-size: 0.85rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                         <span style="color: var(--secondary);">✓</span> What the AI Agent Does
                     </h4>
-                    <ul style="list-style: none; padding-left: 0; color: #D1D5DB; font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
+                    <ul style="list-style: none; padding-left: 0; color: var(--text-body); font-size: 0.85rem; display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.25rem;">
                         <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: var(--primary);">•</span>
+                            <span style="color: #00b38f; font-weight: 900;">•</span>
                             <span><strong>Fills Form Data:</strong> Automatically fills out application forms and tailors your answers using AI.</span>
                         </li>
                         <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: var(--primary);">•</span>
+                            <span style="color: #00b38f; font-weight: 900;">•</span>
                             <span><strong>Attaches Resumes:</strong> Dynamically uploads your optimized resume and cover letter.</span>
                         </li>
                         <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: var(--primary);">•</span>
+                            <span style="color: #00b38f; font-weight: 900;">•</span>
                             <span><strong>Creates Profiles:</strong> Registers candidate profiles on ATS portals requiring account Creation (e.g. SuccessFactors, Workday).</span>
                         </li>
                         <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: var(--primary);">•</span>
+                            <span style="color: #00b38f; font-weight: 900;">•</span>
                             <span><strong>OTP Verification:</strong> Intercepts sign-up/sign-in verification codes sent to your inbox to bypass blocks.</span>
                         </li>
                         <li style="display: flex; gap: 0.5rem;">
-                            <span style="color: var(--primary);">•</span>
+                            <span style="color: #00b38f; font-weight: 900;">•</span>
                             <span><strong>Hiring Manager Outreach:</strong> Sends a professional follow-up email directly to the hiring manager to get your application noticed.</span>
                         </li>
                     </ul>
                     <div style="margin-top: 1rem;">
-                        <span style="font-size: 0.75rem; color: #9CA3AF; display: block; margin-bottom: 0.25rem; font-weight: 600;">Inbox Verification Code Capture</span>
-                        <img src="assets/ats_logo_inbox_mockup.png" style="width: 100%; border-radius: 6px; border: 1px solid var(--border);" alt="Inbox OTP Verification Mockup">
+                        <span style="font-size: 0.75rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Inbox Verification Code Capture</span>
+                        <img src="assets/ats_logo_inbox_mockup.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="Inbox OTP Verification Mockup">
                     </div>
                 </div>
 
                 <!-- Column 2: Why it needs email -->
-                <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
+                <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: space-between;">
                     <div>
-                        <h4 style="color: white; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <h4 style="color: #000000; font-size: 0.85rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                             <span style="color: var(--accent);">✉</span> Why a Dedicated Email is Required
                         </h4>
-                        <p style="color: #D1D5DB; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
+                        <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">
                             To submit forms, verify one-time password (OTP) codes, and send follow-up emails directly to hiring managers without requiring your manual intervention, the AI agent needs access to a dedicated job-search email inbox.
                         </p>
                     </div>
-                    <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.15); border-radius: 6px; padding: 1rem; font-size: 0.82rem; color: #FBBF24; line-height: 1.5;">
+                    <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 1rem; font-size: 0.82rem; color: #b45309; line-height: 1.5; font-weight: 500;">
                         <strong>💡 Highly Recommended:</strong> Create a brand new, clean Google/Gmail account (e.g., <em>yourname.jobs@gmail.com</em>) specifically for job hunting. This keeps your personal inbox completely private.
                     </div>
                 </div>
             </div>
 
             <!-- App Password Guide -->
-            <div style="background: rgba(59, 130, 246, 0.03); border: 1px solid rgba(59, 130, 246, 0.15); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
-                <h4 style="color: white; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="background: var(--primary); color: white; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem;">ℹ</span>
+            <div style="background: rgba(0, 255, 204, 0.03); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                <h4 style="color: #000000; margin-bottom: 1rem; text-transform: uppercase; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="background: #000000; color: #ffffff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem;">ℹ</span>
                     How to Link Your Gmail in 30 Seconds
                 </h4>
                 
                 <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 1.5rem;">
                     <div>
-                        <ol style="padding-left: 1.2rem; color: #9CA3AF; font-size: 0.85rem; line-height: 1.6; display: flex; flex-direction: column; gap: 0.75rem;">
+                        <ol style="padding-left: 1.2rem; color: var(--text-body); font-size: 0.85rem; line-height: 1.6; display: flex; flex-direction: column; gap: 0.75rem;">
                             <li>Ensure <strong>2-Step Verification</strong> is turned <strong>ON</strong> under your Google Account Security settings.
-                                <img src="assets/google_2step_guide.png" style="width: 100%; border-radius: 6px; border: 1px solid var(--border); margin-top: 0.5rem;" alt="2-Step Verification Guide">
+                                <img src="assets/google_2step_guide.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border); margin-top: 0.5rem;" alt="2-Step Verification Guide">
                             </li>
-                            <li>Go to the <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: var(--primary); text-decoration: underline; font-weight: 600;">Google App Passwords page</a>.</li>
+                            <li>Go to the <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: #00b38f; text-decoration: underline; font-weight: 700;">Google App Passwords page</a>.</li>
                             <li>Enter <strong>"AutoApply AI"</strong> as the app name and click <strong>Create</strong>.</li>
                             <li>Google will display a <strong>16-letter password</strong> in a yellow box (e.g., <code>abcd efgh ijkl mnop</code>). <strong>Copy it</strong> and paste it below.</li>
                         </ol>
                     </div>
                     <div style="display: flex; flex-direction: column; justify-content: center;">
-                        <span style="font-size: 0.75rem; color: #9CA3AF; display: block; margin-bottom: 0.25rem; font-weight: 600;">App Password Box Mockup</span>
-                        <img src="assets/google_app_password_creation.png" style="width: 100%; border-radius: 6px; border: 1px solid var(--border);" alt="App Password Setup">
+                        <span style="font-size: 0.75rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">App Password Box Mockup</span>
+                        <img src="assets/google_app_password_creation.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="App Password Setup">
                     </div>
                 </div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; margin-bottom: 1.5rem;">
                 <div class="field">
-                    <label style="font-size: 0.75rem; font-weight: 700; color: #9CA3AF;">Dedicated Job-Search Gmail</label>
+                    <label style="font-size: 0.75rem; font-weight: 750; color: #52525B;">Dedicated Job-Search Gmail</label>
                     <input type="email" id="gmail-email" placeholder="yourname.jobs@gmail.com" style="padding: 0.75rem 1rem;">
                 </div>
                 <div class="field">
-                    <label style="font-size: 0.75rem; font-weight: 700; color: #9CA3AF;">16-Letter App Password</label>
+                    <label style="font-size: 0.75rem; font-weight: 750; color: #52525B;">16-Letter App Password</label>
                     <input type="password" id="gmail-password" placeholder="abcd efgh ijkl mnop" style="padding: 0.75rem 1rem;">
                 </div>
             </div>
             
             <div id="inbox-error" style="color: #EF4444; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; font-weight: 600; background: rgba(239, 68, 68, 0.05); padding: 0.75rem; border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 6px;"></div>
             
-            <button onclick="saveInbox()" id="save-inbox-btn" style="background: var(--primary); color: white; border: none; font-size: 0.95rem; padding: 0.9rem; border-radius: 6px; font-weight: 700; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s;">Activate Auto-Apply Agent &rarr;</button>
+            <button onclick="saveInbox()" id="save-inbox-btn" style="background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Activate Auto-Apply Agent &rarr;</button>
         </div>
     </div>
 
@@ -569,16 +604,16 @@
                 dot.style.boxShadow = '0 0 10px var(--primary)';
                 dot.style.animation = 'pulse 1.5s infinite';
                 title.textContent = '🤖 Scraper Active';
-                title.style.color = 'white';
+                title.style.color = '#000000';
                 text.textContent = 'Sourcing matching jobs into your dashboard. Feel free to leave this page; the scan runs in the cloud.';
             } else {
-                indicator.style.background = 'rgba(255, 255, 255, 0.02)';
+                indicator.style.background = 'rgba(0, 0, 0, 0.015)';
                 indicator.style.borderColor = 'var(--border)';
                 dot.style.background = '#10B981';
                 dot.style.boxShadow = '0 0 10px #10B981';
                 dot.style.animation = 'none';
                 title.textContent = '🟢 Monitoring';
-                title.style.color = '#10B981';
+                title.style.color = '#047857';
                 text.textContent = 'Our job agent is active and checking for new listings on your cron schedule.';
             }
         }
@@ -786,32 +821,32 @@
                 
                 // Get job posting link
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
-                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.82rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem;">🔗 View Posting</a>` : '';
+                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" style="color: #00b38f; text-decoration: none; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem;">🔗 View Posting</a>` : '';
 
                 html += `
                     <tr>
                         <!-- 1. Company & Website -->
                         <td>
-                            <div style="font-size: 0.82rem; font-weight: 500; color: white;">${job.companyName}</div>
-                            ${job.companyWebsite ? `<a href="http://${job.companyWebsite}" target="_blank" style="color: var(--primary); text-decoration: none; font-size: 0.82rem; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">🔗 ${job.companyWebsite}</a>` : ''}
+                            <div style="font-size: 0.82rem; font-weight: 600; color: #000000;">${job.companyName}</div>
+                            ${job.companyWebsite ? `<a href="http://${job.companyWebsite}" target="_blank" style="color: #00b38f; text-decoration: none; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">🔗 ${job.companyWebsite}</a>` : ''}
                         </td>
                         
                         <!-- 2. Location -->
                         <td>
-                            <div style="font-size: 0.82rem; font-weight: 500; color: #D1D5DB;">📍 ${job.location}</div>
+                            <div style="font-size: 0.82rem; font-weight: 600; color: var(--text-body);">📍 ${job.location}</div>
                         </td>
                         
                         <!-- 3. Employment & Workplace type -->
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
                                 ${workplaceLabel}
-                                ${job.employmentType ? `<div style="font-size: 0.82rem; color: #9CA3AF; font-weight: 500; margin-top: 0.15rem;">💼 ${job.employmentType}</div>` : ''}
+                                ${job.employmentType ? `<div style="font-size: 0.82rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">💼 ${job.employmentType}</div>` : ''}
                             </div>
                         </td>
                         
                         <!-- 4. Role & Salary Range -->
                         <td>
-                            <div style="font-size: 0.82rem; font-weight: 500; color: white; margin-bottom: 0.35rem;">${job.title}</div>
+                            <div style="font-size: 0.82rem; font-weight: 600; color: #000000; margin-bottom: 0.35rem;">${job.title}</div>
                             ${salaryLabel}
                         </td>
                         
@@ -819,7 +854,7 @@
                         <td>
                             <div style="display: flex; flex-direction: column; gap: 0.35rem; align-items: flex-start;">
                                 ${jobLinkButton}
-                                <div style="font-size: 0.82rem; color: #9CA3AF; font-weight: 500; margin-top: 0.15rem;">📅 ${job.postedAt}</div>
+                                <div style="font-size: 0.82rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">📅 ${job.postedAt}</div>
                             </div>
                         </td>
                         
