@@ -63,13 +63,23 @@
 
         .section-title { font-size: 3rem; font-weight: 900; color: #000000; text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: -1px; text-align: left; }
         
-        .how-it-works, .pricing { max-width: 1400px; margin: 8rem auto; padding: 0 5%; }
+        .how-it-works, .pricing, .faq { max-width: 1400px; margin: 8rem auto; padding: 0 5%; }
         .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem; }
-        .step-card { background: var(--primary); border: none; border-radius: 20px; padding: 3rem 2.25rem; position: relative; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(212, 255, 51, 0.08); overflow: hidden; }
-        .step-card:hover { transform: translateY(-6px); box-shadow: 0 20px 45px rgba(212, 255, 51, 0.3), 0 1px 3px rgba(0,0,0,0.02); }
+        .step-card { background: #00FFCC; border: none; border-radius: 20px; padding: 3rem 2.25rem; position: relative; transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 10px 30px rgba(0, 255, 204, 0.08); overflow: hidden; }
+        .step-card:hover { transform: translateY(-6px); box-shadow: 0 20px 45px rgba(0, 255, 204, 0.3), 0 1px 3px rgba(0,0,0,0.02); }
         .step-num { font-size: 5.5rem; font-weight: 950; color: #000000; opacity: 0.06; position: absolute; top: -0.5rem; right: 1.5rem; line-height: 1; z-index: 0; pointer-events: none; }
         .step-card h3 { color: #000000; font-size: 1.35rem; font-weight: 900; text-transform: uppercase; margin-bottom: 1.25rem; position: relative; z-index: 1; letter-spacing: -0.5px; }
         .step-card p { position: relative; z-index: 1; color: #1c1917; font-weight: 550; font-size: 0.98rem; line-height: 1.65; }
+        
+        /* Collapsible FAQ Styling */
+        .faq-grid { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
+        .faq-item { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 16px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 20px rgba(0, 255, 204, 0.02); text-align: left; }
+        .faq-item:hover { border-color: #00FFCC; box-shadow: 0 10px 30px rgba(0, 255, 204, 0.08); transform: translateY(-2px); }
+        .faq-item summary { padding: 1.5rem 2rem; font-size: 1.1rem; font-weight: 800; color: #000000; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; list-style: none; text-transform: uppercase; letter-spacing: -0.5px; outline: none; }
+        .faq-item summary::-webkit-details-marker { display: none; }
+        .faq-item summary::after { content: "+"; font-size: 1.5rem; font-weight: 500; color: #00FFCC; transition: transform 0.3s ease; }
+        .faq-item[open] summary::after { content: "−"; transform: rotate(180deg); }
+        .faq-item p { padding: 0 2.25rem 1.75rem; color: #52525B; font-weight: 500; font-size: 0.98rem; line-height: 1.65; }
         
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; align-items: stretch; }
         .price-card { background: #ffffff; border: 1px solid rgba(212, 255, 51, 0.3); border-radius: 24px; padding: 4rem 3rem; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(212, 255, 51, 0.04); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -96,11 +106,12 @@
 </head>
 <body>
     <nav>
-        <div class="logo">APPLY<span>/AI</span></div>
+        <a href="#" class="logo" style="text-decoration: none;">APPLY<span>/AI</span></a>
         <div class="nav-links" style="display: flex; gap: 2rem; align-items: center;">
             <a href="#how-it-works" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">How it works</a>
             <a href="#countries" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Countries</a>
             <a href="#pricing" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Pricing</a>
+            <a href="#faq" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">FAQ</a>
             <a href="login.html" style="color: var(--secondary); text-decoration: none; font-weight: 800; text-transform: uppercase; font-size: 0.9rem;">Sign In</a>
         </div>
     </nav>
@@ -115,7 +126,7 @@
         </div>
         <div style="margin-top: 3rem; display: flex; align-items: center; gap: 1.5rem; border-top: 1px solid rgba(0,0,0,0.06); padding-top: 2rem; width: 100%; max-width: 850px;">
             <div style="font-size: 1.75rem; font-weight: 900; color: #000000; background: linear-gradient(135deg, #D4FF33, #00FFCC); border: 1px solid rgba(0,0,0,0.05); border-radius: 12px; padding: 0.35rem 1rem; white-space: nowrap; text-transform: uppercase; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.15); display: inline-block;">100K+ Jobs</div>
-            <div style="font-size: 0.95rem; color: #52525B; line-height: 1.5; font-weight: 500;">24/7 Monitoring across major ATS platforms, tracking over 100K+ active job opportunities across whether On-Site, Remote or Hybrid across 50 Countries.</div>
+            <div style="font-size: 0.95rem; color: #52525B; line-height: 1.5; font-weight: 500;">24/7 Monitoring across major ATS platforms, tracking over 100K+ active job opportunities across 50 countries for On-Site, Remote & Hybrid roles</div>
         </div>
     </section>
 
@@ -133,7 +144,7 @@
         </div>
     </section>
 
-    <section id="how-it-works" class="how-it-works" style="margin-top: 4rem;">
+    <section id="how-it-works" class="how-it-works" style="margin-top: 4rem; display: none;">
         <h2 class="section-title" style="margin-bottom: 1rem;">How It Works</h2>
         <p style="font-size: 0.95rem; color: #52525B; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">You build your profile once. Our AI Agent takes over forever.</p>
         <div class="steps-grid">
@@ -160,64 +171,64 @@
         </div>
     </section>
 
-    <section id="countries" class="countries" style="max-width: 1400px; margin: 8rem auto; padding: 0 5%;">
+    <section id="countries" class="countries" style="max-width: 1400px; margin: 8rem auto; padding: 0 5%; display: none;">
         <h2 class="section-title">Supported Countries</h2>
         <p style="font-size: 0.95rem; color: #52525B; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Sourcing and applying dynamically in 50 countries.</p>
         <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 3rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02); font-weight: 600; font-size: 0.9rem; color: #18181B;">
-            <div>🇦🇺 Australia</div>
-            <div>🇦🇹 Austria</div>
-            <div>🇧🇪 Belgium</div>
-            <div>🇧🇷 Brazil</div>
-            <div>🇧🇬 Bulgaria</div>
-            <div>🇨🇦 Canada</div>
-            <div>🇨🇳 China</div>
-            <div>🇨🇴 Colombia</div>
-            <div>🇨🇷 Costa Rica</div>
-            <div>🇨🇿 Czechia</div>
-            <div>🇩🇰 Denmark</div>
-            <div>🇪🇬 Egypt</div>
-            <div>🇫🇮 Finland</div>
-            <div>🇫🇷 France</div>
-            <div>🇩🇪 Germany</div>
-            <div>🇬🇷 Greece</div>
-            <div>🇭🇺 Hungary</div>
-            <div>🇮🇳 India</div>
-            <div>🇮🇩 Indonesia</div>
-            <div>🇮🇪 Ireland</div>
-            <div>🇮🇱 Israel</div>
-            <div>🇮🇹 Italy</div>
-            <div>🇯🇵 Japan</div>
-            <div>🇲🇾 Malaysia</div>
-            <div>🇲🇽 Mexico</div>
-            <div>🇳🇱 Netherlands</div>
-            <div>🇳🇿 New Zealand</div>
-            <div>🇳🇬 Nigeria</div>
-            <div>🇳🇴 Norway</div>
-            <div>🇵🇰 Pakistan</div>
-            <div>🇵🇭 Philippines</div>
-            <div>🇵🇱 Poland</div>
-            <div>🇵🇹 Portugal</div>
-            <div>🇷🇴 Romania</div>
-            <div>🇸🇦 Saudi Arabia</div>
-            <div>🇸🇬 Singapore</div>
-            <div>🇸🇰 Slovakia</div>
-            <div>🇸🇮 Slovenia</div>
-            <div>🇿🇦 South Africa</div>
-            <div>🇰🇷 South Korea</div>
-            <div>🇪🇸 Spain</div>
-            <div>🇸🇪 Sweden</div>
-            <div>🇨🇭 Switzerland</div>
-            <div>🇹🇼 Taiwan</div>
-            <div>🇹🇭 Thailand</div>
-            <div>🇹🇷 Turkey</div>
-            <div>🇦🇪 UAE</div>
-            <div>🇬🇧 United Kingdom</div>
-            <div>🇺🇸 United States</div>
-            <div>🇻🇳 Vietnam</div>
+            <div>Australia</div>
+            <div>Austria</div>
+            <div>Belgium</div>
+            <div>Brazil</div>
+            <div>Bulgaria</div>
+            <div>Canada</div>
+            <div>China</div>
+            <div>Colombia</div>
+            <div>Costa Rica</div>
+            <div>Czechia</div>
+            <div>Denmark</div>
+            <div>Egypt</div>
+            <div>Finland</div>
+            <div>France</div>
+            <div>Germany</div>
+            <div>Greece</div>
+            <div>Hungary</div>
+            <div>India</div>
+            <div>Indonesia</div>
+            <div>Ireland</div>
+            <div>Israel</div>
+            <div>Italy</div>
+            <div>Japan</div>
+            <div>Malaysia</div>
+            <div>Mexico</div>
+            <div>Netherlands</div>
+            <div>New Zealand</div>
+            <div>Nigeria</div>
+            <div>Norway</div>
+            <div>Pakistan</div>
+            <div>Philippines</div>
+            <div>Poland</div>
+            <div>Portugal</div>
+            <div>Romania</div>
+            <div>Saudi Arabia</div>
+            <div>Singapore</div>
+            <div>Slovakia</div>
+            <div>Slovenia</div>
+            <div>South Africa</div>
+            <div>South Korea</div>
+            <div>Spain</div>
+            <div>Sweden</div>
+            <div>Switzerland</div>
+            <div>Taiwan</div>
+            <div>Thailand</div>
+            <div>Turkey</div>
+            <div>UAE</div>
+            <div>United Kingdom</div>
+            <div>United States</div>
+            <div>Vietnam</div>
         </div>
     </section>
 
-    <section id="pricing" class="pricing">
+    <section id="pricing" class="pricing" style="display: none;">
         <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Pricing</h2>
         <div class="pricing-grid" style="max-width: 1000px; margin: 0 auto;">
             
@@ -249,6 +260,33 @@
                 </ul>
                 <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Start Automating Now</a>
             </div>
+        </div>
+    </section>
+
+    <!-- Collapsible FAQ Section -->
+    <section id="faq" class="faq" style="display: none;">
+        <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Frequently Asked Questions</h2>
+        <div class="faq-grid">
+            <details class="faq-item">
+                <summary>How does the AI agent tailor my resume?</summary>
+                <p>Our AI analyzes the job description keywords and dynamically highlights your most relevant skills and experience, ensuring you pass the ATS screening perfectly without changing your core facts.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Which job boards and ATS platforms are monitored?</summary>
+                <p>We monitor all major platforms including LinkedIn, Indeed, Greenhouse, Workday, SuccessFactors, Lever, and many more, capturing roles the second they go live.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Is my personal data safe?</summary>
+                <p>Yes, your data security is our top priority. We use secure encryption to store your information and only use it to automatically fill application forms on your behalf.</p>
+            </details>
+            <details class="faq-item">
+                <summary>How many jobs will the AI agent apply to?</summary>
+                <p>Depending on your plan, our Pro Auto-Apply Engine will apply to up to 500 relevant jobs within 1 to 10 days, targeting only fresh openings posted within 24 hours.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Can I review the applications before they are submitted?</summary>
+                <p>You can track every application, optimization, and submission status in real-time directly from your dashboard.</p>
+            </details>
         </div>
     </section>
 
@@ -286,6 +324,28 @@
             }
         }
         setLocalPricing();
+
+        // Dynamic Section Routing Logic
+        function handleRouting() {
+            const hash = window.location.hash.substring(1);
+            const dynamicSections = ['how-it-works', 'countries', 'pricing', 'faq'];
+            
+            dynamicSections.forEach(id => {
+                const sec = document.getElementById(id);
+                if (sec) {
+                    if (id === hash) {
+                        sec.style.display = 'block';
+                        setTimeout(() => {
+                            sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 50);
+                    } else {
+                        sec.style.display = 'none';
+                    }
+                }
+            });
+        }
+        window.addEventListener('hashchange', handleRouting);
+        window.addEventListener('load', handleRouting);
     </script>
 </body>
 </html>
