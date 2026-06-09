@@ -1112,11 +1112,11 @@
 
             try {
                 // Step 1 — show connecting state
-                statusText.innerHTML = "🔗 Connecting to imap.gmail.com:993...";
+                statusText.innerHTML = "🔒 Establishing secure connection...";
                 await new Promise(r => setTimeout(r, 700));
 
                 // Step 2 — real IMAP validation via apply-server on VPS
-                statusText.innerHTML = "🔐 Verifying App Password with Google...";
+                statusText.innerHTML = "🔑 Verifying credentials...";
                 const validationRes = await fetch('http://84.38.133.158:3006/validate-inbox', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1134,7 +1134,7 @@
                 }
 
                 // Step 3 — credentials confirmed good
-                statusText.innerHTML = "🛡️ Validating SSL/TLS Handshake...";
+                statusText.innerHTML = "🛡️ Finalizing configuration...";
                 await new Promise(r => setTimeout(r, 500));
 
                 // All good
