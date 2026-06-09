@@ -297,15 +297,11 @@
     </nav>
 
     <div class="container">
-        <!-- Inbox Connect Banner -->
-        <div id="inbox-banner" style="display: none; background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.2); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem; justify-content: center; align-items: center; flex-wrap: wrap; gap: 1rem;">
-            <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.88rem; padding: 0.65rem 1.25rem; border-radius: 6px; font-weight: 750; cursor: pointer; flex-shrink: 0; transition: background 0.2s;">Enable Auto-Apply &rarr;</button>
-        </div>
-
         <!-- Automation Profile & Active Status -->
         <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
                 <div style="flex: 1; min-width: 300px;">
+                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; margin-bottom: 0.75rem; letter-spacing: 0.5px;">Target Criteria</h3>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
                         <div>
                             <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Target Roles</span>
@@ -322,11 +318,15 @@
                     </div>
                 </div>
                 
-                <!-- Scanning Status Card -->
+                <!-- Job Automation Status Card -->
                 <div id="scanning-indicator" style="background: rgba(0, 0, 0, 0.015); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
+                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Job Automation Status</h3>
                     <div id="scanning-dot" style="width: 12px; height: 12px; background: #10B981; border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px #10B981;"></div>
                     <h4 id="scanning-title" style="color: #047857; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 850;">🟢 Monitoring</h4>
                     <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Your AI Job Agent is active and checks for new listings twice daily.</p>
+                    <div id="inbox-banner" style="display: none; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem; justify-content: center; width: 100%;">
+                        <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.82rem; padding: 0.55rem 1rem; border-radius: 6px; font-weight: 750; cursor: pointer; transition: background 0.2s; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">Enable Auto-Apply &rarr;</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -351,7 +351,7 @@
         <div id="job-list">
             <div class="empty-state">
                 <h3>No jobs loaded yet</h3>
-                <p>Jobs will appear here once they are processed by the automated backend scraper.</p>
+                <p>Jobs will appear here once they are processed by the automated backend engine.</p>
             </div>
         </div>
     </div>
@@ -633,7 +633,7 @@
                 dot.style.background = 'var(--primary)';
                 dot.style.boxShadow = '0 0 10px var(--primary)';
                 dot.style.animation = 'pulse 1.5s infinite';
-                title.textContent = '🤖 Scraper Active';
+                title.textContent = '🤖 Agent Active';
                 title.style.color = '#000000';
                 text.textContent = 'Sourcing matching jobs into your dashboard. Feel free to leave this page; the scan runs in the cloud.';
             } else {
@@ -784,14 +784,10 @@
                 const button = banner.querySelector('button');
                 if (button) {
                     if (userProfile.Application_email) {
-                        banner.style.background = 'rgba(16, 185, 129, 0.04)';
-                        banner.style.borderColor = 'rgba(16, 185, 129, 0.2)';
                         button.textContent = '✓ Auto-Apply Enabled';
                         button.style.background = '#10B981';
                         button.style.color = '#ffffff';
                     } else {
-                        banner.style.background = 'rgba(245, 158, 11, 0.04)';
-                        banner.style.borderColor = 'rgba(245, 158, 11, 0.2)';
                         button.innerHTML = 'Enable Auto-Apply &rarr;';
                         button.style.background = 'var(--primary)';
                         button.style.color = '#000000';
@@ -838,7 +834,7 @@
                             <p>Analyzing LinkedIn listings against your resume in the cloud. This takes 2-3 minutes.</p>
                         </div>`;
                 } else {
-                    container.innerHTML = `<div class="empty-state"><h3>No jobs found</h3><p>Jobs will appear here once they are processed by the automated backend scraper.</p></div>`;
+                    container.innerHTML = `<div class="empty-state"><h3>No jobs found</h3><p>Jobs will appear here once they are processed by the automated backend engine.</p></div>`;
                 }
                 return;
             }
@@ -977,7 +973,7 @@
             }
 
             searchBtn.disabled = true;
-            searchBtn.textContent = 'Triggering Scrape...';
+            searchBtn.textContent = 'Initializing Search...';
 
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return;
