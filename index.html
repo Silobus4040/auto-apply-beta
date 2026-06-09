@@ -129,6 +129,13 @@
         .mockup-table-container { width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: 12px; }
         .mockup-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem; min-width: 800px; }
         .mockup-table th { background: rgba(0, 255, 204, 0.08); color: #004d3d; font-weight: 850; font-size: 0.75rem; text-transform: uppercase; padding: 1.25rem 1.5rem; border-bottom: 2px solid rgba(0, 255, 204, 0.2); letter-spacing: 0.75px; white-space: nowrap; }
+        .mockup-table th:nth-child(1) { width: 15%; }
+        .mockup-table th:nth-child(2) { width: 12%; }
+        .mockup-table th:nth-child(3) { width: 14%; }
+        .mockup-table th:nth-child(4) { width: 20%; }
+        .mockup-table th:nth-child(5) { width: 15%; }
+        .mockup-table th:nth-child(6) { width: 13%; }
+        .mockup-table th:nth-child(7) { width: 11%; }
         .mockup-table td { padding: 1.35rem 1.5rem; border-bottom: 1px solid #e4e4e7; vertical-align: middle; }
         .mockup-table tbody tr:nth-child(even) td { background: #fafafa; }
         .mockup-table tr:hover td { background: rgba(0, 255, 204, 0.06); }
@@ -414,13 +421,13 @@
                 <table class="mockup-table">
                     <thead>
                         <tr>
-                            <th style="width: 15%;">Company</th>
-                            <th style="width: 12%;">Location</th>
-                            <th style="width: 14%;">Employment Type</th>
-                            <th style="width: 20%;">Role</th>
-                            <th style="width: 10%;">Posted</th>
-                            <th style="width: 18%;">Documents</th>
-                            <th style="width: 11%;">Status</th>
+                            <th>Company</th>
+                            <th>Location</th>
+                            <th>Employment Type</th>
+                            <th>Role</th>
+                            <th>Application Details</th>
+                            <th>Tailored Resume</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -440,13 +447,14 @@
                                 <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Senior Software Engineer</div>
                                 <span class="mockup-salary">$190,000 - $250,000</span>
                             </td>
-                            <td style="font-weight: 600; color: #52525B;">Just now</td>
                             <td>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                                    <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">Tailored Resume</button>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <div style="font-weight: 600; color: #52525B;">Just now</div>
                                     <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                    <button class="mockup-btn mockup-btn-sm" style="background: rgba(0, 0, 0, 0.02); color: #52525B; font-weight: 700;">View Answers</button>
                                 </div>
+                            </td>
+                            <td>
+                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
                             </td>
                             <td>
                                 <span class="mockup-pill applied" style="background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15);">✅ Applied</span>
@@ -468,13 +476,14 @@
                                 <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Full Stack Engineer</div>
                                 <span class="mockup-salary">$160,000 - $210,000</span>
                             </td>
-                            <td style="font-weight: 600; color: #52525B;">2 hours ago</td>
                             <td>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                                    <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">Tailored Resume</button>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <div style="font-weight: 600; color: #52525B;">2 hours ago</div>
                                     <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                    <button class="mockup-btn mockup-btn-sm" style="background: rgba(0, 0, 0, 0.02); color: #52525B; font-weight: 700;">View Answers</button>
                                 </div>
+                            </td>
+                            <td>
+                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
                             </td>
                             <td>
                                 <span class="mockup-pill applied" style="background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15);">✅ Applied</span>
@@ -496,13 +505,14 @@
                                 <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Senior Frontend Architect</div>
                                 <span class="mockup-salary">$220,000 - $310,000</span>
                             </td>
-                            <td style="font-weight: 600; color: #52525B;">5 hours ago</td>
                             <td>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                                    <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">Tailored Resume</button>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <div style="font-weight: 600; color: #52525B;">5 hours ago</div>
                                     <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                    <button class="mockup-btn mockup-btn-sm" style="background: rgba(0, 0, 0, 0.02); color: #52525B; font-weight: 700;">View Answers</button>
                                 </div>
+                            </td>
+                            <td>
+                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
                             </td>
                             <td>
                                 <span class="mockup-pill queued">⏳ In Queue</span>
@@ -524,13 +534,14 @@
                                 <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Staff Product Engineer</div>
                                 <span class="mockup-salary">$200,000 - $260,000</span>
                             </td>
-                            <td style="font-weight: 600; color: #52525B;">Yesterday</td>
                             <td>
-                                <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                                    <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">Tailored Resume</button>
+                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                    <div style="font-weight: 600; color: #52525B;">Yesterday</div>
                                     <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                    <button class="mockup-btn mockup-btn-sm" style="background: rgba(0, 0, 0, 0.02); color: #52525B; font-weight: 700;">View Answers</button>
                                 </div>
+                            </td>
+                            <td>
+                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
                             </td>
                             <td>
                                 <span class="mockup-pill queued">⏳ In Queue</span>

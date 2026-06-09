@@ -110,8 +110,8 @@
         .jobs-table th:nth-child(2) { width: 12%; }
         .jobs-table th:nth-child(3) { width: 14%; }
         .jobs-table th:nth-child(4) { width: 20%; }
-        .jobs-table th:nth-child(5) { width: 10%; }
-        .jobs-table th:nth-child(6) { width: 18%; }
+        .jobs-table th:nth-child(5) { width: 15%; }
+        .jobs-table th:nth-child(6) { width: 13%; }
         .jobs-table th:nth-child(7) { width: 11%; }
         .jobs-table td {
             padding: 1.35rem 1.5rem;
@@ -396,16 +396,6 @@
             <h3 style="color: #000000; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 850;">✅ Jobs Added to Extraction Queue</h3>
             <p style="color: var(--text-body); max-width: 500px; margin: 0 auto 2rem; font-size: 0.95rem; line-height: 1.6;">We're upgrading backend capabilities. Processing paused temporarily—you'll be notified via email upon resumption.</p>
             <button onclick="closeModal('queue-modal')" style="margin: 0 auto; display: block; max-width: 200px; width: 100%; border-radius: 6px; padding: 0.75rem; border: none; background: var(--primary); color: #000000; font-weight: 750; cursor: pointer; transition: background 0.2s;">Close</button>
-        </div>
-    </div>
-
-    <!-- Submitted Answers Modal -->
-    <div class="modal-overlay" id="answers-modal">
-        <div class="desc-modal">
-            <button class="close-modal" onclick="closeModal('answers-modal')">&times;</button>
-            <h2 id="answers-modal-title">Submitted Q&A Log</h2>
-            <div class="modal-company" id="answers-modal-company">Tailored for Company Name</div>
-            <div class="full-text" id="answers-modal-text">Loading...</div>
         </div>
     </div>
 
@@ -835,8 +825,8 @@
                                 <th>Location</th>
                                 <th>Employment Type</th>
                                 <th>Role</th>
-                                <th>Posted</th>
-                                <th>Documents</th>
+                                <th>Application Details</th>
+                                <th>Tailored Resume</th>
                                 <th>Status</th>
                             </tr>
                         </thead>
@@ -853,9 +843,8 @@
                 
                 // Get job posting link
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
-                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066;">Application Link</a>` : '';
-                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openResume(${index})">Tailored Resume</button>` : '';
-                const answersButton = `<button class="table-btn table-btn-sm" onclick="openAnswers(${index})" style="background: rgba(0, 0, 0, 0.02); color: #52525B;">View Answers</button>`;
+                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; margin-top: 0.25rem; width: fit-content;">Application Link</a>` : '';
+                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openResume(${index})">View Resume</button>` : '';
 
                 html += `
                     <tr>
@@ -877,14 +866,13 @@
                             ${salaryLabel}
                         </td>
                         <td>
-                            <div style="font-weight: 600; color: var(--text-body);">${job.postedAt}</div>
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                <div style="font-weight: 600; color: var(--text-body);">${job.postedAt}</div>
+                                ${jobLinkButton}
+                            </div>
                         </td>
                         <td>
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                                ${resumeButton}
-                                ${jobLinkButton}
-                                ${answersButton}
-                            </div>
+                            ${resumeButton}
                         </td>
                         <td>
                             <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
@@ -907,40 +895,6 @@
             document.getElementById('modal-company').innerText = job.companyName;
             document.getElementById('modal-text').innerText = job.descriptionText || 'No description provided.';
             document.getElementById('desc-modal').classList.add('active');
-        }
-
-        function openAnswers(index) {
-            const job = currentJobs[index];
-            const modal = document.getElementById('answers-modal');
-            if (!modal) return;
-            
-            document.getElementById('answers-modal-title').textContent = "Submitted Q&A Log";
-            document.getElementById('answers-modal-company').textContent = `${job.companyName} — ${job.title}`;
-            
-            const answersList = [
-                { q: "Full Name", a: "John Doe" },
-                { q: "Email Address", a: "john.doe.jobs@gmail.com" },
-                { q: "Phone Number", a: "+1 (555) 019-2834" },
-                { q: "Do you require visa sponsorship?", a: "No" },
-                { q: "Are you authorized to work in the country of the job?", a: "Yes" },
-                { q: "Desired Compensation", a: job.salary_range ? `Within the range of ${job.salary_range}` : "$140,000 / year" },
-                { q: "Workplace Preference", a: job.workplaceType || "Remote" },
-                { q: "Why are you a good fit for this role?", a: `Given my background as a ${job.title}, I bring deep experience in ${job.jobFunction || 'software systems'} and aligning with ${job.companyName}'s engineering culture.` }
-            ];
-            
-            let html = `<div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem; text-align: left;">`;
-            answersList.forEach(item => {
-                html += `
-                    <div style="border-bottom: 1px solid #f4f4f5; padding-bottom: 0.75rem;">
-                        <div style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #71717A; margin-bottom: 0.2rem;">${item.q}</div>
-                        <div style="font-size: 0.9rem; color: #000000; font-weight: 550; line-height: 1.4;">${item.a}</div>
-                    </div>
-                `;
-            });
-            html += `</div>`;
-            
-            document.getElementById('answers-modal-text').innerHTML = html;
-            modal.classList.add('active');
         }
 
         async function openResume(index) {
