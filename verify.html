@@ -6,38 +6,51 @@
     <title>AutoApply AI | Verify Email</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+    <style>
         :root {
-            --bg-color: #0a0a0a;
-            --surface-color: #121212;
-            --primary: #D4FF33;
-            --primary-hover: #bde62b;
+            --bg-color: #ffffff;
+            --surface-color: #ffffff;
+            --primary: #00FFCC;
+            --primary-hover: #00e6b8;
             --secondary: #FF6B4A;
-            --text-heading: #FFFFFF;
-            --text-body: #A1A1AA;
-            --border: #27272A;
-            --brutal-shadow: 4px 4px 0px #D4FF33;
-            --brutal-shadow-hover: 6px 6px 0px #FF6B4A;
+            --text-heading: #000000;
+            --text-body: #27272A;
+            --border: #e4e4e7;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; display: flex; flex-direction: column; position: relative; overflow-x: hidden; }
 
+        /* Soft background glows */
         body::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.3;
+            content: '';
+            position: absolute;
+            top: -10%; left: -10%;
+            width: 50vw; height: 50vw;
+            background: radial-gradient(circle, rgba(212,255,51,0.08) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+        body::after {
+            content: '';
+            position: absolute;
+            bottom: -10%; right: -10%;
+            width: 40vw; height: 40vw;
+            background: radial-gradient(circle, rgba(0,255,204,0.08) 0%, transparent 70%);
+            z-index: -1;
+            pointer-events: none;
         }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 2rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid var(--border); width: 100%; }
-        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; }
-        .logo span { color: var(--primary); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid rgba(0,0,0,0.06); width: 100%; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
+        .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
 
-        .container { max-width: 520px; margin: 4rem auto; padding: 0 5%; flex: 1; }
+        .container { max-width: 520px; margin: 4rem auto; padding: 0 5%; flex: 1; position: relative; z-index: 1; }
         .header { text-align: center; margin-bottom: 2.5rem; }
         .header h1 { color: var(--text-heading); font-size: 2.2rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -1px; }
-        .header p { color: var(--text-body); font-size: 1rem; }
-        .header .email-highlight { color: var(--primary); font-weight: 700; }
+        .header p { color: #52525B; font-size: 1rem; font-weight: 500; }
+        .header .email-highlight { color: #FF6B4A; font-weight: 700; }
 
-        .card { background: var(--surface-color); border: 2px solid var(--border); padding: 2.5rem; box-shadow: 8px 8px 0px rgba(255,255,255,0.05); }
+        .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); }
 
         /* Lock icon animation */
         .lock-icon { font-size: 3rem; margin-bottom: 1rem; display: block; text-align: center; animation: pulse 2s ease-in-out infinite; }
@@ -47,30 +60,29 @@
         .otp-container { display: flex; gap: 0.75rem; justify-content: center; margin: 2rem 0; }
         .otp-input {
             width: 48px; height: 62px;
-            background: #000;
-            border: 2px solid var(--border);
-            border-radius: 0;
-            color: var(--primary);
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            color: #000000;
             font-size: 1.6rem;
             font-weight: 900;
             text-align: center;
-            caret-color: var(--primary);
+            caret-color: var(--secondary);
             transition: all 0.2s;
         }
         .otp-input:focus {
             outline: none;
-            border-color: var(--primary);
-            box-shadow: 4px 4px 0px var(--primary);
-            transform: translate(-2px, -2px);
+            border-color: #00FFCC;
+            box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15);
         }
         .otp-input.filled {
-            border-color: var(--primary);
-            background: rgba(212, 255, 51, 0.05);
+            border-color: #00FFCC;
+            background: rgba(0, 255, 204, 0.05);
         }
         .otp-input.error-shake {
             animation: shake 0.4s ease;
             border-color: #EF4444 !important;
-            box-shadow: 4px 4px 0px #EF4444 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
         }
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
@@ -79,24 +91,32 @@
             75% { transform: translateX(-4px); }
         }
 
-        .btn { padding: 1.2rem 2rem; font-size: 1.1rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.2s ease; border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; }
-        .btn-primary { background: var(--primary); color: #000; border: 2px solid #000; box-shadow: var(--brutal-shadow); }
-        .btn-primary:hover { transform: translate(-2px, -2px); box-shadow: var(--brutal-shadow-hover); background: var(--primary-hover); }
+        .btn { padding: 1.1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Modern Liquid Motion Button */
+        @keyframes liquid-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .btn-primary { background: linear-gradient(135deg, #D4FF33, #00FFCC, #D4FF33); background-size: 200% auto; animation: liquid-gradient 3s linear infinite; color: #000000; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(212, 255, 51, 0.35); position: relative; }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.55); }
+        .btn-primary:active { transform: translateY(-1px) scale(0.99); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
-        .error-msg { background: rgba(239,68,68,0.1); border: 2px solid #EF4444; color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; text-align: center; }
-        .success-msg { background: rgba(212,255,51,0.1); border: 2px solid var(--primary); color: var(--primary); padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; text-align: center; }
+        .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; text-align: center; border-radius: 12px; }
+        .success-msg { background: rgba(0,255,204,0.08); border: 1px solid rgba(0,255,204,0.2); color: #00e6b8; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; text-align: center; border-radius: 12px; }
 
-        .resend-section { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
-        .resend-btn { background: none; border: none; color: var(--primary); cursor: pointer; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; text-decoration: underline; transition: color 0.2s; }
-        .resend-btn:hover { color: white; }
+        .resend-section { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; font-weight: 500; }
+        .resend-btn { background: none; border: none; color: #FF6B4A; cursor: pointer; font-weight: 700; font-size: 0.9rem; text-transform: uppercase; text-decoration: underline; transition: color 0.2s; }
+        .resend-btn:hover { color: #cc5234; }
         .resend-btn:disabled { color: var(--text-body); cursor: not-allowed; text-decoration: none; }
 
         .timer { color: var(--secondary); font-weight: 800; font-size: 1rem; }
 
-        .back-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; }
-        .back-link a { color: var(--text-body); text-decoration: none; font-weight: 600; }
-        .back-link a:hover { color: white; }
+        .back-link { text-align: center; margin-top: 1.5rem; font-size: 0.9rem; font-weight: 500; }
+        .back-link a { color: #52525B; text-decoration: none; font-weight: 700; text-transform: uppercase; }
+        .back-link a:hover { text-decoration: underline; }
 
         /* Progress dots */
         .progress { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; }
