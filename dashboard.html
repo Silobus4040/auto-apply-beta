@@ -888,10 +888,10 @@
                             ${salaryLabel}
                         </td>
                         <td>
-                            <div style="display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start;">
-                                ${job.postedAt ? `<div><span style="font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.5px; color: #71717A; font-weight: 700; display: block; margin-bottom: 0.1rem;">Posted On</span><span style="font-weight: 600; color: var(--text-body); font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
-                                <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
+                                ${job.postedAt ? `<div style="line-height: 1.3;"><span style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: #A1A1AA; font-weight: 700; display: block;">Posted On</span><span style="font-weight: 600; color: var(--text-body); font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
                                 ${jobLinkButton}
+                                <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                             </div>
                         </td>
                         <td>
