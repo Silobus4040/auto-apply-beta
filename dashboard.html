@@ -306,9 +306,6 @@
         <div class="search-section" style="padding: 2.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
             <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
                 <div style="flex: 1; min-width: 300px;">
-                    <h2 style="color: #000000; font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase;">⚡ AI Agent Active</h2>
-                    <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem;">The AI workflow automatically sources and queues matching jobs based on your onboarding preferences.</p>
-                    
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
                         <div>
                             <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #52525B; display: block; margin-bottom: 0.2rem;">Target Roles</span>
@@ -326,10 +323,10 @@
                 </div>
                 
                 <!-- Scanning Status Card -->
-                <div id="scanning-indicator" style="background: rgba(212, 255, 51, 0.03); border: 1px dashed var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
-                    <div id="scanning-dot" class="pulsing-dot" style="width: 12px; height: 12px; background: var(--primary); border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px var(--primary); animation: pulse 1.5s infinite;"></div>
-                    <h4 id="scanning-title" style="color: #000000; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 850;">🤖 Scraper Active</h4>
-                    <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Sourcing matching jobs into your dashboard. Feel free to leave this page; the scan runs in the cloud.</p>
+                <div id="scanning-indicator" style="background: rgba(0, 0, 0, 0.015); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
+                    <div id="scanning-dot" style="width: 12px; height: 12px; background: #10B981; border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px #10B981;"></div>
+                    <h4 id="scanning-title" style="color: #047857; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 850;">🟢 Monitoring</h4>
+                    <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Your AI Job Agent is active and checks for new listings twice daily.</p>
                 </div>
             </div>
         </div>
@@ -647,7 +644,7 @@
                 dot.style.animation = 'none';
                 title.textContent = '🟢 Monitoring';
                 title.style.color = '#047857';
-                text.textContent = 'Our job agent is active and checking for new listings on your cron schedule.';
+                text.textContent = 'Your AI Job Agent is active and checks for new listings twice daily.';
             }
         }
 
@@ -784,6 +781,22 @@
             
             if (currentJobs.length > 0) {
                 banner.style.display = 'flex';
+                const button = banner.querySelector('button');
+                if (button) {
+                    if (userProfile.Application_email) {
+                        banner.style.background = 'rgba(16, 185, 129, 0.04)';
+                        banner.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                        button.textContent = '✓ Auto-Apply Enabled';
+                        button.style.background = '#10B981';
+                        button.style.color = '#ffffff';
+                    } else {
+                        banner.style.background = 'rgba(245, 158, 11, 0.04)';
+                        banner.style.borderColor = 'rgba(245, 158, 11, 0.2)';
+                        button.innerHTML = 'Enable Auto-Apply &rarr;';
+                        button.style.background = 'var(--primary)';
+                        button.style.color = '#000000';
+                    }
+                }
             } else {
                 banner.style.display = 'none';
             }
