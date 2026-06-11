@@ -799,7 +799,12 @@
         }
 
         function updateStats(jobs) {
-            document.getElementById('stats-bar').style.display = 'flex';
+            const bar = document.getElementById('stats-bar');
+            if (!jobs || jobs.length === 0) {
+                bar.style.display = 'none';
+                return;
+            }
+            bar.style.display = 'flex';
             document.getElementById('stat-total').textContent = jobs.length;
             document.getElementById('stat-queued').textContent = jobs.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
             document.getElementById('stat-applied').textContent = jobs.filter(j => j.status === 'applied').length;
@@ -828,13 +833,13 @@
             if (!jobs.length) {
                 if (isScanning) {
                     container.innerHTML = `
-                        <div class="empty-state" style="padding: 6rem 2rem;">
-                            <div class="spinner"></div>
-                            <h3>AI Agent is Sourcing Jobs</h3>
-                            <p>Analyzing LinkedIn listings against your resume in the cloud. This takes 2-3 minutes.</p>
+                        <div class="empty-state" style="padding: 2.5rem 1.5rem;">
+                            <div class="spinner" style="margin-bottom: 1rem;"></div>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.35rem;">AI Agent is Sourcing Jobs</h3>
+                            <p style="font-size: 0.88rem; color: var(--text-body);">Analyzing LinkedIn listings against your resume in the cloud. This takes 2-3 minutes.</p>
                         </div>`;
                 } else {
-                    container.innerHTML = `<div class="empty-state"><h3>No jobs found</h3><p>Jobs will appear here once they are processed by the automated backend engine.</p></div>`;
+                    container.innerHTML = `<div class="empty-state" style="padding: 2.5rem 1.5rem;"><h3>No jobs found</h3><p>Jobs will appear here once they are processed by the automated backend engine.</p></div>`;
                 }
                 return;
             }

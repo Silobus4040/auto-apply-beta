@@ -60,7 +60,7 @@
 
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; color: #52525B; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input[type="text"], .form-group input[type="number"], .form-group input[type="url"], .form-group select { width: 100%; padding: 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem; transition: all 0.2s; -webkit-appearance: none; appearance: none; }
+        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="url"], .form-group select { width: 100%; padding: 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem; transition: all 0.2s; -webkit-appearance: none; appearance: none; }
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #00FFCC; }
@@ -146,6 +146,9 @@
                                     <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                         <input type="checkbox" name="country" value="Canada" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Canada
                                     </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="Nigeria" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Nigeria
+                                    </label>
                                 </div>
                             </div>
 
@@ -180,6 +183,37 @@
                         <div class="card-title"><div class="num">2</div> ATS Logistics</div>
                         
                         <div class="row-grid">
+                            <div class="form-group">
+                                <label>First Name</label>
+                                <input type="text" id="first-name" required placeholder="John">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" id="last-name" required placeholder="Doe">
+                            </div>
+                        </div>
+
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>City</label>
+                                <input type="text" id="city" required placeholder="New York">
+                            </div>
+                            <div class="form-group">
+                                <label>State</label>
+                                <input type="text" id="state" required placeholder="NY">
+                            </div>
+                        </div>
+
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>Dedicated Job-Search Email</label>
+                                <input type="email" id="dedicated-email" required placeholder="yourname.jobs@gmail.com">
+                            </div>
+                            <div class="form-group">
+                                <label>Account Password / App Password</label>
+                                <input type="password" id="dedicated-password" required placeholder="Enter password">
+                            </div>
+                        </div>
                             <div class="form-group">
                                 <label>Phone Number</label>
                                 <div style="display: flex; gap: 0.5rem;">
@@ -319,15 +353,43 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentUserId = null;
+        let currentUserEmail = null;
 
         // Auth Guard
         (async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
             currentUserId = session.user.id;
+            currentUserEmail = session.user.email;
             
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete) { window.location.href = 'dashboard.html'; return; }
+
+            // Prepopulate from session user metadata if empty in local storage
+            const fullName = session.user.user_metadata?.full_name || '';
+            if (fullName) {
+                const parts = fullName.split(' ');
+                if (!localStorage.getItem('onb_first-name') && document.getElementById('first-name')) {
+                    document.getElementById('first-name').value = parts[0] || '';
+                }
+                if (!localStorage.getItem('onb_last-name') && document.getElementById('last-name')) {
+                    document.getElementById('last-name').value = parts.slice(1).join(' ') || '';
+                }
+            }
+            if (profile) {
+                if (profile.first_name && !localStorage.getItem('onb_first-name') && document.getElementById('first-name')) {
+                    document.getElementById('first-name').value = profile.first_name;
+                }
+                if (profile.last_name && !localStorage.getItem('onb_last-name') && document.getElementById('last-name')) {
+                    document.getElementById('last-name').value = profile.last_name;
+                }
+                if (profile.city && !localStorage.getItem('onb_city') && document.getElementById('city')) {
+                    document.getElementById('city').value = profile.city;
+                }
+                if (profile.state && !localStorage.getItem('onb_state') && document.getElementById('state')) {
+                    document.getElementById('state').value = profile.state;
+                }
+            }
         })();
 
         // Dynamic Job Titles Logic
@@ -397,7 +459,7 @@
         });
 
         // Auto-Save Form State
-        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="number"], #onboarding-form select');
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form select');
         formInputs.forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem('onb_' + input.id);
@@ -449,9 +511,15 @@
             const authWork = document.getElementById('auth-work').value;
             const sponsorship = document.getElementById('sponsorship').value;
             const salary = document.getElementById('salary').value.trim();
+            const firstName = document.getElementById('first-name').value.trim();
+            const lastName = document.getElementById('last-name').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const state = document.getElementById('state').value.trim();
+            const dedicatedEmail = document.getElementById('dedicated-email').value.trim();
+            const dedicatedPassword = document.getElementById('dedicated-password').value.trim();
 
-            if (!phoneRaw || !linkedin || !salary) {
-                errorMsg.textContent = "Please fill out all contact and logistics fields.";
+            if (!phoneRaw || !linkedin || !salary || !firstName || !lastName || !city || !state || !dedicatedEmail || !dedicatedPassword) {
+                errorMsg.textContent = "Please fill out all contact, logistics, and account fields.";
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -471,6 +539,13 @@
                     target_job_titles: Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
                     target_location: Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value).join(', '),
                     workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
+                    first_name: firstName,
+                    last_name: lastName,
+                    city: city,
+                    state: state,
+                    Application_email: dedicatedEmail,
+                    email: currentUserEmail,
+                    Application_Password: dedicatedPassword,
                     phone: phone,
                     linkedin_url: linkedin,
                     website_url: portfolio,

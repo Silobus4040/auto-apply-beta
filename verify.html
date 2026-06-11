@@ -276,6 +276,22 @@
                 // Update progress dots
                 document.querySelectorAll('.progress-dot').forEach(d => { d.classList.add('done'); d.classList.remove('active'); });
 
+                // Pre-populate profiles table with signup email and names
+                const user = data.user;
+                const fullName = user.user_metadata?.full_name || '';
+                const parts = fullName.split(' ');
+                const firstName = parts[0] || '';
+                const lastName = parts.slice(1).join(' ') || '';
+
+                await supabaseClient
+                    .from('profiles')
+                    .update({ 
+                        email: pendingEmail,
+                        first_name: firstName,
+                        last_name: lastName
+                    })
+                    .eq('id', user.id);
+
                 // Clean up
                 sessionStorage.removeItem('pending_verification_email');
 
