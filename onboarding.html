@@ -204,16 +204,7 @@
                             </div>
                         </div>
 
-                        <div class="row-grid">
-                            <div class="form-group">
-                                <label>Dedicated Job-Search Email</label>
-                                <input type="email" id="dedicated-email" required placeholder="yourname.jobs@gmail.com">
-                            </div>
-                            <div class="form-group">
-                                <label>Account Password / App Password</label>
-                                <input type="password" id="dedicated-password" required placeholder="Enter password">
-                            </div>
-                        </div>
+
                             <div class="form-group">
                                 <label>Phone Number</label>
                                 <div style="display: flex; gap: 0.5rem;">
@@ -515,11 +506,9 @@
             const lastName = document.getElementById('last-name').value.trim();
             const city = document.getElementById('city').value.trim();
             const state = document.getElementById('state').value.trim();
-            const dedicatedEmail = document.getElementById('dedicated-email').value.trim();
-            const dedicatedPassword = document.getElementById('dedicated-password').value.trim();
 
-            if (!phoneRaw || !linkedin || !salary || !firstName || !lastName || !city || !state || !dedicatedEmail || !dedicatedPassword) {
-                errorMsg.textContent = "Please fill out all contact, logistics, and account fields.";
+            if (!phoneRaw || !linkedin || !salary || !firstName || !lastName || !city || !state) {
+                errorMsg.textContent = "Please fill out all contact and logistics fields.";
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -543,9 +532,7 @@
                     last_name: lastName,
                     city: city,
                     state: state,
-                    Application_email: dedicatedEmail,
                     email: currentUserEmail,
-                    Application_Password: dedicatedPassword,
                     phone: phone,
                     linkedin_url: linkedin,
                     website_url: portfolio,
