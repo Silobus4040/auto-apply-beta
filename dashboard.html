@@ -299,9 +299,11 @@
     <div class="container">
         <!-- Automation Profile & Active Status -->
         <div class="search-section" style="padding: 1.25rem 1.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1.5rem;">
                 <div style="flex: 1; min-width: 300px;">
-                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin-bottom: 0.75rem; letter-spacing: 0.5px;">Target Criteria</h3>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin: 0; letter-spacing: 0.5px;">Target Criteria</h3>
+                        <a href="onboarding.html?edit=true" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit Settings</a>
+                    </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
                         <div>
                             <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Roles</span>
@@ -765,6 +767,7 @@
                     jobFunction: dbJob.jobFunction || '',
                     industries: dbJob.industries || '',
                     resumeUrl: dbJob.resume_url || '',
+                    coverLetterUrl: dbJob.cover_letter_url || '',
                     salary_range: dbJob.salary_range || '',
                     workplaceType: dbJob.workplaceType || ''
                 };
@@ -839,7 +842,16 @@
                             <p style="font-size: 0.88rem; color: var(--text-body);">Analyzing LinkedIn listings against your resume in the cloud. This takes 2-3 minutes.</p>
                         </div>`;
                 } else {
-                    container.innerHTML = `<div class="empty-state" style="padding: 2.5rem 1.5rem;"><h3>No jobs found</h3><p>Jobs will appear here once they are processed by the automated backend engine.</p></div>`;
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                            <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
+                            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">No Matching Jobs Found Yet</h3>
+                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.65; font-weight: 500;">
+                                We completed the live scan, but found no active listings matching your criteria. 
+                                Regional job volume depends on employer postings (e.g., specialized roles in countries like Nigeria naturally yield fewer active postings than high-density US markets).
+                            </p>
+                            <a href="onboarding.html?edit=true" class="table-btn" style="font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 3px 3px 0px var(--border); border-radius: 50px;">⚙ Adjust Target Settings</a>
+                        </div>`;
                 }
                 return;
             }
@@ -854,7 +866,7 @@
                                 <th>Employment Type</th>
                                 <th>Role</th>
                                 <th>Application Details</th>
-                                <th>Tailored Resume</th>
+                                <th>RESUME & COVER LETTER</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -871,7 +883,8 @@
                 // Get job posting link
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; margin-top: 0.25rem; width: fit-content;">Application Link</a>` : '';
-                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openResume(${index})">View Resume</button>` : '';
+                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">View Custom Resume</button>` : '';
+                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">View Custom Cover Letter</button>` : '';
 
                 html += `
                     <tr>
@@ -900,7 +913,10 @@
                             </div>
                         </td>
                         <td>
-                            ${resumeButton}
+                            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                ${resumeButton}
+                                ${coverLetterButton}
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -922,9 +938,15 @@
             document.getElementById('desc-modal').classList.add('active');
         }
 
-        async function openResume(index) {
+        async function openDocument(index, type) {
             const job = currentJobs[index];
-            document.getElementById('resume-modal-title').innerText = `Resume for ${job.title}`;
+            
+            if (type === 'coverLetter') {
+                document.getElementById('resume-modal-title').innerText = `Cover Letter for ${job.title}`;
+            } else {
+                document.getElementById('resume-modal-title').innerText = `Resume for ${job.title}`;
+            }
+            
             document.getElementById('resume-modal-company').innerText = job.companyName;
 
             // Revoke previous blob URL if exists
@@ -940,15 +962,17 @@
 
             try {
                 // Fetch the PDF as a blob to avoid exposing the raw Supabase URL in the address bar / network inspection where possible
-                const response = await fetch(job.resumeUrl);
+                const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
+                const response = await fetch(docUrl);
                 if (!response.ok) throw new Error('Fetch failed');
                 const blob = await response.blob();
                 currentResumeObjectUrl = URL.createObjectURL(blob);
                 iframe.src = currentResumeObjectUrl;
             } catch (error) {
-                console.error('Error fetching resume blob, falling back to direct URL:', error);
+                console.error('Error fetching document blob, falling back to direct URL:', error);
                 // Fallback to direct URL if there's any CORS or fetch issue
-                iframe.src = job.resumeUrl;
+                const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
+                iframe.src = docUrl;
             }
         }
 
