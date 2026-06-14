@@ -126,7 +126,7 @@
                             <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
                             
                             <div class="form-group">
-                                <label>Target Job Titles</label>
+                                <label>Target Job Titles <span style="color: #FF6B4A;">*</span></label>
                                 <div id="job-titles-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
                                     <input type="text" class="job-title-input" placeholder="e.g. Frontend Engineer">
                                 </div>
@@ -135,7 +135,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label style="margin-bottom: 0.8rem;">Target Countries (Select all that apply)</label>
+                                <label style="margin-bottom: 0.8rem;">Target Countries (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
                                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                                     <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                         <input type="checkbox" name="country" value="United States" style="width: 16px; height: 16px; margin: 0; padding: 0;"> United States
@@ -153,7 +153,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply)</label>
+                                <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
                                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                                     <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                         <input type="checkbox" name="workplace" value="Remote" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote
@@ -167,8 +167,9 @@
                                 </div>
                             </div>
                         <div class="form-group">
-                            <label>Upload Current Resume (PDF)</label>
+                            <label>Upload Current Resume (PDF) <span style="color: #FF6B4A;">*</span></label>
                             <input type="file" id="resume-file" accept=".pdf">
+                            <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #00FFCC; font-weight: 600; display: none;"></p>
                         </div>
                         
                         <button type="button" class="btn btn-primary" id="btn-next" style="margin-top: 2rem;">
@@ -184,40 +185,40 @@
                         
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>First Name</label>
+                                <label>First Name <span style="color: #FF6B4A;">*</span></label>
                                 <input type="text" id="first-name" required placeholder="John">
                             </div>
                             <div class="form-group">
                                 <label>Last Name</label>
-                                <input type="text" id="last-name" required placeholder="Doe">
+                                <input type="text" id="last-name" placeholder="Doe">
                             </div>
                         </div>
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>City</label>
+                                <label>City <span style="color: #FF6B4A;">*</span></label>
                                 <input type="text" id="city" required placeholder="New York">
                             </div>
                             <div class="form-group">
-                                <label>State</label>
+                                <label>State <span style="color: #FF6B4A;">*</span></label>
                                 <input type="text" id="state" required placeholder="NY">
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label>Country</label>
+                            <label>Country <span style="color: #FF6B4A;">*</span></label>
                             <input type="text" id="country" required placeholder="United States">
                         </div>
 
 
                             <div class="form-group">
-                                <label>Phone Number</label>
+                                <label>Phone Number <span style="color: #FF6B4A;">*</span></label>
                                 <div style="display: flex; gap: 0.5rem;">
                                     <div style="position: relative; flex-shrink: 0; width: 85px;">
                                         <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">+</span>
-                                        <input type="text" id="phone-code" placeholder="1" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                        <input type="tel" id="phone-code" autocomplete="tel-country-code" required placeholder="1" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                     </div>
-                                    <input type="text" id="phone" placeholder="(555) 000-0000" style="flex-grow: 1;">
+                                    <input type="tel" id="phone" autocomplete="tel-national" required placeholder="(555) 000-0000" style="flex-grow: 1;">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -358,8 +359,17 @@
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
             
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country').eq('id', currentUserId).single();
-            if (profile && profile.onboarding_complete) { window.location.href = 'dashboard.html'; return; }
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, target_job_titles, target_location, workplace_type, resume_url').eq('id', currentUserId).single();
+            if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
+
+            if (profile && profile.resume_url) {
+                localStorage.setItem('onb_resume_url', profile.resume_url);
+                const resumeStatus = document.getElementById('resume-status');
+                if (resumeStatus) {
+                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View PDF</a>`;
+                    resumeStatus.style.display = 'block';
+                }
+            }
 
             // Prepopulate from session user metadata if empty in local storage
             const fullName = session.user.user_metadata?.full_name || '';
@@ -387,6 +397,41 @@
                 }
                 if (profile.country && !localStorage.getItem('onb_country') && document.getElementById('country')) {
                     document.getElementById('country').value = profile.country;
+                }
+                
+                // Prepopulate target job titles
+                if (profile.target_job_titles && !localStorage.getItem('onb_job-titles')) {
+                    const titles = profile.target_job_titles.split(', ');
+                    const container = document.getElementById('job-titles-container');
+                    if (container) {
+                        container.innerHTML = '';
+                        titles.forEach(title => {
+                            const input = document.createElement('input');
+                            input.type = 'text';
+                            input.className = 'job-title-input';
+                            input.value = title;
+                            input.placeholder = 'e.g. Frontend Engineer';
+                            container.appendChild(input);
+                        });
+                    }
+                }
+                
+                // Prepopulate target locations
+                if (profile.target_location) {
+                    const countries = profile.target_location.split(', ');
+                    countries.forEach(c => {
+                        const cb = document.querySelector(`input[name="country"][value="${c}"]`);
+                        if (cb) cb.checked = true;
+                    });
+                }
+                
+                // Prepopulate workplace types
+                if (profile.workplace_type) {
+                    const types = profile.workplace_type.split(', ');
+                    types.forEach(t => {
+                        const cb = document.querySelector(`input[name="workplace"][value="${t}"]`);
+                        if (cb) cb.checked = true;
+                    });
                 }
             }
         })();
@@ -498,8 +543,8 @@
             const phoneCode = document.getElementById('phone-code').value.trim();
             const phoneRaw = document.getElementById('phone').value.trim();
             
-            if (phoneCode && !/^\d+$/.test(phoneCode)) {
-                errorMsg.textContent = "Country code must contain ONLY numbers (e.g. 1, 44, 234). Do not include the '+' sign.";
+            if (!phoneCode || !/^\d+$/.test(phoneCode)) {
+                errorMsg.textContent = "Country code is required and must contain ONLY numbers (e.g. 1, 44, 234). Do not include the '+' sign.";
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -516,8 +561,8 @@
             const state = document.getElementById('state').value.trim();
             const country = document.getElementById('country').value.trim();
 
-            if (!phoneRaw || !linkedin || !salary || !firstName || !lastName || !city || !state || !country) {
-                errorMsg.textContent = "Please fill out all contact and logistics fields.";
+            if (!firstName || !city || !state || !country || !phoneRaw) {
+                errorMsg.textContent = "Please fill out all mandatory fields: First Name, City, State, Country, and Phone Number.";
                 errorMsg.style.display = 'block';
                 return;
             }
