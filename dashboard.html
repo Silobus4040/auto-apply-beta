@@ -312,7 +312,7 @@
                 <div style="flex: 1; min-width: 300px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                         <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin: 0; letter-spacing: 0.5px;">Target Criteria</h3>
-                        <a href="onboarding.html?edit=true" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit Settings</a>
+                        <a href="#" onclick="openSettingsModal()" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit Settings</a>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
                         <div>
@@ -409,6 +409,43 @@
     </div>
 
     <!-- Inbox Connection Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="desc-modal" style="max-width: 600px; padding: 2.5rem 2.5rem 1.5rem;">
+            <button class="close-modal" onclick="closeModal('settings-modal')">&times;</button>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Edit Target Criteria</h2>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Target Roles (comma separated)</label>
+                <input type="text" id="set-roles" style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Target Countries (comma separated)</label>
+                <input type="text" id="set-countries" style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Workplace Types</label>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
+                        <input type="checkbox" name="set-wp" value="Remote"> Remote
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
+                        <input type="checkbox" name="set-wp" value="Hybrid"> Hybrid
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
+                        <input type="checkbox" name="set-wp" value="On-site"> On-site
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 2rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Master Resume (PDF only)</label>
+                <input type="file" id="set-resume" accept=".pdf" style="width: 100%; font-family: inherit; font-size: 0.85rem;">
+                <p style="font-size: 0.75rem; color: #A1A1AA; margin-top: 0.5rem;">Leave empty to keep your current resume.</p>
+            </div>
+            <button id="save-settings-btn" class="btn" style="width: 100%;" onclick="saveSettings()">Update Profile</button>
+        </div>
+    </div>
+
     <div class="modal-overlay" id="inbox-modal">
         <div class="desc-modal" style="max-width: 800px; padding: 2.5rem 2.5rem 1.5rem;">
             <button class="close-modal" onclick="closeModal('inbox-modal')">&times;</button>
@@ -991,68 +1028,62 @@
             }
         }
 
-        function toggleChip(chip) {
-            chip.classList.toggle('active');
-        }
-
-        async function startNewSearch() {
-            const roleInput = document.getElementById('search-role').value.trim();
-            const locationInput = document.getElementById('search-location').value.trim();
-            const searchBtn = document.getElementById('search-btn');
-
-            if (!roleInput) {
-                alert('Please enter a target role.');
-                return;
-            }
-
-            const activeChips = Array.from(document.querySelectorAll('.filter-chips .chip.active'))
-                .map(chip => chip.getAttribute('data-type'));
-
-            if (!activeChips.length) {
-                alert('Please select at least one workplace type.');
-                return;
-            }
-
-            searchBtn.disabled = true;
-            searchBtn.textContent = 'Initializing Search...';
-
+        async function openSettingsModal() {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return;
-
-            // Update user profile with new preferences in Supabase
-            const { error } = await supabaseClient.from('profiles').update({
-                target_job_titles: roleInput,
-                target_location: locationInput || 'United States',
-                workplace_type: activeChips.join(', '),
-                scraper_status: 'scanning',
-                updated_at: new Date().toISOString()
-            }).eq('id', user.id);
-
-            if (error) {
-                console.error('Error updating preferences:', error);
-                alert('Failed to update preferences: ' + error.message);
-                searchBtn.disabled = false;
-                searchBtn.textContent = 'Scan & Apply';
-                return;
+            const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, workplace_type').eq('id', user.id).single();
+            if (profile) {
+                document.getElementById('set-roles').value = profile.target_job_titles || '';
+                document.getElementById('set-countries').value = profile.target_location || '';
+                const wps = (profile.workplace_type || '').toLowerCase();
+                document.querySelectorAll('input[name="set-wp"]').forEach(cb => {
+                    cb.checked = wps.includes(cb.value.toLowerCase());
+                });
             }
+            document.getElementById('settings-modal').classList.add('active');
+        }
 
-            // Update local pref elements
-            document.getElementById('pref-roles').textContent = roleInput;
-            document.getElementById('pref-countries').textContent = locationInput || 'United States';
-            document.getElementById('pref-workplaces').textContent = activeChips.join(', ').toUpperCase();
+        async function saveSettings() {
+            const btn = document.getElementById('save-settings-btn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const roles = document.getElementById('set-roles').value.trim();
+                const countries = document.getElementById('set-countries').value.trim();
+                const wps = Array.from(document.querySelectorAll('input[name="set-wp"]:checked')).map(cb => cb.value).join(', ');
+                
+                let updateData = {
+                    target_job_titles: roles,
+                    target_location: countries,
+                    workplace_type: wps
+                };
 
-            // Trigger the scrape
-            const mockProfile = {
-                target_job_titles: roleInput,
-                target_location: locationInput || 'United States',
-                workplace_type: activeChips.join(', ')
-            };
+                const fileInput = document.getElementById('set-resume');
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileName = `${user.id}_${Date.now()}.pdf`;
+                    const { data: uploadData, error: uploadError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
+                    if (uploadError) throw uploadError;
+                    const { data: { publicUrl } } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
+                    updateData.resume_url = publicUrl;
+                }
 
-            await triggerInitialScrape(user, mockProfile);
-            
-            searchBtn.disabled = false;
-            searchBtn.textContent = 'Scan & Apply';
-            alert('A new cloud scan has been initiated. Jobs will begin appearing shortly!');
+                const { error } = await supabaseClient.from('profiles').update(updateData).eq('id', user.id);
+                if (error) throw error;
+
+                document.getElementById('pref-roles').textContent = roles || 'Not specified';
+                document.getElementById('pref-countries').textContent = countries || 'Not specified';
+                document.getElementById('pref-workplaces').textContent = wps || 'Not specified';
+                
+                closeModal('settings-modal');
+                alert('Profile updated successfully! Changes will apply to your next scan.');
+            } catch (err) {
+                alert('Error saving settings: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Update Profile';
+            }
         }
 
         function openCoverLetter(index) {
