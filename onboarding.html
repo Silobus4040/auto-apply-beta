@@ -579,7 +579,7 @@
                 loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
-                    target_job_titles: Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
+                    target_job_titles: localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
                     target_location: Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value).join(', '),
                     workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
                     first_name: firstName,

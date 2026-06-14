@@ -6,6 +6,16 @@
     <title>AutoApply AI | Dashboard</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
+        @keyframes rover-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .rover-compass {
+            display: inline-block;
+            animation: rover-spin 3s linear infinite;
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
         :root {
             --bg-color: #ffffff;
             --surface-color: #ffffff;
@@ -626,25 +636,30 @@
             const dot = document.getElementById('scanning-dot');
             const title = document.getElementById('scanning-title');
             const text = document.getElementById('scanning-text');
-            
-            if (!indicator) return;
-
             if (isScanningActive && jobCount === 0) {
                 indicator.style.background = 'rgba(212, 255, 51, 0.03)';
                 indicator.style.borderColor = 'var(--primary)';
-                dot.style.background = 'var(--primary)';
-                dot.style.boxShadow = '0 0 10px var(--primary)';
-                dot.style.animation = 'pulse 1.5s infinite';
-                title.textContent = '🤖 Agent Active';
+                dot.style.width = 'auto';
+                dot.style.height = 'auto';
+                dot.style.background = 'transparent';
+                dot.style.boxShadow = 'none';
+                dot.style.animation = 'none';
+                dot.innerHTML = '🧭';
+                dot.className = 'rover-compass';
+                title.textContent = '🤖 ROVER ACTIVE';
                 title.style.color = '#000000';
-                text.textContent = 'Sourcing matching jobs into your dashboard. Feel free to leave this page; the scan runs in the cloud.';
+                text.textContent = 'Roving across the Job market to capture your target roles';
             } else {
                 indicator.style.background = 'rgba(0, 0, 0, 0.015)';
                 indicator.style.borderColor = 'var(--border)';
+                dot.style.width = '12px';
+                dot.style.height = '12px';
                 dot.style.background = '#10B981';
                 dot.style.boxShadow = '0 0 10px #10B981';
                 dot.style.animation = 'none';
-                title.textContent = '🟢 Monitoring';
+                dot.innerHTML = '';
+                dot.className = '';
+                title.textContent = '👀 Monitoring';
                 title.style.color = '#047857';
                 text.textContent = 'Your AI Job Agent is active and checks for new listings twice daily.';
             }
@@ -837,9 +852,9 @@
                 if (isScanning) {
                     container.innerHTML = `
                         <div class="empty-state" style="padding: 2.5rem 1.5rem;">
-                            <div class="spinner" style="margin-bottom: 1rem;"></div>
-                            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.35rem;">AI Agent is Sourcing Jobs</h3>
-                            <p style="font-size: 0.88rem; color: var(--text-body);">Analyzing LinkedIn listings against your resume in the cloud. This takes 2-3 minutes.</p>
+                            <div class="rover-compass" style="margin-bottom: 1rem; font-size: 2rem;">🧭</div>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.35rem;">Rover is Active</h3>
+                            <p style="font-size: 0.88rem; color: var(--text-body);">Roving across the Job market to capture your target roles...</p>
                         </div>`;
                 } else {
                     container.innerHTML = `
