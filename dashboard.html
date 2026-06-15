@@ -303,7 +303,7 @@
         <div class="nav-user">
             <a href="index.html#pricing" id="nav-upgrade-btn" style="background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; text-decoration: none; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); transition: all 0.2s;">🚀 Upgrade</a>
             <div class="nav-credits" id="nav-badge" style="transition: all 0.3s;">⏳ Free Trial</div>
-            <a href="#" onclick="openSettingsModal()" style="text-decoration: none;" title="Edit Profile">
+            <a href="onboarding.html?edit=true" style="text-decoration: none;" title="Edit Profile Details">
                 <div class="nav-avatar" id="nav-avatar">??</div>
             </a>
             <button class="nav-logout" onclick="logout()">🚪 Logout</button>
@@ -316,7 +316,7 @@
                 <div style="flex: 1; min-width: 300px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
                         <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin: 0; letter-spacing: 0.5px;">Target Criteria</h3>
-                        <a href="#" onclick="openSettingsModal()" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit Settings</a>
+                        <a href="#" onclick="openSettingsModal()" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit Search Criteria</a>
                     </div>
                     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
                         <div>
@@ -417,7 +417,7 @@
         <div class="desc-modal" style="max-width: 600px; padding: 2.5rem 2.5rem 1.5rem;">
             <button class="close-modal" onclick="closeModal('settings-modal')">&times;</button>
             <div style="text-align: center; margin-bottom: 2rem;">
-                <h2 style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Edit Target Criteria</h2>
+                <h2 style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Update Search Criteria</h2>
             </div>
             <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
                 <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Target Roles (comma separated)</label>
