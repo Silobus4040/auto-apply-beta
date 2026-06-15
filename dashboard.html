@@ -41,7 +41,8 @@
         .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
         .nav-user { display: flex; align-items: center; gap: 1rem; }
         .nav-credits { background: rgba(16, 185, 129, 0.06); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
-        .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--border); }
+        .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--border); transition: all 0.2s; }
+        .nav-avatar:hover { border-color: var(--primary); cursor: pointer; box-shadow: 0 0 10px rgba(212,255,51,0.2); }
         .nav-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
         .nav-logout:hover { background: rgba(239,68,68,0.08); border-color: rgba(239, 68, 68, 0.4); }
 
@@ -298,11 +299,14 @@
     <div class="background-blob blob-2"></div>
 
     <nav>
-        <a href="index.html" class="logo">APPLY<span>/AI</span></a>
+        <a href="index.html" class="logo">🧭 Roles<span>Rover</span></a>
         <div class="nav-user">
-            <div class="nav-credits">✅ Premium Active</div>
-            <div class="nav-avatar">JD</div>
-            <button class="nav-logout" onclick="logout()">⏻ Logout</button>
+            <a href="index.html#pricing" id="nav-upgrade-btn" style="background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; text-decoration: none; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); transition: all 0.2s;">🚀 Upgrade</a>
+            <div class="nav-credits" id="nav-badge" style="transition: all 0.3s;">⏳ Free Trial</div>
+            <a href="#" onclick="openSettingsModal()" style="text-decoration: none;" title="Edit Profile">
+                <div class="nav-avatar" id="nav-avatar">??</div>
+            </a>
+            <button class="nav-logout" onclick="logout()">🚪 Logout</button>
         </div>
     </nav>
 
@@ -619,11 +623,38 @@
 
             userProfile = profile;
 
-            // Populate avatar initials from user metadata
-            const fullName = user.user_metadata?.full_name || user.email || '';
-            const initials = fullName.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || '??';
-            const avatarEl = document.querySelector('.nav-avatar');
+            // Populate avatar initials from database profile (fallback to email)
+            const firstName = profile.first_name || '';
+            const lastName = profile.last_name || '';
+            let initials = '??';
+            if (firstName && lastName) {
+                initials = (firstName[0] + lastName[0]).toUpperCase();
+            } else if (user.email) {
+                initials = user.email.slice(0, 2).toUpperCase();
+            }
+            const avatarEl = document.getElementById('nav-avatar');
             if (avatarEl) avatarEl.textContent = initials;
+
+            // Set Free Trial vs Premium Badge dynamically
+            const badgeEl = document.getElementById('nav-badge');
+            const upgradeBtn = document.getElementById('nav-upgrade-btn');
+            
+            // Assume Limit > 150 means Premium (or check subscription_tier if it exists)
+            const isPremium = profile.subscription_tier === 'premium' || (profile.applications_limit && profile.applications_limit > 150);
+            
+            if (isPremium) {
+                badgeEl.innerHTML = '✅ Premium Active';
+                badgeEl.style.background = 'rgba(16, 185, 129, 0.06)';
+                badgeEl.style.color = '#10B981';
+                badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                if (upgradeBtn) upgradeBtn.style.display = 'none'; // Hide upgrade button for premium users
+            } else {
+                badgeEl.innerHTML = '⏳ Free Trial';
+                badgeEl.style.background = 'rgba(0, 0, 0, 0.04)';
+                badgeEl.style.color = '#71717A';
+                badgeEl.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+                if (upgradeBtn) upgradeBtn.style.display = 'inline-block';
+            }
 
             // Show which Greenhouse account is active (optional UX hint)
             if (profile.Application_email) {
