@@ -488,6 +488,7 @@
                 btnNext.innerHTML = originalText;
             }
 
+            localStorage.setItem('onb_job-titles', jobTitles);
             errorMsg.style.display = 'none';
             slider.style.transform = 'translateX(-50%)';
             stepIndicator.textContent = 'Step 2 of 2';
