@@ -397,30 +397,12 @@
                 if (profile.country && !localStorage.getItem('onb_country') && document.getElementById('country')) {
                     document.getElementById('country').value = profile.country;
                 }
-                
-                // Prepopulate target job titles
-                if (profile.target_job_titles && !localStorage.getItem('onb_job-titles')) {
-                    const titles = profile.target_job_titles.split(', ');
-                    const container = document.getElementById('job-titles-container');
-                    if (container) {
-                        container.innerHTML = '';
-                        titles.forEach(title => {
-                            const input = document.createElement('input');
-                            input.type = 'text';
-                            input.className = 'job-title-input';
-                            input.value = title;
-                            input.placeholder = 'e.g. Frontend Engineer';
-                            container.appendChild(input);
-                        });
-                    }
-                }
-                
                 // Prepopulate target locations
                 if (profile.target_location) {
                     const countries = profile.target_location.split(', ');
                     countries.forEach(c => {
                         const cb = document.querySelector(`input[name="country"][value="${c}"]`);
-                        if (cb) cb.checked = true;
+                        if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
                     });
                 }
                 
@@ -429,9 +411,38 @@
                     const types = profile.workplace_type.split(', ');
                     types.forEach(t => {
                         const cb = document.querySelector(`input[name="workplace"][value="${t}"]`);
-                        if (cb) cb.checked = true;
+                        if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
                     });
                 }
+            }
+
+            // BULLETPROOF JOB TITLE RESTORE
+            const savedJobTitles = localStorage.getItem('onb_job-titles') || (profile ? profile.target_job_titles : null);
+            if (savedJobTitles) {
+                const titles = savedJobTitles.split(', ');
+                const container = document.getElementById('job-titles-container');
+                if (container) {
+                    container.innerHTML = '';
+                    titles.forEach(title => {
+                        if (!title.trim()) return;
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'job-title-input';
+                        input.value = title.trim();
+                        input.placeholder = 'e.g. Frontend Engineer';
+                        container.appendChild(input);
+                    });
+                }
+            }
+            
+            // BULLETPROOF AUTO-SAVE FOR JOB TITLES
+            const jobTitlesContainer = document.getElementById('job-titles-container');
+            if (jobTitlesContainer) {
+                jobTitlesContainer.addEventListener('input', () => {
+                    const inputs = document.querySelectorAll('.job-title-input');
+                    const titles = Array.from(inputs).map(i => i.value.trim()).filter(v => v).join(', ');
+                    localStorage.setItem('onb_job-titles', titles);
+                });
             }
         })();
 
