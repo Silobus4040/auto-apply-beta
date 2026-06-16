@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Compass Logo Options</title>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fafafa;
+            padding: 4rem;
+            text-align: center;
+            color: #111;
+        }
+        h1 { margin-bottom: 3rem; font-weight: 900; text-transform: uppercase; letter-spacing: -1px; }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+        .card {
+            background: #fff;
+            border: 1px solid #e4e4e7;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            transition: transform 0.2s;
+        }
+        .card:hover { transform: translateY(-5px); border-color: #000; }
+        .logo-text {
+            font-size: 1.5rem;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.35rem;
+            letter-spacing: -0.5px;
+        }
+        .rover-bg {
+            background: linear-gradient(135deg, #D4FF33, #00FFCC);
+            padding: 0.15rem 0.6rem;
+            border-radius: 6px;
+            color: #000;
+        }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        .spinning { animation: spin 4s linear infinite; }
+        .label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #71717A;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Select Your Compass Logo</h1>
+    
+    <div class="grid">
+        
+        <!-- Option 1: Minimalist -->
+        <div class="card">
+            <div class="logo-text">
+                ROLES 
+                <svg class="spinning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#000" stroke-width="2.5"/>
+                    <polygon points="12,5 14.5,12 12,19 9.5,12" fill="none" stroke="#000" stroke-width="1.5" stroke-linejoin="round"/>
+                    <polygon points="12,5 14.5,12 12,12" fill="#ef4444"/>
+                    <circle cx="12" cy="12" r="2" fill="#000"/>
+                </svg>
+                <span class="rover-bg">ROVER</span>
+            </div>
+            <div class="label">Option 1: Minimalist Red</div>
+        </div>
+
+        <!-- Option 2: Retro Golden -->
+        <div class="card">
+            <div class="logo-text">
+                ROLES 
+                <svg class="spinning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                    <circle cx="12" cy="12" r="10" fill="#fef08a" stroke="#ca8a04" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="8" fill="#fff" stroke="#eab308" stroke-width="1"/>
+                    <polygon points="12,5 14.5,12 12,19 9.5,12" fill="#e4e4e7" stroke="#71717A" stroke-width="1" stroke-linejoin="round"/>
+                    <polygon points="12,5 14.5,12 12,12" fill="#ef4444"/>
+                    <circle cx="12" cy="12" r="1.5" fill="#ca8a04"/>
+                </svg>
+                <span class="rover-bg">ROVER</span>
+            </div>
+            <div class="label">Option 2: Retro Golden</div>
+        </div>
+
+        <!-- Option 3: Cyberpunk Radar -->
+        <div class="card">
+            <div class="logo-text">
+                ROLES 
+                <svg class="spinning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                    <circle cx="12" cy="12" r="10" fill="#111" stroke="#00FFCC" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="6" fill="none" stroke="#00FFCC" stroke-width="1" stroke-dasharray="2,2"/>
+                    <path d="M12 2 L12 22 M2 12 L22 12" stroke="#00FFCC" stroke-width="1" opacity="0.5"/>
+                    <polygon points="12,3 15,12 12,21 9,12" fill="#D4FF33"/>
+                    <circle cx="12" cy="12" r="2" fill="#fff"/>
+                </svg>
+                <span class="rover-bg">ROVER</span>
+            </div>
+            <div class="label">Option 3: Cyber Radar</div>
+        </div>
+
+        <!-- Option 4: Solid Monotone -->
+        <div class="card">
+            <div class="logo-text">
+                ROLES 
+                <svg class="spinning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                    <circle cx="12" cy="12" r="10" fill="#000"/>
+                    <polygon points="12,3 16,12 12,21 8,12" fill="#fff"/>
+                    <polygon points="12,3 16,12 12,12" fill="#a1a1aa"/>
+                    <circle cx="12" cy="12" r="2" fill="#000"/>
+                </svg>
+                <span class="rover-bg">ROVER</span>
+            </div>
+            <div class="label">Option 4: Solid Dark</div>
+        </div>
+
+        <!-- Option 5: The Safari Scope -->
+        <div class="card">
+            <div class="logo-text">
+                ROLES 
+                <svg class="spinning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                    <circle cx="12" cy="12" r="9" fill="none" stroke="#27272a" stroke-width="3"/>
+                    <path d="M12 2 L12 5 M12 19 L12 22 M2 12 L5 12 M19 12 L22 12" stroke="#27272a" stroke-width="3" stroke-linecap="round"/>
+                    <polygon points="12,6 14,12 12,18 10,12" fill="#ef4444"/>
+                </svg>
+                <span class="rover-bg">ROVER</span>
+            </div>
+            <div class="label">Option 5: Safari Scope</div>
+        </div>
+
+        <!-- Option 6: Global Navigate -->
+        <div class="card">
+            <div class="logo-text">
+                ROLES 
+                <svg class="spinning" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="1.2em" height="1.2em">
+                    <circle cx="12" cy="12" r="10" fill="none" stroke="#d4d4d8" stroke-width="2"/>
+                    <ellipse cx="12" cy="12" rx="4" ry="10" fill="none" stroke="#d4d4d8" stroke-width="1.5"/>
+                    <path d="M2 12 L22 12" stroke="#d4d4d8" stroke-width="1.5"/>
+                    <polygon points="12,2 15,12 12,22 9,12" fill="#00b38f" stroke="#008066" stroke-width="1"/>
+                    <polygon points="12,2 15,12 12,12" fill="#00FFCC"/>
+                </svg>
+                <span class="rover-bg">ROVER</span>
+            </div>
+            <div class="label">Option 6: Global Navigate</div>
+        </div>
+
+    </div>
+</body>
+</html>
