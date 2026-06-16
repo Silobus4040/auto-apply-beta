@@ -157,6 +157,22 @@
         .mockup-btn:hover { border-color: #000000; background: rgba(0,0,0,0.03); color: #000; }
         .mockup-btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; border-radius: 4px; }
         @keyframes rover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+    
+        @media (max-width: 768px) {
+            .hero { padding-top: 2rem; margin-top: 3rem; }
+            h1 { font-size: 2.8rem; }
+            .section-title { font-size: 2rem; }
+            .comparison-wrapper { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+            table { min-width: 700px !important; }
+            th, td { padding: 1rem 0.75rem !important; font-size: 0.85rem !important; }
+            .mockup-table { min-width: 700px !important; }
+            .logo { font-size: 1.25rem; }
+            .mockup-header { flex-direction: column; align-items: flex-start; }
+            .mockup-stats { flex-direction: column; }
+            .mockup-stat-card { width: 100%; }
+            .nav-links { display: none !important; }
+            .hero-sub { font-size: 1.05rem !important; }
+        }
     </style>
 </head>
 <body>
@@ -184,7 +200,7 @@
 
     <!-- Comparison Section -->
     <section class="comparison" style="max-width: 1400px; margin: 6rem auto; padding: 0 5%;">
-        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Why ROLES <i style="display:inline-block; animation: rover-spin 4s linear infinite; margin: 0 4px; font-style: normal;">🧭</i> ROVER?</h2>
+        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Why <span style="white-space: nowrap;">ROLES <i style="display:inline-block; animation: rover-spin 4s linear infinite; margin: 0 4px; font-style: normal;">🧭</i> ROVER</span>?</h2>
         <p style="font-size: 0.95rem; color: #52525B; text-align: center; margin-bottom: 4rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">How we compare to traditional applying and basic AI tools.</p>
         
         <div style="width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: 24px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.02); background: #ffffff;">
