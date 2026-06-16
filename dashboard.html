@@ -307,11 +307,22 @@
             <a href="onboarding.html?edit=true" style="text-decoration: none;" title="Edit Profile Details">
                 <div class="nav-avatar" id="nav-avatar">??</div>
             </a>
+            <button onclick="document.getElementById('feedback-modal').classList.add('active')" style="background: transparent; border: 1px dashed rgba(0, 0, 0, 0.2); color: #52525B; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">🐛 Report Bug</button>
             <button class="nav-logout" onclick="logout()">🚪 Logout</button>
         </div>
     </nav>
 
     <div class="container">
+        <!-- Feedback Modal -->
+        <div class="modal-overlay" id="feedback-modal">
+            <div class="desc-modal" style="max-width: 500px; text-align: left; padding: 2.5rem;">
+                <button class="close-modal" onclick="closeModal('feedback-modal')">&times;</button>
+                <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">🐛 Report Bug / Feedback</h2>
+                <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 1.5rem;">Help us improve! Let us know what broke or what feature you'd like to see.</p>
+                <textarea id="feedback-text" rows="5" style="width: 100%; border: 1px solid #e4e4e7; border-radius: 12px; padding: 1rem; font-family: inherit; font-size: 0.95rem; resize: vertical; margin-bottom: 1.5rem; outline: none; transition: border-color 0.2s;" placeholder="Describe the bug or request a feature..."></textarea>
+                <button id="submit-feedback-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000;" onclick="submitFeedback()">Send Feedback</button>
+            </div>
+        </div>
         <!-- Automation Profile & Active Status -->
         <div class="search-section" style="padding: 1.25rem 1.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
                 <div style="flex: 1; min-width: 300px;">
@@ -1286,6 +1297,38 @@
                 statusEl.style.display = 'none';
                 btn.disabled = false;
                 btn.textContent = 'Activate Auto-Apply Agent →';
+            }
+        }
+        async function submitFeedback() {
+            const text = document.getElementById('feedback-text').value.trim();
+            if(!text) return alert("Please enter some feedback first!");
+            
+            const btn = document.getElementById('submit-feedback-btn');
+            btn.innerText = "Sending...";
+            btn.disabled = true;
+
+            try {
+                const userId = typeof userProfile !== 'undefined' && userProfile?.id ? userProfile.id : (await supabaseClient.auth.getUser()).data?.user?.id;
+                const email = typeof userProfile !== 'undefined' ? (userProfile?.Application_email || 'unknown') : 'unknown';
+
+                const { error } = await supabaseClient.from('feedback').insert([{
+                    user_id: userId,
+                    email: email,
+                    message: text,
+                    type: 'bug_report'
+                }]);
+                
+                if (error) throw error;
+                
+                document.getElementById('feedback-text').value = '';
+                closeModal('feedback-modal');
+                alert("Thanks for the feedback! We've received it.");
+            } catch(err) {
+                console.error("Feedback error", err);
+                alert("Could not send feedback. Please try again.");
+            } finally {
+                btn.innerText = "Send Feedback";
+                btn.disabled = false;
             }
         }
     </script>
