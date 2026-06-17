@@ -6,61 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoApply AI | Profile Setup</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-    <style>
-        :root {
-            --bg-color: #ffffff;
-            --surface-color: #ffffff;
-            --primary: #00FFCC;
-            --primary-hover: #00e6b8;
-            --secondary: #FF6B4A;
-            --text-heading: #000000;
-            --text-body: #27272A;
-            --border: #e4e4e7;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; position: relative; overflow-x: hidden; }
-
-        /* Soft background glows */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -10%; left: -10%;
-            width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(212,255,51,0.08) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-        body::after {
-            content: '';
-            position: absolute;
-            bottom: -10%; right: -10%;
-            width: 40vw; height: 40vw;
-            background: radial-gradient(circle, rgba(0,255,204,0.08) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid rgba(0,0,0,0.06); width: 100%; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
-        .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
-
-        .container { max-width: 700px; margin: 3rem auto 5rem; padding: 0 5%; overflow: hidden; position: relative; z-index: 1; }
-
-        .header-section { text-align: center; margin-bottom: 2.5rem; }
-        .step-badge { display: inline-block; background: rgba(0,255,204,0.08); color: #00e6b8; border: 1px solid rgba(0,255,204,0.25); padding: 0.4rem 1.2rem; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; border-radius: 20px; }
-        h1 { color: var(--text-heading); font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 1rem; text-transform: uppercase; }
-        .header-sub { color: #52525B; font-size: 1.05rem; max-width: 560px; margin: 0 auto; font-weight: 500; }
-
-        /* Multi-Step Slider */
-        .form-slider { display: flex; width: 200%; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
-        .form-step { width: 50%; padding: 0 10px; flex-shrink: 0; }
-
-        .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); margin-bottom: 1.5rem; }
-        .card-title { color: #000000; font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-        .card-title .num { background: #00FFCC; color: #000; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; border-radius: 50%; }
-    <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -120,9 +65,6 @@
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #00FFCC; }
-        .choices__inner { border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.5rem 1rem !important; }
-        .choices.is-focused .choices__inner { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15) !important; }
-        .choices__list--multiple .choices__item { background-color: #00FFCC !important; border: 1px solid #00e6b8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
         .select-wrapper { position: relative; }
@@ -184,6 +126,427 @@
         <circle cx="50" cy="50" r="4" fill="#0f172a"/>
         <circle cx="50" cy="50" r="2" fill="#cbd5e1"/>
     </g>
+</svg> <span>ROVER</span><span style="background: rgba(255, 107, 74, 0.1); color: #FF6B4A; border: 1px solid rgba(255, 107, 74, 0.3); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span></a></nav>
+
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loading-text">Optimizing Profile...</div>
+    </div>
+
+    <div class="container">
+        <div class="header-section">
+            <div class="step-badge" id="step-indicator">Step 1 of 2</div>
+            <h1>Initialize Your Profile</h1>
+        </div>
+
+        <div class="error-msg" id="error-msg"></div>
+
+        <form id="onboarding-form">
+            <div style="overflow: hidden; width: 100%;">
+                <div class="form-slider" id="form-slider">
+                    
+                    <!-- STEP 1: RESUME & TARGETS -->
+                    <div class="form-step">
+                        <div class="card">
+                            <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
+                            
+                            <div class="form-group">
+                                <label>Target Job Titles <span style="color: #FF6B4A;">*</span></label>
+                                <div id="job-titles-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                    <input type="text" class="job-title-input" placeholder="e.g. Frontend Engineer">
+                                </div>
+                                <button type="button" class="btn btn-secondary" onclick="addJobTitleField()" style="padding: 0.6rem 1rem; font-size: 0.8rem; margin-top: 0.5rem; margin-bottom: 0;">+ Add Another Role</button>
+                                <p class="form-hint" style="margin-top: 0.5rem;">The specific roles you want the AI to find and apply to.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="margin-bottom: 0.8rem;">Target Countries (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="United States" style="width: 16px; height: 16px; margin: 0; padding: 0;"> United States
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="United Kingdom" style="width: 16px; height: 16px; margin: 0; padding: 0;"> United Kingdom
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="Canada" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Canada
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="country" value="Nigeria" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Nigeria
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Remote" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Hybrid" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Hybrid
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="On-site" style="width: 16px; height: 16px; margin: 0; padding: 0;"> On-site
+                                    </label>
+                                </div>
+                            </div>
+                        <div class="form-group">
+                            <label>Upload Current Resume (PDF) <span style="color: #FF6B4A;">*</span></label>
+                            <input type="file" id="resume-file" accept=".pdf">
+                            <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #00FFCC; font-weight: 600; display: none;"></p>
+                        </div>
+                        
+                        <button type="button" class="btn btn-primary" id="btn-next" style="margin-top: 2rem;">
+                            Continue &rarr;
+                        </button>
+                    </div>
+                </div>
+
+                <!-- STEP 2: Profile Details -->
+                <div class="form-step">
+                    <div class="card">
+                        <div class="card-title"><div class="num">2</div> Profile Details</div>
+                        
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>First Name <span style="color: #FF6B4A;">*</span></label>
+                                <input type="text" id="first-name" required placeholder="John">
+                            </div>
+                            <div class="form-group">
+                                <label>Last Name</label>
+                                <input type="text" id="last-name" placeholder="Doe">
+                            </div>
+                        </div>
+
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>City <span style="color: #FF6B4A;">*</span></label>
+                                <input type="text" id="city" required placeholder="New York">
+                            </div>
+                            <div class="form-group">
+                                <label>State <span style="color: #FF6B4A;">*</span></label>
+                                <input type="text" id="state" required placeholder="NY">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Country <span style="color: #FF6B4A;">*</span></label>
+                            <input type="text" id="country" required placeholder="United States">
+                        </div>
+
+
+                            <div class="form-group">
+                                <label>Phone Number <span style="color: #FF6B4A;">*</span></label>
+                                <div style="display: flex; gap: 0.5rem;">
+                                    <div style="position: relative; flex-shrink: 0; width: 85px;">
+                                        <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">+</span>
+                                        <input type="tel" id="phone-code" autocomplete="tel-country-code" required placeholder="1" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    </div>
+                                    <input type="tel" id="phone" autocomplete="tel-national" required placeholder="(555) 000-0000" style="flex-grow: 1;">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>LinkedIn URL</label>
+                                <input type="text" id="linkedin" placeholder="linkedin.com/in/yourname">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Portfolio / Website URL (Optional)</label>
+                            <input type="text" id="portfolio" placeholder="www.yourwebsite.com">
+                        </div>
+
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>Authorized to work in location?</label>
+                                <div class="select-wrapper">
+                                    <select id="auth-work">
+                                        <option value="Yes">Yes</option>
+                                        <option value="No">No</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Require Visa Sponsorship?</label>
+                                <div class="select-wrapper">
+                                    <select id="sponsorship">
+                                        <option value="No">No</option>
+                                        <option value="Yes">Yes</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Desired Annual Salary</label>
+                            <div style="position: relative;">
+                                <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">$</span>
+                                <input type="text" id="salary" placeholder="120000" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                            </div>
+                            <p class="form-hint">We only use this if it is a mandatory requirement in a form. Otherwise, we leave it blank to protect your negotiating power. Tip: Set this slightly below your target to avoid ATS budget filters.</p>
+                        </div>
+
+                        <!-- EEO Demographics Section -->
+                        <div style="border-top: 1px solid var(--border); margin: 2rem 0; padding-top: 1.5rem;">
+                            <h3 style="color: white; font-size: 1rem; margin-bottom: 1.5rem; text-transform: uppercase;">EEO Demographics</h3>
+                            
+                            <div class="row-grid">
+                                <div class="form-group">
+                                    <label>Gender</label>
+                                    <div class="select-wrapper">
+                                        <select id="gender">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="Male">Male</option>
+                                            <option value="Female">Female</option>
+                                            <option value="Non-Binary">Non-Binary</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Race / Ethnicity</label>
+                                    <div class="select-wrapper">
+                                        <select id="race">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="White">White</option>
+                                            <option value="Hispanic or Latino">Hispanic or Latino</option>
+                                            <option value="Black or African American">Black or African American</option>
+                                            <option value="Asian">Asian</option>
+                                            <option value="Native American">Native American</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row-grid">
+                                <div class="form-group">
+                                    <label>Veteran Status</label>
+                                    <div class="select-wrapper">
+                                        <select id="veteran">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="I am not a protected veteran">I am not a protected veteran</option>
+                                            <option value="I identify as one or more of the classifications of a protected veteran">I am a protected veteran</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label>Disability Status</label>
+                                    <div class="select-wrapper">
+                                        <select id="disability">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="No, I don't have a disability">No</option>
+                                            <option value="Yes, I have a disability">Yes</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Pronouns</label>
+                                <div class="select-wrapper">
+                                    <select id="pronouns">
+                                        <option value="Prefer not to say">Prefer not to say</option>
+                                        <option value="He/Him">He/Him</option>
+                                        <option value="She/Her">She/Her</option>
+                                        <option value="They/Them">They/Them</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-secondary" id="btn-back" style="margin-top: 2rem;">
+                            &larr; Back
+                        </button>
+                        <button type="submit" class="btn btn-primary" id="submit-btn">
+                            Complete Setup &rarr;
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            </div>
+        </form>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUserId = null;
+        let currentUserEmail = null;
+
+        // Auth Guard
+        (async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) { window.location.href = 'login.html'; return; }
+            currentUserId = session.user.id;
+            currentUserEmail = session.user.email;
+            
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, target_job_titles, target_location, workplace_type, resume_url').eq('id', currentUserId).single();
+            if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
+
+            if (profile && profile.resume_url) {
+                localStorage.setItem('onb_resume_url', profile.resume_url);
+                const resumeStatus = document.getElementById('resume-status');
+                if (resumeStatus) {
+                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View PDF</a>`;
+                    resumeStatus.style.display = 'block';
+                }
+            }
+
+            // Prepopulate from session user metadata if empty in local storage
+            const fullName = session.user.user_metadata?.full_name || '';
+            if (fullName) {
+                const parts = fullName.split(' ');
+                if (!localStorage.getItem('onb_first-name') && document.getElementById('first-name')) {
+                    document.getElementById('first-name').value = parts[0] || '';
+                }
+                if (!localStorage.getItem('onb_last-name') && document.getElementById('last-name')) {
+                    document.getElementById('last-name').value = parts.slice(1).join(' ') || '';
+                }
+            }
+            if (profile) {
+                if (profile.first_name && !localStorage.getItem('onb_first-name') && document.getElementById('first-name')) {
+                    document.getElementById('first-name').value = profile.first_name;
+                }
+                if (profile.last_name && !localStorage.getItem('onb_last-name') && document.getElementById('last-name')) {
+                    document.getElementById('last-name').value = profile.last_name;
+                }
+                if (profile.city && !localStorage.getItem('onb_city') && document.getElementById('city')) {
+                    document.getElementById('city').value = profile.city;
+                }
+                if (profile.state && !localStorage.getItem('onb_state') && document.getElementById('state')) {
+                    document.getElementById('state').value = profile.state;
+                }
+                if (profile.country && !localStorage.getItem('onb_country') && document.getElementById('country')) {
+                    document.getElementById('country').value = profile.country;
+                }
+                // Prepopulate target locations
+                if (profile.target_location) {
+                    const countries = profile.target_location.split(', ');
+                    countries.forEach(c => {
+                        const cb = document.querySelector(`input[name="country"][value="${c}"]`);
+                        if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
+                    });
+                }
+                
+                // Prepopulate workplace types
+                if (profile.workplace_type) {
+                    const types = profile.workplace_type.split(', ');
+                    types.forEach(t => {
+                        const cb = document.querySelector(`input[name="workplace"][value="${t}"]`);
+                        if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
+                    });
+                }
+            }
+
+            // BULLETPROOF JOB TITLE RESTORE
+            const savedJobTitles = localStorage.getItem('onb_job-titles') || (profile ? profile.target_job_titles : null);
+            if (savedJobTitles) {
+                const titles = savedJobTitles.split(', ');
+                const container = document.getElementById('job-titles-container');
+                if (container) {
+                    container.innerHTML = '';
+                    titles.forEach(title => {
+                        if (!title.trim()) return;
+                        const input = document.createElement('input');
+                        input.type = 'text';
+                        input.className = 'job-title-input';
+                        input.value = title.trim();
+                        input.placeholder = 'e.g. Frontend Engineer';
+                        container.appendChild(input);
+                    });
+                }
+            }
+            
+            // BULLETPROOF AUTO-SAVE FOR JOB TITLES
+            const jobTitlesContainer = document.getElementById('job-titles-container');
+            if (jobTitlesContainer) {
+                jobTitlesContainer.addEventListener('input', () => {
+                    const inputs = document.querySelectorAll('.job-title-input');
+                    const titles = Array.from(inputs).map(i => i.value.trim()).filter(v => v).join(', ');
+                    localStorage.setItem('onb_job-titles', titles);
+                });
+            }
+        })();
+
+        // Dynamic Job Titles Logic
+        function addJobTitleField() {
+            const container = document.getElementById('job-titles-container');
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'job-title-input';
+            input.placeholder = 'e.g. Product Manager';
+            container.appendChild(input);
+        }
+
+        // Slider Logic
+        const btnNext = document.getElementById('btn-next');
+        const btnBack = document.getElementById('btn-back');
+        const slider = document.getElementById('form-slider');
+        const errorMsg = document.getElementById('error-msg');
+        const stepIndicator = document.getElementById('step-indicator');
+
+        btnNext.addEventListener('click', async () => {
+            const jobTitleInputs = document.querySelectorAll('.job-title-input');
+            const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
+            const countries = Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value);
+            const workplaces = Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value);
+            const file = document.getElementById('resume-file').files[0];
+            const savedResumeUrl = localStorage.getItem('onb_resume_url');
+
+            if (!jobTitles || countries.length === 0 || workplaces.length === 0 || (!file && !savedResumeUrl)) {
+                errorMsg.textContent = "Please fill all fields, select at least one country and workplace, and upload a resume before continuing.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (file) {
+                btnNext.disabled = true;
+                const originalText = btnNext.innerHTML;
+                btnNext.innerHTML = "Uploading Resume...";
+                try {
+                    const fileName = `${currentUserId}_${Date.now()}.pdf`;
+                    const { error: storageError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
+                    if (storageError) throw storageError;
+                    
+                    const { data: publicUrlData } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
+                    localStorage.setItem('onb_resume_url', publicUrlData.publicUrl);
+                } catch (err) {
+                    errorMsg.textContent = "Failed to upload resume: " + err.message;
+                    errorMsg.style.display = 'block';
+                    btnNext.disabled = false;
+                    btnNext.innerHTML = originalText;
+                    return;
+                }
+                btnNext.disabled = false;
+                btnNext.innerHTML = originalText;
+            }
+
+            localStorage.setItem('onb_job-titles', jobTitles);
+            errorMsg.style.display = 'none';
+            slider.style.transform = 'translateX(-50%)';
+            stepIndicator.textContent = 'Step 2 of 2';
+            localStorage.setItem('onb_step', '2');
+        });
+
+        btnBack.addEventListener('click', () => {
+            errorMsg.style.display = 'none';
+            slider.style.transform = 'translateX(0)';
+            stepIndicator.textContent = 'Step 1 of 2';
+            localStorage.setItem('onb_step', '1');
+        });
+
+        // Auto-Save Form State
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form select');
+        formInputs.forEach(input => {
+            if (input.id) {
+                const saved = localStorage.getItem('onb_' + input.id);
+                if (saved) input.value = saved;
+                input.addEventListener('input', () => localStorage.setItem('onb_' + input.id, input.value));
+            }
         });
         
         const checkboxes = document.querySelectorAll('#onboarding-form input[type="checkbox"]');
@@ -254,7 +617,7 @@
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
                     target_job_titles: localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
-                    target_location: Array.from(document.getElementById('target-countries').selectedOptions).map(cb => cb.value).join(', '),
+                    target_location: Array.from(document.querySelectorAll('input[name="country"]:checked')).map(cb => cb.value).join(', '),
                     workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
                     first_name: firstName,
                     last_name: lastName,
