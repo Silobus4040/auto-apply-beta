@@ -156,12 +156,12 @@
                             <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
                             
                             <div class="form-group">
-                                <label>Target Job Titles <span style="color: #FF6B4A;">*</span></label>
+                                <label>Target Job Titles & Experience <span style="color: #FF6B4A;">*</span></label>
                                 <div id="job-titles-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                    <input type="text" class="job-title-input" placeholder="e.g. Frontend Engineer">
+                                    <!-- Injected via JS -->
                                 </div>
                                 <button type="button" class="btn btn-secondary" onclick="addJobTitleField()" style="padding: 0.6rem 1rem; font-size: 0.8rem; margin-top: 0.5rem; margin-bottom: 0;">+ Add Another Role</button>
-                                <p class="form-hint" style="margin-top: 0.5rem;">The specific roles you want the AI to find and apply to.</p>
+                                <p class="form-hint" style="margin-top: 0.5rem;">The specific roles and seniority levels you want the AI to target.</p>
                             </div>
 
                             <div class="form-group">
@@ -232,6 +232,27 @@
                                     </label>
                                     <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                         <input type="checkbox" name="workplace" value="On-site" style="width: 16px; height: 16px; margin: 0; padding: 0;"> On-site
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="margin-bottom: 0.8rem;">Commitment Types (Optional) <span style="color: #6B7280; font-weight: 500; font-size: 0.8rem; text-transform: none;">Leave blank to search all</span></label>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="commitment" value="Full Time" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Full Time
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="commitment" value="Part Time" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Part Time
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="commitment" value="Contract" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Contract
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="commitment" value="Internship" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Internship
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="commitment" value="Temporary" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Temporary
                                     </label>
                                 </div>
                             </div>
@@ -505,46 +526,91 @@
                         if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
                     });
                 }
+                
+                // Prepopulate commitment types
+                if (profile.commitment_type) {
+                    const types = profile.commitment_type.split(', ');
+                    types.forEach(t => {
+                        const cb = document.querySelector(`input[name="commitment"][value="${t}"]`);
+                        if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
+                    });
+                }
             }
 
             // BULLETPROOF JOB TITLE RESTORE
             const savedJobTitles = localStorage.getItem('onb_job-titles') || (profile ? profile.target_job_titles : null);
-            if (savedJobTitles) {
-                const titles = savedJobTitles.split(', ');
-                const container = document.getElementById('job-titles-container');
-                if (container) {
-                    container.innerHTML = '';
-                    titles.forEach(title => {
+            const savedJobLevels = localStorage.getItem('onb_job-levels') || (profile ? profile.experience_level_bucket : null);
+            
+            const container = document.getElementById('job-titles-container');
+            if (container) {
+                container.innerHTML = '';
+                if (savedJobTitles) {
+                    const titles = savedJobTitles.split(', ');
+                    const levels = savedJobLevels ? savedJobLevels.split(', ') : [];
+                    titles.forEach((title, index) => {
                         if (!title.trim()) return;
-                        const input = document.createElement('input');
-                        input.type = 'text';
-                        input.className = 'job-title-input';
-                        input.value = title.trim();
-                        input.placeholder = 'e.g. Frontend Engineer';
-                        container.appendChild(input);
+                        addJobTitleField(title.trim(), levels[index] ? levels[index].trim() : 'Entry Level');
                     });
+                } else {
+                    addJobTitleField();
                 }
             }
             
             // BULLETPROOF AUTO-SAVE FOR JOB TITLES
-            const jobTitlesContainer = document.getElementById('job-titles-container');
-            if (jobTitlesContainer) {
-                jobTitlesContainer.addEventListener('input', () => {
+            if (container) {
+                container.addEventListener('input', () => {
                     const inputs = document.querySelectorAll('.job-title-input');
-                    const titles = Array.from(inputs).map(i => i.value.trim()).filter(v => v).join(', ');
-                    localStorage.setItem('onb_job-titles', titles);
+                    const selects = document.querySelectorAll('.job-level-select');
+                    const titles = Array.from(inputs).map(i => i.value.trim());
+                    const levels = Array.from(selects).map(s => s.value);
+                    
+                    const validTitles = [];
+                    const validLevels = [];
+                    titles.forEach((t, i) => {
+                        if(t) {
+                            validTitles.push(t);
+                            validLevels.push(levels[i]);
+                        }
+                    });
+                    
+                    localStorage.setItem('onb_job-titles', validTitles.join(', '));
+                    localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
             }
         })();
 
         // Dynamic Job Titles Logic
-        function addJobTitleField() {
+        function addJobTitleField(title = '', level = 'Entry Level') {
             const container = document.getElementById('job-titles-container');
+            
+            const row = document.createElement('div');
+            row.style.display = 'flex';
+            row.style.gap = '0.5rem';
+            row.className = 'job-title-row';
+            
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'job-title-input';
             input.placeholder = 'e.g. Product Manager';
-            container.appendChild(input);
+            input.style.flex = '2';
+            input.value = title;
+            
+            const select = document.createElement('select');
+            select.className = 'job-level-select';
+            select.style.flex = '1';
+            // These exact values match the Apify "Seniority Levels" dropdown
+            const levels = ['Entry Level', 'Mid Level', 'Senior Level', 'Executive'];
+            levels.forEach(l => {
+                const opt = document.createElement('option');
+                opt.value = l;
+                opt.text = l;
+                if(l === level) opt.selected = true;
+                select.appendChild(opt);
+            });
+            
+            row.appendChild(input);
+            row.appendChild(select);
+            container.appendChild(row);
         }
 
         // Slider Logic
@@ -682,8 +748,10 @@
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
                     target_job_titles: localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
+                    experience_level_bucket: localStorage.getItem('onb_job-levels') || Array.from(document.querySelectorAll('.job-level-select')).map(s => s.value).join(', '),
                     target_location: Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value).join(', '),
                     workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
+                    commitment_type: Array.from(document.querySelectorAll('input[name="commitment"]:checked')).map(cb => cb.value).join(', '),
                     first_name: firstName,
                     last_name: lastName,
                     city: city,
