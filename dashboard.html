@@ -916,7 +916,7 @@
                 };
             });
 
-            updateStats(currentJobs);
+            updateStats(currentJobs, user.id);
             renderJobs(currentJobs, scraperStatus === 'scanning');
             updateInboxBannerVisibility();
         }
@@ -944,10 +944,7 @@
             }
         }
 
-        function updateStats(jobs) {
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            const userId = user.id;
-
+        function updateStats(jobs, userId) {
             const bar = document.getElementById('stats-bar');
             if (!jobs || jobs.length === 0) {
                 bar.style.display = 'none';
