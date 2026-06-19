@@ -375,6 +375,29 @@
             </div>
         </div>
 
+        <!-- Market Intelligence / Skill Gap Analyzer -->
+        <div id="market-intel-section" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
+            <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
+            <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
+            <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
+                A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: var(--accent);">Skill Gap</strong>. 
+                We analyzed <strong id="mi-total-analyzed" style="color: #000000;">0</strong> jobs for you. Here is exactly what the market is demanding that you are currently missing.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+                <div>
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Top Missing Skills</h4>
+                    <div id="mi-skills-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        <!-- JS injected skills -->
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <button onclick="document.getElementById('skill-gap-modal').classList.add('active')" style="background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary); transition: color 0.2s;">🔍 Curious to see the actual postings? Click here</button>
+            </div>
+        </div>
+
         <!-- Job List -->
         <div id="job-list">
             <div class="empty-state">
@@ -411,6 +434,31 @@
             <h2>AI Cover Letter</h2>
             <div class="modal-company" id="cl-company">Tailored for Company Name</div>
             <div class="full-text" id="cl-text" style="font-family: 'Calibri', sans-serif; font-size: 11pt; padding: 2rem; background: white; color: black;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Skill Gap / Receipts Modal -->
+    <div class="modal-overlay" id="skill-gap-modal">
+        <div class="desc-modal" style="max-width: 1000px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 2.5rem;">
+            <button class="close-modal" onclick="closeModal('skill-gap-modal')">&times;</button>
+            <h2 style="font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Evaluated Job Postings</h2>
+            <p style="color: var(--text-body); font-size: 0.9rem; margin-bottom: 1.5rem;">These are the real jobs we evaluated that did not match your profile due to missing skill requirements.</p>
+            
+            <div class="jobs-table-container" style="margin-bottom: 0; box-shadow: none;">
+                <table class="jobs-table" style="min-width: 900px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Company & Role</th>
+                            <th style="width: 20%;">Missing Skills</th>
+                            <th style="width: 50%;">AI Rejection Reason</th>
+                            <th style="width: 10%;">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mi-jobs-tbody">
+                        <!-- JS injected rows -->
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -897,15 +945,95 @@
         }
 
         function updateStats(jobs) {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            const userId = user.id;
+
             const bar = document.getElementById('stats-bar');
             if (!jobs || jobs.length === 0) {
                 bar.style.display = 'none';
-                return;
+            } else {
+                bar.style.display = 'flex';
+                document.getElementById('stat-total').textContent = jobs.length;
+                document.getElementById('stat-queued').textContent = jobs.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
+                document.getElementById('stat-applied').textContent = jobs.filter(j => j.status === 'applied').length;
             }
-            bar.style.display = 'flex';
-            document.getElementById('stat-total').textContent = jobs.length;
-            document.getElementById('stat-queued').textContent = jobs.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
-            document.getElementById('stat-applied').textContent = jobs.filter(j => j.status === 'applied').length;
+            
+            // Fetch Market Intelligence data regardless of whether there are jobs or not
+            fetchMarketIntelligence(userId);
+        }
+
+        async function fetchMarketIntelligence(userId) {
+            try {
+                const { data: rejectedJobs, error } = await supabaseClient
+                    .from('rejected_jobs')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const miSection = document.getElementById('market-intel-section');
+                if (!rejectedJobs || rejectedJobs.length === 0) {
+                    miSection.style.display = 'none';
+                    return;
+                }
+
+                miSection.style.display = 'block';
+                document.getElementById('mi-total-analyzed').textContent = rejectedJobs.length;
+
+                // Aggregate Skills
+                const skillCounts = {};
+                rejectedJobs.forEach(job => {
+                    if (job.missing_skills && Array.isArray(job.missing_skills)) {
+                        job.missing_skills.forEach(skill => {
+                            const s = skill.trim();
+                            if (s) {
+                                skillCounts[s] = (skillCounts[s] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+
+                // Sort by count
+                const sortedSkills = Object.entries(skillCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5); // Top 5
+
+                const skillsListHtml = sortedSkills.map(([skill, count]) => {
+                    const percentage = Math.round((count / rejectedJobs.length) * 100);
+                    return `
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px;">
+                            <span style="font-weight: 700; color: #000000; font-size: 0.9rem;">${skill}</span>
+                            <span style="background: rgba(255, 107, 74, 0.1); color: var(--accent); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">Missed in ${percentage}% of jobs</span>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('mi-skills-list').innerHTML = sortedSkills.length > 0 ? skillsListHtml : '<span style="color: #A1A1AA; font-size: 0.85rem;">No specific skills extracted.</span>';
+
+                // Populate Receipts Modal
+                const tbody = document.getElementById('mi-jobs-tbody');
+                tbody.innerHTML = rejectedJobs.map(job => {
+                    const skillsStr = (job.missing_skills || []).join(', ');
+                    const url = job.apply_url && job.apply_url !== '#' ? job.apply_url : '#';
+                    return `
+                        <tr>
+                            <td>
+                                <strong style="color: #000; display: block;">${job.company || 'Unknown'}</strong>
+                                <span style="font-weight: 600; font-size: 0.8rem; color: #52525B;">${job.job_title || 'Unknown'}</span>
+                            </td>
+                            <td style="color: var(--accent); font-weight: 600; font-size: 0.8rem;">${skillsStr || 'None listed'}</td>
+                            <td style="font-size: 0.8rem; color: #3f3f46; line-height: 1.5;">${job.reason || 'No reason provided.'}</td>
+                            <td>
+                                ${url !== '#' ? `<a href="${url}" target="_blank" class="table-btn table-btn-sm" style="background: var(--primary); color: #000; border: none; padding: 0.4rem 0.8rem;">View Job</a>` : '<span style="color: #A1A1AA; font-size: 0.8rem;">N/A</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Error fetching market intelligence:", err);
+            }
         }
 
         function setupRealtime(userId) {
