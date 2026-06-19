@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <script>if (window.location.hostname === 'jobs.leadscompass.ai') window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search);</script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AutoApply AI | Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        @keyframes rover-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .rover-compass {
+            display: inline-block;
+            animation: rover-spin 3s linear infinite;
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+        :root {
+            --bg-color: #ffffff;
+            --surface-color: #ffffff;
+            --primary: #D4FF33;
+            --primary-hover: #bde62b;
+            --secondary: #10B981;
+            --accent: #FF6B4A;
+            --text-heading: #000000;
+            --text-body: #27272A;
+            --border: #e4e4e7;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; position: relative; min-height: 100vh; }
+        
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.25;
+        }
+
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 5%; border-bottom: 1px solid rgba(0, 0, 0, 0.06); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
+        .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
+        .nav-user { display: flex; align-items: center; gap: 1rem; }
+        .nav-credits { background: rgba(16, 185, 129, 0.06); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+        .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--border); transition: all 0.2s; }
+        .nav-avatar:hover { border-color: var(--primary); cursor: pointer; box-shadow: 0 0 10px rgba(212,255,51,0.2); }
+        .nav-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
+        .nav-logout:hover { background: rgba(239,68,68,0.08); border-color: rgba(239, 68, 68, 0.4); }
+
+        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
+
+        /* Search Section */
+        .search-section { background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03); }
+        .search-section h2 { color: var(--text-heading); font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase; }
+        .search-section p { color: var(--text-body); margin-bottom: 1.75rem; font-size: 0.95rem; }
+
+        .search-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1.25rem; align-items: end; }
+        @media (max-width: 768px) { .search-row { grid-template-columns: 1fr; } }
+
+        .field { display: flex; flex-direction: column; gap: 0.5rem; }
+        .field label { color: #52525B; font-weight: 750; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .field input, .field select { padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; color: #000000; font-size: 0.95rem; transition: all 0.2s; }
+        .field input:focus, .field select:focus { outline: none; border-color: #00FFCC; box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
+        .field select option { background: #ffffff; color: #000000; }
+
+        /* Prevent browser autofill from overriding dark styles */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover, 
+        input:-webkit-autofill:focus, 
+        input:-webkit-autofill:active {
+            -webkit-box-shadow: 0 0 0 30px #ffffff inset !important;
+            -webkit-text-fill-color: #000000 !important;
+            transition: background-color 5000s ease-in-out 0s;
+        }
+
+        /* Workplace Type Filter */
+        .filter-row { display: flex; gap: 1rem; margin-top: 1.25rem; align-items: center; flex-wrap: wrap; }
+        .filter-label { color: #52525B; font-weight: 750; font-size: 0.8rem; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
+        .filter-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+        .chip { padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #ffffff; color: var(--text-body); transition: all 0.2s; user-select: none; text-transform: uppercase; }
+        .chip:hover { border-color: #a1a1aa; color: #000000; }
+        .chip.active { background: var(--primary); border-color: var(--primary); color: #000000; font-weight: 700; }
+        .chip .chip-count { color: inherit; font-size: 0.75rem; font-weight: 700; margin-left: 0.3rem; opacity: 0.8; }
+
+        .search-btn { padding: 0.85rem 2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 800; cursor: pointer; border: none; background: var(--primary); color: #000000; transition: all 0.2s; white-space: nowrap; height: fit-content; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); }
+        .search-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212, 255, 51, 0.35); }
+        .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Stats Bar */
+        .stats-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
+        .stat-number { color: #000000; font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+
+        /* Table Style Dashboard */
+        .jobs-table-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--surface-color);
+            margin-bottom: 2rem;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
+        }
+        .jobs-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+        .jobs-table th {
+            background: rgba(0, 255, 204, 0.08);
+            color: #004d3d;
+            font-weight: 850;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.75px;
+            padding: 1.25rem 1.5rem;
+            border-bottom: 2px solid rgba(0, 255, 204, 0.2);
+            white-space: nowrap;
+        }
+        .jobs-table th:nth-child(1) { width: 15%; }
+        .jobs-table th:nth-child(2) { width: 12%; }
+        .jobs-table th:nth-child(3) { width: 14%; }
+        .jobs-table th:nth-child(4) { width: 20%; }
+        .jobs-table th:nth-child(5) { width: 15%; }
+        .jobs-table th:nth-child(6) { width: 13%; }
+        .jobs-table th:nth-child(7) { width: 11%; }
+        .jobs-table td {
+            padding: 1.35rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+            color: var(--text-body);
+            font-size: 0.875rem;
+        }
+        .jobs-table tbody tr:nth-child(even) td {
+            background: #fafafa;
+        }
+        .jobs-table tr:hover td {
+            background: rgba(0, 255, 204, 0.06);
+        }
+        .jobs-table tr:last-child td {
+            border-bottom: none;
+        }
+        .table-role-title {
+            color: #000000;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+        .table-company-name {
+            color: #52525B;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-top: 0.2rem;
+        }
+        .table-workplace-tag {
+            display: inline-block;
+            padding: 0.25rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .tag-remote {
+            background: rgba(0, 255, 204, 0.12);
+            color: #00997a;
+            border: 1px solid rgba(0, 255, 204, 0.25);
+        }
+        .tag-hybrid {
+            background: rgba(245, 158, 11, 0.12);
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        .tag-onsite {
+            background: rgba(99, 102, 241, 0.12);
+            color: #4338ca;
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+        .table-salary {
+            color: #10B981;
+            font-weight: 600;
+            font-size: 0.875rem;
+            background: rgba(16, 185, 129, 0.06);
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            display: inline-block;
+        }
+        .table-ats {
+            font-size: 0.7rem;
+            color: var(--text-body);
+            margin-top: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            opacity: 0.7;
+        }
+        .table-actions {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+        .table-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-body);
+            padding: 0.45rem 0.9rem;
+            font-size: 0.875rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 6px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .table-btn:hover {
+            border-color: #000000;
+            background: rgba(0, 0, 0, 0.03);
+            color: #000000;
+        }
+        .table-btn-primary {
+            border: none;
+            background: var(--primary);
+            color: #000000;
+            font-weight: 700;
+        }
+        .table-btn-primary:hover {
+            background: var(--primary-hover);
+            color: #000000;
+        }
+        .table-btn-sm {
+            padding: 0.3rem 0.65rem;
+            font-size: 0.78rem;
+            border-radius: 4px;
+        }
+        .status-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
+        .status-queued { background: rgba(0, 255, 204, 0.08); color: #00b38f; border-color: rgba(0, 255, 204, 0.2); }
+        .status-applied { background: rgba(245, 158, 11, 0.08); color: #b45309; border-color: rgba(245, 158, 11, 0.15); }
+        .status-interview { background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15); }
+
+        .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
+        .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
+
+        /* Description Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(8px); }
+        .modal-overlay.active { display: flex; }
+        .desc-modal { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.08); }
+        .desc-modal h2 { color: #000000; margin-bottom: 0.25rem; font-size: 1.35rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase; }
+        .desc-modal .modal-company { color: #00b38f; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; font-size: 0.88rem; }
+        .desc-modal .full-text { color: var(--text-body); font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; }
+        .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #71717A; font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
+        .close-modal:hover { color: #000000; }
+        
+        .resume-render-area { background: white; color: black; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; min-height: 400px; }
+        .resume-render-area h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; text-transform: none; }
+        .resume-render-area .subtitle { text-align: center; color: #444; font-size: 11pt; margin-bottom: 4pt; }
+        .resume-render-area .contact { text-align: center; color: #555; font-size: 9.5pt; margin-bottom: 10pt; border-bottom: 1.5pt solid #333; padding-bottom: 8pt; }
+        .resume-render-area h2 { font-size: 11pt; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1pt solid #ccc; padding-bottom: 2pt; margin: 10pt 0 6pt; color: #111; }
+        .resume-render-area ul { margin: 3pt 0 8pt 16pt; }
+        .resume-render-area li { margin-bottom: 2pt; font-size: 10pt; }
+
+        @keyframes pulse {
+            0% { transform: scale(0.96); opacity: 0.7; }
+            50% { transform: scale(1.04); opacity: 1; }
+            100% { transform: scale(0.96); opacity: 0.7; }
+        }
+        .spinner { width: 36px; height: 36px; border: 3px solid rgba(0, 0, 0, 0.06); border-top-color: var(--primary); border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 1.5rem; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* Background Glow Blobs */
+        .background-blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -1;
+            pointer-events: none;
+            opacity: 0.08;
+        }
+        .blob-1 {
+            top: -100px;
+            left: -100px;
+            background: #D4FF33;
+        }
+        .blob-2 {
+            bottom: -100px;
+            right: -100px;
+            background: #00FFCC;
+        }
+        
+
+    </style>
+</head>
+<body>
+    <div class="background-blob blob-1"></div>
+    <div class="background-blob blob-2"></div>
+
+    <nav>
+        <a href="index.html" class="logo">🧭 Roles<span>Rover</span><span style="background: rgba(255, 107, 74, 0.1); color: #FF6B4A; border: 1px solid rgba(255, 107, 74, 0.3); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span></a>
+        <div class="nav-user">
+            <a href="index.html#pricing" id="nav-upgrade-btn" style="background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; text-decoration: none; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); transition: all 0.2s;">🚀 Upgrade</a>
+            <div class="nav-credits" id="nav-badge" style="transition: all 0.3s;">⏳ Free Trial</div>
+            <a href="onboarding.html?edit=true" style="text-decoration: none;" title="Edit Profile Details">
+                <div class="nav-avatar" id="nav-avatar">??</div>
+            </a>
+            <button onclick="document.getElementById('feedback-modal').classList.add('active')" style="background: transparent; border: 1px dashed rgba(0, 0, 0, 0.2); color: #52525B; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">🐛 Report Bug</button>
+            <button class="nav-logout" onclick="logout()">🚪 Logout</button>
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Feedback Modal -->
+        <div class="modal-overlay" id="feedback-modal">
+            <div class="desc-modal" style="max-width: 500px; text-align: left; padding: 2.5rem;">
+                <button class="close-modal" onclick="closeModal('feedback-modal')">&times;</button>
+                <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">🐛 Report Bug / Feedback</h2>
+                <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 1.5rem;">Help us improve! Let us know what broke or what feature you'd like to see.</p>
+                <textarea id="feedback-text" rows="5" style="width: 100%; border: 1px solid #e4e4e7; border-radius: 12px; padding: 1rem; font-family: inherit; font-size: 0.95rem; resize: vertical; margin-bottom: 1.5rem; outline: none; transition: border-color 0.2s;" placeholder="Describe the bug or request a feature..."></textarea>
+                <button id="submit-feedback-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000;" onclick="submitFeedback()">Send Feedback</button>
+            </div>
+        </div>
+        <!-- Automation Profile & Active Status -->
+        <div class="search-section" style="padding: 1.25rem 1.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
+                <div style="flex: 1; min-width: 300px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
+                        <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin: 0; letter-spacing: 0.5px;">Target Criteria</h3>
+                        <a href="#" onclick="openSettingsModal()" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit Search Criteria</a>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Roles</span>
+                            <span id="pref-roles" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Countries</span>
+                            <span id="pref-countries" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                        </div>
+                        <div>
+                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Workplace Types</span>
+                            <span id="pref-workplaces" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Job Automation Status Card -->
+                <div id="scanning-indicator" style="background: rgba(0, 0, 0, 0.015); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
+                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Job Automation Status</h3>
+                    <div id="scanning-dot" style="width: 12px; height: 12px; background: #10B981; border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px #10B981;"></div>
+                    <h4 id="scanning-title" style="color: #047857; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 850;">🟢 Monitoring</h4>
+                    <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Your AI Job Agent is active and checks for new listings twice daily.</p>
+                    <div id="inbox-banner" style="display: none; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem; justify-content: center; width: 100%;">
+                        <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.82rem; padding: 0.55rem 1rem; border-radius: 6px; font-weight: 750; cursor: pointer; transition: background 0.2s; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">Enable Auto-Apply &rarr;</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stats Bar -->
+        <div class="stats-bar" id="stats-bar" style="display: none;">
+            <div class="stat">
+                <span class="stat-number" id="stat-total">0</span>
+                <span class="stat-label">Jobs Found</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="stat-queued">0</span>
+                <span class="stat-label">In Queue</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="stat-applied">0</span>
+                <span class="stat-label">Applied</span>
+            </div>
+        </div>
+
+        <!-- Market Intelligence / Skill Gap Analyzer -->
+        <div id="market-intel-section" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
+            <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
+            <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
+            <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
+                A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: var(--accent);">Skill Gap</strong>. 
+                We analyzed <strong id="mi-total-analyzed" style="color: #000000;">0</strong> jobs for you. Here is exactly what the market is demanding that you are currently missing.
+            </p>
+            
+            <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
+                <div>
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Top Missing Skills</h4>
+                    <div id="mi-skills-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        <!-- JS injected skills -->
+                    </div>
+                </div>
+            </div>
+
+            <div style="margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <button onclick="document.getElementById('skill-gap-modal').classList.add('active')" style="background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary); transition: color 0.2s;">🔍 Curious to see the actual postings? Click here</button>
+            </div>
+        </div>
+
+        <!-- Job List -->
+        <div id="job-list">
+            <div class="empty-state">
+                <h3>No jobs loaded yet</h3>
+                <p>Jobs will appear here once they are processed by the automated backend engine.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Description Modal -->
+    <div class="modal-overlay" id="desc-modal">
+        <div class="desc-modal">
+            <button class="close-modal" onclick="closeModal('desc-modal')">&times;</button>
+            <h2 id="modal-title">Job Title</h2>
+            <div class="modal-company" id="modal-company">Company Name</div>
+            <div class="full-text" id="modal-text">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Resume Modal -->
+    <div class="modal-overlay" id="resume-modal">
+        <div class="desc-modal" style="max-width: 900px; width: 90%; max-height: 90vh; display: flex; flex-direction: column;">
+            <button class="close-modal" onclick="closeModal('resume-modal')">&times;</button>
+            <h2 id="resume-modal-title">Tailored Resume</h2>
+            <div class="modal-company" id="resume-modal-company">Company Name</div>
+            <iframe id="resume-iframe" src="" style="width: 100%; height: 70vh; border: none; background: white; margin-top: 1rem;"></iframe>
+        </div>
+    </div>
+
+    <!-- Cover Letter Modal -->
+    <div class="modal-overlay" id="cl-modal">
+        <div class="desc-modal">
+            <button class="close-modal" onclick="closeModal('cl-modal')">&times;</button>
+            <h2>AI Cover Letter</h2>
+            <div class="modal-company" id="cl-company">Tailored for Company Name</div>
+            <div class="full-text" id="cl-text" style="font-family: 'Calibri', sans-serif; font-size: 11pt; padding: 2rem; background: white; color: black;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Skill Gap / Receipts Modal -->
+    <div class="modal-overlay" id="skill-gap-modal">
+        <div class="desc-modal" style="max-width: 1000px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 2.5rem;">
+            <button class="close-modal" onclick="closeModal('skill-gap-modal')">&times;</button>
+            <h2 style="font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Evaluated Job Postings</h2>
+            <p style="color: var(--text-body); font-size: 0.9rem; margin-bottom: 1.5rem;">These are the real jobs we evaluated that did not match your profile due to missing skill requirements.</p>
+            
+            <div class="jobs-table-container" style="margin-bottom: 0; box-shadow: none;">
+                <table class="jobs-table" style="min-width: 900px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 20%;">Company & Role</th>
+                            <th style="width: 20%;">Missing Skills</th>
+                            <th style="width: 50%;">AI Rejection Reason</th>
+                            <th style="width: 10%;">Link</th>
+                        </tr>
+                    </thead>
+                    <tbody id="mi-jobs-tbody">
+                        <!-- JS injected rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Queue Modal -->
+    <div class="modal-overlay" id="queue-modal">
+        <div class="desc-modal" style="text-align: center; padding: 3rem 2rem; max-width: 580px;">
+            <button class="close-modal" onclick="closeModal('queue-modal')" style="font-size: 2rem; top: 1rem; right: 1rem;">&times;</button>
+            <h3 style="color: #000000; font-size: 1.4rem; margin-bottom: 1rem; font-weight: 850;">✅ Jobs Added to Extraction Queue</h3>
+            <p style="color: var(--text-body); max-width: 500px; margin: 0 auto 2rem; font-size: 0.95rem; line-height: 1.6;">We're upgrading backend capabilities. Processing paused temporarily—you'll be notified via email upon resumption.</p>
+            <button onclick="closeModal('queue-modal')" style="margin: 0 auto; display: block; max-width: 200px; width: 100%; border-radius: 6px; padding: 0.75rem; border: none; background: var(--primary); color: #000000; font-weight: 750; cursor: pointer; transition: background 0.2s;">Close</button>
+        </div>
+    </div>
+
+    <!-- Inbox Connection Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="desc-modal" style="max-width: 600px; padding: 2.5rem 2.5rem 1.5rem;">
+            <button class="close-modal" onclick="closeModal('settings-modal')">&times;</button>
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h2 style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Update Search Criteria</h2>
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Target Roles (comma separated)</label>
+                <input type="text" id="set-roles" style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Target Countries (comma separated)</label>
+                <input type="text" id="set-countries" style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
+            </div>
+            <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Workplace Types</label>
+                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
+                        <input type="checkbox" name="set-wp" value="Remote"> Remote
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
+                        <input type="checkbox" name="set-wp" value="Hybrid"> Hybrid
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
+                        <input type="checkbox" name="set-wp" value="On-site"> On-site
+                    </label>
+                </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 2rem; text-align: left;">
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Master Resume (PDF only)</label>
+                <input type="file" id="set-resume" accept=".pdf" style="width: 100%; font-family: inherit; font-size: 0.85rem;">
+                <p style="font-size: 0.75rem; color: #EF4444; margin-top: 0.5rem;">Leave empty to keep your current resume.</p>
+            </div>
+            <button id="save-settings-btn" class="btn" style="width: 100%;" onclick="saveSettings()">Update Profile</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="inbox-modal">
+        <div class="desc-modal" style="max-width: 800px; padding: 2.5rem 2.5rem 1.5rem;">
+            <button class="close-modal" onclick="closeModal('inbox-modal')">&times;</button>
+            
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <span style="background: rgba(212, 255, 51, 0.15); color: #000000; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 1px;">AI Feature Configuration</span>
+                <h2 id="modal-wizard-title" style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Configure Auto-Apply Engine</h2>
+            </div>
+
+            <!-- Slide 1: What the AI Agent Does -->
+            <div id="wizard-slide-1">
+                <div style="display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    <!-- Column 1: Task AI Agent Does -->
+                    <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: left;">
+                        <h4 style="color: #000000; font-size: 0.9rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1.25rem; display: flex; align-items: center; gap: 0.5rem;">
+                            <span style="color: var(--secondary); font-size: 1.1rem;">✓</span> The Task AI Agent Does
+                        </h4>
+                        <ol style="padding-left: 1.2rem; color: var(--text-body); font-size: 0.875rem; display: flex; flex-direction: column; gap: 0.85rem; font-weight: 500; line-height: 1.55;">
+                            <li><strong>Profile Creation:</strong> Registers candidate profiles on ATS portals requiring account Creation (e.g. SuccessFactors, Workday).</li>
+                            <li><strong>OTP Verification:</strong> Intercepts sign-up/sign-in verification codes sent to your inbox to bypass blocks.</li>
+                            <li><strong>Form Data Auto-Fill:</strong> Automatically fills out application forms and tailors your answers using AI.</li>
+                            <li><strong>Resume Attachment:</strong> Dynamically uploads your optimized resume and cover letter.</li>
+                            <li><strong>Hiring Manager Outreach:</strong> Sends a professional follow-up email directly to the hiring manager to get your application noticed.</li>
+                        </ol>
+                    </div>
+
+                    <!-- Column 2: Visual Preview -->
+                    <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; justify-content: center; text-align: left;">
+                        <span style="font-size: 0.72rem; color: #52525B; display: block; margin-bottom: 0.5rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">Inbox Verification Code Capture</span>
+                        <img src="assets/ats_logo_inbox_mockup.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="Inbox OTP Verification Mockup">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Slide 2: Your Task & Setup Guide -->
+            <div id="wizard-slide-2" style="display: none; margin-bottom: 1.5rem; text-align: left;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 1.5rem;">
+                    
+                    <!-- Left Column: Your Task & Guide Text -->
+                    <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+                        <!-- Your Task Card -->
+                        <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="color: #000000; font-size: 0.88rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="color: var(--accent); font-size: 1.1rem;">✉</span> Your Task
+                            </h4>
+                            <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.6; font-weight: 500; margin-bottom: 0.75rem;">
+                                To perform <strong>Profile Creation</strong> &amp; application submission that requires <strong>OTP Verification</strong> — including sending a personalised automated email to the hiring manager — the AI Job Agent needs access to a dedicated job-search email inbox.
+                            </p>
+                            <p style="color: var(--text-body); font-size: 0.85rem; line-height: 1.6; font-weight: 500; margin-bottom: 0.75rem;">
+                                We highly recommend you <strong>Create A New Gmail Account</strong> (e.g., <em>yourname.jobs@gmail.com</em>, <em>anything@gmail.com</em>) specifically for job hunting and submit the Email address and App Password below. This keeps your personal inbox completely private. <em>(Not your Email Password)</em> — this allows our app to programmatically gain access to your emails to perform operations automatically.
+                            </p>
+                            <div style="background: rgba(239, 68, 68, 0.06); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 8px; padding: 0.65rem 1rem; margin-top: 0.25rem;">
+                                <p style="color: #DC2626; font-size: 0.82rem; font-weight: 800; margin: 0; letter-spacing: 0.3px;">⛔ DO NOT USE YOUR EXISTING PERSONAL EMAIL. Create a brand new dedicated Gmail account for this purpose only.</p>
+                            </div>
+                        </div>
+                        
+                        <!-- Guide Card -->
+                        <div style="background: rgba(0, 255, 204, 0.03); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 12px; padding: 1.25rem;">
+                            <h4 style="color: #000000; margin-bottom: 0.75rem; text-transform: uppercase; font-size: 0.8rem; font-weight: 800; letter-spacing: 0.5px; display: flex; align-items: center; gap: 0.5rem;">
+                                <span style="background: #000000; color: #ffffff; border-radius: 50%; width: 18px; height: 18px; display: inline-flex; align-items: center; justify-content: center; font-size: 0.7rem;">ℹ</span>
+                                How to Link Your Gmail in 30 Seconds
+                            </h4>
+                            <ol style="padding-left: 1.2rem; color: var(--text-body); font-size: 0.82rem; line-height: 1.55; display: flex; flex-direction: column; gap: 0.5rem; font-weight: 500;">
+                                <li>Ensure <strong>2-Step Verification</strong> is turned <strong>ON</strong> under your Google Account Security settings.</li>
+                                <li>Go to the <a href="https://myaccount.google.com/apppasswords" target="_blank" style="color: #00b38f; text-decoration: underline; font-weight: 700;">Google App Passwords page</a>.</li>
+                                <li>Enter <strong>"AutoApply AI"</strong> as the app name and click <strong>Create</strong>.</li>
+                                <li>Google will display a <strong>16-letter password</strong> in a yellow box (e.g., <code>abcd efgh ijkl mnop</code>). <strong>Copy it</strong> and paste it below.</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Right Column: Visual Guides -->
+                    <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; display: flex; flex-direction: column; gap: 1rem; justify-content: center;">
+                        <div>
+                            <span style="font-size: 0.7rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">1. Enable 2-Step Verification</span>
+                            <img src="assets/google_2step_guide.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="2-Step Verification Guide">
+                        </div>
+                        <div>
+                            <span style="font-size: 0.7rem; color: #52525B; display: block; margin-bottom: 0.25rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.5px;">2. Generate 16-Letter App Password</span>
+                            <img src="assets/google_app_password_creation.png" style="width: 100%; border-radius: 8px; border: 1px solid var(--border);" alt="App Password Setup">
+                        </div>
+                    </div>
+                    
+                </div>
+
+                <!-- Input Fields inside Slide 2 -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem; border-top: 1px solid #f4f4f5; padding-top: 1.5rem; text-align: left; margin-bottom: 1rem;">
+                    <div class="field">
+                        <label style="font-size: 0.75rem; font-weight: 750; color: #52525B;">Dedicated Job-Search Gmail</label>
+                        <input type="email" id="gmail-email" placeholder="yourname.jobs@gmail.com" style="padding: 0.75rem 1rem;">
+                    </div>
+                    <div class="field">
+                        <label style="font-size: 0.75rem; font-weight: 750; color: #52525B;">16-Letter App Password</label>
+                        <input type="password" id="gmail-password" placeholder="abcd efgh ijkl mnop" style="padding: 0.75rem 1rem;">
+                    </div>
+                </div>
+
+                <!-- Validation Status Tracker inside Slide 2 -->
+                <div id="inbox-status" style="display: none; background: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 8px; padding: 1rem; margin-top: 1.25rem; color: #047857; font-size: 0.88rem; font-weight: 600; text-align: center;">
+                    <div id="status-spinner" style="width: 20px; height: 20px; border: 2px solid rgba(16, 185, 129, 0.2); border-top-color: #10B981; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 0.5rem;"></div>
+                    <span id="status-step-text">Connecting to imap.gmail.com...</span>
+                </div>
+            </div>
+            
+            <div id="inbox-error" style="color: #EF4444; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; font-weight: 600; background: rgba(239, 68, 68, 0.05); padding: 0.75rem; border: 1px solid rgba(239, 68, 68, 0.15); border-radius: 6px;"></div>
+            
+            <!-- Wizard Action Buttons -->
+            <div id="wizard-buttons" style="display: flex; gap: 1rem;">
+                <button id="btn-next-slide" onclick="nextSlide()" style="background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Next: Setup Instructions &rarr;</button>
+                
+                <button id="btn-prev-slide" onclick="prevSlide()" style="display: none; background: transparent; border: 1px solid var(--border); color: var(--text-body); font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: all 0.2s; width: 25%;">Back</button>
+                <button id="save-inbox-btn" onclick="saveInbox()" style="display: none; background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 0.9rem; border-radius: 8px; font-weight: 800; width: 75%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Activate Auto-Apply Agent &rarr;</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentJobs = [];
+        let userProfile = null;
+
+        // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
+        (async function authGuard() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+
+            if (!session) {
+                // Not logged in at all → send to login
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const user = session.user;
+
+            // Check if email is confirmed
+            if (!user.email_confirmed_at) {
+                sessionStorage.setItem('pending_verification_email', user.email);
+                await supabaseClient.auth.signOut();
+                window.location.href = 'verify.html';
+                return;
+            }
+
+            // Check if onboarding is complete — if not, send back to setup
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('onboarding_complete, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status')
+                .eq('id', user.id)
+                .single();
+
+            if (!profile || !profile.onboarding_complete) {
+                window.location.href = 'onboarding.html';
+                return;
+            }
+
+            // Populate user preference labels
+            document.getElementById('pref-roles').textContent = profile.target_job_titles || 'Not specified';
+            document.getElementById('pref-countries').textContent = profile.target_location || 'Not specified';
+            document.getElementById('pref-workplaces').textContent = profile.workplace_type || 'Not specified';
+
+            // ── Sync master resume from Supabase → localStorage (cross-device support) ──
+            if (profile.master_resume) {
+                localStorage.setItem('master_resume', profile.master_resume);
+                console.log('Master resume loaded from Supabase into localStorage.');
+            } else {
+                console.warn('No master resume found in Supabase profile. User may need to run the optimizer.');
+            }
+
+            userProfile = profile;
+
+            // Populate avatar initials from database profile (fallback to email)
+            const firstName = profile.first_name || '';
+            const lastName = profile.last_name || '';
+            let initials = '??';
+            if (firstName && lastName) {
+                initials = (firstName[0] + lastName[0]).toUpperCase();
+            } else if (user.email) {
+                initials = user.email.slice(0, 2).toUpperCase();
+            }
+            const avatarEl = document.getElementById('nav-avatar');
+            if (avatarEl) avatarEl.textContent = initials;
+
+            // Set Free Trial vs Premium Badge dynamically
+            const badgeEl = document.getElementById('nav-badge');
+            const upgradeBtn = document.getElementById('nav-upgrade-btn');
+            
+            // Assume Limit > 150 means Premium (or check subscription_tier if it exists)
+            const isPremium = profile.subscription_tier === 'premium' || (profile.applications_limit && profile.applications_limit > 150);
+            
+            if (isPremium) {
+                badgeEl.innerHTML = '✅ Premium Active';
+                badgeEl.style.background = 'rgba(16, 185, 129, 0.06)';
+                badgeEl.style.color = '#10B981';
+                badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                if (upgradeBtn) upgradeBtn.style.display = 'none'; // Hide upgrade button for premium users
+            } else {
+                badgeEl.innerHTML = '⏳ Free Trial';
+                badgeEl.style.background = 'rgba(0, 0, 0, 0.04)';
+                badgeEl.style.color = '#71717A';
+                badgeEl.style.borderColor = 'rgba(0, 0, 0, 0.1)';
+                if (upgradeBtn) upgradeBtn.style.display = 'inline-block';
+            }
+
+            // Show which Greenhouse account is active (optional UX hint)
+            if (profile.Application_email) {
+                const creditsEl = document.querySelector('.nav-credits');
+                if (creditsEl) creditsEl.title = `AI account: ${profile.Application_email}`;
+            }
+
+            // Initialize Production Dashboard Data
+            await fetchUserJobs();
+            setupRealtime(user.id);
+
+            // Check if we need to trigger the initial scrape
+            if (localStorage.getItem('trigger_initial_scrape') === 'true') {
+                localStorage.removeItem('trigger_initial_scrape');
+                triggerInitialScrape(user, profile);
+            }
+        })();
+
+        let pollingInterval = null;
+        let pollCount = 0;
+
+        function startPolling() {
+            if (pollingInterval) return;
+            pollCount = 0;
+            console.log("Starting polling fallback...");
+            pollingInterval = setInterval(async () => {
+                pollCount++;
+                if (pollCount > 12) { // Stop polling after 3 minutes (12 * 15s) to save resources
+                    stopPolling();
+                    updateScanningIndicator(false, currentJobs.length);
+                    return;
+                }
+                await fetchUserJobs();
+            }, 15000);
+        }
+
+        function stopPolling() {
+            if (pollingInterval) {
+                console.log("Stopping polling fallback.");
+                clearInterval(pollingInterval);
+                pollingInterval = null;
+            }
+        }
+
+        function updateScanningIndicator(isScanningActive, jobCount) {
+            const indicator = document.getElementById('scanning-indicator');
+            const dot = document.getElementById('scanning-dot');
+            const title = document.getElementById('scanning-title');
+            const text = document.getElementById('scanning-text');
+            if (isScanningActive && jobCount === 0) {
+                indicator.style.background = 'rgba(212, 255, 51, 0.03)';
+                indicator.style.borderColor = 'var(--primary)';
+                dot.style.width = 'auto';
+                dot.style.height = 'auto';
+                dot.style.background = 'transparent';
+                dot.style.boxShadow = 'none';
+                dot.style.animation = '';
+                dot.innerHTML = '🧭';
+                dot.className = 'rover-compass';
+                title.textContent = 'Rover is Active';
+                title.style.color = '#000000';
+                text.textContent = 'Roving across the Job market to capture your target roles...';
+            } else {
+                indicator.style.background = 'rgba(0, 0, 0, 0.015)';
+                indicator.style.borderColor = 'var(--border)';
+                dot.style.width = '12px';
+                dot.style.height = '12px';
+                dot.style.background = '#10B981';
+                dot.style.boxShadow = '0 0 10px #10B981';
+                dot.style.animation = 'none';
+                dot.innerHTML = '';
+                dot.className = '';
+                title.textContent = '👀 Monitoring';
+                title.style.color = '#047857';
+                text.textContent = 'Your AI Job Agent is active and checks for new listings twice daily.';
+            }
+        }
+
+        async function triggerInitialScrape(user, profile) {
+            console.log('Triggering initial scrape for user:', user.id);
+            
+            const roles = profile.target_job_titles || '';
+            const country = profile.target_location || 'United States';
+            
+            const workplaceMap = {
+                'remote': '2',
+                'hybrid': '3',
+                'on-site': '1'
+            };
+            const workplaceTypes = (profile.workplace_type || '')
+                .split(',')
+                .map(w => w.trim().toLowerCase())
+                .map(w => workplaceMap[w] || w)
+                .filter(w => w);
+
+            const resumeText = localStorage.getItem('master_resume') || '';
+
+            // Start polling as the scraping workflow starts in the background
+            startPolling();
+            updateScanningIndicator(true, 0);
+
+            try {
+                await supabaseClient.from('profiles').update({ scraper_status: 'scanning' }).eq('id', user.id);
+
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const jwt = session ? session.access_token : '';
+
+                fetch('https://n8n.leadscompass.ai/webhook/3e4ee99d-dac6-499c-a5cd-d1234be1e258', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwt}`
+                    },
+                    body: JSON.stringify({
+                        user_id: user.id,
+                        role: roles,
+                        country: country,
+                        workplaceTypes: workplaceTypes,
+                        resumeText: resumeText
+                    })
+                }).then(res => {
+                    console.log('Initial scrape webhook triggered successfully', res);
+                }).catch(err => {
+                    console.error('Failed to trigger initial scrape webhook', err);
+                });
+            } catch (err) {
+                console.error('Error triggering initial scrape:', err);
+            }
+        }
+
+        async function fetchUserJobs() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            const { data: jobs, error } = await supabaseClient
+                .from('job_applications')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching jobs:', error);
+                return;
+            }
+
+            // Fetch profile scraper status
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('scraper_status')
+                .eq('id', user.id)
+                .single();
+
+            const scraperStatus = profile ? profile.scraper_status : 'idle';
+
+            // Manage polling and scanning state
+            if (scraperStatus === 'scanning') {
+                startPolling();
+                updateScanningIndicator(true, jobs ? jobs.length : 0);
+            } else {
+                stopPolling();
+                updateScanningIndicator(false, jobs ? jobs.length : 0);
+            }
+
+            currentJobs = jobs.map(dbJob => {
+                let formattedDate = '';
+                try {
+                    const rawDate = dbJob.postedAt || dbJob.created_at;
+                    if (rawDate) {
+                            const d = new Date(rawDate);
+                            const mm = String(d.getMonth() + 1).padStart(2, '0');
+                            const dd = String(d.getDate()).padStart(2, '0');
+                            const yyyy = d.getFullYear();
+                            formattedDate = `${mm}-${dd}-${yyyy}`;
+                        }
+                } catch (e) {
+                    formattedDate = dbJob.postedAt || '';
+                }
+
+                return {
+                    id: dbJob.id,
+                    companyName: dbJob.companyName || 'Unknown Company',
+                    title: dbJob.title || 'Role',
+                    location: dbJob.location || 'Remote',
+                    postedAt: formattedDate || 'Recent',
+                    link: dbJob.link || '#',
+                    descriptionText: dbJob.descriptionText || 'No description provided.',
+                    status: dbJob.status || 'queued',
+                    atsType: dbJob.ats_type || 'Unknown',
+                    applyUrl: dbJob.applyUrl || '#',
+                    companyWebsite: dbJob.companyWebsite || '',
+                    seniorityLevel: dbJob.seniorityLevel || '',
+                    employmentType: dbJob.employmentType || '',
+                    jobFunction: dbJob.jobFunction || '',
+                    industries: dbJob.industries || '',
+                    resumeUrl: dbJob.resume_url || '',
+                    coverLetterUrl: dbJob.cover_letter_url || '',
+                    salary_range: dbJob.salary_range || '',
+                    workplaceType: dbJob.workplaceType || ''
+                };
+            });
+
+            updateStats(currentJobs, user.id);
+            renderJobs(currentJobs, scraperStatus === 'scanning');
+            updateInboxBannerVisibility();
+        }
+
+        function updateInboxBannerVisibility() {
+            const banner = document.getElementById('inbox-banner');
+            if (!banner || !userProfile) return;
+            
+            if (currentJobs.length > 0) {
+                banner.style.display = 'flex';
+                const button = banner.querySelector('button');
+                if (button) {
+                    if (userProfile.Application_email) {
+                        button.textContent = '✓ Auto-Apply Enabled';
+                        button.style.background = '#10B981';
+                        button.style.color = '#ffffff';
+                    } else {
+                        button.innerHTML = 'Enable Auto-Apply &rarr;';
+                        button.style.background = 'var(--primary)';
+                        button.style.color = '#000000';
+                    }
+                }
+            } else {
+                banner.style.display = 'none';
+            }
+        }
+
+        function updateStats(jobs, userId) {
+            const bar = document.getElementById('stats-bar');
+            if (!jobs || jobs.length === 0) {
+                bar.style.display = 'none';
+            } else {
+                bar.style.display = 'flex';
+                document.getElementById('stat-total').textContent = jobs.length;
+                document.getElementById('stat-queued').textContent = jobs.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
+                document.getElementById('stat-applied').textContent = jobs.filter(j => j.status === 'applied').length;
+            }
+            
+            // Fetch Market Intelligence data regardless of whether there are jobs or not
+            fetchMarketIntelligence(userId);
+        }
+
+        async function fetchMarketIntelligence(userId) {
+            try {
+                const { data: rejectedJobs, error } = await supabaseClient
+                    .from('rejected_jobs')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                const miSection = document.getElementById('market-intel-section');
+                if (!rejectedJobs || rejectedJobs.length === 0) {
+                    miSection.style.display = 'none';
+                    return;
+                }
+
+                miSection.style.display = 'block';
+                document.getElementById('mi-total-analyzed').textContent = rejectedJobs.length;
+
+                // Aggregate Skills
+                const skillCounts = {};
+                rejectedJobs.forEach(job => {
+                    if (job.missing_skills && Array.isArray(job.missing_skills)) {
+                        job.missing_skills.forEach(skill => {
+                            const s = skill.trim();
+                            if (s) {
+                                skillCounts[s] = (skillCounts[s] || 0) + 1;
+                            }
+                        });
+                    }
+                });
+
+                // Sort by count
+                const sortedSkills = Object.entries(skillCounts)
+                    .sort((a, b) => b[1] - a[1])
+                    .slice(0, 5); // Top 5
+
+                const skillsListHtml = sortedSkills.map(([skill, count]) => {
+                    const percentage = Math.round((count / rejectedJobs.length) * 100);
+                    return `
+                        <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px;">
+                            <span style="font-weight: 700; color: #000000; font-size: 0.9rem;">${skill}</span>
+                            <span style="background: rgba(255, 107, 74, 0.1); color: var(--accent); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">Missed in ${percentage}% of jobs</span>
+                        </div>
+                    `;
+                }).join('');
+
+                document.getElementById('mi-skills-list').innerHTML = sortedSkills.length > 0 ? skillsListHtml : '<span style="color: #A1A1AA; font-size: 0.85rem;">No specific skills extracted.</span>';
+
+                // Populate Receipts Modal
+                const tbody = document.getElementById('mi-jobs-tbody');
+                tbody.innerHTML = rejectedJobs.map(job => {
+                    const skillsStr = (job.missing_skills || []).join(', ');
+                    const url = job.apply_url && job.apply_url !== '#' ? job.apply_url : '#';
+                    return `
+                        <tr>
+                            <td>
+                                <strong style="color: #000; display: block;">${job.company || 'Unknown'}</strong>
+                                <span style="font-weight: 600; font-size: 0.8rem; color: #52525B;">${job.job_title || 'Unknown'}</span>
+                            </td>
+                            <td style="color: var(--accent); font-weight: 600; font-size: 0.8rem;">${skillsStr || 'None listed'}</td>
+                            <td style="font-size: 0.8rem; color: #3f3f46; line-height: 1.5;">${job.reason || 'No reason provided.'}</td>
+                            <td>
+                                ${url !== '#' ? `<a href="${url}" target="_blank" class="table-btn table-btn-sm" style="background: var(--primary); color: #000; border: none; padding: 0.4rem 0.8rem;">View Job</a>` : '<span style="color: #A1A1AA; font-size: 0.8rem;">N/A</span>'}
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error("Error fetching market intelligence:", err);
+            }
+        }
+
+        function setupRealtime(userId) {
+            supabaseClient.channel('jobs-updates')
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'job_applications', filter: `user_id=eq.${userId}` }, payload => {
+                  console.log('Realtime job update:', payload);
+                  fetchUserJobs(); // Refresh the dashboard on any change (scrape inserts, apply updates)
+              })
+              .subscribe();
+
+            supabaseClient.channel('profile-updates')
+              .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles', filter: `id=eq.${userId}` }, payload => {
+                  console.log('Realtime profile update:', payload);
+                  fetchUserJobs();
+              })
+              .subscribe();
+        }
+
+        let currentResumeObjectUrl = null;
+
+        function renderJobs(jobs, isScanning = false) {
+            const container = document.getElementById('job-list');
+            if (!jobs.length) {
+                if (isScanning) {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 2.5rem 1.5rem;">
+                            <div class="rover-compass" style="margin-bottom: 1rem; font-size: 2rem;">🧭</div>
+                            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 0.35rem;">Rover is Active</h3>
+                            <p style="font-size: 0.88rem; color: var(--text-body);">Roving across the Job market to capture your target roles...</p>
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                            <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
+                            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">No Matching Jobs Found Yet</h3>
+                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.65; font-weight: 500;">
+                                We completed the live scan, but found no active listings matching your criteria. 
+                                Regional job volume depends on employer postings (e.g., specialized roles in countries like Nigeria naturally yield fewer active postings than high-density US markets).
+                            </p>
+                            <a href="onboarding.html?edit=true" class="table-btn" style="font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 3px 3px 0px var(--border); border-radius: 50px;">⚙ Adjust Target Settings</a>
+                        </div>`;
+                }
+                return;
+            }
+
+            let html = `
+                <div class="jobs-table-container">
+                    <table class="jobs-table">
+                        <thead>
+                            <tr>
+                                <th>Company</th>
+                                <th>Location</th>
+                                <th>Employment Type</th>
+                                <th>Role</th>
+                                <th>Application Details</th>
+                                <th>RESUME & COVER LETTER</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+            jobs.forEach((job, index) => {
+                const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : 'status-queued';
+                const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : '⏳ In Queue';
+                const wpType = (job.workplaceType || '').toLowerCase();
+                const tagClass = wpType.includes('remote') ? 'tag-remote' : wpType.includes('hybrid') ? 'tag-hybrid' : 'tag-onsite';
+                const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag ${tagClass}" style="margin-top: 0;">${job.workplaceType}</span>` : '';
+                const salaryLabel = job.salary_range ? `<span class="table-salary" style="margin-top: 0.25rem;">${job.salary_range}</span>` : '';
+                
+                // Get job posting link
+                const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
+                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; margin-top: 0.25rem; width: fit-content;">Application Link</a>` : '';
+                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">View Custom Resume</button>` : '';
+                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">View Custom Cover Letter</button>` : '';
+
+                html += `
+                    <tr>
+                        <td>
+                            <div style="font-weight: 600; color: #000000;">${job.companyName}</div>
+                            ${job.companyWebsite ? `<a href="http://${job.companyWebsite}" target="_blank" style="color: #52525B; text-decoration: none; font-weight: 500; display: inline-flex; align-items: center; gap: 0.25rem; margin-top: 0.25rem;">${job.companyWebsite}</a>` : ''}
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: var(--text-body);">${job.location}</div>
+                        </td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
+                                ${workplaceLabel}
+                                ${job.employmentType ? `<div style="color: #52525B; font-weight: 600; margin-top: 0.15rem;">${job.employmentType}</div>` : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">${job.title}</div>
+                            ${salaryLabel}
+                        </td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
+                                ${job.postedAt ? `<div style="line-height: 1.3; margin-left: 1rem;"><span style="font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.6px; color: #A1A1AA; font-weight: 700; display: block;">Posted On</span><span style="font-weight: 500; color: #71717A; font-size: 0.875rem;">${job.postedAt}</span></div>` : ''}
+                                ${jobLinkButton}
+                                <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                                ${resumeButton}
+                                ${coverLetterButton}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function openModal(index) {
+            const job = currentJobs[index];
+            document.getElementById('modal-title').innerText = job.title;
+            document.getElementById('modal-company').innerText = job.companyName;
+            document.getElementById('modal-text').innerText = job.descriptionText || 'No description provided.';
+            document.getElementById('desc-modal').classList.add('active');
+        }
+
+        async function openDocument(index, type) {
+            const job = currentJobs[index];
+            
+            if (type === 'coverLetter') {
+                document.getElementById('resume-modal-title').innerText = `Cover Letter for ${job.title}`;
+            } else {
+                document.getElementById('resume-modal-title').innerText = `Resume for ${job.title}`;
+            }
+            
+            document.getElementById('resume-modal-company').innerText = job.companyName;
+
+            // Revoke previous blob URL if exists
+            if (currentResumeObjectUrl) {
+                URL.revokeObjectURL(currentResumeObjectUrl);
+                currentResumeObjectUrl = null;
+            }
+
+            const iframe = document.getElementById('resume-iframe');
+            iframe.src = '';
+
+            document.getElementById('resume-modal').classList.add('active');
+
+            try {
+                // Fetch the PDF as a blob to avoid exposing the raw Supabase URL in the address bar / network inspection where possible
+                const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
+                const response = await fetch(docUrl);
+                if (!response.ok) throw new Error('Fetch failed');
+                const blob = await response.blob();
+                currentResumeObjectUrl = URL.createObjectURL(blob);
+                iframe.src = currentResumeObjectUrl;
+            } catch (error) {
+                console.error('Error fetching document blob, falling back to direct URL:', error);
+                // Fallback to direct URL if there's any CORS or fetch issue
+                const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
+                iframe.src = docUrl;
+            }
+        }
+
+        async function openSettingsModal() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+            const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, workplace_type').eq('id', user.id).single();
+            if (profile) {
+                document.getElementById('set-roles').value = profile.target_job_titles || '';
+                document.getElementById('set-countries').value = profile.target_location || '';
+                const wps = (profile.workplace_type || '').toLowerCase();
+                document.querySelectorAll('input[name="set-wp"]').forEach(cb => {
+                    cb.checked = wps.includes(cb.value.toLowerCase());
+                });
+            }
+            document.getElementById('settings-modal').classList.add('active');
+        }
+
+        async function saveSettings() {
+            const btn = document.getElementById('save-settings-btn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                const roles = document.getElementById('set-roles').value.trim();
+                const countries = document.getElementById('set-countries').value.trim();
+                const wps = Array.from(document.querySelectorAll('input[name="set-wp"]:checked')).map(cb => cb.value).join(', ');
+                
+                let updateData = {
+                    target_job_titles: roles,
+                    target_location: countries,
+                    workplace_type: wps
+                };
+
+                const fileInput = document.getElementById('set-resume');
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+                    const fileName = `${user.id}_${Date.now()}.pdf`;
+                    const { data: uploadData, error: uploadError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
+                    if (uploadError) throw uploadError;
+                    const { data: { publicUrl } } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
+                    updateData.resume_url = publicUrl;
+                }
+
+                const { error } = await supabaseClient.from('profiles').update(updateData).eq('id', user.id);
+                if (error) throw error;
+
+                document.getElementById('pref-roles').textContent = roles || 'Not specified';
+                document.getElementById('pref-countries').textContent = countries || 'Not specified';
+                document.getElementById('pref-workplaces').textContent = wps || 'Not specified';
+                
+                closeModal('settings-modal');
+                alert('Profile updated successfully! Changes will apply to your next scan.');
+            } catch (err) {
+                alert('Error saving settings: ' + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.textContent = 'Update Profile';
+            }
+        }
+
+        function openCoverLetter(index) {
+            const job = currentJobs[index];
+            document.getElementById('cl-company').innerText = `Tailored for ${job.companyName}`;
+            document.getElementById('cl-text').innerText = job.coverLetterText;
+            document.getElementById('cl-modal').classList.add('active');
+        }
+
+
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        // Close modal on overlay click
+        document.querySelectorAll('.modal-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => {
+                if (e.target === e.currentTarget) closeModal(e.target.id);
+            });
+        });
+
+
+
+        async function logout() {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) {
+                console.error('Logout failed:', error.message);
+                alert('Logout failed. Please try again.');
+                return;
+            }
+            localStorage.clear();
+            window.location.href = 'login.html';
+        }
+
+        function openInboxModal() {
+            prevSlide(); // Reset to slide 1
+            document.getElementById('inbox-modal').classList.add('active');
+        }
+
+        function nextSlide() {
+            document.getElementById('wizard-slide-1').style.display = 'none';
+            document.getElementById('wizard-slide-2').style.display = 'block';
+            
+            document.getElementById('btn-next-slide').style.display = 'none';
+            document.getElementById('btn-prev-slide').style.display = 'block';
+            document.getElementById('save-inbox-btn').style.display = 'block';
+            
+            document.getElementById('modal-wizard-title').textContent = 'Link Your Gmail Account';
+        }
+
+        function prevSlide() {
+            document.getElementById('wizard-slide-1').style.display = 'block';
+            document.getElementById('wizard-slide-2').style.display = 'none';
+            
+            document.getElementById('btn-next-slide').style.display = 'block';
+            document.getElementById('btn-prev-slide').style.display = 'none';
+            document.getElementById('save-inbox-btn').style.display = 'none';
+            
+            document.getElementById('modal-wizard-title').textContent = 'Configure Auto-Apply Engine';
+        }
+
+        async function saveInbox() {
+            const email = document.getElementById('gmail-email').value.trim();
+            const password = document.getElementById('gmail-password').value.trim();
+            const errorEl = document.getElementById('inbox-error');
+            const btn = document.getElementById('save-inbox-btn');
+            const statusEl = document.getElementById('inbox-status');
+            const statusText = document.getElementById('status-step-text');
+            const statusSpinner = document.getElementById('status-spinner');
+
+            if (!email || !password) {
+                errorEl.textContent = "Please provide both the email and the App Password.";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            // client-side validation format checks
+            const cleanPassword = password.replace(/\s+/g, '');
+            const isGmail = email.toLowerCase().endsWith('@gmail.com');
+            const isAppPassword = /^[a-z]{16}$/.test(cleanPassword);
+
+            if (!isGmail) {
+                errorEl.textContent = "Please enter a valid dedicated job-search Gmail address (ending in @gmail.com).";
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            if (!isAppPassword) {
+                errorEl.innerHTML = `⚠️ <strong>Security Warning:</strong> Google App Passwords must be exactly 16 letters (all lowercase, no numbers or special characters, e.g., <code>abcd efgh ijkl mnop</code>).<br>The password you entered appears to be your standard Gmail account password, which Google blocks for third-party tools. Please follow the instructions to generate a 16-letter App Password.`;
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            errorEl.style.display = 'none';
+            btn.disabled = true;
+            btn.textContent = 'Verifying Connection...';
+            
+            // Show status tracker and initialize connection steps
+            statusEl.style.display = 'block';
+            statusSpinner.style.display = 'block';
+            statusEl.style.background = 'rgba(0, 255, 204, 0.05)';
+            statusEl.style.borderColor = 'rgba(0, 255, 204, 0.2)';
+            statusEl.style.color = '#006652';
+
+            const runTimeout = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+            try {
+                // Step 1 — show connecting state
+                statusText.innerHTML = "🔒 Establishing secure connection...";
+                await new Promise(r => setTimeout(r, 700));
+
+                // Step 2 — real IMAP validation via secure n8n webhook
+                statusText.innerHTML = "🔑 Verifying credentials...";
+                const validationRes = await fetch('https://n8n.leadscompass.ai/webhook/validate-inbox', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: email, appPassword: cleanPassword })
+                });
+
+                if (!validationRes.ok) {
+                    throw new Error('Validation server unreachable. Please try again shortly.');
+                }
+
+                const validationResult = await validationRes.json();
+
+                if (!validationResult.valid) {
+                    throw new Error(validationResult.error || 'Authentication failed. Check your credentials.');
+                }
+
+                // Step 3 — credentials confirmed good
+                statusText.innerHTML = "🛡️ Finalizing configuration...";
+                await new Promise(r => setTimeout(r, 500));
+
+                // All good
+                statusSpinner.style.display = 'none';
+                statusEl.style.background = 'rgba(16, 185, 129, 0.08)';
+                statusEl.style.borderColor = 'rgba(16, 185, 129, 0.3)';
+                statusEl.style.color = '#047857';
+                statusText.innerHTML = "🎉 Your AI Job Agent now has Access to your dedicated Job hunt Email";
+                await new Promise(r => setTimeout(r, 2000));
+
+                // Save to database
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const currentUserId = session.user.id;
+
+                const { error } = await supabaseClient.from('profiles').upsert({
+                    id: currentUserId,
+                    Application_email: email,
+                    Application_Password: password,
+                    updated_at: new Date().toISOString()
+                }, { onConflict: 'id' });
+
+                if (error) {
+                    throw new Error(error.message);
+                }
+
+                if (userProfile) {
+                    userProfile.Application_email = email;
+                }
+                closeModal('inbox-modal');
+                updateInboxBannerVisibility();
+                statusEl.style.display = 'none';
+                alert("Inbox connected successfully! The Auto-Apply Engine is now armed.");
+            } catch (err) {
+                errorEl.textContent = "Connection check failed: " + err.message;
+                errorEl.style.display = 'block';
+                statusEl.style.display = 'none';
+                btn.disabled = false;
+                btn.textContent = 'Activate Auto-Apply Agent →';
+            }
+        }
+        async function submitFeedback() {
+            const text = document.getElementById('feedback-text').value.trim();
+            if(!text) return alert("Please enter some feedback first!");
+            
+            const btn = document.getElementById('submit-feedback-btn');
+            btn.innerText = "Sending...";
+            btn.disabled = true;
+
+            try {
+                const userId = typeof userProfile !== 'undefined' && userProfile?.id ? userProfile.id : (await supabaseClient.auth.getUser()).data?.user?.id;
+                const email = typeof userProfile !== 'undefined' ? (userProfile?.Application_email || 'unknown') : 'unknown';
+
+                const { error } = await supabaseClient.from('feedback').insert([{
+                    user_id: userId,
+                    email: email,
+                    message: text,
+                    type: 'bug_report'
+                }]);
+                
+                if (error) throw error;
+                
+                document.getElementById('feedback-text').value = '';
+                closeModal('feedback-modal');
+                alert("Thanks for the feedback! We've received it.");
+            } catch(err) {
+                console.error("Feedback error", err);
+                alert("Could not send feedback. Please try again.");
+            } finally {
+                btn.innerText = "Send Feedback";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
