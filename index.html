@@ -786,13 +786,13 @@
             <div class="price-card popular" style="text-align: center;">
                 <div class="popular-badge">Full Automation</div>
                 <div class="price-name">Auto-Apply Engine</div>
-                <div class="price-amount"><span id="price-sym">$</span><span id="price-val">16</span></div>
-                <div class="price-sub">500 Applications in 1-10 days</div>
+                <div class="price-amount"><span id="price-sym">$</span><span id="price-val">25</span></div>
+                <div class="price-sub">150 Applications in 1-30 days</div>
                 <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
                     <li>Unlimited ATS resume tailoring</li>
-                    <li>Auto-apply to 500 remote jobs</li>
+                    <li>Auto-apply to 150 remote jobs (credits never expire)</li>
                     <li>AI cover letters for every role</li>
-                    <li>24/7 rapid application speed <span style="display:block; font-size:0.85rem; color:#a1a1aa; margin-top:0.3rem; line-height:1.4;">(We exclusively apply to fresh jobs posted within 24 hours)</span></li>
+                    <li>24/7 active scanning for matching roles <span style="display:block; font-size:0.85rem; color:#a1a1aa; margin-top:0.3rem; line-height:1.4;">(timeline varies from 1-30 days based on job market availability)</span></li>
                 </ul>
                 <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Start Automating Now</a>
             </div>
@@ -817,7 +817,7 @@
             </details>
             <details class="faq-item">
                 <summary>How many jobs will the AI agent apply to?</summary>
-                <p>Depending on your plan, our Pro Auto-Apply Engine will apply to up to 500 relevant jobs within 1 to 10 days, targeting only fresh openings posted within 24 hours.</p>
+                <p>Depending on your plan, our Auto-Apply Engine will apply to up to 150 relevant jobs within 1 to 30 days, dynamically adjusting the speed based on matching job availability to prevent spamming.</p>
             </details>
             <details class="faq-item">
                 <summary>Can I review the applications before they are submitted?</summary>
@@ -829,6 +829,15 @@
             </details>
         </div>
     </section>
+
+    <footer style="max-width: 1400px; margin: 4rem auto 0; padding: 2.5rem 5%; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.9rem; color: var(--text-body);">
+        <div>&copy; 2026 RoleRover. All rights reserved.</div>
+        <div style="display: flex; gap: 2rem;">
+            <a href="terms.html" style="color: var(--text-body); text-decoration: none; text-transform: uppercase; font-weight: 600;">Terms</a>
+            <a href="privacy.html" style="color: var(--text-body); text-decoration: none; text-transform: uppercase; font-weight: 600;">Privacy</a>
+            <a href="refunds.html" style="color: var(--text-body); text-decoration: none; text-transform: uppercase; font-weight: 600;">Refunds</a>
+        </div>
+    </footer>
 
     <script>
         // Dynamic Pricing Logic
@@ -847,17 +856,10 @@
                 
                 if (countryCode === 'NG') {
                     document.getElementById('price-sym').textContent = '₦';
-                    document.getElementById('price-val').textContent = '25,000';
+                    document.getElementById('price-val').textContent = '30,000';
                 } else {
-                    try {
-                        const exRes = await fetch('https://open.er-api.com/v6/latest/NGN');
-                        const exData = await exRes.json();
-                        if (exData && exData.rates && exData.rates.USD) {
-                            const usdAmount = Math.ceil(25000 * exData.rates.USD);
-                            document.getElementById('price-sym').textContent = '$';
-                            document.getElementById('price-val').textContent = usdAmount;
-                        }
-                    } catch(e) {}
+                    document.getElementById('price-sym').textContent = '$';
+                    document.getElementById('price-val').textContent = '25';
                 }
             } catch (err) {
                 console.error("Pricing localization failed, using defaults", err);

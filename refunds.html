@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refund Policy | RoleRover</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --surface-color: #121212;
+            --primary: #D4FF33;
+            --text-heading: #FFFFFF;
+            --text-body: #A1A1AA;
+            --border: #27272A;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; padding: 2rem 5%; }
+        
+        body::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.3;
+        }
+
+        .container { max-width: 800px; margin: 4rem auto; background: var(--surface-color); border: 2px solid var(--border); padding: 3rem; position: relative; }
+        h1 { color: var(--text-heading); font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 2rem; text-transform: uppercase; text-decoration: none; display: inline-block; }
+        .logo span { color: var(--primary); }
+        .date { font-size: 0.9rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 2rem; }
+        h3 { color: var(--text-heading); font-size: 1.25rem; font-weight: 800; text-transform: uppercase; margin: 2rem 0 1rem; border-left: 3px solid var(--primary); padding-left: 0.75rem; }
+        p { margin-bottom: 1.2rem; font-size: 1rem; color: #D1D5DB; }
+        ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
+        li { margin-bottom: 0.5rem; color: #D1D5DB; }
+        a.back-btn { display: inline-block; margin-top: 2rem; color: var(--primary); font-weight: 700; text-decoration: none; text-transform: uppercase; font-size: 0.9rem; }
+        a.back-btn:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="index.html" class="logo">APPLY<span>/BOT</span></a>
+        <h1>Refund Policy</h1>
+        <div class="date">Last Updated: June 24, 2026</div>
+
+        <p>At RoleRover (myrolerover.com), we want you to be completely satisfied with our service. Because our Auto-Apply Engine consumes resources and API calls to process and submit applications, we have established the following Refund Policy.</p>
+
+        <h3>1. Refund Eligibility</h3>
+        <ul>
+            <li><strong>Unused Credits</strong>: You are eligible for a full refund within <strong>14 days</strong> of your purchase, provided that <strong>zero (0) job applications</strong> have been submitted on your behalf.</li>
+            <li><strong>Used Credits</strong>: Once our Auto-Apply Engine submits even a single (1) job application on your behalf, the package is considered partially consumed, and <strong>no refunds</strong> can be issued.</li>
+            <li><strong>Non-Expiring Credits</strong>: Because your credits <strong>never expire</strong>, you do not need to request a refund due to time constraints; you can save your credits and use them when matching jobs become available.</li>
+        </ul>
+
+        <h3>2. Job Availability & Speed</h3>
+        <p>We process applications within <strong>1 to 30 days</strong> depending entirely on active matching roles in the market. We do not issue refunds for slower application rates when they are caused by a lack of relevant job postings in your selected industry/location, as this is out of our control.</p>
+
+        <h3>3. How to Request a Refund</h3>
+        <p>To request a refund for unused credits:</p>
+        <ol style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
+            <li style="margin-bottom: 0.5rem; color: #D1D5DB;">Email <strong>billing@myrolerover.com</strong> from the email address associated with your account.</li>
+            <li style="margin-bottom: 0.5rem; color: #D1D5DB;">Include your purchase receipt or transaction reference.</li>
+            <li style="margin-bottom: 0.5rem; color: #D1D5DB;">Our billing team will verify that no applications have been submitted and process your refund within 3–5 business days.</li>
+        </ol>
+
+        <p>Refunds will be credited back to your original payment method. If you paid in Naira (NGN), you will receive the exact Naira amount paid. For foreign currency transactions, exchange rate fees or bank conversion differences may apply and are determined by your card issuer.</p>
+
+        <a href="index.html" class="back-btn">&larr; Back to Home</a>
+    </div>
+</body>
+</html>
