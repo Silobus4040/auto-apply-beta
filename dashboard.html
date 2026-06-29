@@ -407,6 +407,9 @@
                     <div id="inbox-banner" style="display: none; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem; justify-content: center; width: 100%;">
                         <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.82rem; padding: 0.55rem 1rem; border-radius: 6px; font-weight: 750; cursor: pointer; transition: background 0.2s; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">Enable Auto-Apply &rarr;</button>
                     </div>
+                    <div id="test-webhook-banner" style="padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem; justify-content: center; width: 100%;">
+                        <button id="activateRoverBtn" onclick="triggerProductionWebhook()" style="background: #0284c7; color: #ffffff; border: none; font-size: 0.82rem; padding: 0.55rem 1rem; border-radius: 6px; font-weight: 750; cursor: pointer; transition: background 0.2s; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">🚀 Activate Role Rover</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1506,6 +1509,55 @@
             } finally {
                 btn.innerText = "Send Feedback";
                 btn.disabled = false;
+            }
+        }
+
+        async function triggerProductionWebhook() {
+            const webhookUrl = "https://n8n.leadscompass.ai/webhook/user-jobscrape";
+            const btn = document.getElementById('activateRoverBtn');
+            const originalText = btn.innerText;
+            const originalBg = btn.style.background;
+            
+            let userId = "85de00b2-fd0e-4abd-92ec-a5dc97aca549";
+            try {
+                if (typeof userProfile !== 'undefined' && userProfile?.id) {
+                    userId = userProfile.id;
+                } else {
+                    const { data } = await supabaseClient.auth.getUser();
+                    if (data?.user?.id) userId = data.user.id;
+                }
+            } catch(e) {}
+
+            btn.disabled = true;
+            btn.innerText = "Triggering...";
+            btn.style.background = "#475569";
+
+            try {
+                const response = await fetch(webhookUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                });
+
+                if (response.ok) {
+                    alert("✅ Success! The webhook was triggered. Role Rover is running in the background. Check your n8n 'Executions' tab.");
+                    btn.innerText = "Sent Successfully!";
+                    btn.style.background = "#059669";
+                } else {
+                    alert("⚠️ Server returned an error: " + response.status);
+                    btn.innerText = "Error (Click to retry)";
+                    btn.style.background = "#dc2626";
+                }
+            } catch (error) {
+                alert("✅ Request Sent (CORS warning may appear in console). Check your n8n 'Executions' tab.");
+                btn.innerText = "Sent!";
+                btn.style.background = "#059669";
+            } finally {
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                    btn.style.background = originalBg;
+                }, 4000);
             }
         }
     </script>
