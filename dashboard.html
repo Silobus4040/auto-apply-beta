@@ -431,22 +431,27 @@
         <!-- Automation Profile & Active Status -->
         <div class="search-section" style="padding: 1.25rem 1.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
                 <div style="flex: 1; min-width: 300px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem;">
-                        <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin: 0; letter-spacing: 0.5px;">Target Criteria</h3>
-                        <a href="#" onclick="openSettingsModal()" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit Search Criteria</a>
-                    </div>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.02); padding: 1.25rem; border: 1px solid var(--border); border-radius: 12px;">
-                        <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Roles</span>
-                            <span id="pref-roles" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                    <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 0.5rem;">
+                        <div onclick="const content = document.getElementById('criteria-content'); const isHidden = content.style.display === 'none'; content.style.display = isHidden ? 'grid' : 'none';" style="padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; border-bottom: 1px solid var(--border);">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                <span style="font-size: 1.2rem; line-height: 1; color: #000;">☰</span>
+                                <h3 style="font-size: 0.85rem; text-transform: uppercase; font-weight: 800; color: #000; margin: 0; letter-spacing: 0.5px;">Target Criteria</h3>
+                            </div>
+                            <a href="#" onclick="event.stopPropagation(); openSettingsModal()" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit</a>
                         </div>
-                        <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Countries</span>
-                            <span id="pref-countries" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Workplace Types</span>
-                            <span id="pref-workplaces" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                        <div id="criteria-content" style="display: none; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; padding: 1.25rem; background: rgba(0,0,0,0.02);">
+                            <div>
+                                <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Roles</span>
+                                <span id="pref-roles" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Countries</span>
+                                <span id="pref-countries" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                            </div>
+                            <div>
+                                <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Workplace Types</span>
+                                <span id="pref-workplaces" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
+                            </div>
                         </div>
                     </div>
                 </div>
