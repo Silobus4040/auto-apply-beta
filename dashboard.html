@@ -457,12 +457,6 @@
                     <span class="sidebar-nav-icon">✉️</span> AI inbox
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
-                <button class="sidebar-nav-item" onclick="if(userProfile && userProfile.master_resume) { document.getElementById('resume-modal').classList.add('active'); document.getElementById('resume-iframe').srcdoc = userProfile.master_resume; }">
-                    <span class="sidebar-nav-icon">📝</span> My resume
-                </button>
-                <button class="sidebar-nav-item" onclick="document.getElementById('skill-gap-modal') && document.getElementById('skill-gap-modal').classList.add('active')">
-                    <span class="sidebar-nav-icon">Q</span> Job search
-                </button>
                 <button class="sidebar-nav-item" onclick="const mi = document.getElementById('market-intel-section'); if(mi) { mi.scrollIntoView({behavior:'smooth'}); }">
                     <span class="sidebar-nav-icon">📊</span> Market intel
                 </button>
@@ -883,31 +877,47 @@
             const title = document.getElementById('scanning-title');
             const text = document.getElementById('scanning-text');
             if (isScanningActive && jobCount === 0) {
-                indicator.style.background = 'rgba(212, 255, 51, 0.03)';
-                indicator.style.borderColor = 'var(--primary)';
-                dot.style.width = 'auto';
-                dot.style.height = 'auto';
-                dot.style.background = 'transparent';
-                dot.style.boxShadow = 'none';
-                dot.style.animation = '';
-                dot.innerHTML = '🧭';
-                dot.className = 'rover-compass';
-                title.textContent = 'Rover is Active';
-                title.style.color = '#000000';
-                text.textContent = 'Roving across the Job market to capture your target roles...';
+                if (indicator) {
+                    indicator.style.background = 'rgba(212, 255, 51, 0.03)';
+                    indicator.style.borderColor = 'var(--primary)';
+                }
+                if (dot) {
+                    dot.style.width = 'auto';
+                    dot.style.height = 'auto';
+                    dot.style.background = 'transparent';
+                    dot.style.boxShadow = 'none';
+                    dot.style.animation = '';
+                    dot.innerHTML = '🧭';
+                    dot.className = 'rover-compass';
+                }
+                if (title) {
+                    title.textContent = 'Rover is Active';
+                    title.style.color = '#000000';
+                }
+                if (text) {
+                    text.textContent = 'Roving across the Job market to capture your target roles...';
+                }
             } else {
-                indicator.style.background = 'rgba(0, 0, 0, 0.015)';
-                indicator.style.borderColor = 'var(--border)';
-                dot.style.width = '12px';
-                dot.style.height = '12px';
-                dot.style.background = '#10B981';
-                dot.style.boxShadow = '0 0 10px #10B981';
-                dot.style.animation = 'none';
-                dot.innerHTML = '';
-                dot.className = '';
-                title.textContent = '👀 Monitoring';
-                title.style.color = '#047857';
-                text.textContent = 'Your AI Job Agent is active and checks for new listings twice daily.';
+                if (indicator) {
+                    indicator.style.background = 'rgba(0, 0, 0, 0.015)';
+                    indicator.style.borderColor = 'var(--border)';
+                }
+                if (dot) {
+                    dot.style.width = '12px';
+                    dot.style.height = '12px';
+                    dot.style.background = '#10B981';
+                    dot.style.boxShadow = '0 0 10px #10B981';
+                    dot.style.animation = 'none';
+                    dot.innerHTML = '';
+                    dot.className = '';
+                }
+                if (title) {
+                    title.textContent = '🟢 Monitoring';
+                    title.style.color = '#047857';
+                }
+                if (text) {
+                    text.textContent = 'Your AI Job Agent is active and checks for new listings twice daily.';
+                }
             }
         }
 
