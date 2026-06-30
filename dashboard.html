@@ -37,7 +37,7 @@
             background-size: 40px 40px; opacity: 0.25;
         }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 5%; border-bottom: 1px solid rgba(0, 0, 0, 0.06); background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0, 0, 0, 0.06); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
         .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
         .nav-user { display: flex; align-items: center; gap: 1rem; }
@@ -47,7 +47,7 @@
         .nav-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
         .nav-logout:hover { background: rgba(239,68,68,0.08); border-color: rgba(239, 68, 68, 0.4); }
 
-        .container { max-width: 1200px; margin: 0 auto; padding: 2rem 5%; }
+        .container { max-width: 100%; margin: 0; padding: 2rem 2.5rem; }
 
         /* Search Section */
         .search-section { background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03); }
@@ -87,9 +87,9 @@
         .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Stats Bar */
-        .stats-bar { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
-        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; min-width: 150px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        .stat-number { color: #000000; font-size: 1.8rem; font-weight: 900; line-height: 1; }
+        .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
+        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
+        .stat-number { color: #000000; font-size: 2rem; font-weight: 900; line-height: 1; }
         .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
 
         /* Table Style Dashboard */
@@ -323,6 +323,100 @@
         .nav-inbox-btn:hover { background: #27272a; transform: translateY(-1px); }
         .nav-inbox-btn .badge { background: var(--primary); color: #000; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 10px; font-weight: 900; }
 
+        /* ===== APP LAYOUT: SIDEBAR + MAIN ===== */
+        .app-layout { display: flex; min-height: calc(100vh - 65px); }
+
+        /* Left Sidebar */
+        .app-sidebar {
+            width: 260px; min-width: 260px; background: #fff; border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 1.5rem 1rem; gap: 1.5rem;
+            overflow-y: auto; position: sticky; top: 65px; height: calc(100vh - 65px);
+        }
+        .sidebar-section { padding: 0; }
+        .sidebar-section-title {
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #A1A1AA;
+            letter-spacing: 0.75px; margin-bottom: 0.75rem; padding: 0 0.75rem;
+        }
+        .sidebar-nav-item {
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem;
+            border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+            color: #52525b; text-decoration: none; transition: all 0.15s; border: none;
+            background: transparent; width: 100%; text-align: left; font-family: inherit;
+        }
+        .sidebar-nav-item:hover { background: #f4f4f5; color: #000; }
+        .sidebar-nav-item.active { background: rgba(0, 255, 204, 0.1); color: #000; font-weight: 700; }
+        .sidebar-nav-icon { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
+        .sidebar-badge { margin-left: auto; background: var(--primary); color: #000; font-size: 0.65rem; padding: 0.1rem 0.45rem; border-radius: 10px; font-weight: 800; }
+
+        .sidebar-divider { height: 1px; background: var(--border); margin: 0.5rem 0; }
+
+        /* Sidebar detail blocks */
+        .sidebar-detail-block {
+            background: #fafafa; border: 1px solid var(--border); border-radius: 10px;
+            padding: 1rem; font-size: 0.82rem;
+        }
+        .sidebar-detail-block h4 {
+            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #A1A1AA;
+            letter-spacing: 0.5px; margin-bottom: 0.75rem;
+        }
+        .sidebar-detail-row { margin-bottom: 0.6rem; }
+        .sidebar-detail-row:last-child { margin-bottom: 0; }
+        .sidebar-detail-label {
+            font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA;
+            display: block; margin-bottom: 0.15rem; letter-spacing: 0.3px;
+        }
+        .sidebar-detail-value { font-weight: 600; color: #000; font-size: 0.82rem; line-height: 1.4; }
+
+        /* Sidebar automation status */
+        .sidebar-status-card {
+            background: #fafafa; border: 1px solid var(--border); border-radius: 10px;
+            padding: 1rem; text-align: center;
+        }
+        .sidebar-status-dot {
+            width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 0.5rem;
+            box-shadow: 0 0 8px currentColor;
+        }
+
+        /* Sidebar footer */
+        .sidebar-footer {
+            margin-top: auto; padding: 0.75rem; border-top: 1px solid var(--border);
+            font-size: 0.75rem; color: #71717a;
+        }
+        .sidebar-email {
+            display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem;
+            background: rgba(0, 255, 204, 0.06); border: 1px solid rgba(0, 255, 204, 0.15);
+            border-radius: 8px; font-size: 0.78rem; font-weight: 600; color: var(--secondary);
+            word-break: break-all;
+        }
+
+        /* Main content area */
+        .app-main { flex: 1; overflow-y: auto; background: #f9fafb; }
+
+        /* Mobile hamburger */
+        .hamburger-btn {
+            display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer;
+            padding: 0.25rem; color: #000; line-height: 1;
+        }
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.4); z-index: 199; backdrop-filter: blur(4px);
+        }
+
+        @media (max-width: 768px) {
+            .hamburger-btn { display: block; }
+            .app-sidebar {
+                position: fixed; top: 0; left: -280px; width: 270px; min-width: 270px;
+                height: 100vh; z-index: 200; transition: left 0.3s ease;
+                box-shadow: 4px 0 25px rgba(0,0,0,0.1); padding-top: 1rem;
+            }
+            .app-sidebar.open { left: 0; }
+            .sidebar-overlay.open { display: block; }
+            .app-main { width: 100%; }
+            .container { padding: 1.5rem 1rem; }
+            .stats-bar { flex-direction: column; }
+            .stat { min-width: 100%; }
+        }
+
     </style>
 </head>
 <body>
@@ -330,7 +424,9 @@
     <div class="background-blob blob-2"></div>
 
     <nav>
-        
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+            <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
+
 <a href="index.html" class="logo" style="text-decoration: none; display: flex; align-items: center; gap: 0px; color: var(--text-heading);">
   <svg viewBox="0 0 350 84" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: auto; height: 48px; display: inline-block; vertical-align: middle;">
     <defs>
@@ -382,6 +478,7 @@
   </svg>
   <span style="background: rgba(255, 107, 74, 0.1); color: #FF6B4A; border: 1px solid rgba(255, 107, 74, 0.3); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span>
 </a>
+        </div>
 
         <div class="nav-user" style="display: flex; align-items: center; gap: 1rem;">
             <a href="index.html#pricing" id="nav-upgrade-btn" style="background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; text-decoration: none; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); transition: all 0.2s;">🚀 Upgrade</a>
@@ -401,6 +498,78 @@
         </div>
     </nav>
 
+    <!-- Mobile Sidebar Overlay -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="app-layout">
+        <!-- Left Sidebar -->
+        <aside class="app-sidebar" id="app-sidebar">
+            <!-- Navigation -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Navigation</div>
+                <div class="sidebar-nav-item active">
+                    <span class="sidebar-nav-icon">📊</span> Dashboard
+                </div>
+                <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
+                    <span class="sidebar-nav-icon">📥</span> AI Inbox
+                    <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
+                </button>
+                <a href="onboarding.html?edit=true" class="sidebar-nav-item">
+                    <span class="sidebar-nav-icon">⚙️</span> Edit Profile
+                </a>
+                <button class="sidebar-nav-item" onclick="document.getElementById('feedback-modal').classList.add('active')">
+                    <span class="sidebar-nav-icon">🐛</span> Report Bug
+                </button>
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <!-- Target Criteria -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Target Criteria</div>
+                <div class="sidebar-detail-block">
+                    <div class="sidebar-detail-row">
+                        <span class="sidebar-detail-label">Roles</span>
+                        <span class="sidebar-detail-value" id="pref-roles">Loading...</span>
+                    </div>
+                    <div class="sidebar-detail-row">
+                        <span class="sidebar-detail-label">Countries</span>
+                        <span class="sidebar-detail-value" id="pref-countries">Loading...</span>
+                    </div>
+                    <div class="sidebar-detail-row">
+                        <span class="sidebar-detail-label">Workplace</span>
+                        <span class="sidebar-detail-value" id="pref-workplaces">Loading...</span>
+                    </div>
+                    <a href="#" onclick="openSettingsModal(); return false;" style="display: block; margin-top: 0.75rem; font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">⚙ Edit Criteria</a>
+                </div>
+            </div>
+
+            <div class="sidebar-divider"></div>
+
+            <!-- Job Automation Status -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Automation Status</div>
+                <div class="sidebar-status-card" id="scanning-indicator">
+                    <div id="scanning-dot" class="sidebar-status-dot" style="background: #10B981; color: #10B981;"></div>
+                    <h4 id="scanning-title" style="color: #047857; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 0.35rem; font-weight: 850;">🟢 Monitoring</h4>
+                    <p id="scanning-text" style="color: var(--text-body); font-size: 0.75rem; line-height: 1.4;">Your AI Job Agent is active and checks for new listings twice daily.</p>
+                    <div id="inbox-banner" style="display: none; padding-top: 0.5rem; margin-top: 0.5rem;">
+                        <button onclick="openInboxModal()" style="background: var(--primary); color: #000; border: none; font-size: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 6px; font-weight: 750; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">Enable Auto-Apply →</button>
+                    </div>
+                    <div id="test-webhook-banner" style="padding-top: 0.5rem; margin-top: 0.5rem;">
+                        <button id="activateRoverBtn" onclick="triggerProductionWebhook()" style="background: #0284c7; color: #fff; border: none; font-size: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 6px; font-weight: 750; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">🚀 Activate Role Rover</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sidebar Footer -->
+            <div class="sidebar-footer">
+                <div class="sidebar-email" id="sidebar-email-display">📧 Loading...</div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="app-main">
     <div class="container">
         <!-- Feedback Modal -->
         <div class="modal-overlay" id="feedback-modal">
@@ -425,50 +594,6 @@
             <div class="stat">
                 <span class="stat-number" id="stat-applied">0</span>
                 <span class="stat-label">Applied</span>
-            </div>
-        </div>
-
-        <!-- Automation Profile & Active Status -->
-        <div class="search-section" style="padding: 1.25rem 1.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
-                <div style="flex: 1; min-width: 300px;">
-                    <div style="background: rgba(0,0,0,0.02); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; margin-bottom: 0.5rem;">
-                        <div onclick="const content = document.getElementById('criteria-content'); const isHidden = content.style.display === 'none'; content.style.display = isHidden ? 'grid' : 'none';" style="padding: 1rem 1.25rem; display: flex; justify-content: space-between; align-items: center; cursor: pointer; background: #fff; border-bottom: 1px solid var(--border);">
-                            <div style="display: flex; align-items: center; gap: 0.75rem;">
-                                <span style="font-size: 1.2rem; line-height: 1; color: #000;">☰</span>
-                                <h3 style="font-size: 0.85rem; text-transform: uppercase; font-weight: 800; color: #000; margin: 0; letter-spacing: 0.5px;">Target Criteria</h3>
-                            </div>
-                            <a href="#" onclick="event.stopPropagation(); openSettingsModal()" style="font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary);">⚙ Edit</a>
-                        </div>
-                        <div id="criteria-content" style="display: none; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; padding: 1.25rem; background: rgba(0,0,0,0.02);">
-                            <div>
-                                <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Roles</span>
-                                <span id="pref-roles" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
-                            </div>
-                            <div>
-                                <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Target Countries</span>
-                                <span id="pref-countries" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
-                            </div>
-                            <div>
-                                <span style="font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; display: block; margin-bottom: 0.2rem;">Workplace Types</span>
-                                <span id="pref-workplaces" style="color: #000000; font-weight: 600; font-size: 0.9rem;">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Job Automation Status Card -->
-                <div id="scanning-indicator" style="background: rgba(0, 0, 0, 0.015); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; text-align: center; width: 100%; max-width: 320px; transition: all 0.3s; position: relative;">
-                    <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 750; color: #A1A1AA; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Job Automation Status</h3>
-                    <div id="scanning-dot" style="width: 12px; height: 12px; background: #10B981; border-radius: 50%; margin: 0 auto 0.75rem; box-shadow: 0 0 10px #10B981;"></div>
-                    <h4 id="scanning-title" style="color: #047857; text-transform: uppercase; font-size: 0.95rem; margin-bottom: 0.5rem; font-weight: 850;">🟢 Monitoring</h4>
-                    <p id="scanning-text" style="color: var(--text-body); font-size: 0.82rem; line-height: 1.4;">Your AI Job Agent is active and checks for new listings twice daily.</p>
-                    <div id="inbox-banner" style="display: none; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem; justify-content: center; width: 100%;">
-                        <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.82rem; padding: 0.55rem 1rem; border-radius: 6px; font-weight: 750; cursor: pointer; transition: background 0.2s; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">Enable Auto-Apply &rarr;</button>
-                    </div>
-                    <div id="test-webhook-banner" style="padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.75rem; justify-content: center; width: 100%;">
-                        <button id="activateRoverBtn" onclick="triggerProductionWebhook()" style="background: #0284c7; color: #ffffff; border: none; font-size: 0.82rem; padding: 0.55rem 1rem; border-radius: 6px; font-weight: 750; cursor: pointer; transition: background 0.2s; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">🚀 Activate Role Rover</button>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -504,7 +629,9 @@
                 <p>Jobs will appear here once they are processed by the automated backend engine.</p>
             </div>
         </div>
-    </div>
+    </div> <!-- end container -->
+        </div> <!-- end app-main -->
+    </div> <!-- end app-layout -->
 
     <!-- Description Modal -->
     <div class="modal-overlay" id="desc-modal">
@@ -693,6 +820,12 @@
         let userProfile = null;
         let currentUserEmail = '';
 
+        // ─── Sidebar Toggle (Mobile) ───
+        function toggleSidebar() {
+            document.getElementById('app-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
+
         // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
         (async function authGuard() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -766,6 +899,8 @@
             if (profile.Application_email) {
                 const creditsEl = document.querySelector('.nav-credits');
                 if (creditsEl) creditsEl.title = `AI account: ${profile.Application_email}`;
+                const sidebarEmailEl = document.getElementById('sidebar-email-display');
+                if (sidebarEmailEl) sidebarEmailEl.innerHTML = `📧 ${profile.Application_email}`;
             }
 
             await fetchUserJobs();
@@ -1360,11 +1495,14 @@
                 // Update Badge
                 const unread = currentEmails.filter(e => !e.is_read).length;
                 const badge = document.getElementById('inbox-badge');
+                const sidebarBadge = document.getElementById('sidebar-inbox-badge');
                 if (unread > 0) {
                     badge.textContent = unread;
                     badge.style.display = 'inline-block';
+                    if (sidebarBadge) { sidebarBadge.textContent = unread; sidebarBadge.style.display = 'inline-block'; }
                 } else {
                     badge.style.display = 'none';
+                    if (sidebarBadge) { sidebarBadge.style.display = 'none'; }
                 }
             } catch (err) {
                 console.error('Error fetching emails:', err);
