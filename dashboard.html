@@ -383,15 +383,21 @@
   <span style="background: rgba(255, 107, 74, 0.1); color: #FF6B4A; border: 1px solid rgba(255, 107, 74, 0.3); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span>
 </a>
 
-        <div class="nav-user">
+        <div class="nav-user" style="display: flex; align-items: center; gap: 1rem;">
             <a href="index.html#pricing" id="nav-upgrade-btn" style="background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; text-decoration: none; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); transition: all 0.2s;">🚀 Upgrade</a>
             <button class="nav-inbox-btn" onclick="openEmailClient()">📥 AI Inbox <span class="badge" id="inbox-badge" style="display:none;">0</span></button>
-            <div class="nav-credits" id="nav-badge" style="transition: all 0.3s;">⏳ Free Trial</div>
-            <a href="onboarding.html?edit=true" style="text-decoration: none;" title="Edit Profile Details">
-                <div class="nav-avatar" id="nav-avatar">??</div>
-            </a>
-            <button onclick="document.getElementById('feedback-modal').classList.add('active')" style="background: transparent; border: 1px dashed rgba(0, 0, 0, 0.2); color: #52525B; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;">🐛 Report Bug</button>
-            <button class="nav-logout" onclick="logout()">🚪 Logout</button>
+            
+            <div style="position: relative; cursor: pointer; padding-left: 0.5rem;" onmouseover="document.getElementById('nav-dropdown').style.display='block'" onmouseout="document.getElementById('nav-dropdown').style.display='none'">
+                <div class="nav-avatar" id="nav-avatar" style="margin: 0; pointer-events: none;">??</div>
+                <div id="nav-dropdown" style="display: none; position: absolute; right: 0; top: 100%; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 200px; padding: 0.5rem; z-index: 100; margin-top: 0.5rem;">
+                    <div style="padding: 0.5rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem;">
+                        <span id="nav-badge" style="font-size: 0.75rem; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.5px;">⏳ Free Trial</span>
+                    </div>
+                    <a href="onboarding.html?edit=true" style="display: block; padding: 0.5rem 1rem; text-decoration: none; color: #000; font-weight: 600; font-size: 0.85rem; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='transparent'">⚙️ Edit Profile</a>
+                    <button onclick="document.getElementById('feedback-modal').classList.add('active')" style="display: block; width: 100%; text-align: left; padding: 0.5rem 1rem; border: none; background: transparent; color: #000; font-weight: 600; font-size: 0.85rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; font-family: inherit;" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='transparent'">🐛 Report Bug</button>
+                    <button onclick="logout()" style="display: block; width: 100%; text-align: left; padding: 0.5rem 1rem; border: none; background: transparent; color: #EF4444; font-weight: 600; font-size: 0.85rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; font-family: inherit;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">🚪 Logout</button>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -406,6 +412,22 @@
                 <button id="submit-feedback-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000;" onclick="submitFeedback()">Send Feedback</button>
             </div>
         </div>
+        <!-- Stats Bar (Hero Position) -->
+        <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 2rem;">
+            <div class="stat">
+                <span class="stat-number" id="stat-total">0</span>
+                <span class="stat-label">Jobs Found</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="stat-queued">0</span>
+                <span class="stat-label">In Queue</span>
+            </div>
+            <div class="stat">
+                <span class="stat-number" id="stat-applied">0</span>
+                <span class="stat-label">Applied</span>
+            </div>
+        </div>
+
         <!-- Automation Profile & Active Status -->
         <div class="search-section" style="padding: 1.25rem 1.5rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; margin-bottom: 2rem;">
                 <div style="flex: 1; min-width: 300px;">
@@ -445,21 +467,7 @@
             </div>
         </div>
 
-        <!-- Stats Bar -->
-        <div class="stats-bar" id="stats-bar" style="display: none;">
-            <div class="stat">
-                <span class="stat-number" id="stat-total">0</span>
-                <span class="stat-label">Jobs Found</span>
-            </div>
-            <div class="stat">
-                <span class="stat-number" id="stat-queued">0</span>
-                <span class="stat-label">In Queue</span>
-            </div>
-            <div class="stat">
-                <span class="stat-number" id="stat-applied">0</span>
-                <span class="stat-label">Applied</span>
-            </div>
-        </div>
+
 
         <!-- Market Intelligence / Skill Gap Analyzer -->
         <div id="market-intel-section" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
@@ -1016,6 +1024,11 @@
                     .sort((a, b) => b[1] - a[1])
                     .slice(0, 5);
 
+                if (sortedSkills.length === 0) {
+                    miSection.style.display = 'none';
+                    return;
+                }
+
                 const skillsListHtml = sortedSkills.map(([skill, count]) => {
                     const percentage = Math.round((count / rejectedJobs.length) * 100);
                     return `
@@ -1026,7 +1039,7 @@
                     `;
                 }).join('');
 
-                document.getElementById('mi-skills-list').innerHTML = sortedSkills.length > 0 ? skillsListHtml : '<span style="color: #A1A1AA; font-size: 0.85rem;">No specific skills extracted.</span>';
+                document.getElementById('mi-skills-list').innerHTML = skillsListHtml;
 
                 const tbody = document.getElementById('mi-jobs-tbody');
                 tbody.innerHTML = rejectedJobs.map(job => {
