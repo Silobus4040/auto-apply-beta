@@ -371,13 +371,70 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Desired Annual Salary</label>
-                            <div style="position: relative;">
-                                <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">$</span>
-                                <input type="text" id="salary" placeholder="120000" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>Desired Annual Salary</label>
+                                <div style="position: relative;">
+                                    <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">$</span>
+                                    <input type="text" id="salary" placeholder="120000" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                </div>
                             </div>
-                            <p class="form-hint">We only use this if it is a mandatory requirement in a form. Otherwise, we leave it blank to protect your negotiating power. Tip: Set this slightly below your target to avoid ATS budget filters.</p>
+                            <div class="form-group">
+                                <label>Target Currency</label>
+                                <div class="select-wrapper">
+                                    <select id="target-currency">
+                                        <option value="USD">USD ($)</option>
+                                        <option value="EUR">EUR (€)</option>
+                                        <option value="GBP">GBP (£)</option>
+                                        <option value="CAD">CAD (C$)</option>
+                                        <option value="AUD">AUD (A$)</option>
+                                        <option value="INR">INR (₹)</option>
+                                        <option value="JPY">JPY (¥)</option>
+                                        <option value="SGD">SGD (S$)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="form-hint" style="margin-bottom: 1.5rem;">We only use this if it is a mandatory requirement in a form. Otherwise, we leave it blank to protect your negotiating power. Tip: Set this slightly below your target to avoid ATS budget filters.</p>
+
+                        <div class="form-group">
+                            <label>What industry do you work in? <span style="color: #FF6B4A;">*</span></label>
+                            <input type="text" id="industry" list="industries-list" placeholder="e.g. Technology / SaaS" required>
+                            <datalist id="industries-list">
+                                <option value="Technology / SaaS">
+                                <option value="Financial Services / Fintech">
+                                <option value="Healthcare / Biotech / Pharma">
+                                <option value="E-commerce / Retail">
+                                <option value="Management Consulting">
+                                <option value="Marketing & Advertising">
+                                <option value="Education & Edtech">
+                                <option value="Manufacturing & Logistics">
+                                <option value="Energy & Utilities">
+                                <option value="Real Estate">
+                                <option value="Media & Entertainment">
+                                <option value="Hospitality & Tourism">
+                                <option value="Non-profit">
+                            </datalist>
+                            <p class="form-hint">Type or select your primary industry sector.</p>
+                        </div>
+
+                        <div class="row-grid">
+                            <div class="form-group">
+                                <label>Availability / Notice Period <span style="color: #FF6B4A;">*</span></label>
+                                <div class="select-wrapper">
+                                    <select id="notice-period">
+                                        <option value="Immediate">Immediate (Available now)</option>
+                                        <option value="2 weeks">2 Weeks (Standard)</option>
+                                        <option value="1 month">1 Month</option>
+                                        <option value="2 months">2 Months</option>
+                                        <option value="3 months">3 Months</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label>Earliest Available Start Date <span style="color: #FF6B4A;">*</span></label>
+                                <input type="date" id="start-date" required style="width: 100%; padding: 0.95rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem;">
+                            </div>
                         </div>
 
                         <!-- EEO Demographics Section -->
@@ -498,7 +555,7 @@
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
             
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, target_job_titles, target_location, workplace_type, resume_url').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, target_job_titles, target_location, workplace_type, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -536,6 +593,18 @@
                 }
                 if (profile.country && !localStorage.getItem('onb_country') && document.getElementById('country')) {
                     document.getElementById('country').value = profile.country;
+                }
+                if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
+                    document.getElementById('industry').value = profile.industry;
+                }
+                if (profile.notice_period && !localStorage.getItem('onb_notice-period') && document.getElementById('notice-period')) {
+                    document.getElementById('notice-period').value = profile.notice_period;
+                }
+                if (profile.start_date && !localStorage.getItem('onb_start-date') && document.getElementById('start-date')) {
+                    document.getElementById('start-date').value = profile.start_date;
+                }
+                if (profile.target_currency && !localStorage.getItem('onb_target-currency') && document.getElementById('target-currency')) {
+                    document.getElementById('target-currency').value = profile.target_currency;
                 }
                 // Prepopulate target locations
                 if (profile.target_location) {
@@ -699,7 +768,7 @@
         });
 
         // Auto-Save Form State
-        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form select');
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form select');
         formInputs.forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem('onb_' + input.id);
@@ -800,6 +869,10 @@
                     work_authorization: authWork,
                     requires_sponsorship: sponsorship,
                     desired_salary: salary,
+                    industry: document.getElementById('industry').value.trim(),
+                    notice_period: document.getElementById('notice-period').value,
+                    start_date: document.getElementById('start-date').value || null,
+                    target_currency: document.getElementById('target-currency').value,
                     gender: document.getElementById('gender').value,
                     race: document.getElementById('race').value,
                     veteran_status: document.getElementById('veteran').value,
