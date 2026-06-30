@@ -576,14 +576,27 @@
             <div id="wizard-slide-1">
                 <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: left; margin-bottom: 1.5rem;">
                     <h4 style="color: #000000; font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="color: var(--secondary); font-size: 1.2rem;">✉</span> Dedicated Auto-Apply Address
+                        <span style="color: var(--secondary); font-size: 1.2rem;">✉</span> Dedicated Auto-Apply Inbox
                     </h4>
-                    <p style="color: var(--text-body); font-size: 0.9rem; line-height: 1.6; font-weight: 500; margin-bottom: 1rem;">
-                        To automate profile creation, bypass OTP verifications, and dynamically apply to jobs, your AI Agent needs a dedicated inbox. 
+                    
+                    <p style="color: var(--text-body); font-size: 0.88rem; line-height: 1.6; font-weight: 500; margin-bottom: 1rem;">
+                        <strong>Why do we need this?</strong><br>
+                        Many enterprise job portals (like <strong>Workday</strong> and <strong>SuccessFactors</strong>) require you to create an account and verify your identity with OTP (One-Time Password) codes just to submit an application.
                     </p>
-                    <p style="color: var(--text-body); font-size: 0.9rem; line-height: 1.6; font-weight: 500; margin-bottom: 1.5rem;">
-                        Click below to instantly generate your secure <strong>@myrolerover.com</strong> email address. We will automatically intercept verification codes and forward all hiring manager emails directly to your personal inbox.
+                    
+                    <p style="color: var(--text-body); font-size: 0.88rem; line-height: 1.6; font-weight: 500; margin-bottom: 1rem;">
+                        <strong>Declutter Your Personal Inbox</strong><br>
+                        Applying to hundreds of jobs means hundreds of automated "Thank you for applying" emails. By generating a secure <strong>@myrolerover.com</strong> address, we keep all that spam out of your personal email!
                     </p>
+
+                    <div style="background: rgba(0, 255, 204, 0.05); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem;">
+                        <h5 style="color: #000000; font-size: 0.8rem; font-weight: 800; text-transform: uppercase; margin-bottom: 0.5rem;">How it works:</h5>
+                        <ul style="padding-left: 1.2rem; color: var(--text-body); font-size: 0.82rem; line-height: 1.5; font-weight: 500;">
+                            <li style="margin-bottom: 0.35rem;"><strong>Automated Verifications:</strong> Our system automatically catches sign-up verification codes on your behalf to bypass OTP blocks. <em>(OTP codes will not be forwarded to you)</em>.</li>
+                            <li style="margin-bottom: 0.35rem;"><strong>Important Emails Only:</strong> The only emails we will forward to your personal inbox are <strong>real messages from recruiters or hiring managers.</strong></li>
+                            <li><strong>Seamless Communication:</strong> When a recruiter reaches out, you can reply directly from your personal email app, or right here in the dashboard. Our system masks your address, so the recruiter always sees your professional AI email.</li>
+                        </ul>
+                    </div>
                     
                     <div id="generated-email-display" style="display: none; background: #ffffff; border: 2px dashed var(--primary); border-radius: 8px; padding: 1.25rem; text-align: center; margin-bottom: 1rem;">
                         <span style="font-size: 0.75rem; font-weight: 700; color: #71717A; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Your Dedicated AI Inbox:</span>
@@ -869,22 +882,28 @@
             const banner = document.getElementById('inbox-banner');
             if (!banner || !userProfile) return;
             
-            if (currentJobs.length > 0) {
-                banner.style.display = 'flex';
-                const button = banner.querySelector('button');
-                if (button) {
-                    if (userProfile.Application_email) {
-                        button.textContent = '✓ Auto-Apply Enabled';
-                        button.style.background = '#10B981';
-                        button.style.color = '#ffffff';
-                    } else {
-                        button.innerHTML = 'Enable Auto-Apply &rarr;';
-                        button.style.background = 'var(--primary)';
-                        button.style.color = '#000000';
-                    }
+            banner.style.display = 'flex';
+            const button = banner.querySelector('button');
+            if (button) {
+                if (userProfile.Application_email) {
+                    button.textContent = `✉️ ${userProfile.Application_email}`;
+                    button.style.background = 'rgba(16, 185, 129, 0.1)';
+                    button.style.color = '#047857';
+                    button.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                    button.style.cursor = 'default';
+                    button.onclick = null;
+                    button.style.textTransform = 'lowercase';
+                    button.style.fontWeight = '700';
+                } else {
+                    button.innerHTML = 'Enable Auto-Apply &rarr;';
+                    button.style.background = 'var(--primary)';
+                    button.style.color = '#000000';
+                    button.style.border = 'none';
+                    button.style.cursor = 'pointer';
+                    button.onclick = openInboxModal;
+                    button.style.textTransform = 'uppercase';
+                    button.style.fontWeight = '750';
                 }
-            } else {
-                banner.style.display = 'none';
             }
         }
 
