@@ -328,73 +328,73 @@
 
         /* Left Sidebar */
         .app-sidebar {
-            width: 260px; min-width: 260px; background: #fff; border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; padding: 1.5rem 1rem; gap: 1.5rem;
+            width: 240px; min-width: 240px; background: #fff; border-right: 1px solid var(--border);
+            display: flex; flex-direction: column; padding: 0; gap: 0;
             overflow-y: auto; position: sticky; top: 65px; height: calc(100vh - 65px);
         }
-        .sidebar-section { padding: 0; }
-        .sidebar-section-title {
-            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #A1A1AA;
-            letter-spacing: 0.75px; margin-bottom: 0.75rem; padding: 0 0.75rem;
+        .sidebar-logo-area {
+            display: flex; align-items: center; gap: 0.5rem; padding: 1.25rem 1.25rem;
+            border-bottom: 1px solid var(--border);
         }
+        .sidebar-logo-icon {
+            width: 32px; height: 32px; background: linear-gradient(135deg, #D4FF33, #00FFCC);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-weight: 900; font-size: 1rem; color: #000;
+        }
+        .sidebar-logo-text { font-weight: 800; font-size: 1rem; color: #000; letter-spacing: -0.5px; }
+        .sidebar-nav { padding: 1rem 0.75rem; display: flex; flex-direction: column; gap: 0.15rem; flex: 1; }
         .sidebar-nav-item {
-            display: flex; align-items: center; gap: 0.75rem; padding: 0.6rem 0.75rem;
-            border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-weight: 600;
+            display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.75rem;
+            border-radius: 8px; cursor: pointer; font-size: 0.88rem; font-weight: 500;
             color: #52525b; text-decoration: none; transition: all 0.15s; border: none;
             background: transparent; width: 100%; text-align: left; font-family: inherit;
+            position: relative;
         }
         .sidebar-nav-item:hover { background: #f4f4f5; color: #000; }
-        .sidebar-nav-item.active { background: rgba(0, 255, 204, 0.1); color: #000; font-weight: 700; }
-        .sidebar-nav-icon { font-size: 1.1rem; width: 24px; text-align: center; flex-shrink: 0; }
-        .sidebar-badge { margin-left: auto; background: var(--primary); color: #000; font-size: 0.65rem; padding: 0.1rem 0.45rem; border-radius: 10px; font-weight: 800; }
-
-        .sidebar-divider { height: 1px; background: var(--border); margin: 0.5rem 0; }
-
-        /* Sidebar detail blocks */
-        .sidebar-detail-block {
-            background: #fafafa; border: 1px solid var(--border); border-radius: 10px;
-            padding: 1rem; font-size: 0.82rem;
+        .sidebar-nav-item.active {
+            background: rgba(16, 185, 129, 0.08); color: #000; font-weight: 700;
+            border-left: 3px solid var(--secondary);
         }
-        .sidebar-detail-block h4 {
-            font-size: 0.7rem; text-transform: uppercase; font-weight: 800; color: #A1A1AA;
-            letter-spacing: 0.5px; margin-bottom: 0.75rem;
-        }
-        .sidebar-detail-row { margin-bottom: 0.6rem; }
-        .sidebar-detail-row:last-child { margin-bottom: 0; }
-        .sidebar-detail-label {
-            font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA;
-            display: block; margin-bottom: 0.15rem; letter-spacing: 0.3px;
-        }
-        .sidebar-detail-value { font-weight: 600; color: #000; font-size: 0.82rem; line-height: 1.4; }
-
-        /* Sidebar automation status */
-        .sidebar-status-card {
-            background: #fafafa; border: 1px solid var(--border); border-radius: 10px;
-            padding: 1rem; text-align: center;
-        }
-        .sidebar-status-dot {
-            width: 10px; height: 10px; border-radius: 50%; margin: 0 auto 0.5rem;
-            box-shadow: 0 0 8px currentColor;
-        }
-
-        /* Sidebar footer */
-        .sidebar-footer {
-            margin-top: auto; padding: 0.75rem; border-top: 1px solid var(--border);
-            font-size: 0.75rem; color: #71717a;
-        }
-        .sidebar-email {
-            display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem;
-            background: rgba(0, 255, 204, 0.06); border: 1px solid rgba(0, 255, 204, 0.15);
-            border-radius: 8px; font-size: 0.78rem; font-weight: 600; color: var(--secondary);
-            word-break: break-all;
+        .sidebar-nav-icon { font-size: 1.05rem; width: 22px; text-align: center; flex-shrink: 0; color: #71717a; }
+        .sidebar-nav-item.active .sidebar-nav-icon { color: var(--secondary); }
+        .sidebar-badge {
+            margin-left: auto; background: var(--secondary); color: #fff; font-size: 0.65rem;
+            padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 700; min-width: 20px; text-align: center;
         }
 
         /* Main content area */
-        .app-main { flex: 1; overflow-y: auto; background: #f9fafb; }
+        .app-main { flex: 1; overflow-y: auto; background: #fafafa; }
+
+        /* Page header inside main */
+        .page-header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 0; margin-bottom: 1.75rem;
+        }
+        .page-title { font-size: 1.35rem; font-weight: 800; color: #000; letter-spacing: -0.5px; }
+
+        /* Info strip (status + criteria) */
+        .info-strip {
+            background: #fff; border: 1px solid var(--border); border-radius: 16px;
+            padding: 1.25rem 1.5rem; margin-bottom: 1.75rem;
+            display: grid; grid-template-columns: auto 1fr; gap: 0.75rem 2rem;
+            align-items: start; position: relative;
+        }
+        .info-strip-cell {
+            display: flex; flex-direction: column; gap: 0.15rem;
+        }
+        .info-strip-label {
+            font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
+            color: #A1A1AA; letter-spacing: 0.5px;
+        }
+        .info-strip-value { font-size: 0.85rem; font-weight: 600; color: #000; }
+        .info-strip-edit {
+            position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
+            font-weight: 700; color: var(--secondary); text-decoration: none;
+        }
 
         /* Mobile hamburger */
         .hamburger-btn {
-            display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer;
+            display: none; background: none; border: none; font-size: 1.4rem; cursor: pointer;
             padding: 0.25rem; color: #000; line-height: 1;
         }
         .sidebar-overlay {
@@ -405,9 +405,9 @@
         @media (max-width: 768px) {
             .hamburger-btn { display: block; }
             .app-sidebar {
-                position: fixed; top: 0; left: -280px; width: 270px; min-width: 270px;
+                position: fixed; top: 0; left: -260px; width: 240px; min-width: 240px;
                 height: 100vh; z-index: 200; transition: left 0.3s ease;
-                box-shadow: 4px 0 25px rgba(0,0,0,0.1); padding-top: 1rem;
+                box-shadow: 4px 0 25px rgba(0,0,0,0.1);
             }
             .app-sidebar.open { left: 0; }
             .sidebar-overlay.open { display: block; }
@@ -415,6 +415,7 @@
             .container { padding: 1.5rem 1rem; }
             .stats-bar { flex-direction: column; }
             .stat { min-width: 100%; }
+            .info-strip { grid-template-columns: 1fr; }
         }
 
     </style>
@@ -423,80 +424,18 @@
     <div class="background-blob blob-1"></div>
     <div class="background-blob blob-2"></div>
 
-    <nav>
-        <div style="display: flex; align-items: center; gap: 0.75rem;">
-            <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
-
-<a href="index.html" class="logo" style="text-decoration: none; display: flex; align-items: center; gap: 0px; color: var(--text-heading);">
-  <svg viewBox="0 0 350 84" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: auto; height: 48px; display: inline-block; vertical-align: middle;">
-    <defs>
-      <!-- Softer Vertical Gradient for brand elements -->
-      <linearGradient id="soft-grad-nav" x1="0%" y1="0%" x2="0%" y2="100%">
-        <stop offset="0%" stop-color="#B2FF33" />
-        <stop offset="100%" stop-color="#33FFAA" />
-      </linearGradient>
-      
-      <!-- 4-Leaf Clover Mask for Suitcase body -->
-      <mask id="clover-mask-nav">
-        <rect x="0" y="0" width="100" height="100" fill="#ffffff"/>
-        <g transform="translate(63, 56)">
-          <path d="M 0,0 C -5,-6 -8,-12 0,-14 C 8,-12 5,-6 0,0 Z" fill="#000000"/>
-          <path d="M 0,0 C 6,-5 12,-8 14,0 C 12,8 5,5 0,0 Z" fill="#000000"/>
-          <path d="M 0,0 C 5,6 8,12 0,14 C -8,12 -5,6 0,0 Z" fill="#000000"/>
-          <path d="M 0,0 C -6,5 -12,8 -14,0 C -12,-8 -5,-5 0,0 Z" fill="#000000"/>
-          <path d="M 0,0 Q 2,10 6,12" stroke="#000000" stroke-width="2.8" stroke-linecap="round" fill="none"/>
-        </g>
-      </mask>
-    </defs>
-
-    <!-- Suitcase Icon -->
-    <rect x="28" y="22" width="70" height="52" rx="12" fill="url(#soft-grad-nav)" mask="url(#clover-mask-nav)"/>
-    <path d="M48,22 V14 C48,10 51,7 55,7 H71 C75,7 78,10 78,14 V22" stroke="url(#soft-grad-nav)" stroke-width="6" stroke-linecap="round" fill="none" mask="url(#clover-mask-nav)"/>
-
-    <!-- Text R -->
-    <text x="98" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="currentColor" letter-spacing="-2px">R</text>
-
-    <!-- Compass 'O' -->
-    <g transform="translate(148, 19)">
-      <circle cx="28" cy="28" r="28" stroke="url(#soft-grad-nav)" stroke-width="5" fill="none"/>
-      <circle cx="28" cy="28" r="22" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 2.5" opacity="0.35" fill="none"/>
-      <text x="28" y="15.5" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">N</text>
-      <text x="28" y="40.5" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">S</text>
-      <text x="15" y="28" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">W</text>
-      <text x="41" y="28" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">E</text>
-      <g transform="rotate(-8 28 28)">
-        <polygon points="28,28 24.5,28 28,16" fill="#D4FF33"/>
-        <polygon points="28,28 31.5,28 28,16" fill="#00FFCC"/>
-        <polygon points="28,28 24.5,28 28,40" fill="#a1a1aa"/>
-        <polygon points="28,28 31.5,28 28,40" fill="#52525b"/>
-        <circle cx="28" cy="28" r="2.5" fill="#ffffff" stroke="#18181b" stroke-width="1"/>
-      </g>
-    </g>
-
-    <!-- Text VER -->
-    <text x="208" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="currentColor" letter-spacing="-2px">VER</text>
-  </svg>
-  <span style="background: rgba(255, 107, 74, 0.1); color: #FF6B4A; border: 1px solid rgba(255, 107, 74, 0.3); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span>
-</a>
-        </div>
-
-        <div class="nav-user" style="display: flex; align-items: center; gap: 1rem;">
-            <a href="index.html#pricing" id="nav-upgrade-btn" style="background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; text-decoration: none; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); transition: all 0.2s;">🚀 Upgrade</a>
-            <button class="nav-inbox-btn" onclick="openEmailClient()">📥 AI Inbox <span class="badge" id="inbox-badge" style="display:none;">0</span></button>
-            
-            <div style="position: relative; cursor: pointer; padding-left: 0.5rem;" onmouseover="document.getElementById('nav-dropdown').style.display='block'" onmouseout="document.getElementById('nav-dropdown').style.display='none'">
-                <div class="nav-avatar" id="nav-avatar" style="margin: 0; pointer-events: none;">??</div>
-                <div id="nav-dropdown" style="display: none; position: absolute; right: 0; top: 100%; background: #fff; border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); width: 200px; padding: 0.5rem; z-index: 100; margin-top: 0.5rem;">
-                    <div style="padding: 0.5rem 1rem; border-bottom: 1px solid var(--border); margin-bottom: 0.5rem;">
-                        <span id="nav-badge" style="font-size: 0.75rem; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.5px;">⏳ Free Trial</span>
-                    </div>
-                    <a href="onboarding.html?edit=true" style="display: block; padding: 0.5rem 1rem; text-decoration: none; color: #000; font-weight: 600; font-size: 0.85rem; border-radius: 4px; transition: background 0.2s;" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='transparent'">⚙️ Edit Profile</a>
-                    <button onclick="document.getElementById('feedback-modal').classList.add('active')" style="display: block; width: 100%; text-align: left; padding: 0.5rem 1rem; border: none; background: transparent; color: #000; font-weight: 600; font-size: 0.85rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; font-family: inherit;" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='transparent'">🐛 Report Bug</button>
-                    <button onclick="logout()" style="display: block; width: 100%; text-align: left; padding: 0.5rem 1rem; border: none; background: transparent; color: #EF4444; font-weight: 600; font-size: 0.85rem; border-radius: 4px; cursor: pointer; transition: background 0.2s; font-family: inherit;" onmouseover="this.style.background='#fef2f2'" onmouseout="this.style.background='transparent'">🚪 Logout</button>
-                </div>
-            </div>
-        </div>
+    <nav id="mobile-topbar" style="display: none;">
+        <button class="hamburger-btn" style="display:block;" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
+        <span style="font-weight: 800; font-size: 1rem; color: #000;">Dashboard</span>
+        <div class="nav-avatar" id="nav-avatar" style="margin: 0;">??</div>
     </nav>
+    <span id="nav-badge" style="display:none;">⏳ Free Trial</span>
+    <span id="inbox-badge" style="display:none;">0</span>
+    <style>
+        @media (max-width: 768px) {
+            #mobile-topbar { display: flex !important; }
+        }
+    </style>
 
     <!-- Mobile Sidebar Overlay -->
     <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
@@ -504,67 +443,32 @@
     <div class="app-layout">
         <!-- Left Sidebar -->
         <aside class="app-sidebar" id="app-sidebar">
-            <!-- Navigation -->
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Navigation</div>
+            <div class="sidebar-logo-area">
+                <div class="sidebar-logo-icon">R</div>
+                <span class="sidebar-logo-text">RoleRover</span>
+                <span style="background: rgba(0,0,0,0.06); color: #71717a; font-size: 0.55rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; margin-left: 0.15rem;">BETA</span>
+                <button class="hamburger-btn" onclick="toggleSidebar()" style="margin-left: auto;" aria-label="Close Menu">✕</button>
+            </div>
+            <div class="sidebar-nav">
                 <div class="sidebar-nav-item active">
                     <span class="sidebar-nav-icon">📊</span> Dashboard
                 </div>
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
-                    <span class="sidebar-nav-icon">📥</span> AI Inbox
+                    <span class="sidebar-nav-icon">✉️</span> AI inbox
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
-                <a href="onboarding.html?edit=true" class="sidebar-nav-item">
-                    <span class="sidebar-nav-icon">⚙️</span> Edit Profile
-                </a>
-                <button class="sidebar-nav-item" onclick="document.getElementById('feedback-modal').classList.add('active')">
-                    <span class="sidebar-nav-icon">🐛</span> Report Bug
+                <button class="sidebar-nav-item" onclick="if(userProfile && userProfile.master_resume) { document.getElementById('resume-modal').classList.add('active'); document.getElementById('resume-iframe').srcdoc = userProfile.master_resume; }">
+                    <span class="sidebar-nav-icon">📝</span> My resume
                 </button>
-            </div>
-
-            <div class="sidebar-divider"></div>
-
-            <!-- Target Criteria -->
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Target Criteria</div>
-                <div class="sidebar-detail-block">
-                    <div class="sidebar-detail-row">
-                        <span class="sidebar-detail-label">Roles</span>
-                        <span class="sidebar-detail-value" id="pref-roles">Loading...</span>
-                    </div>
-                    <div class="sidebar-detail-row">
-                        <span class="sidebar-detail-label">Countries</span>
-                        <span class="sidebar-detail-value" id="pref-countries">Loading...</span>
-                    </div>
-                    <div class="sidebar-detail-row">
-                        <span class="sidebar-detail-label">Workplace</span>
-                        <span class="sidebar-detail-value" id="pref-workplaces">Loading...</span>
-                    </div>
-                    <a href="#" onclick="openSettingsModal(); return false;" style="display: block; margin-top: 0.75rem; font-size: 0.75rem; font-weight: 700; color: var(--secondary); text-decoration: none; text-transform: uppercase; letter-spacing: 0.5px;">⚙ Edit Criteria</a>
-                </div>
-            </div>
-
-            <div class="sidebar-divider"></div>
-
-            <!-- Job Automation Status -->
-            <div class="sidebar-section">
-                <div class="sidebar-section-title">Automation Status</div>
-                <div class="sidebar-status-card" id="scanning-indicator">
-                    <div id="scanning-dot" class="sidebar-status-dot" style="background: #10B981; color: #10B981;"></div>
-                    <h4 id="scanning-title" style="color: #047857; text-transform: uppercase; font-size: 0.8rem; margin-bottom: 0.35rem; font-weight: 850;">🟢 Monitoring</h4>
-                    <p id="scanning-text" style="color: var(--text-body); font-size: 0.75rem; line-height: 1.4;">Your AI Job Agent is active and checks for new listings twice daily.</p>
-                    <div id="inbox-banner" style="display: none; padding-top: 0.5rem; margin-top: 0.5rem;">
-                        <button onclick="openInboxModal()" style="background: var(--primary); color: #000; border: none; font-size: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 6px; font-weight: 750; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">Enable Auto-Apply →</button>
-                    </div>
-                    <div id="test-webhook-banner" style="padding-top: 0.5rem; margin-top: 0.5rem;">
-                        <button id="activateRoverBtn" onclick="triggerProductionWebhook()" style="background: #0284c7; color: #fff; border: none; font-size: 0.75rem; padding: 0.45rem 0.75rem; border-radius: 6px; font-weight: 750; cursor: pointer; width: 100%; text-transform: uppercase; letter-spacing: 0.5px;">🚀 Activate Role Rover</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Sidebar Footer -->
-            <div class="sidebar-footer">
-                <div class="sidebar-email" id="sidebar-email-display">📧 Loading...</div>
+                <button class="sidebar-nav-item" onclick="document.getElementById('skill-gap-modal') && document.getElementById('skill-gap-modal').classList.add('active')">
+                    <span class="sidebar-nav-icon">Q</span> Job search
+                </button>
+                <button class="sidebar-nav-item" onclick="const mi = document.getElementById('market-intel-section'); if(mi) { mi.scrollIntoView({behavior:'smooth'}); }">
+                    <span class="sidebar-nav-icon">📊</span> Market intel
+                </button>
+                <a href="onboarding.html?edit=true" class="sidebar-nav-item">
+                    <span class="sidebar-nav-icon">⚙️</span> Settings
+                </a>
             </div>
         </aside>
 
@@ -581,19 +485,56 @@
                 <button id="submit-feedback-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000;" onclick="submitFeedback()">Send Feedback</button>
             </div>
         </div>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1 class="page-title">Dashboard</h1>
+            <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">🚀 Upgrade</a>
+        </div>
+
         <!-- Stats Bar (Hero Position) -->
-        <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 2rem;">
-            <div class="stat">
-                <span class="stat-number" id="stat-total">0</span>
-                <span class="stat-label">Jobs Found</span>
+        <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 1.75rem;">
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 1.25rem 1.5rem;">
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
+                <span class="stat-number" id="stat-total" style="font-size: 2.2rem;">0</span>
+                <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Last 3 days</span>
             </div>
-            <div class="stat">
-                <span class="stat-number" id="stat-queued">0</span>
-                <span class="stat-label">In Queue</span>
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 1.25rem 1.5rem;">
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
+                <span class="stat-number" id="stat-queued" style="font-size: 2.2rem;">0</span>
+                <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Awaiting review</span>
             </div>
-            <div class="stat">
-                <span class="stat-number" id="stat-applied">0</span>
-                <span class="stat-label">Applied</span>
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 1.25rem 1.5rem;">
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
+                <span class="stat-number" id="stat-applied" style="font-size: 2.2rem;">0</span>
+                <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Activate to apply</span>
+            </div>
+        </div>
+
+        <!-- Info Strip (Status + Criteria) -->
+        <div class="info-strip" id="info-strip">
+            <div class="info-strip-cell">
+                <span class="info-strip-label">Status</span>
+                <span class="info-strip-value" id="scanning-indicator"><span id="scanning-dot" style="display:inline-block; width:8px; height:8px; background:#10B981; border-radius:50%; margin-right:0.4rem; box-shadow: 0 0 6px #10B981;"></span><span id="scanning-title">Monitoring</span></span>
+            </div>
+            <div class="info-strip-cell">
+                <span class="info-strip-label">Roles</span>
+                <span class="info-strip-value" id="pref-roles">Loading...</span>
+            </div>
+            <div class="info-strip-cell">
+                <span class="info-strip-label">Countries</span>
+                <span class="info-strip-value" id="pref-countries">Loading...</span>
+            </div>
+            <div class="info-strip-cell">
+                <span class="info-strip-label">Type</span>
+                <span class="info-strip-value" id="pref-workplaces">Loading...</span>
+            </div>
+            <a href="#" onclick="openSettingsModal(); return false;" class="info-strip-edit">✏️ Edit criteria</a>
+            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: flex; gap: 0.75rem;">
+                <button id="activateRoverBtn" onclick="triggerProductionWebhook()" style="background: #0284c7; color: #fff; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">🚀 Activate Role Rover</button>
+                <div id="inbox-banner" style="display: none;">
+                    <button onclick="openInboxModal()" style="background: var(--primary); color: #000; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase;">Enable Auto-Apply →</button>
+                </div>
             </div>
         </div>
 
