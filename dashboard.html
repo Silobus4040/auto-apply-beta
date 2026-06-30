@@ -1536,35 +1536,35 @@
             const email = currentEmails[index];
             const pane = document.getElementById('email-content-pane');
             const originalSubject = email.subject || '(No Subject)';
-            const replySubject = originalSubject.startsWith('Re:') ? originalSubject : \`Re: \${originalSubject}\`;
+            const replySubject = originalSubject.startsWith('Re:') ? originalSubject : `Re: ${originalSubject}`;
             
-            pane.innerHTML = \`
+            pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%; background: #fff;">
                     <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
                         <h3 style="font-weight: 800; font-size: 1.25rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.4rem;">↩️</span> Secure Reply</h3>
-                        <button onclick="showEmailContent(\${index})" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #71717A; font-weight: 600; padding: 0.5rem; transition: color 0.2s;">Cancel</button>
+                        <button onclick="showEmailContent(${index})" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #71717A; font-weight: 600; padding: 0.5rem; transition: color 0.2s;">Cancel</button>
                     </div>
                     <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
                         <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">To:</span>
-                            <input type="text" value="\${email.sender}" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
+                            <input type="text" value="${email.sender}" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
                             <span style="font-size: 0.8rem; color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">🔒 Locked</span>
                         </div>
                         <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">Subject:</span>
-                            <input type="text" id="reply-subject" value="\${replySubject}" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
+                            <input type="text" id="reply-subject" value="${replySubject}" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; margin-top: 1rem;">
                             <textarea id="reply-body" placeholder="Write your reply here..." style="flex: 1; border: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: none; color: #27272a; min-height: 300px;"></textarea>
                         </div>
                     </div>
                     <div style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
-                        <button id="send-reply-btn" onclick="sendReply(\${index})" style="background: var(--primary); color: #000; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); transition: opacity 0.2s;">
+                        <button id="send-reply-btn" onclick="sendReply(${index})" style="background: var(--primary); color: #000; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); transition: opacity 0.2s;">
                             Send Securely 🚀
                         </button>
                     </div>
                 </div>
-            \`;
+            `;
         }
         
         async function sendReply(index) {
