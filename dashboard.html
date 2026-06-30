@@ -1373,10 +1373,20 @@
                 el.className = `email-item ${email.is_read ? '' : 'unread'}`;
                 el.onclick = () => showEmailContent(index);
                 
-                // Extract just the name or raw email
-                let senderName = email.sender;
-                const nameMatch = email.sender.match(/^([^<]+)/);
-                if (nameMatch && nameMatch[1].trim().length > 0) senderName = nameMatch[1].trim();
+                let isOutbound = false;
+                if (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email) {
+                    isOutbound = true;
+                }
+
+                // If outbound, we show who it was sent TO (the recipient)
+                const displayAddress = isOutbound ? (email.recipient || 'Unknown Recipient') : email.sender;
+                
+                let displayName = displayAddress;
+                const nameMatch = displayAddress.match(/^([^<]+)/);
+                if (nameMatch && nameMatch[1].trim().length > 0) displayName = nameMatch[1].trim();
+                
+                const prefix = isOutbound ? 'To: ' : '';
+                const icon = isOutbound ? '↗️ ' : '';
                 
                 let preview = email.body_preview || 'No preview available...';
                 if (!email.body_preview && email.full_html) {
@@ -1386,8 +1396,11 @@
                     preview = (temp.textContent || temp.innerText || '').substring(0, 50) + '...';
                 }
                 
+                // Outbound emails shouldn't trigger the "unread" dot since you sent them
+                if (isOutbound) el.classList.remove('unread');
+                
                 el.innerHTML = `
-                    <div class="email-sender">${senderName}</div>
+                    <div class="email-sender">${icon}${prefix}${displayName}</div>
                     <div class="email-subject">${email.subject || '(No Subject)'}</div>
                     <div class="email-preview">${preview}</div>
                     <div class="email-time">${formatEmailDate(email.created_at)}</div>
@@ -1425,11 +1438,20 @@
             const d = new Date(email.created_at);
             const fullDate = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             
+            let isOutbound = false;
+            if (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email) {
+                isOutbound = true;
+            }
+
+            const displayAddress = isOutbound ? (email.recipient || 'Unknown Recipient') : email.sender;
+            const directionLabel = isOutbound ? 'To:' : 'From:';
+            const icon = isOutbound ? '↗️ ' : '';
+
             pane.innerHTML = `
                 <div class="email-content-header">
                     <div class="email-content-subject">${email.subject || '(No Subject)'}</div>
                     <div class="email-content-meta">
-                        <div class="email-content-sender">From: <span style="font-weight:700;">${email.sender.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
+                        <div class="email-content-sender">${icon}${directionLabel} <span style="font-weight:700;">${displayAddress.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
                         <div class="email-content-date">${fullDate}</div>
                     </div>
                 </div>
