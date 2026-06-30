@@ -771,6 +771,13 @@
             loadingOverlay.classList.add('active');
 
             try {
+                // Generate a unique AI Email Address for the user instantly
+                const prefixMatch = currentUserEmail.match(/^([^@]+)/);
+                let basePrefix = prefixMatch ? prefixMatch[1] : 'user';
+                basePrefix = basePrefix.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+                const randomDigits = Math.floor(100 + Math.random() * 900); // 3 digit random number
+                const generatedAiEmail = `${basePrefix}${randomDigits}@myrolerover.com`;
+
                 // Update Profile with ALL data
                 loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
@@ -786,6 +793,7 @@
                     state: state,
                     country: country,
                     email: currentUserEmail,
+                    Application_email: generatedAiEmail,
                     phone: phone,
                     linkedin_url: linkedin,
                     website_url: portfolio,
