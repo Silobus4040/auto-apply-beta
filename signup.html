@@ -191,6 +191,12 @@
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('signup-confirm').value;
 
+            if (email.includes('+')) {
+                errorMsg.textContent = 'Emails containing a "+" symbol (aliases) are not allowed. Please use your standard email.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
             if (password !== confirm) {
                 errorMsg.textContent = 'Passwords do not match.';
                 errorMsg.style.display = 'block';
