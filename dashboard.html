@@ -533,6 +533,10 @@
                     <h3>📥 Proxy Inbox</h3>
                     <button onclick="fetchEmails()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Refresh">🔄</button>
                 </div>
+                <div style="display: flex; border-bottom: 1px solid var(--border); background: #fafafa;">
+                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s;">📥 Inbox</button>
+                    <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s;">📤 Sent</button>
+                </div>
                 <div class="email-list" id="email-list">
                     <div style="padding: 2rem; text-align: center; color: #a1a1aa; font-size: 0.9rem;">Loading emails...</div>
                 </div>
@@ -1360,18 +1364,50 @@
             return d.toLocaleDateString([], {month: 'short', day: 'numeric'});
         }
         
+        let currentEmailTab = 'inbox';
+        
+        function switchEmailTab(tab) {
+            currentEmailTab = tab;
+            document.getElementById('tab-inbox').style.background = tab === 'inbox' ? '#fff' : 'transparent';
+            document.getElementById('tab-inbox').style.borderBottomColor = tab === 'inbox' ? 'var(--primary)' : 'transparent';
+            document.getElementById('tab-inbox').style.fontWeight = tab === 'inbox' ? '800' : '600';
+            document.getElementById('tab-inbox').style.color = tab === 'inbox' ? '#000' : '#71717A';
+            
+            document.getElementById('tab-sent').style.background = tab === 'sent' ? '#fff' : 'transparent';
+            document.getElementById('tab-sent').style.borderBottomColor = tab === 'sent' ? 'var(--primary)' : 'transparent';
+            document.getElementById('tab-sent').style.fontWeight = tab === 'sent' ? '800' : '600';
+            document.getElementById('tab-sent').style.color = tab === 'sent' ? '#000' : '#71717A';
+            
+            renderEmailList();
+            document.getElementById('email-content-pane').innerHTML = `
+                <div class="email-empty-state">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">✉️</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Select an email to read</h3>
+                </div>
+            `;
+        }
+
         function renderEmailList() {
             const listEl = document.getElementById('email-list');
-            if (currentEmails.length === 0) {
-                listEl.innerHTML = `<div style="padding: 3rem 1.5rem; text-align: center; color: #a1a1aa; font-size: 0.95rem;">No emails yet.<br><br>When a recruiter messages you, it will securely appear here.</div>`;
+            
+            const filteredEmails = currentEmails.filter(email => {
+                const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
+                if (currentEmailTab === 'inbox') return !isOutbound;
+                if (currentEmailTab === 'sent') return isOutbound;
+                return true;
+            });
+            
+            if (filteredEmails.length === 0) {
+                listEl.innerHTML = `<div style="padding: 3rem 1.5rem; text-align: center; color: #a1a1aa; font-size: 0.95rem;">No emails here yet.</div>`;
                 return;
             }
             
             listEl.innerHTML = '';
-            currentEmails.forEach((email, index) => {
+            filteredEmails.forEach((email) => {
+                const originalIndex = currentEmails.findIndex(e => e.id === email.id);
                 const el = document.createElement('div');
                 el.className = `email-item ${email.is_read ? '' : 'unread'}`;
-                el.onclick = () => showEmailContent(index);
+                el.onclick = () => showEmailContent(originalIndex);
                 
                 let isOutbound = false;
                 if (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email) {
@@ -1447,16 +1483,30 @@
             const directionLabel = isOutbound ? 'To:' : 'From:';
             const icon = isOutbound ? '↗️ ' : '';
 
-            pane.innerHTML = `
-                <div class="email-content-header">
-                    <div class="email-content-subject">${email.subject || '(No Subject)'}</div>
-                    <div class="email-content-meta">
-                        <div class="email-content-sender">${icon}${directionLabel} <span style="font-weight:700;">${displayAddress.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
-                        <div class="email-content-date">${fullDate}</div>
+            let replyBtnHtml = '';
+            if (!isOutbound) {
+                replyBtnHtml = `
+                    <div style="padding: 1.5rem; border-top: 1px solid var(--border); background: #fafafa; display: flex; justify-content: flex-end;">
+                        <button onclick="openReplyComposer(${index})" style="background: #000; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.9rem; transition: background 0.2s;">
+                            <span style="font-size: 1.1rem;">↩️</span> Reply to Recruiter
+                        </button>
                     </div>
-                </div>
-                <div class="email-iframe-container">
-                    <iframe id="email-body-iframe" class="email-iframe"></iframe>
+                `;
+            }
+
+            pane.innerHTML = `
+                <div style="display: flex; flex-direction: column; height: 100%;">
+                    <div class="email-content-header">
+                        <div class="email-content-subject">${email.subject || '(No Subject)'}</div>
+                        <div class="email-content-meta">
+                            <div class="email-content-sender">${icon}${directionLabel} <span style="font-weight:700;">${displayAddress.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
+                            <div class="email-content-date">${fullDate}</div>
+                        </div>
+                    </div>
+                    <div class="email-iframe-container" style="flex: 1;">
+                        <iframe id="email-body-iframe" class="email-iframe"></iframe>
+                    </div>
+                    ${replyBtnHtml}
                 </div>
             `;
             
@@ -1481,6 +1531,85 @@
             `);
             iframeDoc.close();
         }
+        
+        async function openReplyComposer(index) {
+            const email = currentEmails[index];
+            const pane = document.getElementById('email-content-pane');
+            const originalSubject = email.subject || '(No Subject)';
+            const replySubject = originalSubject.startsWith('Re:') ? originalSubject : \`Re: \${originalSubject}\`;
+            
+            pane.innerHTML = \`
+                <div style="display: flex; flex-direction: column; height: 100%; background: #fff;">
+                    <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 style="font-weight: 800; font-size: 1.25rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.4rem;">↩️</span> Secure Reply</h3>
+                        <button onclick="showEmailContent(\${index})" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #71717A; font-weight: 600; padding: 0.5rem; transition: color 0.2s;">Cancel</button>
+                    </div>
+                    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
+                        <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
+                            <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">To:</span>
+                            <input type="text" value="\${email.sender}" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
+                            <span style="font-size: 0.8rem; color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">🔒 Locked</span>
+                        </div>
+                        <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
+                            <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">Subject:</span>
+                            <input type="text" id="reply-subject" value="\${replySubject}" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; margin-top: 1rem;">
+                            <textarea id="reply-body" placeholder="Write your reply here..." style="flex: 1; border: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: none; color: #27272a; min-height: 300px;"></textarea>
+                        </div>
+                    </div>
+                    <div style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
+                        <button id="send-reply-btn" onclick="sendReply(\${index})" style="background: var(--primary); color: #000; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); transition: opacity 0.2s;">
+                            Send Securely 🚀
+                        </button>
+                    </div>
+                </div>
+            \`;
+        }
+        
+        async function sendReply(index) {
+            const email = currentEmails[index];
+            const subject = document.getElementById('reply-subject').value;
+            let body = document.getElementById('reply-body').value;
+            const btn = document.getElementById('send-reply-btn');
+            
+            if (!body.trim()) {
+                alert("Please write a message first!");
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerText = "Sending...";
+            
+            // Format body with line breaks
+            body = body.replace(/\\n/g, '<br>');
+            
+            try {
+                const response = await fetch('https://n8n.leadscompass.ai/webhook/dashboard-reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userProfile.id,
+                        sender: userProfile.Application_email,
+                        recipient: email.sender,
+                        subject: subject,
+                        html: body
+                    })
+                });
+                
+                if (!response.ok) throw new Error("Failed to send reply");
+                
+                await fetchEmails();
+                switchEmailTab('sent');
+                
+            } catch (err) {
+                console.error(err);
+                alert("Failed to send reply. Please try again. Error: " + err.message);
+                btn.disabled = false;
+                btn.innerText = "Send Securely 🚀";
+            }
+        }
+
         
         // Fetch initially to populate badge
         document.addEventListener('DOMContentLoaded', () => {
