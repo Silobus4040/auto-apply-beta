@@ -537,8 +537,11 @@
                 <span class="info-strip-value" id="pref-workplaces">Loading...</span>
             </div>
             <a href="#" onclick="openSettingsModal(); return false;" class="info-strip-edit">✏️ Edit criteria</a>
-            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: flex; gap: 0.75rem;">
+            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
                 <button id="activateRoverBtn" onclick="triggerProductionWebhook()" style="background: #0284c7; color: #fff; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">🚀 Activate Role Rover</button>
+                <div id="inbox-banner" style="display: none;">
+                    <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Enable Auto-Apply &rarr;</button>
+                </div>
             </div>
         </div>
 
