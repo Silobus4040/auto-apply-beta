@@ -1062,8 +1062,8 @@
                     button.style.background = 'rgba(16, 185, 129, 0.1)';
                     button.style.color = '#047857';
                     button.style.border = '1px solid rgba(16, 185, 129, 0.3)';
-                    button.style.cursor = 'default';
-                    button.onclick = null;
+                    button.style.cursor = 'pointer';
+                    button.onclick = openInboxModal;
                     button.style.textTransform = 'lowercase';
                     button.style.fontWeight = '700';
                 } else {
@@ -1547,6 +1547,15 @@
 
         function openInboxModal() {
             document.getElementById('inbox-modal').classList.add('active');
+            if (userProfile && userProfile.Application_email) {
+                document.getElementById('final-ai-email').textContent = userProfile.Application_email;
+                document.getElementById('generated-email-display').style.display = 'block';
+                const btn = document.getElementById('save-inbox-btn');
+                if (btn) {
+                    btn.textContent = '🚀 Auto-Apply Engine Active (Click to Re-activate)';
+                    btn.disabled = false;
+                }
+            }
         }
 
         async function saveInbox() {
