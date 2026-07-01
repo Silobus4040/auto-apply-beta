@@ -1182,15 +1182,158 @@
                 if (isScanning) {
                     const rolesList = (userProfile && userProfile.target_job_titles) ? userProfile.target_job_titles.split(', ') : [];
                     const locationsList = (userProfile && userProfile.target_location) ? userProfile.target_location.split(', ') : [];
-                container.innerHTML = `
-                    <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
-                        <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
-                        <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">No Matching Jobs Found Yet</h3>
-                        <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.65; font-weight: 500;">
-                            We completed the live scan, but found no active listings matching your criteria.
-                        </p>
-                        <a href="onboarding.html?edit=true" class="table-btn" style="font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 3px 3px 0px var(--border); border-radius: 50px;">⚙ Adjust Target Settings</a>
-                    </div>`;
+                    const workplaceList = (userProfile && userProfile.workplace_type) ? userProfile.workplace_type.split(', ') : [];
+                    const userEmail = (userProfile && userProfile.Application_email) ? userProfile.Application_email : currentUserEmail;
+
+                    const rolesBadgesHtml = rolesList.map(r => `<span style="background: rgba(16, 185, 129, 0.08); color: #047857; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">${r}</span>`).join(' ');
+                    const locationText = locationsList.join(', ');
+                    const criteriaBadgesHtml = workplaceList.length > 0 ? `<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; display: inline-block;">${workplaceList.join(' · ')}</span>` : '';
+
+                    container.innerHTML = `
+                        <div class="active-scan-container" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px; margin: 0 auto; text-align: left;">
+                            
+                            <!-- 1. Confirmation Banner -->
+                            <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 16px; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
+                                <div style="width: 24px; height: 24px; background: #10B981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem; flex-shrink: 0; margin-top: 0.15rem;">✓</div>
+                                <div style="flex-grow: 1;">
+                                    <h4 style="font-size: 1.05rem; font-weight: 800; color: #064E3B; margin-bottom: 0.25rem; text-transform: none;">Your search criteria is saved</h4>
+                                    <p style="font-size: 0.9rem; color: #065F46; line-height: 1.5; margin-bottom: 0.75rem;">Rover is now scanning the internet for your target roles across ${locationText || 'your target countries'}.</p>
+                                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
+                                        ${rolesBadgesHtml}
+                                        ${criteriaBadgesHtml}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 2. Time Expectation Card -->
+                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; gap: 0.75rem; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                                <span style="font-size: 1.2rem; flex-shrink: 0;">⏱️</span>
+                                <span style="font-size: 0.9rem; color: #3f3f46; font-weight: 500;">
+                                    We'll email you at <strong>${userEmail}</strong> when they're ready.
+                                </span>
+                            </div>
+
+                            <!-- 3. What Rover is Doing Timeline -->
+                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
+                                <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 850; color: #71717a; margin-bottom: 1.75rem; letter-spacing: 0.8px;">What Rover is doing right now</h3>
+                                
+                                <div style="display: flex; flex-direction: column; position: relative;">
+                                    <!-- Line indicator -->
+                                    <div style="position: absolute; left: 11px; top: 12px; bottom: 12px; width: 2px; background: #E4E4E7; z-index: 1;"></div>
+                                    
+                                    <!-- Step 1 -->
+                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2;">
+                                        <div style="width: 24px; height: 24px; background: #10B981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; flex-shrink: 0;">✓</div>
+                                        <div>
+                                            <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.15rem;">Search criteria saved</h4>
+                                            <p style="font-size: 0.82rem; color: #71717a;">${rolesList.length} role${rolesList.length > 1 ? 's' : ''} across ${locationsList.length} countr${locationsList.length > 1 ? 'ies' : 'y'}</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 2 -->
+                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2;">
+                                        <div style="width: 24px; height: 24px; background: #10B981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; flex-shrink: 0;">✓</div>
+                                        <div>
+                                            <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.15rem;">Querying job boards</h4>
+                                            <p style="font-size: 0.82rem; color: #71717a;">Google, Greenhouse, Lever, Ashby, Workable</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 3 (Active) -->
+                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2;">
+                                        <div style="width: 24px; height: 24px; background: #fff; border: 2px solid #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                                            <div style="width: 10px; height: 10px; background: #10B981; border-radius: 50%;"></div>
+                                        </div>
+                                        <div style="flex-grow: 1;">
+                                            <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.35rem;">Scraping and parsing job details</h4>
+                                            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #047857; font-weight: 600; margin-bottom: 0.5rem;">
+                                                <span style="animation: spin 1.5s linear infinite; display: inline-block;">⚙️</span>
+                                                <span>Extracting salaries, locations, and requirements...</span>
+                                            </div>
+                                            <!-- Progress bar -->
+                                            <div style="width: 100%; max-width: 400px; height: 6px; background: #F4F4F5; border-radius: 10px; overflow: hidden; position: relative;">
+                                                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 45%; background: #10B981; border-radius: 10px; animation: progressGrow 3s ease-in-out infinite alternate;"></div>
+                                            </div>
+                                            <style>
+                                                @keyframes progressGrow {
+                                                    0% { width: 10%; }
+                                                    100% { width: 75%; }
+                                                }
+                                            </style>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 4 (Pending) -->
+                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2; opacity: 0.5;">
+                                        <div style="width: 24px; height: 24px; background: #fff; border: 2px solid #D1D5DB; color: #9CA3AF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">4</div>
+                                        <div>
+                                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #1f2937; margin-bottom: 0.15rem;">Matching jobs to your resume</h4>
+                                            <p style="font-size: 0.82rem; color: #6b7280;">AI scores each listing against your experience</p>
+                                        </div>
+                                    </div>
+
+                                    <!-- Step 5 (Pending) -->
+                                    <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2; opacity: 0.5;">
+                                        <div style="width: 24px; height: 24px; background: #fff; border: 2px solid #D1D5DB; color: #9CA3AF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">5</div>
+                                        <div>
+                                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #1f2937; margin-bottom: 0.15rem;">Generating custom resumes and cover letters</h4>
+                                            <p style="font-size: 0.82rem; color: #6b7280;">One tailored document per matched role</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 4. While You Wait Cards -->
+                            <div>
+                                <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 850; color: #71717a; margin-bottom: 1rem; letter-spacing: 0.8px;">While you wait</h3>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
+                                    
+                                    <!-- Card 1 -->
+                                    <div onclick="if(userProfile && userProfile.master_resume) { document.getElementById('resume-modal').classList.add('active'); document.getElementById('resume-iframe').srcdoc = userProfile.master_resume; }" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+                                        <span style="font-size: 1.5rem; display: block; margin-bottom: 0.75rem;">📝</span>
+                                        <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.35rem;">Review your resume</h4>
+                                        <p style="font-size: 0.8rem; color: #71717a; line-height: 1.4;">Better resume = better AI matches. Check it's up to date.</p>
+                                    </div>
+
+                                    <!-- Card 2 -->
+                                    <div onclick="openSettingsModal()" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+                                        <span style="font-size: 1.5rem; display: block; margin-bottom: 0.75rem;">⚙️</span>
+                                        <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.35rem;">Refine criteria</h4>
+                                        <p style="font-size: 0.8rem; color: #71717a; line-height: 1.4;">Add salary filters or seniority levels to narrow results.</p>
+                                    </div>
+
+                                    <!-- Card 3 -->
+                                    <div onclick="const mi = document.getElementById('market-intel-section'); if(mi) { mi.scrollIntoView({behavior:'smooth'}); }" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+                                        <span style="font-size: 1.5rem; display: block; margin-bottom: 0.75rem;">📊</span>
+                                        <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.35rem;">See market intel</h4>
+                                        <p style="font-size: 0.8rem; color: #71717a; line-height: 1.4;">What skills are most in demand for your target roles.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 5. Email Notification Loop -->
+                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.15rem;">Get notified when jobs are ready</h4>
+                                    <p style="font-size: 0.8rem; color: #71717a;">We'll send results to <strong>${userEmail}</strong></p>
+                                </div>
+                                <span style="background: #F4F4F5; border: 1px solid var(--border); color: #27272A; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
+                                    <span style="color: #10B981; font-weight: 900;">✓</span> Email confirmed
+                                </span>
+                            </div>
+
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                            <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
+                            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">No Matching Jobs Found Yet</h3>
+                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.65; font-weight: 500;">
+                                We completed the live scan, but found no active listings matching your criteria.
+                            </p>
+                            <a href="onboarding.html?edit=true" class="table-btn" style="font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 3px 3px 0px var(--border); border-radius: 50px;">⚙ Adjust Target Settings</a>
+                        </div>`;
+                }
                 return;
             }
 
