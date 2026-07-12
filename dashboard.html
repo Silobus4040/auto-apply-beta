@@ -417,6 +417,36 @@
             .stats-bar { flex-direction: column; }
             .stat { min-width: 100%; }
             .info-strip { grid-template-columns: 1fr; }
+
+            /* Card layout for the jobs table below 768px so users don't have to scroll both axes */
+            .jobs-table-container { overflow-x: visible; border: none; box-shadow: none; background: transparent; }
+            .jobs-table, .jobs-table thead, .jobs-table tbody, .jobs-table tr, .jobs-table td { display: block; width: 100%; }
+            .jobs-table thead { position: absolute; left: -9999px; top: -9999px; }
+            .jobs-table tr {
+                background: var(--surface-color);
+                border: 1px solid var(--border);
+                border-radius: 12px;
+                margin-bottom: 1rem;
+                padding: 0.5rem 0;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            }
+            .jobs-table tbody tr:nth-child(even) td { background: transparent; }
+            .jobs-table td {
+                border-bottom: 1px solid var(--border);
+                padding: 0.85rem 1.25rem;
+            }
+            .jobs-table tr:last-child td, .jobs-table td:last-child { border-bottom: none; }
+            .jobs-table td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.68rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+                color: #00997a;
+                margin-bottom: 0.35rem;
+            }
+            .jobs-table td:not([data-label])::before { content: none; }
         }
 
     </style>
@@ -457,8 +487,43 @@
         <!-- Left Sidebar -->
         <aside class="app-sidebar" id="app-sidebar">
             <div class="sidebar-logo-area">
-                <div class="sidebar-logo-icon">R</div>
-                <span class="sidebar-logo-text">RoleRover</span>
+                <svg viewBox="0 0 350 84" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: auto; height: 28px; display: inline-block; vertical-align: middle;">
+                    <defs>
+                        <linearGradient id="soft-grad-sidebar" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#B2FF33" />
+                            <stop offset="100%" stop-color="#33FFAA" />
+                        </linearGradient>
+                        <mask id="clover-mask-sidebar">
+                            <rect x="0" y="0" width="100" height="100" fill="#ffffff"/>
+                            <g transform="translate(63, 56)">
+                                <path d="M 0,0 C -5,-6 -8,-12 0,-14 C 8,-12 5,-6 0,0 Z" fill="#000000"/>
+                                <path d="M 0,0 C 6,-5 12,-8 14,0 C 12,8 5,5 0,0 Z" fill="#000000"/>
+                                <path d="M 0,0 C 5,6 8,12 0,14 C -8,12 -5,6 0,0 Z" fill="#000000"/>
+                                <path d="M 0,0 C -6,5 -12,8 -14,0 C -12,-8 -5,-5 0,0 Z" fill="#000000"/>
+                                <path d="M 0,0 Q 2,10 6,12" stroke="#000000" stroke-width="2.8" stroke-linecap="round" fill="none"/>
+                            </g>
+                        </mask>
+                    </defs>
+                    <rect x="28" y="22" width="70" height="52" rx="12" fill="url(#soft-grad-sidebar)" mask="url(#clover-mask-sidebar)"/>
+                    <path d="M48,22 V14 C48,10 51,7 55,7 H71 C75,7 78,10 78,14 V22" stroke="url(#soft-grad-sidebar)" stroke-width="6" stroke-linecap="round" fill="none" mask="url(#clover-mask-sidebar)"/>
+                    <text x="98" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="#000" letter-spacing="-2px">R</text>
+                    <g transform="translate(148, 19)">
+                        <circle cx="28" cy="28" r="28" stroke="url(#soft-grad-sidebar)" stroke-width="5" fill="none"/>
+                        <circle cx="28" cy="28" r="22" stroke="#000" stroke-width="1.2" stroke-dasharray="1.5 2.5" opacity="0.35" fill="none"/>
+                        <text x="28" y="15.5" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">N</text>
+                        <text x="28" y="40.5" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">S</text>
+                        <text x="15" y="28" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">W</text>
+                        <text x="41" y="28" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">E</text>
+                        <g transform="rotate(-8 28 28)">
+                            <polygon points="28,28 24.5,28 28,16" fill="#D4FF33"/>
+                            <polygon points="28,28 31.5,28 28,16" fill="#00FFCC"/>
+                            <polygon points="28,28 24.5,28 28,40" fill="#a1a1aa"/>
+                            <polygon points="28,28 31.5,28 28,40" fill="#52525b"/>
+                            <circle cx="28" cy="28" r="2.5" fill="#ffffff" stroke="#18181b" stroke-width="1"/>
+                        </g>
+                    </g>
+                    <text x="208" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="#000" letter-spacing="-2px">VER</text>
+                </svg>
                 <span style="background: rgba(0,0,0,0.06); color: #71717a; font-size: 0.55rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; margin-left: 0.15rem;">BETA</span>
                 <button class="hamburger-btn" onclick="toggleSidebar()" style="margin-left: auto;" aria-label="Close Menu">✕</button>
             </div>
@@ -470,12 +535,12 @@
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> AI inbox
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
-                <button class="sidebar-nav-item" onclick="const mi = document.getElementById('market-intel-section'); if(mi) { mi.scrollIntoView({behavior:'smooth'}); }">
+                <button class="sidebar-nav-item" onclick="goToMarketIntel(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Market intel
                 </button>
-                <a href="onboarding.html?edit=true" class="sidebar-nav-item">
+                <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
-                </a>
+                </button>
             </div>
         </aside>
 
@@ -979,6 +1044,37 @@
             }
         }
 
+        function parseLinkedInTitle(rawTitle) {
+            if (!rawTitle) return null;
+            const cleaned = rawTitle.replace(/\s*\|\s*LinkedIn\s*$/i, '').trim();
+
+            // "Company hiring Role in Location"
+            let m = cleaned.match(/^(.+?)\s+hiring\s+(.+?)\s+in\s+(.+)$/i);
+            if (m) {
+                return { company: m[1].trim(), title: m[2].trim(), location: m[3].trim() };
+            }
+
+            // "Role at Company"
+            m = cleaned.match(/^(.+?)\s+at\s+(.+)$/i);
+            if (m) {
+                return { company: m[2].trim(), title: m[1].trim(), location: '' };
+            }
+
+            return null;
+        }
+
+        function dedupeJobs(jobs) {
+            const seen = new Set();
+            return jobs.filter(job => {
+                const key = [job.companyName, job.title, job.location]
+                    .map(v => (v || '').trim().toLowerCase())
+                    .join('|');
+                if (seen.has(key)) return false;
+                seen.add(key);
+                return true;
+            });
+        }
+
         async function fetchUserJobs() {
             const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return;
@@ -1022,11 +1118,27 @@
                     formattedDate = dbJob.postedAt || '';
                 }
 
+                let companyName = dbJob.companyName || '';
+                let title = dbJob.title || '';
+                let location = dbJob.location || '';
+
+                // LinkedIn-sourced rows sometimes only get "linkedin" as the company and
+                // dump the real company/role/location into the title as raw scraped text,
+                // e.g. "ROLLER hiring Head of Revenue Strategy in San Francisco, CA | LinkedIn"
+                if (/^linkedin$/i.test(companyName.trim()) || !companyName.trim()) {
+                    const parsed = parseLinkedInTitle(title);
+                    if (parsed) {
+                        companyName = parsed.company;
+                        title = parsed.title;
+                        location = location.trim() || parsed.location || location;
+                    }
+                }
+
                 return {
                     id: dbJob.id,
-                    companyName: dbJob.companyName || 'Unknown Company',
-                    title: dbJob.title || 'Role',
-                    location: dbJob.location || 'Remote',
+                    companyName: companyName || 'Unknown Company',
+                    title: title || 'Role',
+                    location: location || 'Remote',
                     postedAt: formattedDate || 'Recent',
                     link: dbJob.link || '#',
                     descriptionText: dbJob.descriptionText || 'No description provided.',
@@ -1045,6 +1157,8 @@
                 };
             });
 
+            currentJobs = dedupeJobs(currentJobs);
+
             updateStats(currentJobs, user.id);
             renderJobs(currentJobs, scraperStatus === 'scanning');
             updateInboxBannerVisibility();
@@ -1058,14 +1172,16 @@
             const button = banner.querySelector('button');
             if (button) {
                 if (userProfile.Application_email) {
-                    button.textContent = `✉️ ${userProfile.Application_email}`;
-                    button.style.background = 'rgba(16, 185, 129, 0.1)';
-                    button.style.color = '#047857';
-                    button.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+                    button.textContent = `✉️ Auto-apply on — ${userProfile.Application_email}`;
+                    button.style.background = 'transparent';
+                    button.style.color = '#71717a';
+                    button.style.border = 'none';
+                    button.style.padding = '0.45rem 0';
                     button.style.cursor = 'pointer';
                     button.onclick = openInboxModal;
                     button.style.textTransform = 'lowercase';
-                    button.style.fontWeight = '700';
+                    button.style.fontWeight = '600';
+                    button.style.fontSize = '0.7rem';
                 } else {
                     button.innerHTML = 'Enable Auto-Apply &rarr;';
                     button.style.background = 'var(--primary)';
@@ -1175,6 +1291,15 @@
               .subscribe();
         }
         let currentResumeObjectUrl = null;
+
+        function goToMarketIntel() {
+            const mi = document.getElementById('market-intel-section');
+            if (mi && mi.style.display !== 'none') {
+                mi.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                alert("📊 Market intel builds up as Rover reviews jobs that don't match your resume. Nothing to show yet — check back after your next scan.");
+            }
+        }
 
         function renderJobs(jobs, isScanning = false) {
             const container = document.getElementById('job-list');
@@ -1303,7 +1428,7 @@
                                     </div>
 
                                     <!-- Card 3 -->
-                                    <div onclick="const mi = document.getElementById('market-intel-section'); if(mi) { mi.scrollIntoView({behavior:'smooth'}); }" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
+                                    <div onclick="goToMarketIntel()" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
                                         <span style="font-size: 1.5rem; display: block; margin-bottom: 0.75rem;">📊</span>
                                         <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.35rem;">See market intel</h4>
                                         <p style="font-size: 0.8rem; color: #71717a; line-height: 1.4;">What skills are most in demand for your target roles.</p>
@@ -1407,28 +1532,28 @@
 
                 html += `
                     <tr>
-                        <td>
+                        <td data-label="Company">
                             <div style="font-weight: 600; color: #000000;">${job.companyName}</div>
                         </td>
-                        <td>
+                        <td data-label="Location">
                             <div style="font-weight: 600; color: var(--text-body);">${job.location}</div>
                         </td>
-                        <td>
+                        <td data-label="Employment Type">
                             <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
                                 ${workplaceLabel}
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Role">
                             <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">${job.title}</div>
                             ${salaryLabel}
                         </td>
-                        <td>
+                        <td data-label="Application Details">
                             <div style="display: flex; flex-direction: column; gap: 0.5rem; align-items: flex-start;">
                                 ${jobLinkButton}
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                             </div>
                         </td>
-                        <td>
+                        <td data-label="Resume & Cover Letter">
                             <div style="display: flex; flex-direction: column; align-items: flex-start;">
                                 ${resumeButton}
                                 ${coverLetterButton}
@@ -1954,7 +2079,7 @@
             const originalText = btn.innerText;
             const originalBg = btn.style.background;
             
-            let userId = "85de00b2-fd0e-4abd-92ec-a5dc97aca549";
+            let userId = null;
             try {
                 if (typeof userProfile !== 'undefined' && userProfile?.id) {
                     userId = userProfile.id;
@@ -1963,6 +2088,11 @@
                     if (data?.user?.id) userId = data.user.id;
                 }
             } catch(e) {}
+
+            if (!userId) {
+                alert("⚠️ Couldn't confirm your account. Please refresh and try again.");
+                return;
+            }
 
             btn.disabled = true;
             btn.innerText = "Triggering...";
