@@ -332,6 +332,12 @@
 
                 if (error) throw error;
 
+                // PostHog: identify the now-verified account + funnel step
+                if (window.posthog && data.user) {
+                    posthog.identify(data.user.id, { email: pendingEmail });
+                    posthog.capture('email_verified');
+                }
+
                 // Success
                 successMsg.textContent = '✅ Email verified! Setting up your account...';
                 successMsg.style.display = 'block';

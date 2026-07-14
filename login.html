@@ -203,6 +203,12 @@
 
                 // Check onboarding status — route accordingly
                 const userId = data.user.id;
+
+                // PostHog: tie this browser session to the real account + log the login
+                if (window.posthog) {
+                    posthog.identify(userId, { email });
+                    posthog.capture('user_logged_in');
+                }
                 const { data: profile } = await supabaseClient
                     .from('profiles')
                     .select('onboarding_complete')

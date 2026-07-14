@@ -895,6 +895,9 @@
 
                 if (profileError) throw profileError;
 
+                // PostHog: onboarding finished — the key activation funnel step
+                if (window.posthog) posthog.capture('onboarding_completed');
+
                 // Clear cached data on success
                 Object.keys(localStorage).forEach(key => { if (key.startsWith('onb_')) localStorage.removeItem(key); });
 

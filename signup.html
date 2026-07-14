@@ -225,6 +225,12 @@
 
                 if (error) throw error;
 
+                // PostHog: identify the new account + mark signup as a funnel step
+                if (window.posthog && data.user) {
+                    posthog.identify(data.user.id, { email, full_name: name });
+                    posthog.capture('signup_completed');
+                }
+
                 // Store email for OTP verification page
                 sessionStorage.setItem('pending_verification_email', email);
 
