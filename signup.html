@@ -225,6 +225,21 @@
 
                 if (error) throw error;
 
+                // Supabase deliberately returns 200 with no explicit error for an
+                // email that's already registered (anti-enumeration security
+                // behavior) - the only signal is an EMPTY identities array on an
+                // otherwise-normal-looking response. Without this check, a repeat
+                // signup silently shows "check your email" even though nothing
+                // was sent, leaving the user stuck with no code and no idea why
+                // (confirmed live 2026-07-15).
+                if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+                    errorMsg.textContent = 'An account with this email already exists. Please log in instead.';
+                    errorMsg.style.display = 'block';
+                    btn.disabled = false;
+                    btn.textContent = 'Create Account →';
+                    return;
+                }
+
                 // PostHog: identify the new account + mark signup as a funnel step
                 if (window.posthog && data.user) {
                     posthog.identify(data.user.id, { email, full_name: name });
