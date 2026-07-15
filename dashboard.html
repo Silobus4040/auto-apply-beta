@@ -241,6 +241,8 @@
         .status-queued { background: rgba(0, 255, 204, 0.08); color: #00b38f; border-color: rgba(0, 255, 204, 0.2); }
         .status-applied { background: rgba(245, 158, 11, 0.08); color: #b45309; border-color: rgba(245, 158, 11, 0.15); }
         .status-interview { background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15); }
+        .status-failed { background: rgba(220, 38, 38, 0.08); color: #b91c1c; border-color: rgba(220, 38, 38, 0.18); }
+        .status-blocked { background: rgba(220, 38, 38, 0.06); color: #9a3412; border-color: rgba(154, 52, 18, 0.16); }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
         .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
@@ -549,6 +551,9 @@
                 </button>
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
+                </button>
+                <button class="sidebar-nav-item" onclick="logout()">
+                    <i data-lucide="log-out" class="sidebar-nav-icon"></i> Log Out
                 </button>
             </div>
         </aside>
@@ -1527,8 +1532,8 @@
             `;
 
             jobs.forEach((job, index) => {
-                const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : 'status-queued';
-                const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : '⏳ In Queue';
+                const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'failed' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
+                const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : job.status === 'failed' ? '❌ Failed' : job.status === 'blocked' ? '🧍 Needs you' : '⏳ In Queue';
                 const wpType = (job.workplaceType || '').toLowerCase();
                 const tagClass = wpType.includes('remote') ? 'tag-remote' : wpType.includes('hybrid') ? 'tag-hybrid' : 'tag-onsite';
                 const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag ${tagClass}" style="margin-top: 0;">${job.workplaceType}</span>` : '';
