@@ -541,7 +541,9 @@
             removeItemButton: true,
             searchPlaceholderValue: 'Search for a country...',
             placeholder: true,
-            placeholderValue: 'Select countries'
+            placeholderValue: 'Select countries',
+            maxItemCount: 3,
+            maxItemText: (maxItemCount) => `Only ${maxItemCount} countries max — remove one to add another.`
         });
         
         const savedCountries = localStorage.getItem('onb_target-countries');
@@ -686,9 +688,21 @@
         })();
 
         // Dynamic Job Titles Logic
+        const MAX_JOB_TITLES = 3;
+
+        function updateAddRoleButtonState() {
+            const container = document.getElementById('job-titles-container');
+            const addBtn = document.querySelector('button[onclick="addJobTitleField()"]');
+            if (!container || !addBtn) return;
+            const atMax = container.children.length >= MAX_JOB_TITLES;
+            addBtn.disabled = atMax;
+            addBtn.textContent = atMax ? `Maximum ${MAX_JOB_TITLES} roles reached` : '+ Add Another Role';
+        }
+
         function addJobTitleField(title = '', level = 'Entry Level') {
             const container = document.getElementById('job-titles-container');
-            
+            if (container.children.length >= MAX_JOB_TITLES) { updateAddRoleButtonState(); return; }
+
             const row = document.createElement('div');
             row.style.display = 'flex';
             row.style.gap = '0.5rem';
@@ -717,6 +731,7 @@
             row.appendChild(input);
             row.appendChild(select);
             container.appendChild(row);
+            updateAddRoleButtonState();
         }
 
         // Slider Logic
@@ -777,7 +792,12 @@
         });
 
         // Auto-Save Form State
-        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form select');
+        // select:not([multiple]) — #target-countries is a multi-select with its
+        // own dedicated array-based save/restore above; .value on a multi-select
+        // only ever returns the FIRST selected option, so including it here was
+        // silently overwriting the correct saved list down to a single country
+        // (confirmed live 2026-07-15: 4 selected countries collapsed to 1).
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form select:not([multiple])');
         formInputs.forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem('onb_' + input.id);
