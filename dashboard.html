@@ -617,7 +617,6 @@
             </div>
             <a href="#" onclick="openSettingsModal(); return false;" class="info-strip-edit">✏️ Edit criteria</a>
             <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
-                <button id="activateRoverBtn" onclick="triggerProductionWebhook()" style="background: #0284c7; color: #fff; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">🚀 Activate Role Rover</button>
                 <div id="inbox-banner" style="display: none;">
                     <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Enable Auto-Apply &rarr;</button>
                 </div>
@@ -1705,7 +1704,7 @@
             try {
                 let prefix = currentUserEmail.split('@')[0];
                 prefix = prefix.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-                const generatedEmail = `${prefix}@myrolerover.com`;
+                const generatedEmail = `${prefix}@careermailing.com`;
                 
                 document.getElementById('final-ai-email').textContent = generatedEmail;
                 document.getElementById('generated-email-display').style.display = 'block';
@@ -2086,60 +2085,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             fetchEmails();
         });
-
-        async function triggerProductionWebhook() {
-            const webhookUrl = "https://n8n.leadscompass.ai/webhook/user-jobscrape";
-            const btn = document.getElementById('activateRoverBtn');
-            const originalText = btn.innerText;
-            const originalBg = btn.style.background;
-            
-            let userId = null;
-            try {
-                if (typeof userProfile !== 'undefined' && userProfile?.id) {
-                    userId = userProfile.id;
-                } else {
-                    const { data } = await supabaseClient.auth.getUser();
-                    if (data?.user?.id) userId = data.user.id;
-                }
-            } catch(e) {}
-
-            if (!userId) {
-                alert("⚠️ Couldn't confirm your account. Please refresh and try again.");
-                return;
-            }
-
-            btn.disabled = true;
-            btn.innerText = "Triggering...";
-            btn.style.background = "#475569";
-
-            try {
-                const response = await fetch(webhookUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: userId })
-                });
-
-                if (response.ok) {
-                    alert("✅ Success! The webhook was triggered. Role Rover is running in the background. Check your n8n 'Executions' tab.");
-                    btn.innerText = "Sent Successfully!";
-                    btn.style.background = "#059669";
-                } else {
-                    alert("⚠️ Server returned an error: " + response.status);
-                    btn.innerText = "Error (Click to retry)";
-                    btn.style.background = "#dc2626";
-                }
-            } catch (error) {
-                alert("✅ Request Sent (CORS warning may appear in console). Check your n8n 'Executions' tab.");
-                btn.innerText = "Sent!";
-                btn.style.background = "#059669";
-            } finally {
-                setTimeout(() => {
-                    btn.disabled = false;
-                    btn.innerText = originalText;
-                    btn.style.background = originalBg;
-                }, 4000);
-            }
-        }
 
         // Initialize Lucide Icons
         document.addEventListener("DOMContentLoaded", function() {
