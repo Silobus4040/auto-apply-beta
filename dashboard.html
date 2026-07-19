@@ -243,6 +243,8 @@
         .status-interview { background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15); }
         .status-failed { background: rgba(220, 38, 38, 0.08); color: #b91c1c; border-color: rgba(220, 38, 38, 0.18); }
         .status-blocked { background: rgba(220, 38, 38, 0.06); color: #9a3412; border-color: rgba(154, 52, 18, 0.16); }
+        .status-hired { background: rgba(234, 179, 8, 0.12); color: #a16207; border-color: rgba(234, 179, 8, 0.25); }
+        .status-rejected { background: rgba(100, 116, 139, 0.08); color: #475569; border-color: rgba(100, 116, 139, 0.16); }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
         .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
@@ -1531,8 +1533,8 @@
             `;
 
             jobs.forEach((job, index) => {
-                const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'failed' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
-                const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : job.status === 'failed' ? '❌ Failed' : job.status === 'blocked' ? '🧍 Needs you' : '⏳ In Queue';
+                const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
+                const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : job.status === 'hired' ? '🏆 Hired' : job.status === 'rejected' ? '📪 Rejected' : job.status === 'Needs Human Review' ? '⚠️ Needs Review' : job.status === 'blocked' ? '🧍 Needs you' : '⏳ In Queue';
                 const wpType = (job.workplaceType || '').toLowerCase();
                 const tagClass = wpType.includes('remote') ? 'tag-remote' : wpType.includes('hybrid') ? 'tag-hybrid' : 'tag-onsite';
                 const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag ${tagClass}" style="margin-top: 0;">${job.workplaceType}</span>` : '';
