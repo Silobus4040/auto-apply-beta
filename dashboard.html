@@ -873,7 +873,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('onboarding_complete, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit')
+                .select('id, onboarding_complete, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit')
                 .eq('id', user.id)
                 .single();
 
