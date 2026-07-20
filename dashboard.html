@@ -1152,13 +1152,18 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('scraper_status')
+                .select('scraper_status, is_activated')
                 .eq('id', user.id)
                 .single();
 
+            // Require is_activated directly, not just scraper_status - a
+            // stale/incorrectly-set scraper_status must never be able to
+            // claim a scan is running for an account that was never
+            // actually activated with an invite code.
             const scraperStatus = profile ? profile.scraper_status : 'idle';
+            const isReallyScanning = scraperStatus === 'scanning' && !!(profile && profile.is_activated);
 
-            if (scraperStatus === 'scanning') {
+            if (isReallyScanning) {
                 startPolling();
                 updateScanningIndicator(true, jobs ? jobs.length : 0);
             } else {
@@ -1223,7 +1228,7 @@
             currentJobs = dedupeJobs(currentJobs);
 
             updateStats(currentJobs, user.id);
-            renderJobs(currentJobs, scraperStatus === 'scanning');
+            renderJobs(currentJobs, isReallyScanning);
             updateInboxBannerVisibility();
         }
 
@@ -1451,6 +1456,17 @@
                                 </span>
                             </div>
 
+                        </div>`;
+                } else if (userProfile && !userProfile.is_activated) {
+                    // Never activated - no scan has ever run, so "we completed the
+                    // live scan" would be a false claim. Say so honestly instead.
+                    container.innerHTML = `
+                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                            <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔒</span>
+                            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">Nothing Here Yet</h3>
+                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto; line-height: 1.65; font-weight: 500;">
+                                Enter your invite code above to activate Rover and run your first search.
+                            </p>
                         </div>`;
                 } else {
                     container.innerHTML = `
