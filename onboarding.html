@@ -446,10 +446,13 @@
                             </div>
                         </div>
 
-                        <!-- EEO Demographics Section -->
-                        <div style="border-top: 1px solid var(--border); margin: 2rem 0; padding-top: 1.5rem;">
-                            <h3 style="color: white; font-size: 1rem; margin-bottom: 1.5rem; text-transform: uppercase;">EEO Demographics</h3>
-                            
+                        <!-- EEO Demographics Section - US-specific EEOC self-identification
+                             categories, only relevant for US-bound applications. Shown/hidden
+                             by updateEeoVisibility() based on Target Countries selection. -->
+                        <div id="eeo-section" style="border-top: 1px solid var(--border); margin: 2rem 0; padding-top: 1.5rem;">
+                            <h3 style="color: white; font-size: 1rem; margin-bottom: 0.4rem; text-transform: uppercase;">EEO Demographics</h3>
+                            <p class="form-hint" style="margin-bottom: 1.1rem;">Shown because United States is one of your target countries — these are voluntary self-identification questions used on US job applications.</p>
+
                             <div class="row-grid">
                                 <div class="form-group">
                                     <label>Gender</label>
@@ -463,17 +466,31 @@
                                     </div>
                                 </div>
                                 <div class="form-group">
-                                    <label>Race / Ethnicity</label>
+                                    <label>Race</label>
                                     <div class="select-wrapper">
                                         <select id="race">
                                             <option value="Decline to self-identify">Decline to self-identify</option>
                                             <option value="White">White</option>
-                                            <option value="Hispanic or Latino">Hispanic or Latino</option>
                                             <option value="Black or African American">Black or African American</option>
                                             <option value="Asian">Asian</option>
                                             <option value="Native American">Native American</option>
+                                            <option value="Two or More Races">Two or More Races</option>
                                         </select>
                                     </div>
+                                </div>
+                            </div>
+
+                            <div class="row-grid">
+                                <div class="form-group">
+                                    <label>Hispanic or Latino?</label>
+                                    <div class="select-wrapper">
+                                        <select id="hispanic-latino">
+                                            <option value="Decline to self-identify">Decline to self-identify</option>
+                                            <option value="Yes">Yes</option>
+                                            <option value="No">No</option>
+                                        </select>
+                                    </div>
+                                    <p class="form-hint" style="margin-top: 0.4rem;">Asked separately from Race per US EEOC convention — Hispanic/Latino is an ethnicity, not a race, so it applies independently of your Race answer above.</p>
                                 </div>
                             </div>
 
@@ -546,6 +563,15 @@
             maxItemText: (maxItemCount) => `Only ${maxItemCount} countries max — remove one to add another.`
         });
         
+        // EEO Demographics only apply to US-bound applications (US EEOC
+        // self-identification categories have no relevance to, e.g., a
+        // Nigerian applicant targeting Nigerian or non-US jobs).
+        function updateEeoVisibility() {
+            const selected = Array.from(countrySelectEl.selectedOptions).map(opt => opt.value);
+            const eeoSection = document.getElementById('eeo-section');
+            eeoSection.style.display = selected.includes('United States') ? 'block' : 'none';
+        }
+
         const savedCountries = localStorage.getItem('onb_target-countries');
         if (savedCountries) {
             try {
@@ -553,10 +579,12 @@
                 countryChoices.setChoiceByValue(parsedCountries);
             } catch(e) {}
         }
-        
+        updateEeoVisibility();
+
         countrySelectEl.addEventListener('change', () => {
             const selected = Array.from(countrySelectEl.selectedOptions).map(opt => opt.value);
             localStorage.setItem('onb_target-countries', JSON.stringify(selected));
+            updateEeoVisibility();
         });
 
         // Auth Guard
@@ -904,6 +932,7 @@
                     target_currency: document.getElementById('target-currency').value,
                     gender: document.getElementById('gender').value,
                     race: document.getElementById('race').value,
+                    hispanic_latino: document.getElementById('hispanic-latino').value,
                     veteran_status: document.getElementById('veteran').value,
                     disability_status: document.getElementById('disability').value,
                     pronouns: document.getElementById('pronouns').value,

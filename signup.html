@@ -171,6 +171,10 @@
                     <label>Confirm Password</label>
                     <input type="password" id="signup-confirm" required placeholder="Confirm your password" minlength="8">
                 </div>
+                <div class="form-group" style="display: flex; align-items: flex-start; gap: 0.6rem;">
+                    <input type="checkbox" id="signup-agree" style="width: 18px; height: 18px; margin-top: 0.15rem; flex-shrink: 0;">
+                    <label for="signup-agree" style="text-transform: none; font-weight: 500; color: var(--text-body); font-size: 0.9rem;">I agree to the <a href="terms.html" target="_blank" style="color: var(--secondary); font-weight: 700;">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color: var(--secondary); font-weight: 700;">Privacy Policy</a></label>
+                </div>
                 <button type="submit" class="btn btn-primary" id="signup-btn">Create Account &rarr;</button>
             </form>
 
@@ -208,6 +212,12 @@
 
             if (password !== confirm) {
                 errorMsg.textContent = 'Passwords do not match.';
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (!document.getElementById('signup-agree').checked) {
+                errorMsg.textContent = 'Please agree to the Terms of Service and Privacy Policy to continue.';
                 errorMsg.style.display = 'block';
                 return;
             }
