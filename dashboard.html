@@ -1401,73 +1401,14 @@
                                 </span>
                             </div>
 
-                            <!-- 3. What Rover is Doing Timeline -->
-                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02);">
-                                <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 850; color: #71717a; margin-bottom: 1.75rem; letter-spacing: 0.8px;">What Rover is doing right now</h3>
-                                
-                                <div style="display: flex; flex-direction: column; position: relative;">
-                                    <!-- Line indicator -->
-                                    <div style="position: absolute; left: 11px; top: 12px; bottom: 12px; width: 2px; background: #E4E4E7; z-index: 1;"></div>
-                                    
-                                    <!-- Step 1 -->
-                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2;">
-                                        <div style="width: 24px; height: 24px; background: #10B981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; flex-shrink: 0;">✓</div>
-                                        <div>
-                                            <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.15rem;">Search criteria saved</h4>
-                                            <p style="font-size: 0.82rem; color: #71717a;">${rolesList.length} role${rolesList.length > 1 ? 's' : ''} across ${locationsList.length} countr${locationsList.length > 1 ? 'ies' : 'y'}</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Step 2 -->
-                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2;">
-                                        <div style="width: 24px; height: 24px; background: #10B981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.75rem; flex-shrink: 0;">✓</div>
-                                        <div>
-                                            <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.15rem;">Querying job boards</h4>
-                                            <p style="font-size: 0.82rem; color: #71717a;">Google, Greenhouse, Lever, Ashby, Workable</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Step 3 (Active) -->
-                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2;">
-                                        <div style="width: 24px; height: 24px; background: #fff; border: 2px solid #10B981; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
-                                            <div style="width: 10px; height: 10px; background: #10B981; border-radius: 50%;"></div>
-                                        </div>
-                                        <div style="flex-grow: 1;">
-                                            <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.35rem;">Scraping and parsing job details</h4>
-                                            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.82rem; color: #047857; font-weight: 600; margin-bottom: 0.5rem;">
-                                                <span style="animation: spin 1.5s linear infinite; display: inline-block;">⚙️</span>
-                                                <span>Extracting salaries, locations, and requirements...</span>
-                                            </div>
-                                            <!-- Progress bar -->
-                                            <div style="width: 100%; max-width: 400px; height: 6px; background: #F4F4F5; border-radius: 10px; overflow: hidden; position: relative;">
-                                                <div style="position: absolute; left: 0; top: 0; bottom: 0; width: 45%; background: #10B981; border-radius: 10px; animation: progressGrow 3s ease-in-out infinite alternate;"></div>
-                                            </div>
-                                            <style>
-                                                @keyframes progressGrow {
-                                                    0% { width: 10%; }
-                                                    100% { width: 75%; }
-                                                }
-                                            </style>
-                                        </div>
-                                    </div>
-
-                                    <!-- Step 4 (Pending) -->
-                                    <div style="display: flex; gap: 1.25rem; margin-bottom: 1.75rem; position: relative; z-index: 2; opacity: 0.5;">
-                                        <div style="width: 24px; height: 24px; background: #fff; border: 2px solid #D1D5DB; color: #9CA3AF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">4</div>
-                                        <div>
-                                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #1f2937; margin-bottom: 0.15rem;">Matching jobs to your resume</h4>
-                                            <p style="font-size: 0.82rem; color: #6b7280;">AI scores each listing against your experience</p>
-                                        </div>
-                                    </div>
-
-                                    <!-- Step 5 (Pending) -->
-                                    <div style="display: flex; gap: 1.25rem; position: relative; z-index: 2; opacity: 0.5;">
-                                        <div style="width: 24px; height: 24px; background: #fff; border: 2px solid #D1D5DB; color: #9CA3AF; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.75rem; flex-shrink: 0;">5</div>
-                                        <div>
-                                            <h4 style="font-size: 0.95rem; font-weight: 700; color: #1f2937; margin-bottom: 0.15rem;">Generating custom resumes and cover letters</h4>
-                                            <p style="font-size: 0.82rem; color: #6b7280;">One tailored document per matched role</p>
-                                        </div>
-                                    </div>
+                            <!-- 3. Honest status - no fake step-by-step progress, since we
+                                 don't actually have a real backend signal for which step
+                                 the scan is on. Claiming otherwise was misleading. -->
+                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02); display: flex; gap: 1rem; align-items: center;">
+                                <span style="animation: spin 1.5s linear infinite; display: inline-block; font-size: 1.3rem;">⚙️</span>
+                                <div>
+                                    <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.25rem;">Rover is actively searching</h4>
+                                    <p style="font-size: 0.85rem; color: #71717a; line-height: 1.5;">This can take anywhere from a few minutes to a few hours depending on job market activity for your target roles. We'll email you the moment matches are found - no need to keep this page open.</p>
                                 </div>
                             </div>
 

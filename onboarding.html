@@ -67,7 +67,8 @@
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #00FFCC; }
-        .choices__inner { border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.5rem 1rem !important; }
+        .choices__inner { position: relative !important; border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.5rem 2.5rem 0.5rem 1rem !important; }
+        .choices__inner::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; }
         .choices.is-focused .choices__inner { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15) !important; }
         .choices__list--multiple .choices__item { background-color: #00FFCC !important; border: 1px solid #00e6b8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
@@ -393,6 +394,7 @@
                                 <div class="select-wrapper">
                                     <select id="target-currency">
                                         <option value="USD">USD ($)</option>
+                                        <option value="NGN">NGN (₦)</option>
                                         <option value="EUR">EUR (€)</option>
                                         <option value="GBP">GBP (£)</option>
                                         <option value="CAD">CAD (C$)</option>
@@ -400,8 +402,11 @@
                                         <option value="INR">INR (₹)</option>
                                         <option value="JPY">JPY (¥)</option>
                                         <option value="SGD">SGD (S$)</option>
+                                        <option value="CUSTOM">Other (type currency code)</option>
                                     </select>
                                 </div>
+                                <input type="text" id="target-currency-custom" placeholder="e.g. ZAR" maxlength="3" style="display: none; margin-top: 0.6rem; text-transform: uppercase;" oninput="this.value = this.value.replace(/[^a-zA-Z]/g, '').toUpperCase()">
+                                <p class="form-hint" id="currency-custom-hint" style="display: none;">Enter the standard 3-letter currency code (ISO 4217), e.g. ZAR, KES, GHS.</p>
                             </div>
                         </div>
                         <p class="form-hint" style="margin-bottom: 1.5rem;">We only use this if it is a mandatory requirement in a form. Otherwise, we leave it blank to protect your negotiating power. Tip: Set this slightly below your target to avoid ATS budget filters.</p>
@@ -587,6 +592,18 @@
             updateEeoVisibility();
         });
 
+        const currencySelectEl = document.getElementById('target-currency');
+        const currencyCustomInput = document.getElementById('target-currency-custom');
+        const currencyCustomHint = document.getElementById('currency-custom-hint');
+
+        function updateCurrencyCustomVisibility() {
+            const isCustom = currencySelectEl.value === 'CUSTOM';
+            currencyCustomInput.style.display = isCustom ? 'block' : 'none';
+            currencyCustomHint.style.display = isCustom ? 'block' : 'none';
+        }
+        currencySelectEl.addEventListener('change', updateCurrencyCustomVisibility);
+        updateCurrencyCustomVisibility();
+
         // Auth Guard
         (async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
@@ -643,7 +660,14 @@
                     document.getElementById('start-date').value = profile.start_date;
                 }
                 if (profile.target_currency && !localStorage.getItem('onb_target-currency') && document.getElementById('target-currency')) {
-                    document.getElementById('target-currency').value = profile.target_currency;
+                    const currencySelect = document.getElementById('target-currency');
+                    currencySelect.value = profile.target_currency;
+                    if (currencySelect.value !== profile.target_currency) {
+                        // Not one of the preset options - it was a custom code.
+                        currencySelect.value = 'CUSTOM';
+                        document.getElementById('target-currency-custom').value = profile.target_currency;
+                    }
+                    updateCurrencyCustomVisibility();
                 }
                 // Prepopulate target locations
                 if (profile.target_location) {
@@ -889,6 +913,17 @@
                 return;
             }
 
+            let targetCurrency = document.getElementById('target-currency').value;
+            if (targetCurrency === 'CUSTOM') {
+                const customCode = document.getElementById('target-currency-custom').value.trim().toUpperCase();
+                if (!/^[A-Z]{3}$/.test(customCode)) {
+                    errorMsg.textContent = "Please enter a valid 3-letter currency code (ISO 4217), e.g. ZAR, KES, GHS - not a symbol or full name.";
+                    errorMsg.style.display = 'block';
+                    return;
+                }
+                targetCurrency = customCode;
+            }
+
             const btn = document.getElementById('submit-btn');
             const loadingOverlay = document.getElementById('loading-overlay');
             const loadingText = document.getElementById('loading-text');
@@ -929,7 +964,7 @@
                     industry: document.getElementById('industry').value.trim(),
                     notice_period: document.getElementById('notice-period').value,
                     start_date: document.getElementById('start-date').value || null,
-                    target_currency: document.getElementById('target-currency').value,
+                    target_currency: targetCurrency,
                     gender: document.getElementById('gender').value,
                     race: document.getElementById('race').value,
                     hispanic_latino: document.getElementById('hispanic-latino').value,
