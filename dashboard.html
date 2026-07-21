@@ -1345,7 +1345,7 @@
                     <div class="swipe-card-stamp pass">Skip</div>
                     <div class="swipe-card-stamp apply">Apply</div>
                     <div class="swipe-card-header">
-                        ${job.company_domain ? `<img class="swipe-card-logo" src="https://logo.clearbit.com/${escapeHtml(job.company_domain)}" onerror="this.remove()" alt="">` : ''}
+                        ${job.company_domain ? `<img class="swipe-card-logo" src="https://www.google.com/s2/favicons?domain=${escapeHtml(job.company_domain)}&sz=128" onerror="this.remove()" alt="">` : ''}
                         <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
                     </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
