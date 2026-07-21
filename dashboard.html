@@ -491,6 +491,40 @@
             0% { transform: scale(1); opacity: 0.9; }
             100% { transform: scale(1.05); opacity: 1; }
         }
+
+        /* Swipe deck */
+        #swipe-deck-section { max-width: 480px; margin: 0 auto 2.5rem; }
+        .swipe-stack { position: relative; height: 480px; }
+        .swipe-card {
+            position: absolute; inset: 0; background: #fff; border: 1px solid var(--border);
+            border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); padding: 1.75rem;
+            display: flex; flex-direction: column; cursor: grab; user-select: none;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            touch-action: none;
+        }
+        .swipe-card:active { cursor: grabbing; }
+        .swipe-card-company { font-size: 0.8rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.35rem; }
+        .swipe-card-title { font-size: 1.3rem; font-weight: 900; color: #000; line-height: 1.25; margin-bottom: 0.6rem; }
+        .swipe-card-meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
+        .swipe-card-tag { background: #f4f4f5; border: 1px solid var(--border); color: #3f3f46; padding: 0.25rem 0.7rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+        .swipe-card-desc { font-size: 0.88rem; color: var(--text-body); line-height: 1.55; overflow-y: auto; flex-grow: 1; padding-right: 0.25rem; }
+        .swipe-card-stamp {
+            position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
+            border-radius: 8px; border: 3px solid; transform: rotate(-12deg); opacity: 0;
+            text-transform: uppercase; letter-spacing: 1px; pointer-events: none;
+        }
+        .swipe-card-stamp.pass { right: 1.5rem; color: #DC2626; border-color: #DC2626; }
+        .swipe-card-stamp.apply { left: 1.5rem; color: #10B981; border-color: #10B981; }
+        .swipe-actions { display: flex; justify-content: center; gap: 1.5rem; margin-top: 1.25rem; }
+        .swipe-btn {
+            width: 56px; height: 56px; border-radius: 50%; border: 1px solid var(--border); background: #fff;
+            font-size: 1.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06); transition: transform 0.15s ease;
+        }
+        .swipe-btn:hover { transform: translateY(-2px) scale(1.05); }
+        .swipe-btn.pass:hover { border-color: #DC2626; }
+        .swipe-btn.apply:hover { border-color: #10B981; }
+        .swipe-empty { text-align: center; padding: 3rem 1.5rem; }
     </style>
 
     <!-- Mobile Sidebar Overlay -->
@@ -658,6 +692,16 @@
 
             <div style="margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
                 <button onclick="document.getElementById('skill-gap-modal').classList.add('active')" style="background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary); transition: color 0.2s;">🔍 Curious to see the actual postings? Click here</button>
+            </div>
+        </div>
+
+        <!-- Swipe Deck (pre-scraped job pool) -->
+        <div id="swipe-deck-section" style="display: none;">
+            <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 850; color: #71717a; margin-bottom: 1rem; letter-spacing: 0.8px; text-align: center;">Swipe on jobs Rover found for you</h3>
+            <div class="swipe-stack" id="swipe-stack"></div>
+            <div class="swipe-actions">
+                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip">✕</button>
+                <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply">♥</button>
             </div>
         </div>
 
@@ -954,6 +998,10 @@
                 localStorage.removeItem('trigger_initial_scrape');
                 triggerInitialScrape(user, profile);
             }
+
+            if (profile.is_activated) {
+                fetchPooledJobs(user.id);
+            }
         })();
 
         async function activateWithInviteCode() {
@@ -1230,6 +1278,167 @@
             updateStats(currentJobs, user.id);
             renderJobs(currentJobs, isReallyScanning);
             updateInboxBannerVisibility();
+        }
+
+        // ---- Swipe deck (pre-scraped job pool) ----
+        let pooledJobs = [];
+        let pooledJobIndex = 0;
+        const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
+
+        async function fetchPooledJobs(userId) {
+            const { data: jobs, error } = await supabaseClient.rpc('match_pool_jobs', { p_user_id: userId, p_limit: 20 });
+            const section = document.getElementById('swipe-deck-section');
+            if (error || !jobs || !jobs.length) {
+                if (section) section.style.display = 'none';
+                return;
+            }
+            pooledJobs = jobs;
+            pooledJobIndex = 0;
+            if (section) section.style.display = 'block';
+            renderSwipeStack();
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        function renderSwipeStack() {
+            const stack = document.getElementById('swipe-stack');
+            if (!stack) return;
+            stack.innerHTML = '';
+
+            if (pooledJobIndex >= pooledJobs.length) {
+                stack.innerHTML = `
+                    <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center;">
+                        <div>
+                            <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">✅</span>
+                            <h4 style="font-weight: 800; margin-bottom: 0.35rem;">You're all caught up</h4>
+                            <p style="color: #71717a; font-size: 0.85rem;">We'll show more as Rover finds them.</p>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            // Render up to 3 cards stacked, current one on top and interactive.
+            const visible = pooledJobs.slice(pooledJobIndex, pooledJobIndex + 3).reverse();
+            visible.forEach((job, i) => {
+                const depthFromTop = visible.length - 1 - i; // 0 = the current, draggable card
+                const card = document.createElement('div');
+                card.className = 'swipe-card';
+                const scale = 1 - depthFromTop * 0.03;
+                const offsetY = depthFromTop * 10;
+                card.style.transform = `translateY(${offsetY}px) scale(${scale})`;
+                card.style.zIndex = String(10 - depthFromTop);
+
+                const desc = (job.description_text || 'No description available.').slice(0, 600);
+                card.innerHTML = `
+                    <div class="swipe-card-stamp pass">Skip</div>
+                    <div class="swipe-card-stamp apply">Apply</div>
+                    <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
+                    <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
+                    <div class="swipe-card-meta">
+                        ${job.location ? `<span class="swipe-card-tag">📍 ${escapeHtml(job.location)}</span>` : ''}
+                        ${job.workplace_type ? `<span class="swipe-card-tag">${escapeHtml(job.workplace_type)}</span>` : ''}
+                        ${job.salary_range ? `<span class="swipe-card-tag">${escapeHtml(job.salary_range)}</span>` : ''}
+                    </div>
+                    <div class="swipe-card-desc">${escapeHtml(desc)}${desc.length >= 600 ? '…' : ''}</div>
+                `;
+
+                if (depthFromTop === 0) {
+                    attachSwipeHandlers(card, job);
+                }
+                stack.appendChild(card);
+            });
+        }
+
+        function attachSwipeHandlers(card, job) {
+            let startX = 0, startY = 0, currentX = 0, dragging = false;
+            const passStamp = card.querySelector('.swipe-card-stamp.pass');
+            const applyStamp = card.querySelector('.swipe-card-stamp.apply');
+
+            const onDown = (clientX, clientY) => {
+                dragging = true;
+                startX = clientX;
+                startY = clientY;
+                card.style.transition = 'none';
+            };
+            const onMove = (clientX, clientY) => {
+                if (!dragging) return;
+                currentX = clientX - startX;
+                const rotate = currentX * 0.05;
+                card.style.transform = `translateX(${currentX}px) translateY(${(clientY - startY) * 0.3}px) rotate(${rotate}deg)`;
+                const intensity = Math.min(Math.abs(currentX) / 100, 1);
+                if (currentX > 0) {
+                    applyStamp.style.opacity = intensity;
+                    passStamp.style.opacity = 0;
+                } else {
+                    passStamp.style.opacity = intensity;
+                    applyStamp.style.opacity = 0;
+                }
+            };
+            const onUp = () => {
+                if (!dragging) return;
+                dragging = false;
+                card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                if (Math.abs(currentX) > 100) {
+                    finishSwipe(card, job, currentX > 0 ? 'apply' : 'skip');
+                } else {
+                    card.style.transform = '';
+                    passStamp.style.opacity = 0;
+                    applyStamp.style.opacity = 0;
+                }
+                currentX = 0;
+            };
+
+            card.addEventListener('mousedown', e => onDown(e.clientX, e.clientY));
+            window.addEventListener('mousemove', e => { if (dragging) onMove(e.clientX, e.clientY); });
+            window.addEventListener('mouseup', onUp);
+
+            card.addEventListener('touchstart', e => onDown(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            card.addEventListener('touchmove', e => { if (dragging) onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+            card.addEventListener('touchend', onUp);
+        }
+
+        function swipeCurrentCard(decision) {
+            const stack = document.getElementById('swipe-stack');
+            if (!stack) return;
+            const topCard = stack.lastElementChild;
+            if (!topCard) return;
+            const job = pooledJobs[pooledJobIndex];
+            if (!job) return;
+            finishSwipe(topCard, job, decision);
+        }
+
+        async function finishSwipe(card, job, decision) {
+            card.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+            card.style.transform = decision === 'apply'
+                ? 'translateX(600px) rotate(20deg)'
+                : 'translateX(-600px) rotate(-20deg)';
+            card.style.opacity = '0';
+
+            pooledJobIndex++;
+            setTimeout(renderSwipeStack, 280); // optimistic advance, no wait on the network calls below
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            if (decision === 'apply') {
+                // Fire-and-forget: the n8n workflow does the real work (resume
+                // tailoring, queueing) AND records the swipe itself, so no
+                // separate write is needed here on the apply path.
+                fetch(SWIPE_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: user.id, job_pool_id: job.id })
+                }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
+            } else {
+                await supabaseClient.from('user_job_swipes').upsert(
+                    { user_id: user.id, job_pool_id: job.id, decision: 'skip' },
+                    { onConflict: 'user_id,job_pool_id' }
+                );
+            }
         }
 
         function updateInboxBannerVisibility() {
