@@ -503,7 +503,9 @@
             touch-action: none;
         }
         .swipe-card:active { cursor: grabbing; }
-        .swipe-card-company { font-size: 0.85rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.5rem; }
+        .swipe-card-header { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
+        .swipe-card-logo { width: 42px; height: 42px; border-radius: 10px; object-fit: contain; background: #f4f4f5; border: 1px solid var(--border); padding: 5px; flex-shrink: 0; }
+        .swipe-card-company { font-size: 0.85rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; }
         .swipe-card-title { font-size: 1.55rem; font-weight: 900; color: #000; line-height: 1.3; margin-bottom: 1.5rem; }
         .swipe-card-info { display: flex; flex-direction: column; gap: 0.9rem; flex-grow: 1; }
         .swipe-card-info-row { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
@@ -1342,7 +1344,10 @@
                 card.innerHTML = `
                     <div class="swipe-card-stamp pass">Skip</div>
                     <div class="swipe-card-stamp apply">Apply</div>
-                    <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
+                    <div class="swipe-card-header">
+                        ${job.company_domain ? `<img class="swipe-card-logo" src="https://logo.clearbit.com/${escapeHtml(job.company_domain)}" onerror="this.remove()" alt="">` : ''}
+                        <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
+                    </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
                     <div class="swipe-card-info">
                         ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
