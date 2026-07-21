@@ -503,11 +503,12 @@
             touch-action: none;
         }
         .swipe-card:active { cursor: grabbing; }
-        .swipe-card-company { font-size: 0.8rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.35rem; }
-        .swipe-card-title { font-size: 1.3rem; font-weight: 900; color: #000; line-height: 1.25; margin-bottom: 0.6rem; }
-        .swipe-card-meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1rem; }
-        .swipe-card-tag { background: #f4f4f5; border: 1px solid var(--border); color: #3f3f46; padding: 0.25rem 0.7rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
-        .swipe-card-desc { font-size: 0.88rem; color: var(--text-body); line-height: 1.55; overflow-y: auto; flex-grow: 1; padding-right: 0.25rem; }
+        .swipe-card-company { font-size: 0.85rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.5rem; }
+        .swipe-card-title { font-size: 1.55rem; font-weight: 900; color: #000; line-height: 1.3; margin-bottom: 1.5rem; }
+        .swipe-card-info { display: flex; flex-direction: column; gap: 0.9rem; flex-grow: 1; }
+        .swipe-card-info-row { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
+        .swipe-card-info-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .swipe-card-tag { background: #f4f4f5; border: 1px solid var(--border); color: #3f3f46; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
         .swipe-card-stamp {
             position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
             border-radius: 8px; border: 3px solid; transform: rotate(-12deg); opacity: 0;
@@ -1288,13 +1289,16 @@
         async function fetchPooledJobs(userId) {
             const { data: jobs, error } = await supabaseClient.rpc('match_pool_jobs', { p_user_id: userId, p_limit: 20 });
             const section = document.getElementById('swipe-deck-section');
+            const jobList = document.getElementById('job-list');
             if (error || !jobs || !jobs.length) {
                 if (section) section.style.display = 'none';
+                if (jobList) jobList.style.display = '';
                 return;
             }
             pooledJobs = jobs;
             pooledJobIndex = 0;
             if (section) section.style.display = 'block';
+            if (jobList) jobList.style.display = 'none';
             renderSwipeStack();
         }
 
@@ -1332,18 +1336,16 @@
                 card.style.transform = `translateY(${offsetY}px) scale(${scale})`;
                 card.style.zIndex = String(10 - depthFromTop);
 
-                const desc = (job.description_text || 'No description available.').slice(0, 600);
+                const locationLine = [job.location, job.workplace_type].filter(Boolean).join(' · ');
                 card.innerHTML = `
                     <div class="swipe-card-stamp pass">Skip</div>
                     <div class="swipe-card-stamp apply">Apply</div>
                     <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
-                    <div class="swipe-card-meta">
-                        ${job.location ? `<span class="swipe-card-tag">📍 ${escapeHtml(job.location)}</span>` : ''}
-                        ${job.workplace_type ? `<span class="swipe-card-tag">${escapeHtml(job.workplace_type)}</span>` : ''}
-                        ${job.salary_range ? `<span class="swipe-card-tag">${escapeHtml(job.salary_range)}</span>` : ''}
+                    <div class="swipe-card-info">
+                        ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
+                        ${job.salary_range ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${escapeHtml(job.salary_range)}</span></div>` : ''}
                     </div>
-                    <div class="swipe-card-desc">${escapeHtml(desc)}${desc.length >= 600 ? '…' : ''}</div>
                 `;
 
                 if (depthFromTop === 0) {
