@@ -509,6 +509,7 @@
         .swipe-card-info-row { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
         .swipe-card-info-icon { font-size: 1.1rem; flex-shrink: 0; }
         .swipe-card-tag { background: #f4f4f5; border: 1px solid var(--border); color: #3f3f46; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+        .swipe-card-readmore { align-self: flex-start; margin-top: 1rem; background: transparent; border: none; padding: 0; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
         .swipe-card-stamp {
             position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
             border-radius: 8px; border: 3px solid; transform: rotate(-12deg); opacity: 0;
@@ -1337,6 +1338,7 @@
                 card.style.zIndex = String(10 - depthFromTop);
 
                 const locationLine = [job.location, job.workplace_type].filter(Boolean).join(' · ');
+                const jobIndexInPool = pooledJobIndex + (visible.length - 1 - i);
                 card.innerHTML = `
                     <div class="swipe-card-stamp pass">Skip</div>
                     <div class="swipe-card-stamp apply">Apply</div>
@@ -1346,6 +1348,7 @@
                         ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
                         ${job.salary_range ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${escapeHtml(job.salary_range)}</span></div>` : ''}
                     </div>
+                    <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Read full description →</button>
                 `;
 
                 if (depthFromTop === 0) {
@@ -1353,6 +1356,15 @@
                 }
                 stack.appendChild(card);
             });
+        }
+
+        function openSwipeJobDescription(index) {
+            const job = pooledJobs[index];
+            if (!job) return;
+            document.getElementById('modal-title').innerText = job.title || 'Role';
+            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-text').innerText = job.description_text || 'No description available.';
+            document.getElementById('desc-modal').classList.add('active');
         }
 
         function attachSwipeHandlers(card, job) {
