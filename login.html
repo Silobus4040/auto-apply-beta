@@ -268,12 +268,11 @@
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
 
-            // Resend the signup OTP — same pipeline as account creation (confirmed working).
-            // User enters the 8-digit code on verify.html to get logged in.
-            const { error } = await supabaseClient.auth.resend({
-                type: 'signup',
-                email: email
-            });
+            // Real password-recovery call — not a signup-confirmation resend (silently
+            // no-ops for already-confirmed accounts) and not signInWithOtp (blocked outright
+            // by this project's "disable public signup" setting, even for existing users).
+            // resetPasswordForEmail is exempt from that gate since it never creates a user.
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {});
 
             if (error) {
                 errorMsg.textContent = '❌ ' + (error.message || 'Could not send code. Please contact support.');
@@ -283,6 +282,7 @@
                 successMsg.style.display = 'block';
                 // Store email and redirect to verify page
                 sessionStorage.setItem('pending_verification_email', email);
+                sessionStorage.setItem('otp_flow', 'login');
                 setTimeout(() => { window.location.href = 'verify.html'; }, 2000);
             }
         }

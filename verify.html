@@ -231,6 +231,21 @@
                 <a href="signup.html">&larr; Back to Sign Up</a>
             </div>
         </div>
+
+        <div class="card" id="new-password-card" style="display:none;">
+            <div class="error-msg" id="pw-error-msg"></div>
+            <div class="success-msg" id="pw-success-msg"></div>
+            <p style="margin-bottom: 1.25rem; color: #52525B; font-size: 0.95rem;">Set a new password for your account.</p>
+            <div style="margin-bottom: 1rem; text-align: left;">
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">NEW PASSWORD</label>
+                <input type="password" id="new-password" placeholder="At least 8 characters" style="width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+            </div>
+            <div style="margin-bottom: 1.25rem; text-align: left;">
+                <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">CONFIRM NEW PASSWORD</label>
+                <input type="password" id="confirm-password" placeholder="Re-enter password" style="width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+            </div>
+            <button class="btn btn-primary" id="set-password-btn" onclick="setNewPassword()">Set Password &rarr;</button>
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -239,8 +254,10 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Retrieve email from sessionStorage (set during signup)
+        // Retrieve email from sessionStorage (set during signup, or during forgot-password login)
         const pendingEmail = sessionStorage.getItem('pending_verification_email');
+        // 'signup' (default) = new account confirmation; 'login' = forgot-password / returning-user OTP
+        const otpFlow = sessionStorage.getItem('otp_flow') || 'signup';
         if (!pendingEmail) {
             // No email to verify, redirect back to signup
             window.location.href = 'signup.html';
@@ -327,7 +344,7 @@
                 const { data, error } = await supabaseClient.auth.verifyOtp({
                     email: pendingEmail,
                     token: token,
-                    type: 'signup'
+                    type: otpFlow === 'login' ? 'recovery' : 'signup'
                 });
 
                 if (error) throw error;
@@ -335,38 +352,50 @@
                 // PostHog: identify the now-verified account + funnel step
                 if (window.posthog && data.user) {
                     posthog.identify(data.user.id, { email: pendingEmail });
-                    posthog.capture('email_verified');
+                    posthog.capture(otpFlow === 'login' ? 'otp_login' : 'email_verified');
                 }
 
-                // Success
-                successMsg.textContent = '✅ Email verified! Setting up your account...';
-                successMsg.style.display = 'block';
-
-                // Update progress dots
-                document.querySelectorAll('.progress-dot').forEach(d => { d.classList.add('done'); d.classList.remove('active'); });
-
-                // Pre-populate profiles table with signup email and names
-                const user = data.user;
-                const fullName = user.user_metadata?.full_name || '';
-                const parts = fullName.split(' ');
-                const firstName = parts[0] || '';
-                const lastName = parts.slice(1).join(' ') || '';
-
-                await supabaseClient
-                    .from('profiles')
-                    .update({ 
-                        email: pendingEmail,
-                        first_name: firstName,
-                        last_name: lastName
-                    })
-                    .eq('id', user.id);
-
-                // Clean up
                 sessionStorage.removeItem('pending_verification_email');
+                sessionStorage.removeItem('otp_flow');
 
-                setTimeout(() => {
-                    window.location.href = 'onboarding.html';
-                }, 1500);
+                if (otpFlow === 'login') {
+                    // Returning user regaining access — let them set a password they'll
+                    // actually remember before sending them into the dashboard, rather than
+                    // just logging them in on the one-time code with nothing changed.
+                    document.getElementById('otp-container').style.display = 'none';
+                    btn.style.display = 'none';
+                    document.querySelector('.resend-section').style.display = 'none';
+                    document.querySelector('.back-link').style.display = 'none';
+                    successMsg.style.display = 'none';
+                    document.getElementById('new-password-card').style.display = 'block';
+                } else {
+                    // Success
+                    successMsg.textContent = '✅ Email verified! Setting up your account...';
+                    successMsg.style.display = 'block';
+
+                    // Update progress dots
+                    document.querySelectorAll('.progress-dot').forEach(d => { d.classList.add('done'); d.classList.remove('active'); });
+
+                    // Pre-populate profiles table with signup email and names
+                    const user = data.user;
+                    const fullName = user.user_metadata?.full_name || '';
+                    const parts = fullName.split(' ');
+                    const firstName = parts[0] || '';
+                    const lastName = parts.slice(1).join(' ') || '';
+
+                    await supabaseClient
+                        .from('profiles')
+                        .update({
+                            email: pendingEmail,
+                            first_name: firstName,
+                            last_name: lastName
+                        })
+                        .eq('id', user.id);
+
+                    setTimeout(() => {
+                        window.location.href = 'onboarding.html';
+                    }, 1500);
+                }
 
             } catch (err) {
                 showError(err.message || 'Invalid code. Please try again.');
@@ -374,6 +403,48 @@
                 btn.disabled = false;
                 btn.textContent = 'Verify & Continue →';
             }
+        }
+
+        // ─── Set New Password (forgot-password flow only) ───
+        async function setNewPassword() {
+            const pwErrorMsg = document.getElementById('pw-error-msg');
+            const pwSuccessMsg = document.getElementById('pw-success-msg');
+            pwErrorMsg.style.display = 'none';
+            pwSuccessMsg.style.display = 'none';
+
+            const newPassword = document.getElementById('new-password').value;
+            const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (newPassword.length < 8) {
+                pwErrorMsg.textContent = 'Password must be at least 8 characters.';
+                pwErrorMsg.style.display = 'block';
+                return;
+            }
+            if (newPassword !== confirmPassword) {
+                pwErrorMsg.textContent = 'Passwords do not match.';
+                pwErrorMsg.style.display = 'block';
+                return;
+            }
+
+            const btn = document.getElementById('set-password-btn');
+            btn.disabled = true;
+            btn.textContent = 'Saving...';
+
+            const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+
+            if (error) {
+                pwErrorMsg.textContent = error.message || 'Could not set password. Please try again.';
+                pwErrorMsg.style.display = 'block';
+                btn.disabled = false;
+                btn.textContent = 'Set Password →';
+                return;
+            }
+
+            pwSuccessMsg.textContent = '✅ Password set! Redirecting to your dashboard...';
+            pwSuccessMsg.style.display = 'block';
+            setTimeout(() => {
+                window.location.href = 'dashboard.html';
+            }, 1200);
         }
 
         function showError(msg) {
@@ -415,10 +486,12 @@
             resendBtn.disabled = true;
 
             try {
-                const { error } = await supabaseClient.auth.resend({
-                    type: 'signup',
-                    email: pendingEmail
-                });
+                const { error } = otpFlow === 'login'
+                    ? await supabaseClient.auth.resetPasswordForEmail(pendingEmail, {})
+                    : await supabaseClient.auth.resend({
+                        type: 'signup',
+                        email: pendingEmail
+                    });
 
                 if (error) throw error;
 

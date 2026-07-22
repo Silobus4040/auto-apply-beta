@@ -1294,7 +1294,7 @@
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
         async function fetchPooledJobs(userId) {
-            const { data: jobs, error } = await supabaseClient.rpc('match_pool_jobs', { p_user_id: userId, p_limit: 20 });
+            const { data: jobs, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: { p_limit: 20 } });
             const section = document.getElementById('swipe-deck-section');
             const jobList = document.getElementById('job-list');
             if (error || !jobs || !jobs.length) {
