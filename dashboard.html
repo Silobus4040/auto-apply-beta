@@ -515,6 +515,19 @@
         .swipe-card-geo-badge.geo-anywhere { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
         .swipe-card-geo-badge.geo-restricted { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
         .swipe-card-geo-badge.geo-unclear { background: #F4F4F5; color: #52525B; border: 1px solid var(--border); }
+        .swipe-card-fit-badge { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 12px; margin-bottom: 0.9rem; }
+        .swipe-card-fit-badge.fit-high { background: #ECFDF5; border: 1px solid #A7F3D0; }
+        .swipe-card-fit-badge.fit-mid { background: #FFFBEB; border: 1px solid #FDE68A; }
+        .swipe-card-fit-badge.fit-low { background: #FEF2F2; border: 1px solid #FECACA; }
+        .swipe-card-fit-score { font-size: 1.1rem; font-weight: 900; flex-shrink: 0; }
+        .fit-high .swipe-card-fit-score { color: #059669; }
+        .fit-mid .swipe-card-fit-score { color: #B45309; }
+        .fit-low .swipe-card-fit-score { color: #DC2626; }
+        .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; }
+        .swipe-card-fit-pending { font-size: 0.8rem; color: #a1a1aa; font-style: italic; margin-bottom: 0.9rem; }
+        .swipe-card-fit-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
+        .swipe-card-tag.fit-strength { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
+        .swipe-card-tag.fit-gap { background: #F4F4F5; color: #71717a; }
         .swipe-card-readmore { align-self: flex-start; margin-top: 1rem; background: transparent; border: none; padding: 0; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
         .swipe-card-stamp {
             position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
@@ -1307,6 +1320,7 @@
             if (section) section.style.display = 'block';
             if (jobList) jobList.style.display = 'none';
             renderSwipeStack();
+            triggerScoringForVisible(pooledJobs, userId);
         }
 
         function escapeHtml(str) {
@@ -1326,6 +1340,27 @@
                 return `<div class="swipe-card-geo-badge geo-restricted">📍 Remote — ${escapeHtml(regions || 'Restricted')} only</div>`;
             }
             return `<div class="swipe-card-geo-badge geo-unclear">❓ Remote scope unclear — verify with employer</div>`;
+        }
+
+        function buildFitScoreBadge(job) {
+            if (job.fit_score === null || job.fit_score === undefined) {
+                return `<div class="swipe-card-fit-pending">⏳ Scoring your fit for this role…</div>`;
+            }
+            const score = job.fit_score;
+            const colorClass = score >= 70 ? 'fit-high' : (score >= 40 ? 'fit-mid' : 'fit-low');
+            const strengths = Array.isArray(job.fit_strengths) ? job.fit_strengths.slice(0, 3) : [];
+            const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 2) : [];
+            const tags = [
+                ...strengths.map(s => `<span class="swipe-card-tag fit-strength">✓ ${escapeHtml(s)}</span>`),
+                ...missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`)
+            ].join('');
+            return `
+                <div class="swipe-card-fit-badge ${colorClass}">
+                    <span class="swipe-card-fit-score">${score}%</span>
+                    <span class="swipe-card-fit-reason">${escapeHtml(job.fit_reason || '')}</span>
+                </div>
+                ${tags ? `<div class="swipe-card-fit-tags">${tags}</div>` : ''}
+            `;
         }
 
         function renderSwipeStack() {
@@ -1367,6 +1402,7 @@
                     </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
                     ${buildGeoBadge(job)}
+                    ${buildFitScoreBadge(job)}
                     <div class="swipe-card-info">
                         ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
                         ${job.salary_range ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${escapeHtml(job.salary_range)}</span></div>` : ''}
@@ -1602,7 +1638,33 @@
         function setupRealtime(userId) {
             supabaseClient.channel('jobs-updates')
               .on('postgres_changes', { event: '*', schema: 'public', table: 'job_applications', filter: `user_id=eq.${userId}` }, payload => fetchUserJobs())
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'job_fit_scores', filter: `user_id=eq.${userId}` }, payload => onFitScoreUpdate(payload))
               .subscribe();
+        }
+
+        function onFitScoreUpdate(payload) {
+            const row = payload.new;
+            if (!row || !row.job_pool_id) return;
+            const job = pooledJobs.find(j => j.id === row.job_pool_id);
+            if (!job) return;
+            job.fit_score = row.fit_score;
+            job.fit_reason = row.reason;
+            job.fit_strengths = row.strengths;
+            job.fit_missing_skills = row.missing_skills;
+            renderSwipeStack();
+        }
+
+        function triggerScoringForVisible(jobs, userId) {
+            const toScore = jobs
+                .filter(j => j.fit_score === null || j.fit_score === undefined)
+                .slice(0, 10)
+                .map(j => ({ job_pool_id: j.id, job_title: j.title, job_description: j.description_text }));
+            if (!toScore.length) return;
+            fetch('https://n8n.leadscompass.ai/webhook/score-deck', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, jobs: toScore })
+            }).catch(err => console.error('score-deck trigger failed:', err));
         }
         let currentResumeObjectUrl = null;
 
