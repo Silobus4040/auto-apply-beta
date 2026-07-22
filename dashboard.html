@@ -511,6 +511,10 @@
         .swipe-card-info-row { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
         .swipe-card-info-icon { font-size: 1.1rem; flex-shrink: 0; }
         .swipe-card-tag { background: #f4f4f5; border: 1px solid var(--border); color: #3f3f46; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
+        .swipe-card-geo-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; align-self: flex-start; margin-top: -1rem; margin-bottom: 1rem; }
+        .swipe-card-geo-badge.geo-anywhere { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
+        .swipe-card-geo-badge.geo-restricted { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
+        .swipe-card-geo-badge.geo-unclear { background: #F4F4F5; color: #52525B; border: 1px solid var(--border); }
         .swipe-card-readmore { align-self: flex-start; margin-top: 1rem; background: transparent; border: none; padding: 0; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
         .swipe-card-stamp {
             position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
@@ -1311,6 +1315,19 @@
             return div.innerHTML;
         }
 
+        function buildGeoBadge(job) {
+            const scope = job.remote_geo_scope;
+            if (!scope || scope === 'not_remote') return '';
+            if (scope === 'anywhere') {
+                return `<div class="swipe-card-geo-badge geo-anywhere">🌍 Remote — Anywhere</div>`;
+            }
+            if (scope === 'restricted') {
+                const regions = Array.isArray(job.remote_geo_regions) ? job.remote_geo_regions.join(', ') : '';
+                return `<div class="swipe-card-geo-badge geo-restricted">📍 Remote — ${escapeHtml(regions || 'Restricted')} only</div>`;
+            }
+            return `<div class="swipe-card-geo-badge geo-unclear">❓ Remote scope unclear — verify with employer</div>`;
+        }
+
         function renderSwipeStack() {
             const stack = document.getElementById('swipe-stack');
             if (!stack) return;
@@ -1349,6 +1366,7 @@
                         <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
                     </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
+                    ${buildGeoBadge(job)}
                     <div class="swipe-card-info">
                         ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
                         ${job.salary_range ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${escapeHtml(job.salary_range)}</span></div>` : ''}
