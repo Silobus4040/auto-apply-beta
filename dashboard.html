@@ -1504,9 +1504,17 @@
             if (!user) return;
 
             if (decision === 'apply') {
-                // Fire-and-forget: the n8n workflow does the real work (resume
-                // tailoring, queueing) AND records the swipe itself, so no
-                // separate write is needed here on the apply path.
+                // Record the swipe ourselves, right away. n8n's own pipeline
+                // (fit-check -> resume tailoring -> cover letter -> PDFs)
+                // takes ~20-25 real seconds and only records the swipe as
+                // its very last step -- a refresh inside that window used to
+                // show the job as never-swiped. Same upsert key as the skip
+                // path, so n8n's later write is just a harmless no-op repeat.
+                supabaseClient.from('user_job_swipes').upsert(
+                    { user_id: user.id, job_pool_id: job.id, decision: 'apply' },
+                    { onConflict: 'user_id,job_pool_id' }
+                ).catch(err => console.error('Failed to record swipe', err));
+
                 fetch(SWIPE_WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
