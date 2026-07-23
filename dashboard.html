@@ -524,10 +524,8 @@
         .fit-mid .swipe-card-fit-score { color: #B45309; }
         .fit-low .swipe-card-fit-score { color: #DC2626; }
         .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; }
-        .swipe-card-fit-pending { font-size: 0.8rem; color: #a1a1aa; font-style: italic; margin-bottom: 0.9rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
-        .swipe-card-tag.fit-strength { background: #ECFDF5; color: #059669; border-color: #A7F3D0; }
-        .swipe-card-tag.fit-gap { background: #F4F4F5; color: #71717a; }
+        .swipe-card-tag.fit-gap { background: #FEF2F2; color: #DC2626; }
         .swipe-card-readmore { align-self: flex-start; margin-top: 1rem; background: transparent; border: none; padding: 0; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
         .swipe-card-stamp {
             position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
@@ -1307,7 +1305,7 @@
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
         async function fetchPooledJobs(userId) {
-            const { data: jobs, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: { p_limit: 20 } });
+            const { data: jobs, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
             const section = document.getElementById('swipe-deck-section');
             const jobList = document.getElementById('job-list');
             if (error || !jobs || !jobs.length) {
@@ -1320,7 +1318,19 @@
             if (section) section.style.display = 'block';
             if (jobList) jobList.style.display = 'none';
             renderSwipeStack();
-            triggerScoringForVisible(pooledJobs, userId);
+        }
+
+        // Quietly top up the deck after a swipe: match-pool-jobs assigns more
+        // cards (and scores them) server-side before the buffer runs low, this
+        // just picks up anything new without disturbing the cards already shown.
+        async function refreshDeckSilently() {
+            const { data: jobs, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+            if (error || !Array.isArray(jobs)) return;
+            const existingIds = new Set(pooledJobs.map(j => j.id));
+            const newOnes = jobs.filter(j => !existingIds.has(j.id));
+            if (newOnes.length) {
+                pooledJobs.push(...newOnes);
+            }
         }
 
         function escapeHtml(str) {
@@ -1343,17 +1353,13 @@
         }
 
         function buildFitScoreBadge(job) {
-            if (job.fit_score === null || job.fit_score === undefined) {
-                return `<div class="swipe-card-fit-pending">⏳ Scoring your fit for this role…</div>`;
-            }
+            // A card only ever reaches the deck once already scored (see
+            // match-pool-jobs), so there is no "scoring..." pending state to show.
+            if (job.fit_score === null || job.fit_score === undefined) return '';
             const score = job.fit_score;
             const colorClass = score >= 70 ? 'fit-high' : (score >= 40 ? 'fit-mid' : 'fit-low');
-            const strengths = Array.isArray(job.fit_strengths) ? job.fit_strengths.slice(0, 3) : [];
-            const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 2) : [];
-            const tags = [
-                ...strengths.map(s => `<span class="swipe-card-tag fit-strength">✓ ${escapeHtml(s)}</span>`),
-                ...missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`)
-            ].join('');
+            const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
+            const tags = missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`).join('');
             return `
                 <div class="swipe-card-fit-badge ${colorClass}">
                     <span class="swipe-card-fit-score">${score}%</span>
@@ -1401,12 +1407,12 @@
                         <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
                     </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
-                    ${buildGeoBadge(job)}
-                    ${buildFitScoreBadge(job)}
                     <div class="swipe-card-info">
                         ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
                         ${job.salary_range ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${escapeHtml(job.salary_range)}</span></div>` : ''}
                     </div>
+                    ${buildGeoBadge(job)}
+                    ${buildFitScoreBadge(job)}
                     <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Read full description →</button>
                 `;
 
@@ -1512,6 +1518,8 @@
                     { onConflict: 'user_id,job_pool_id' }
                 );
             }
+
+            refreshDeckSilently();
         }
 
         function updateInboxBannerVisibility() {
@@ -1649,23 +1657,10 @@
             if (!job) return;
             job.fit_score = row.fit_score;
             job.fit_reason = row.reason;
-            job.fit_strengths = row.strengths;
             job.fit_missing_skills = row.missing_skills;
             renderSwipeStack();
         }
 
-        function triggerScoringForVisible(jobs, userId) {
-            const toScore = jobs
-                .filter(j => j.fit_score === null || j.fit_score === undefined)
-                .slice(0, 10)
-                .map(j => ({ job_pool_id: j.id, job_title: j.title, job_description: j.description_text }));
-            if (!toScore.length) return;
-            fetch('https://n8n.leadscompass.ai/webhook/score-deck', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, jobs: toScore })
-            }).catch(err => console.error('score-deck trigger failed:', err));
-        }
         let currentResumeObjectUrl = null;
 
         function goToMarketIntel() {
