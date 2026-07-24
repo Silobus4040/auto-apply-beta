@@ -544,6 +544,97 @@
         .swipe-btn.pass:hover { border-color: #DC2626; }
         .swipe-btn.apply:hover { border-color: #10B981; }
         .swipe-empty { text-align: center; padding: 3rem 1.5rem; }
+
+        /* ============================================================
+           LIQUID GLASS LAYER — dashboard + swipe deck (3D frosted)
+           ============================================================ */
+        :root{
+            --glass-bg: rgba(255,255,255,.55);
+            --glass-brd: rgba(255,255,255,.72);
+            --glass-hi: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 1px rgba(255,255,255,.35);
+            --glass-shadow: 0 22px 45px -20px rgba(18,28,58,.40), 0 8px 18px -12px rgba(18,28,58,.28);
+        }
+        /* aurora ground so the frost refracts real colour */
+        .app-main{
+            background:
+                radial-gradient(45% 40% at 12% 8%, rgba(212,255,51,.32), transparent 60%),
+                radial-gradient(40% 38% at 92% 6%, rgba(0,255,204,.28), transparent 60%),
+                radial-gradient(50% 45% at 88% 96%, rgba(255,107,74,.22), transparent 62%),
+                radial-gradient(45% 45% at 8% 92%, rgba(16,185,129,.20), transparent 60%),
+                linear-gradient(180deg,#eef2f8,#e6ecf5) !important;
+            background-attachment: fixed;
+        }
+        /* frosted panels */
+        .info-strip, .stat, .search-section{
+            background: var(--glass-bg) !important;
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            backdrop-filter: blur(20px) saturate(180%);
+            border: 1px solid var(--glass-brd) !important;
+            box-shadow: var(--glass-hi), var(--glass-shadow) !important;
+            transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s;
+        }
+        .stat{ border-radius: 18px !important; }
+        .info-strip{ border-radius: 22px !important; }
+        .search-section{ border-radius: 24px !important; }
+        .stat:hover{ transform: translateY(-3px); box-shadow: var(--glass-hi), 0 30px 55px -20px rgba(18,28,58,.5) !important; }
+
+        /* ===== SWIPE DECK — the hero ===== */
+        #swipe-deck-section{
+            max-width: 500px; margin: 0 auto 2.5rem; position: relative;
+            padding: 2.25rem 1.5rem 1.85rem; border-radius: 30px; isolation:isolate; overflow:hidden;
+        }
+        #swipe-deck-section::before{
+            content:''; position:absolute; inset:0; z-index:-2; border-radius:30px;
+            background:
+                radial-gradient(55% 50% at 18% 12%, rgba(212,255,51,.55), transparent 60%),
+                radial-gradient(52% 48% at 85% 16%, rgba(0,255,204,.50), transparent 60%),
+                radial-gradient(60% 55% at 78% 96%, rgba(255,107,74,.42), transparent 62%),
+                radial-gradient(50% 50% at 12% 92%, rgba(16,185,129,.42), transparent 60%),
+                linear-gradient(160deg,#0d1426,#101a30);
+        }
+        #swipe-deck-section::after{
+            content:''; position:absolute; left:-30%; top:-40%; width:160%; height:80%; z-index:-1;
+            background: radial-gradient(50% 60% at 50% 50%, rgba(255,255,255,.16), transparent 70%);
+            animation: gsheen 7s ease-in-out infinite alternate; pointer-events:none;
+        }
+        @keyframes gsheen{ from{transform:translate(-6%,-4%)} to{transform:translate(10%,14%)} }
+        #swipe-deck-section > h3{ color: rgba(255,255,255,.92) !important; }
+        .swipe-stack{ perspective: 1600px; }
+        .swipe-card{
+            background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important;
+            -webkit-backdrop-filter: blur(26px) saturate(185%);
+            backdrop-filter: blur(26px) saturate(185%);
+            border: 1px solid rgba(255,255,255,.78) !important;
+            border-radius: 26px !important;
+            box-shadow:
+                inset 0 1.5px 0 rgba(255,255,255,.95),
+                inset 0 -1px 2px rgba(255,255,255,.4),
+                0 34px 60px -22px rgba(6,10,26,.62),
+                0 10px 24px -14px rgba(6,10,26,.5) !important;
+        }
+        .swipe-card-fit-badge{ -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
+
+        /* ===== Glass action buttons with labels ===== */
+        .swipe-actions{ gap: 1rem !important; margin-top: 1.5rem !important; }
+        .swipe-btn{
+            width: auto !important; height: 54px !important; min-width: 128px; border-radius: 999px !important;
+            padding: 0 1.5rem; gap: .5rem; font-size: .95rem !important; font-weight: 800; letter-spacing: .4px;
+            text-transform: uppercase;
+            background: rgba(255,255,255,.62) !important;
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            backdrop-filter: blur(16px) saturate(180%);
+            border: 1px solid rgba(255,255,255,.78) !important;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 14px 26px -14px rgba(10,15,35,.55) !important;
+        }
+        .swipe-btn .swipe-btn-ico{ font-size: 1.1rem; line-height:1; }
+        .swipe-btn.pass{ color:#b91c1c; }
+        .swipe-btn.apply{
+            background: linear-gradient(135deg, rgba(212,255,51,.9), rgba(0,255,204,.75)) !important;
+            color:#053b2e;
+        }
+        .swipe-btn:hover{ transform: translateY(-3px) scale(1.03) !important; }
+        .swipe-btn.pass:hover{ border-color: rgba(220,38,38,.5) !important; }
+        .swipe-btn.apply:hover{ box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 18px 34px -14px rgba(0,200,150,.6) !important; }
     </style>
 
     <!-- Mobile Sidebar Overlay -->
@@ -719,8 +810,8 @@
             <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 850; color: #71717a; margin-bottom: 1rem; letter-spacing: 0.8px; text-align: center;">Swipe on jobs Rover found for you</h3>
             <div class="swipe-stack" id="swipe-stack"></div>
             <div class="swipe-actions">
-                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip">✕</button>
-                <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply">♥</button>
+                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip"><span class="swipe-btn-ico">✕</span> Skip</button>
+                <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply"><span class="swipe-btn-ico">✓</span> Apply</button>
             </div>
         </div>
 
