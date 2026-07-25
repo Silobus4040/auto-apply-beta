@@ -592,32 +592,16 @@
 
         /* ===== SWIPE DECK — the hero ===== */
         #swipe-deck-section{
-            max-width: 500px; margin: 0 auto 2.5rem; position: relative;
-            padding: 2.25rem 1.5rem 1.85rem; border-radius: 30px; isolation:isolate; overflow:hidden;
+            max-width: 500px; margin: 0 auto 1.25rem;
         }
-        #swipe-deck-section::before{
-            content:''; position:absolute; inset:0; z-index:-2; border-radius:30px;
-            background:
-                radial-gradient(55% 50% at 18% 12%, rgba(212,255,51,.55), transparent 60%),
-                radial-gradient(52% 48% at 85% 16%, rgba(0,255,204,.50), transparent 60%),
-                radial-gradient(60% 55% at 78% 96%, rgba(255,107,74,.42), transparent 62%),
-                radial-gradient(50% 50% at 12% 92%, rgba(16,185,129,.42), transparent 60%),
-                linear-gradient(160deg,#0d1426,#101a30);
-        }
-        #swipe-deck-section::after{
-            content:''; position:absolute; left:-30%; top:-40%; width:160%; height:80%; z-index:-1;
-            background: radial-gradient(50% 60% at 50% 50%, rgba(255,255,255,.16), transparent 70%);
-            animation: gsheen 7s ease-in-out infinite alternate; pointer-events:none;
-        }
-        @keyframes gsheen{ from{transform:translate(-6%,-4%)} to{transform:translate(10%,14%)} }
-        #swipe-deck-section > h3{ color: rgba(255,255,255,.92) !important; }
         .swipe-stack{ perspective: 1600px; }
         .swipe-card{
             background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important;
             -webkit-backdrop-filter: blur(26px) saturate(185%);
             backdrop-filter: blur(26px) saturate(185%);
             border: 1px solid rgba(255,255,255,.78) !important;
-            border-radius: 26px !important;
+            border-bottom: none !important;
+            border-radius: 26px 26px 0 0 !important;
             box-shadow:
                 inset 0 1.5px 0 rgba(255,255,255,.95),
                 inset 0 -1px 2px rgba(255,255,255,.4),
@@ -626,8 +610,18 @@
         }
         .swipe-card-fit-badge{ -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px); }
 
-        /* ===== Glass action buttons with labels ===== */
-        .swipe-actions{ gap: 1rem !important; margin-top: 1.5rem !important; }
+        /* ===== Action bar — fused to the bottom of the top card, no gap/seam ===== */
+        .swipe-actions{
+            gap: 1rem !important; margin-top: 0 !important;
+            background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important;
+            -webkit-backdrop-filter: blur(26px) saturate(185%);
+            backdrop-filter: blur(26px) saturate(185%);
+            border: 1px solid rgba(255,255,255,.78) !important;
+            border-top: none !important;
+            border-radius: 0 0 26px 26px !important;
+            padding: 1.1rem 0 1.35rem !important;
+            box-shadow: 0 34px 60px -22px rgba(6,10,26,.62), 0 10px 24px -14px rgba(6,10,26,.5) !important;
+        }
         .swipe-btn{
             width: auto !important; height: 54px !important; min-width: 128px; border-radius: 999px !important;
             padding: 0 1.5rem; gap: .5rem; font-size: .95rem !important; font-weight: 800; letter-spacing: .4px;
@@ -814,7 +808,6 @@
 
         <!-- Swipe Deck (pre-scraped job pool) -->
         <div id="swipe-deck-section" style="display: none;">
-            <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 850; color: #71717a; margin-bottom: 1rem; letter-spacing: 0.8px; text-align: center;">Swipe on jobs Rover found for you</h3>
             <div class="swipe-stack" id="swipe-stack"></div>
             <div class="swipe-actions">
                 <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip"><span class="swipe-btn-ico">✕</span> Skip</button>
