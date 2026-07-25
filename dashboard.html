@@ -380,8 +380,8 @@
         /* Info strip (status + criteria) */
         .info-strip {
             background: #fff; border: 1px solid var(--border); border-radius: 16px;
-            padding: 1.25rem 1.5rem; margin-bottom: 1.75rem;
-            display: grid; grid-template-columns: auto 1fr; gap: 0.75rem 2rem;
+            padding: 0.85rem 1.25rem; margin-bottom: 1rem;
+            display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0.5rem 2.5rem;
             align-items: start; position: relative;
         }
         .info-strip-cell {
@@ -515,7 +515,7 @@
         .swipe-card-geo-badge.geo-anywhere { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
         .swipe-card-geo-badge.geo-restricted { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
         .swipe-card-geo-badge.geo-unclear { background: #F4F4F5; color: #52525B; border: 1px solid var(--border); }
-        .swipe-card-fit-badge { display: flex; align-items: center; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 12px; margin-bottom: 0.9rem; }
+        .swipe-card-fit-badge { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 12px; margin-bottom: 0.9rem; position: relative; }
         .swipe-card-fit-badge.fit-high { background: #ECFDF5; border: 1px solid #A7F3D0; }
         .swipe-card-fit-badge.fit-mid { background: #FFFBEB; border: 1px solid #FDE68A; }
         .swipe-card-fit-badge.fit-low { background: #FEF2F2; border: 1px solid #FECACA; }
@@ -523,7 +523,19 @@
         .fit-high .swipe-card-fit-score { color: #059669; }
         .fit-mid .swipe-card-fit-score { color: #B45309; }
         .fit-low .swipe-card-fit-score { color: #DC2626; }
-        .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; }
+        .swipe-card-fit-reason-wrap { position: relative; flex: 1; min-width: 0; }
+        .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+        .swipe-card-fit-more { display: none; margin-top: 0.2rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+        .swipe-card-fit-reason.is-clamped + .swipe-card-fit-more { display: inline-block; }
+        .swipe-card-fit-reason-full {
+            display: none; position: absolute; top: 0; left: 0; right: 0; z-index: 30;
+            background: #fff; border: 1px solid var(--border); border-radius: 10px;
+            padding: 0.65rem 0.75rem; box-shadow: 0 12px 34px rgba(0,0,0,0.20);
+            font-size: 0.8rem; color: #3f3f46; line-height: 1.45; max-height: 280px; overflow-y: auto;
+        }
+        .swipe-card-fit-badge.expanded .swipe-card-fit-reason-full { display: block; }
+        .swipe-card-fit-badge.expanded .swipe-card-fit-more { visibility: hidden; }
+        .swipe-card-fit-less { display: block; margin-top: 0.5rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
         .swipe-card-tag.fit-gap { background: #FEF2F2; color: #DC2626; }
         .swipe-card-readmore { align-self: flex-start; margin-top: 1rem; background: transparent; border: none; padding: 0; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
@@ -736,30 +748,26 @@
         </div>
 
         <!-- Stats Bar (Hero Position) -->
-        <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 1.75rem;">
-            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 1.25rem 1.5rem;">
+        <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 1rem;">
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
-                <span class="stat-number" id="stat-total" style="font-size: 2.2rem;">0</span>
+                <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
                 <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Last 3 days</span>
             </div>
-            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 1.25rem 1.5rem;">
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
-                <span class="stat-number" id="stat-queued" style="font-size: 2.2rem;">0</span>
+                <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
                 <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Awaiting review</span>
             </div>
-            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.25rem; padding: 1.25rem 1.5rem;">
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
-                <span class="stat-number" id="stat-applied" style="font-size: 2.2rem;">0</span>
+                <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
                 <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Activate to apply</span>
             </div>
         </div>
 
         <!-- Info Strip (Status + Criteria) -->
         <div class="info-strip" id="info-strip">
-            <div class="info-strip-cell">
-                <span class="info-strip-label">Status</span>
-                <span class="info-strip-value" id="scanning-indicator"><span id="scanning-dot" style="display:inline-block; width:8px; height:8px; background:#10B981; border-radius:50%; margin-right:0.4rem; box-shadow: 0 0 6px #10B981;"></span><span id="scanning-title">Monitoring</span></span>
-            </div>
             <div class="info-strip-cell">
                 <span class="info-strip-label">Roles</span>
                 <span class="info-strip-value" id="pref-roles">Loading...</span>
@@ -772,8 +780,7 @@
                 <span class="info-strip-label">Type</span>
                 <span class="info-strip-value" id="pref-workplaces">Loading...</span>
             </div>
-            <a href="#" onclick="openSettingsModal(); return false;" class="info-strip-edit">✏️ Edit criteria</a>
-            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: flex; gap: 0.75rem; flex-wrap: wrap;">
+            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: none; gap: 0.75rem; flex-wrap: wrap;">
                 <div id="inbox-banner" style="display: none;">
                     <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Enable Auto-Apply &rarr;</button>
                 </div>
@@ -1451,10 +1458,15 @@
             const colorClass = score >= 70 ? 'fit-high' : (score >= 40 ? 'fit-mid' : 'fit-low');
             const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
             const tags = missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`).join('');
+            const reason = escapeHtml(job.fit_reason || '');
             return `
                 <div class="swipe-card-fit-badge ${colorClass}">
                     <span class="swipe-card-fit-score">${score}%</span>
-                    <span class="swipe-card-fit-reason">${escapeHtml(job.fit_reason || '')}</span>
+                    <div class="swipe-card-fit-reason-wrap">
+                        <span class="swipe-card-fit-reason">${reason}</span>
+                        <button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); toggleFitReason(this)">more</button>
+                        <div class="swipe-card-fit-reason-full">${reason}<button type="button" class="swipe-card-fit-less" onclick="event.stopPropagation(); toggleFitReason(this)">less</button></div>
+                    </div>
                 </div>
                 ${tags ? `<div class="swipe-card-fit-tags">${tags}</div>` : ''}
             `;
@@ -1488,7 +1500,10 @@
                 card.style.transform = `translateY(${offsetY}px) scale(${scale})`;
                 card.style.zIndex = String(10 - depthFromTop);
 
-                const locationLine = [job.location, job.workplace_type].filter(Boolean).join(' · ');
+                const placeText = (Array.isArray(job.workplace_locations) && job.workplace_locations.length)
+                    ? job.workplace_locations.join(', ')
+                    : (job.location || '');
+                const locationLine = [placeText, job.workplace_type].filter(Boolean).join(' · ');
                 const jobIndexInPool = pooledJobIndex + (visible.length - 1 - i);
                 card.innerHTML = `
                     <div class="swipe-card-stamp pass">Skip</div>
@@ -1512,6 +1527,18 @@
                 }
                 stack.appendChild(card);
             });
+
+            // Only offer "more" on reasons that actually overflow the 3-line clamp.
+            requestAnimationFrame(() => {
+                stack.querySelectorAll('.swipe-card-fit-reason').forEach(el => {
+                    if (el.scrollHeight - el.clientHeight > 1) el.classList.add('is-clamped');
+                });
+            });
+        }
+
+        function toggleFitReason(btn) {
+            const badge = btn.closest('.swipe-card-fit-badge');
+            if (badge) badge.classList.toggle('expanded');
         }
 
         function openSwipeJobDescription(index) {
@@ -1629,33 +1656,31 @@
         }
 
         function updateInboxBannerVisibility() {
+            const wrap = document.getElementById('test-webhook-banner');
             const banner = document.getElementById('inbox-banner');
             if (!banner || !userProfile) return;
-            
-            banner.style.display = 'flex';
             const button = banner.querySelector('button');
+
+            // Auto-apply already on: keep the info strip clean for screen shares —
+            // hide the whole banner row instead of printing the email address.
+            if (userProfile.Application_email) {
+                if (wrap) wrap.style.display = 'none';
+                banner.style.display = 'none';
+                return;
+            }
+
+            // Not yet enabled: surface the Enable Auto-Apply call to action.
+            if (wrap) wrap.style.display = 'flex';
+            banner.style.display = 'flex';
             if (button) {
-                if (userProfile.Application_email) {
-                    button.textContent = `✉️ Auto-apply on — ${userProfile.Application_email}`;
-                    button.style.background = 'transparent';
-                    button.style.color = '#71717a';
-                    button.style.border = 'none';
-                    button.style.padding = '0.45rem 0';
-                    button.style.cursor = 'pointer';
-                    button.onclick = openInboxModal;
-                    button.style.textTransform = 'lowercase';
-                    button.style.fontWeight = '600';
-                    button.style.fontSize = '0.7rem';
-                } else {
-                    button.innerHTML = 'Enable Auto-Apply &rarr;';
-                    button.style.background = 'var(--primary)';
-                    button.style.color = '#000000';
-                    button.style.border = 'none';
-                    button.style.cursor = 'pointer';
-                    button.onclick = openInboxModal;
-                    button.style.textTransform = 'uppercase';
-                    button.style.fontWeight = '750';
-                }
+                button.innerHTML = 'Enable Auto-Apply &rarr;';
+                button.style.background = 'var(--primary)';
+                button.style.color = '#000000';
+                button.style.border = 'none';
+                button.style.cursor = 'pointer';
+                button.onclick = openInboxModal;
+                button.style.textTransform = 'uppercase';
+                button.style.fontWeight = '750';
             }
         }
 
