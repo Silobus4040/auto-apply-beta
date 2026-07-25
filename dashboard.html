@@ -536,8 +536,15 @@
         .swipe-card-fit-badge.expanded .swipe-card-fit-reason-full { display: block; }
         .swipe-card-fit-badge.expanded .swipe-card-fit-more { visibility: hidden; }
         .swipe-card-fit-less { display: block; margin-top: 0.5rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
-        .swipe-card-fit-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 0.9rem; }
+        .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; }
+        .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
+        .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
+        .swipe-card-fit-tags.expanded { flex-wrap: wrap; overflow: visible; }
+        .swipe-card-tag { flex-shrink: 0; white-space: nowrap; }
+        .swipe-card-fit-tags.expanded .swipe-card-tag { white-space: normal; }
         .swipe-card-tag.fit-gap { background: #FEF2F2; color: #DC2626; }
+        .swipe-card-tags-more { display: none; margin-top: 0.4rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+        .swipe-card-fit-tags.is-clamped ~ .swipe-card-tags-more { display: inline-block; }
         .swipe-card-readmore { align-self: flex-start; margin-top: 1rem; background: transparent; border: none; padding: 0; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
         .swipe-card-stamp {
             position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
@@ -760,28 +767,6 @@
             </div>
         </div>
 
-        <!-- Info Strip (Status + Criteria) -->
-        <div class="info-strip" id="info-strip">
-            <div class="info-strip-cell">
-                <span class="info-strip-label">Roles</span>
-                <span class="info-strip-value" id="pref-roles">Loading...</span>
-            </div>
-            <div class="info-strip-cell">
-                <span class="info-strip-label">Countries</span>
-                <span class="info-strip-value" id="pref-countries">Loading...</span>
-            </div>
-            <div class="info-strip-cell">
-                <span class="info-strip-label">Type</span>
-                <span class="info-strip-value" id="pref-workplaces">Loading...</span>
-            </div>
-            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: none; gap: 0.75rem; flex-wrap: wrap;">
-                <div id="inbox-banner" style="display: none;">
-                    <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Enable Auto-Apply &rarr;</button>
-                </div>
-            </div>
-        </div>
-
-
 
         <!-- Market Intelligence / Skill Gap Analyzer -->
         <div id="market-intel-section" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
@@ -812,6 +797,27 @@
             <div class="swipe-actions">
                 <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip"><span class="swipe-btn-ico">✕</span> Skip</button>
                 <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply"><span class="swipe-btn-ico">✓</span> Apply</button>
+            </div>
+        </div>
+
+        <!-- Info Strip (Search Criteria) -->
+        <div class="info-strip" id="info-strip" style="margin-top: 1.5rem;">
+            <div class="info-strip-cell">
+                <span class="info-strip-label">Roles</span>
+                <span class="info-strip-value" id="pref-roles">Loading...</span>
+            </div>
+            <div class="info-strip-cell">
+                <span class="info-strip-label">Countries</span>
+                <span class="info-strip-value" id="pref-countries">Loading...</span>
+            </div>
+            <div class="info-strip-cell">
+                <span class="info-strip-label">Type</span>
+                <span class="info-strip-value" id="pref-workplaces">Loading...</span>
+            </div>
+            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: none; gap: 0.75rem; flex-wrap: wrap;">
+                <div id="inbox-banner" style="display: none;">
+                    <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Enable Auto-Apply &rarr;</button>
+                </div>
             </div>
         </div>
 
@@ -1462,7 +1468,12 @@
                         <div class="swipe-card-fit-reason-full">${reason}<button type="button" class="swipe-card-fit-less" onclick="event.stopPropagation(); toggleFitReason(this)">less</button></div>
                     </div>
                 </div>
-                ${tags ? `<div class="swipe-card-fit-tags">${tags}</div>` : ''}
+                ${tags ? `
+                <div class="swipe-card-fit-tags-wrap">
+                    <span class="swipe-card-fit-tags-label">Gaps</span>
+                    <div class="swipe-card-fit-tags">${tags}</div>
+                    <button type="button" class="swipe-card-tags-more" onclick="event.stopPropagation(); toggleFitTags(this)">more</button>
+                </div>` : ''}
             `;
         }
 
@@ -1527,12 +1538,23 @@
                 stack.querySelectorAll('.swipe-card-fit-reason').forEach(el => {
                     if (el.scrollHeight - el.clientHeight > 1) el.classList.add('is-clamped');
                 });
+                stack.querySelectorAll('.swipe-card-fit-tags').forEach(el => {
+                    if (el.scrollWidth - el.clientWidth > 1) el.classList.add('is-clamped');
+                });
             });
         }
 
         function toggleFitReason(btn) {
             const badge = btn.closest('.swipe-card-fit-badge');
             if (badge) badge.classList.toggle('expanded');
+        }
+
+        function toggleFitTags(btn) {
+            const wrap = btn.closest('.swipe-card-fit-tags-wrap');
+            const tags = wrap && wrap.querySelector('.swipe-card-fit-tags');
+            if (!tags) return;
+            const expanded = tags.classList.toggle('expanded');
+            btn.textContent = expanded ? 'less' : 'more';
         }
 
         function openSwipeJobDescription(index) {
