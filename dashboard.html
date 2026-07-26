@@ -253,9 +253,17 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; backdrop-filter: blur(8px); }
         .modal-overlay.active { display: flex; }
         .desc-modal { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.08); }
-        .desc-modal h2 { color: #000000; margin-bottom: 0.25rem; font-size: 1.35rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase; }
+        /* Title was text-transform:uppercase, which turns a long role name into a
+           shouty unreadable block ("ASSOCIATE MANAGER, STRATEGY & OPERATIONS FOR
+           MARKETING PRODUCTS, IN-STORE"). Sentence case reads far faster. */
+        .desc-modal h2 { color: #000000; margin-bottom: 0.25rem; font-size: 1.35rem; font-weight: 850; letter-spacing: -0.3px; line-height: 1.3; }
         .desc-modal .modal-company { color: #00b38f; font-weight: 700; margin-bottom: 1.25rem; text-transform: uppercase; font-size: 0.88rem; }
-        .desc-modal .full-text { color: var(--text-body); font-size: 0.95rem; line-height: 1.7; white-space: pre-wrap; }
+        /* max-width in `ch` caps the LINE LENGTH regardless of how wide the modal
+           gets. Long measure is the main reason the description felt like a wall
+           of text; ~68 characters is the readable range typography uses for body
+           copy. white-space:pre-wrap (already here) is what renders the real
+           paragraph/bullet line breaks the scraper now preserves. */
+        .desc-modal .full-text { color: var(--text-body); font-size: 1rem; line-height: 1.75; white-space: pre-wrap; max-width: 68ch; }
         .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #71717A; font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
         .close-modal:hover { color: #000000; }
         
