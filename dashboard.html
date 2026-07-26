@@ -1595,7 +1595,7 @@
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
                     <div class="swipe-card-info">
                         ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
-                        ${job.salary_range ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${escapeHtml(job.salary_range)}</span></div>` : ''}
+                        <div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${job.salary_range ? escapeHtml(job.salary_range) : 'Salary not stated'}</span></div>
                     </div>
                     ${buildGeoBadge(job)}
                     ${buildFitScoreBadge(job)}
