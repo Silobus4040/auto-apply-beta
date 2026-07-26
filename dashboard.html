@@ -494,7 +494,29 @@
 
         /* Swipe deck */
         #swipe-deck-section { max-width: 480px; margin: 0 auto 2.5rem; }
-        .swipe-stack { position: relative; height: 480px; }
+        /* ---- Fit-to-screen deck sizing ----
+           Instead of a hardcoded height, size the card off the REAL viewport:
+           take the full viewport height and subtract the chrome that sits
+           above the deck (page padding + header + stat bar) and the fused
+           Skip/Apply bar below it. --deck-chrome is that reserved total, so
+           the card + buttons always land inside the fold. clamp() stops it
+           collapsing on short windows or ballooning on tall ones. dvh (not vh)
+           so mobile browser bars appearing/disappearing don't clip it.
+
+           --deck-chrome is the ONE knob to tune. Measured from current CSS:
+             container padding-top (1.1rem) ............ ~18px
+             .page-header (btn ~38px + 0.85rem margin) . ~52px
+             .stats-bar + 0.6rem margin ................ ~85px
+             fused .swipe-actions bar below the stack .. ~94px
+                                                total .. ~249px
+           Set slightly above that so the buttons never sit flush against the
+           bottom edge; lower it to give the card more height, raise it if the
+           Skip/Apply row is still getting cut off. */
+        #swipe-deck-section { --deck-chrome: 285px; }
+        .swipe-stack { position: relative; height: clamp(320px, calc(100dvh - var(--deck-chrome)), 600px); }
+        /* NOTE: the short-screen @media block that tunes this lives at the END
+           of the swipe-deck CSS (search "max-height: 720px") -- it has to come
+           after these base rules to actually override them. */
         .swipe-card {
             position: absolute; inset: 0; background: #fff; border: 1px solid var(--border);
             border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.06); padding: 1.75rem;
@@ -506,12 +528,20 @@
         .swipe-card-header { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
         .swipe-card-logo { width: 42px; height: 42px; border-radius: 10px; object-fit: contain; background: #f4f4f5; border: 1px solid var(--border); padding: 5px; flex-shrink: 0; }
         .swipe-card-company { font-size: 0.85rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; }
-        .swipe-card-title { font-size: 1.55rem; font-weight: 900; color: #000; line-height: 1.3; margin-bottom: 1.5rem; }
-        .swipe-card-info { display: flex; flex-direction: column; gap: 0.9rem; flex-grow: 1; }
+        .swipe-card-title { font-size: 1.55rem; font-weight: 900; color: #000; line-height: 1.3; margin-bottom: 0.85rem; }
+        /* No flex-grow: this block holds only the location/salary lines, and
+           letting it grow made it swallow every spare pixel of the fixed-height
+           card -- a single 25px text row sat in a 118px box, i.e. ~93px of dead
+           space above the fit badge on any job without a salary. Content now
+           stacks tight; the read-more button (margin-top:auto) takes the slack. */
+        .swipe-card-info { display: flex; flex-direction: column; gap: 0.65rem; }
         .swipe-card-info-row { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
         .swipe-card-info-icon { font-size: 1.1rem; flex-shrink: 0; }
         .swipe-card-tag { background: #f4f4f5; border: 1px solid var(--border); color: #3f3f46; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
-        .swipe-card-geo-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; align-self: flex-start; margin-top: -1rem; margin-bottom: 1rem; }
+        /* Was margin-top:-1rem to claw back space from the old stretched info
+           block; with that stretch gone the negative margin would overlap the
+           location line, so it is a normal small gap now. */
+        .swipe-card-geo-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; align-self: flex-start; margin-top: 0.65rem; margin-bottom: 0.9rem; }
         .swipe-card-geo-badge.geo-anywhere { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
         .swipe-card-geo-badge.geo-restricted { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
         .swipe-card-geo-badge.geo-unclear { background: #F4F4F5; color: #52525B; border: 1px solid var(--border); }
@@ -545,7 +575,21 @@
         .swipe-card-tag.fit-gap { background: #FEF2F2; color: #DC2626; }
         .swipe-card-tags-more { display: none; margin-top: 0.4rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags.is-clamped ~ .swipe-card-tags-more { display: inline-block; }
-        .swipe-card-readmore { align-self: flex-start; margin-top: 1rem; background: transparent; border: none; padding: 0; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
+        /* margin-top:auto anchors this to the card's bottom edge so leftover
+           space collapses below the content instead of as a gap mid-card. On
+           tall cards auto resolves to 0 and nothing overflows. */
+        .swipe-card-readmore { align-self: flex-start; margin-top: auto; padding: 0.9rem 0 0; background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); }
+        /* The card is a fixed-height flex column, so on short screens (or a tall
+           card: salary row + geo badge + several gap tags) the content can exceed
+           the box and spill past the rounded bottom onto the fused action bar.
+           Pin the must-see rows, let the fit blurb / gap tags absorb the squeeze
+           (min-height:0 is required or flex items refuse to shrink below content),
+           and clip at the card edge so nothing can ever escape the rounded box.
+           The full text stays reachable via "Read full description". */
+        .swipe-card { overflow: hidden; }
+        .swipe-card-header, .swipe-card-title, .swipe-card-info,
+        .swipe-card-geo-badge, .swipe-card-readmore { flex-shrink: 0; }
+        .swipe-card-fit-badge, .swipe-card-fit-tags { min-height: 0; overflow: hidden; }
         .swipe-card-stamp {
             position: absolute; top: 1.5rem; font-size: 1.4rem; font-weight: 900; padding: 0.3rem 0.9rem;
             border-radius: 8px; border: 3px solid; transform: rotate(-12deg); opacity: 0;
@@ -648,6 +692,32 @@
         .swipe-btn:hover{ transform: translateY(-3px) scale(1.03) !important; }
         .swipe-btn.pass:hover{ border-color: rgba(220,38,38,.5) !important; }
         .swipe-btn.apply:hover{ box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 18px 34px -14px rgba(0,200,150,.6) !important; }
+
+        /* ===== Short screens (~600-720px viewport) =====
+           Placed LAST on purpose: it must come after every base .swipe-* rule
+           above or those rules win and none of this applies.
+           A full card (long title + location + salary row + geo badge + fit
+           blurb + gap tags + read-more) needs ~370px of non-shrinkable height,
+           more than the 320px floor, so "Read full description" got pushed out
+           of the card onto the action bar. Two levers: shrink the fused action
+           bar (pure chrome) and drop --deck-chrome to hand those pixels back to
+           the card, then tighten the card's own type/padding. */
+        @media (max-height: 720px) {
+            #swipe-deck-section { --deck-chrome: 240px; }
+            .swipe-card { padding: 1rem 1.25rem; }
+            .swipe-card-title { font-size: 1.15rem; margin-bottom: 0.4rem; }
+            .swipe-card-info { gap: 0.35rem; }
+            .swipe-card-info-row { font-size: 0.85rem; }
+            .swipe-card-geo-badge { margin-top: 0.4rem; margin-bottom: 0.5rem; }
+            .swipe-card-fit-badge { padding: 0.45rem 0.6rem; margin-bottom: 0.5rem; }
+            /* the fit blurb is the biggest single block; 2 lines instead of 3 is
+               what finally lets the whole card + buttons fit at 600px. The
+               "more" toggle still expands it on demand. */
+            .swipe-card-fit-reason { -webkit-line-clamp: 2; }
+            .swipe-card-readmore { padding-top: 0.5rem; }
+            .swipe-actions { padding: 0.6rem 0 0.75rem !important; gap: 0.75rem !important; }
+            .swipe-btn { height: 44px !important; min-width: 112px; font-size: 0.85rem !important; }
+        }
     </style>
 
     <!-- Mobile Sidebar Overlay -->
@@ -753,17 +823,14 @@
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
                 <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
-                <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Last 3 days</span>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
                 <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
-                <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Awaiting review</span>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
                 <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
-                <span style="font-size: 0.75rem; color: #a1a1aa; font-weight: 500;">Activate to apply</span>
             </div>
         </div>
 
