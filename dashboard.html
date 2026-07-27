@@ -1108,6 +1108,12 @@
         let currentJobs = [];
         let userProfile = null;
         let currentUserEmail = '';
+        // Real matching supply from the pool, set by match-pool-jobs. Stays null
+        // until the first successful call (or when talking to an older version of
+        // the function), in which case the stats fall back to the old behaviour.
+        // Declared up here with the other globals because fetchPooledJobs reads it
+        // well before its own position in the file.
+        let poolAvailableCount = null;
 
         // ─── Sidebar Toggle (Mobile) ───
         function toggleSidebar() {
@@ -1491,8 +1497,27 @@
         let pooledJobIndex = 0;
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
+        // match-pool-jobs used to return a bare array; it now returns
+        // { jobs, total_available }. Accept BOTH shapes so the frontend and the
+        // edge function can be deployed in either order without a broken window.
+        function unwrapPoolResponse(data) {
+            if (Array.isArray(data)) return { jobs: data, totalAvailable: null };
+            if (data && Array.isArray(data.jobs)) {
+                return {
+                    jobs: data.jobs,
+                    totalAvailable: typeof data.total_available === 'number' ? data.total_available : null,
+                };
+            }
+            return { jobs: [], totalAvailable: null };
+        }
+
         async function fetchPooledJobs(userId) {
-            const { data: jobs, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+            const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+            const { jobs, totalAvailable } = unwrapPoolResponse(data);
+            if (totalAvailable !== null) {
+                poolAvailableCount = totalAvailable;
+                applyPoolAvailableToStats();
+            }
             const section = document.getElementById('swipe-deck-section');
             const jobList = document.getElementById('job-list');
             if (error || !jobs || !jobs.length) {
@@ -1511,8 +1536,14 @@
         // cards (and scores them) server-side before the buffer runs low, this
         // just picks up anything new without disturbing the cards already shown.
         async function refreshDeckSilently() {
-            const { data: jobs, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
-            if (error || !Array.isArray(jobs)) return;
+            const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+            if (error) return;
+            const { jobs, totalAvailable } = unwrapPoolResponse(data);
+            if (totalAvailable !== null) {
+                poolAvailableCount = totalAvailable;
+                applyPoolAvailableToStats();
+            }
+            if (!Array.isArray(jobs)) return;
             const existingIds = new Set(pooledJobs.map(j => j.id));
             const newOnes = jobs.filter(j => !existingIds.has(j.id));
             if (newOnes.length) {
@@ -1757,6 +1788,12 @@
                 );
             }
 
+            // The swipe row is committed by this point, so recount now rather
+            // than waiting on the realtime event from job_applications -- that
+            // only fires once n8n's tailoring pipeline finishes, and never at
+            // all when it fails.
+            updateStats(currentJobs, user.id);
+
             refreshDeckSilently();
         }
 
@@ -1789,17 +1826,54 @@
             }
         }
 
-        function updateStats(jobs, userId) {
+        function applyPoolAvailableToStats() {
+            if (poolAvailableCount === null) return;
+            const el = document.getElementById('stat-total');
+            if (!el) return;
+            el.textContent = poolAvailableCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
-            if (!jobs || jobs.length === 0) {
+            if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
+        }
+
+        async function updateStats(jobs, userId) {
+            const bar = document.getElementById('stats-bar');
+            const rows = jobs || [];
+            const applied = rows.filter(j => j.status === 'applied').length;
+
+            if (rows.length === 0 && poolAvailableCount === null) {
                 bar.style.display = 'none';
             } else {
                 bar.style.display = 'flex';
-                document.getElementById('stat-total').textContent = jobs.length;
-                document.getElementById('stat-queued').textContent = jobs.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
-                document.getElementById('stat-applied').textContent = jobs.filter(j => j.status === 'applied').length;
+                // JOBS FOUND = how many real jobs match this user and are still
+                // undecided. It used to show rows.length -- the number of
+                // applications ALREADY created -- so a user with thousands of
+                // genuine matches saw a single digit.
+                document.getElementById('stat-total').textContent =
+                    poolAvailableCount !== null ? poolAvailableCount.toLocaleString() : rows.length;
+                document.getElementById('stat-applied').textContent = applied;
+
+                // IN QUEUE = right-swipes not yet applied. Counting
+                // job_applications rows meant this only moved once the tailoring
+                // pipeline finished (~20-25s later) and stayed frozen entirely
+                // whenever that pipeline failed -- which is why swiping appeared
+                // to do nothing. Swipes are recorded synchronously, so this
+                // reflects the user's own action immediately.
+                let queued = rows.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
+                try {
+                    const { count, error } = await supabaseClient
+                        .from('user_job_swipes')
+                        .select('job_pool_id', { count: 'exact', head: true })
+                        .eq('user_id', userId)
+                        .eq('decision', 'apply');
+                    if (!error && typeof count === 'number') {
+                        queued = Math.max(count - applied, 0);
+                    }
+                } catch (err) {
+                    console.error('Queue count fallback in use', err);
+                }
+                document.getElementById('stat-queued').textContent = queued;
             }
-            
+
             fetchMarketIntelligence(userId);
         }
 
