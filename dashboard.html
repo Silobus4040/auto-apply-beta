@@ -92,6 +92,8 @@
         .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
         .stat-number { color: #000000; font-size: 2rem; font-weight: 900; line-height: 1; }
         .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        .stat-view-btn { background: transparent; border: none; color: var(--secondary); font-size: 0.75rem; font-weight: 800; cursor: pointer; padding: 0; border-bottom: 1px dashed var(--secondary); white-space: nowrap; }
+        .stat-view-btn:hover { color: #000; border-color: #000; }
 
         /* Table Style Dashboard */
         .jobs-table-container {
@@ -639,14 +641,10 @@
             --glass-hi: inset 0 1px 0 rgba(255,255,255,.9), inset 0 -1px 1px rgba(255,255,255,.35);
             --glass-shadow: 0 22px 45px -20px rgba(18,28,58,.40), 0 8px 18px -12px rgba(18,28,58,.28);
         }
-        /* aurora ground so the frost refracts real colour */
+        /* plain white ground -- glass panels keep their 3D blur/shadow, they just
+           no longer refract a tinted backdrop */
         .app-main{
-            background:
-                radial-gradient(45% 40% at 12% 8%, rgba(212,255,51,.32), transparent 60%),
-                radial-gradient(40% 38% at 92% 6%, rgba(0,255,204,.28), transparent 60%),
-                radial-gradient(50% 45% at 88% 96%, rgba(255,107,74,.22), transparent 62%),
-                radial-gradient(45% 45% at 8% 92%, rgba(16,185,129,.20), transparent 60%),
-                linear-gradient(180deg,#eef2f8,#e6ecf5) !important;
+            background: linear-gradient(180deg,#ffffff,#f7f7f8) !important;
             background-attachment: fixed;
         }
         /* frosted panels */
@@ -848,11 +846,17 @@
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
-                <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
+                    <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
+                    <button class="stat-view-btn" onclick="scrollToApplications()">View &rarr;</button>
+                </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
-                <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
+                    <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
+                    <button class="stat-view-btn" onclick="scrollToApplications()">View &rarr;</button>
+                </div>
             </div>
         </div>
 
@@ -1982,6 +1986,11 @@
             }
         }
 
+        function scrollToApplications() {
+            const target = document.getElementById('job-list');
+            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
         function renderJobs(jobs, isScanning = false) {
             const container = document.getElementById('job-list');
             if (!jobs.length) {
@@ -2116,19 +2125,19 @@
                 }).join('<span style="color:#d1d5db;">|</span>');
 
                 bannerHtml = `
-                    <div class="active-scan-banner" style="background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap;">
+                    <div class="active-scan-banner" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap;">
                         <div style="display: flex; align-items: center; gap: 0.75rem; flex-grow: 1;">
                             <span style="font-size: 1.1rem; animation: spin 2s linear infinite; display: inline-block;">🔄</span>
                             <div style="display: flex; flex-direction: column; gap: 0.15rem;">
-                                <strong style="color: #92400e; font-size: 0.88rem;">Rover is actively scanning</strong>
+                                <strong style="color: #000; font-size: 0.88rem;">Rover is actively scanning</strong>
                                 <div style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
                                     ${countryStatuses}
                                 </div>
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <span style="font-size: 0.75rem; background: #ECFDF5; border: 1px solid #A7F3D0; color: #047857; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 700; animation: flashBadge 1s ease-in-out infinite alternate; display: inline-flex; align-items: center; gap: 0.25rem;">✨ New jobs arriving</span>
-                            <span style="font-size: 0.75rem; background: #FEF3C7; color: #92400e; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 750;">15-30m remains</span>
+                            <span style="font-size: 0.75rem; background: #fff; border: 1px solid #A7F3D0; color: #047857; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 700; animation: flashBadge 1s ease-in-out infinite alternate; display: inline-flex; align-items: center; gap: 0.25rem;">✨ New jobs arriving</span>
+                            <span style="font-size: 0.75rem; background: #fff; border: 1px solid var(--border); color: #71717A; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 750;">15-30m remains</span>
                         </div>
                     </div>
                 `;

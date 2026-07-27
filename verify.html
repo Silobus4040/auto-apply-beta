@@ -383,14 +383,22 @@
                     const firstName = parts[0] || '';
                     const lastName = parts.slice(1).join(' ') || '';
 
+                    // upsert, not update: no trigger creates a profiles row on
+                    // auth signup, so at this point the row does NOT exist yet and
+                    // an .update() silently matched zero rows -- the name/email
+                    // captured here were thrown away and only reappeared at the
+                    // very end of onboarding. Creating the row now is also what
+                    // lets an interrupted signup be resumed (and emailed) later
+                    // instead of vanishing without a trace.
                     await supabaseClient
                         .from('profiles')
-                        .update({
+                        .upsert({
+                            id: user.id,
                             email: pendingEmail,
                             first_name: firstName,
-                            last_name: lastName
-                        })
-                        .eq('id', user.id);
+                            last_name: lastName,
+                            onboarding_step: 1
+                        }, { onConflict: 'id' });
 
                     setTimeout(() => {
                         window.location.href = 'onboarding.html';

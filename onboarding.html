@@ -263,7 +263,10 @@
                                 <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
                                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                                     <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="Remote" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote
+                                        <input type="checkbox" name="workplace" value="Remote Local" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; my area
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Remote Global" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; worldwide
                                     </label>
                                     <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                         <input type="checkbox" name="workplace" value="Hybrid" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Hybrid
@@ -272,6 +275,7 @@
                                         <input type="checkbox" name="workplace" value="On-site" style="width: 16px; height: 16px; margin: 0; padding: 0;"> On-site
                                     </label>
                                 </div>
+                                <p class="form-hint" style="margin-top: 0.5rem;"><strong>Remote &mdash; my area:</strong> remote roles open to your city, state or country. <strong>Remote &mdash; worldwide:</strong> remote roles open to anyone, anywhere, including companies based in other countries. Pick both if you're open to either.</p>
                             </div>
 
                             <div class="form-group">
@@ -611,7 +615,7 @@
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
             
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, target_job_titles, target_location, workplace_type, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -678,12 +682,26 @@
                     }
                 }
                 
-                // Prepopulate workplace types
+                // Prepopulate workplace types.
+                // A stored 'Remote' has to be expanded back into the two UI options
+                // using remote_scope. Rows saved before the split have no scope, so
+                // they're treated as "open to both" rather than silently unticking
+                // the remote preference the user actually set.
                 if (profile.workplace_type) {
                     const types = profile.workplace_type.split(', ');
-                    types.forEach(t => {
-                        const cb = document.querySelector(`input[name="workplace"][value="${t}"]`);
+                    const tick = (value) => {
+                        const cb = document.querySelector(`input[name="workplace"][value="${value}"]`);
                         if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
+                    };
+                    types.forEach(t => {
+                        if (t === 'Remote') {
+                            const scope = profile.remote_scope;
+                            if (scope === 'local') tick('Remote Local');
+                            else if (scope === 'global') tick('Remote Global');
+                            else { tick('Remote Local'); tick('Remote Global'); }
+                        } else {
+                            tick(t);
+                        }
                     });
                 }
                 
@@ -939,14 +957,33 @@
                 const randomDigits = Math.floor(100 + Math.random() * 900); // 3 digit random number
                 const generatedAiEmail = `${basePrefix}${randomDigits}@careermailing.com`;
 
+                // Remote is split into two USER-FACING choices (my area / worldwide) but
+                // job_pool only ever stores workplace_type as Remote | Hybrid | On-site.
+                // So both remote choices collapse back to 'Remote' here, and the
+                // local-vs-global distinction is carried separately in remote_scope.
+                // Keeping workplace_type in the job_pool vocabulary is what lets the
+                // matching query keep comparing the two directly.
+                const workplaceChecked = Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value);
+                const wantsRemoteLocal = workplaceChecked.includes('Remote Local');
+                const wantsRemoteGlobal = workplaceChecked.includes('Remote Global');
+                const workplaceTypes = [];
+                if (wantsRemoteLocal || wantsRemoteGlobal) workplaceTypes.push('Remote');
+                if (workplaceChecked.includes('Hybrid')) workplaceTypes.push('Hybrid');
+                if (workplaceChecked.includes('On-site')) workplaceTypes.push('On-site');
+                const remoteScope = (wantsRemoteLocal && wantsRemoteGlobal) ? 'both'
+                    : wantsRemoteLocal ? 'local'
+                    : wantsRemoteGlobal ? 'global'
+                    : null;
+
                 // Update Profile with ALL data
                 loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
+                    remote_scope: remoteScope,
                     target_job_titles: localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
                     experience_level_bucket: localStorage.getItem('onb_job-levels') || Array.from(document.querySelectorAll('.job-level-select')).map(s => s.value).join(', '),
                     target_location: Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value).join(', '),
-                    workplace_type: Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value).join(', '),
+                    workplace_type: workplaceTypes.join(', '),
                     commitment_type: Array.from(document.querySelectorAll('input[name="commitment"]:checked')).map(cb => cb.value).join(', '),
                     first_name: firstName,
                     last_name: lastName,
