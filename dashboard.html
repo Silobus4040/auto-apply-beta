@@ -565,15 +565,29 @@
         .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .swipe-card-fit-more { display: none; margin-top: 0.2rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-reason.is-clamped + .swipe-card-fit-more { display: inline-block; }
+        /* Expands IN FLOW, not as an absolutely-positioned overlay. The overlay
+           version sat on top of the GAPS section instead of pushing it down, and
+           because .swipe-card has overflow:hidden, anything taller than the card
+           got clipped -- including the "less" button at its bottom edge, which is
+           why long reasons expanded into a half-visible block with no way back. */
         .swipe-card-fit-reason-full {
-            display: none; position: absolute; top: 0; left: 0; right: 0; z-index: 30;
-            background: #fff; border: 1px solid var(--border); border-radius: 10px;
-            padding: 0.65rem 0.75rem; box-shadow: 0 12px 34px rgba(0,0,0,0.20);
-            font-size: 0.8rem; color: #3f3f46; line-height: 1.45; max-height: 280px; overflow-y: auto;
+            display: none;
+            margin-top: 0.15rem;
+            font-size: 0.8rem; color: #3f3f46; line-height: 1.45;
+            max-height: 11rem; overflow-y: auto;
         }
         .swipe-card-fit-badge.expanded .swipe-card-fit-reason-full { display: block; }
-        .swipe-card-fit-badge.expanded .swipe-card-fit-more { visibility: hidden; }
-        .swipe-card-fit-less { display: block; margin-top: 0.5rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+        /* Swap the clamped preview out for the full text rather than stacking both. */
+        .swipe-card-fit-badge.expanded .swipe-card-fit-reason { display: none; }
+        .swipe-card-fit-badge.expanded .swipe-card-fit-more { display: none; }
+        /* The badge must be free to grow while expanded, and the GAPS row below it
+           yields its space -- you're reading the reason, not the gaps. Together
+           these keep the expanded block inside the card instead of overflowing it. */
+        .swipe-card-fit-badge.expanded { overflow: visible; }
+        .swipe-card:has(.swipe-card-fit-badge.expanded) .swipe-card-fit-tags-wrap { display: none; }
+        /* Floated so it pins to the top-right of the expanded block and stays on
+           screen even when the text itself scrolls. */
+        .swipe-card-fit-less { float: right; margin: 0 0 0.25rem 0.5rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
@@ -1540,7 +1554,7 @@
                     <div class="swipe-card-fit-reason-wrap">
                         <span class="swipe-card-fit-reason">${reason}</span>
                         <button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); toggleFitReason(this)">more</button>
-                        <div class="swipe-card-fit-reason-full">${reason}<button type="button" class="swipe-card-fit-less" onclick="event.stopPropagation(); toggleFitReason(this)">less</button></div>
+                        <div class="swipe-card-fit-reason-full"><button type="button" class="swipe-card-fit-less" onclick="event.stopPropagation(); toggleFitReason(this)">less</button>${reason}</div>
                     </div>
                 </div>
                 ${tags ? `
