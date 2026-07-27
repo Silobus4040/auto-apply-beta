@@ -92,8 +92,18 @@
         .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
         .stat-number { color: #000000; font-size: 2rem; font-weight: 900; line-height: 1; }
         .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
-        .stat-view-btn { background: transparent; border: none; color: var(--secondary); font-size: 0.75rem; font-weight: 800; cursor: pointer; padding: 0; border-bottom: 1px dashed var(--secondary); white-space: nowrap; }
-        .stat-view-btn:hover { color: #000; border-color: #000; }
+        .stat-view-btn {
+            height: 26px; padding: 0 0.75rem; border-radius: 999px; font-size: 0.68rem;
+            font-weight: 800; letter-spacing: 0.02em; color: #053b2e; cursor: pointer;
+            white-space: nowrap; display: inline-flex; align-items: center;
+            background: linear-gradient(135deg, rgba(212,255,51,.55), rgba(0,255,204,.45));
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            backdrop-filter: blur(14px) saturate(180%);
+            border: 1px solid rgba(255,255,255,.78);
+            box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 8px 16px -8px rgba(10,15,35,.4);
+            transition: transform .15s ease;
+        }
+        .stat-view-btn:hover { transform: translateY(-1px); }
 
         /* Table Style Dashboard */
         .jobs-table-container {
@@ -848,14 +858,14 @@
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
                     <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
-                    <button class="stat-view-btn" onclick="scrollToApplications()">View &rarr;</button>
+                    <button class="stat-view-btn" style="display: none;" onclick="scrollToApplications()">View</button>
                 </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
                     <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
-                    <button class="stat-view-btn" onclick="scrollToApplications()">View &rarr;</button>
+                    <button class="stat-view-btn" style="display: none;" onclick="scrollToApplications()">View</button>
                 </div>
             </div>
         </div>
@@ -1527,12 +1537,14 @@
             if (error || !jobs || !jobs.length) {
                 if (section) section.style.display = 'none';
                 if (jobList) jobList.style.display = '';
+                setStatViewButtonsVisible(false);
                 return;
             }
             pooledJobs = jobs;
             pooledJobIndex = 0;
             if (section) section.style.display = 'block';
             if (jobList) jobList.style.display = 'none';
+            setStatViewButtonsVisible(true);
             renderSwipeStack();
         }
 
@@ -1988,7 +2000,18 @@
 
         function scrollToApplications() {
             const target = document.getElementById('job-list');
-            if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (!target) return;
+            // job-list is hidden (display:none) whenever the swipe deck has
+            // cards -- that's the only reason this button exists -- so reveal
+            // it before scrolling or scrollIntoView is a silent no-op.
+            target.style.display = '';
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        function setStatViewButtonsVisible(visible) {
+            document.querySelectorAll('.stat-view-btn').forEach(btn => {
+                btn.style.display = visible ? '' : 'none';
+            });
         }
 
         function renderJobs(jobs, isScanning = false) {
@@ -2104,46 +2127,7 @@
                 return;
             }
 
-            const locationsList = (userProfile && userProfile.target_location) ? userProfile.target_location.split(', ') : [];
-            let bannerHtml = '';
-
-            if (isScanning) {
-                const countryStatuses = locationsList.map((country, idx) => {
-                    const lowerCountry = country.toLowerCase();
-                    const hasJobs = jobs.some(j => (j.location || '').toLowerCase().includes(lowerCountry));
-                    if (hasJobs) {
-                        const jobCount = jobs.filter(j => (j.location || '').toLowerCase().includes(lowerCountry)).length;
-                        return `<span style="display: inline-flex; align-items: center; gap: 0.25rem; font-weight:600; color:#047857;">✓ ${country} (${jobCount} found)</span>`;
-                    } else {
-                        const firstUnscannedIdx = locationsList.findIndex(c => !jobs.some(j => (j.location || '').toLowerCase().includes(c.toLowerCase())));
-                        if (idx === firstUnscannedIdx) {
-                            return `<span style="display: inline-flex; align-items: center; gap: 0.25rem; font-weight:700; color:#b45309;"><span style="animation: spin 1.5s linear infinite; display: inline-block;">⚙️</span> ${country}: Scanning...</span>`;
-                        } else {
-                            return `<span style="display: inline-flex; align-items: center; gap: 0.25rem; color:#71717a;">⏳ ${country}</span>`;
-                        }
-                    }
-                }).join('<span style="color:#d1d5db;">|</span>');
-
-                bannerHtml = `
-                    <div class="active-scan-banner" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 0.85rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap;">
-                        <div style="display: flex; align-items: center; gap: 0.75rem; flex-grow: 1;">
-                            <span style="font-size: 1.1rem; animation: spin 2s linear infinite; display: inline-block;">🔄</span>
-                            <div style="display: flex; flex-direction: column; gap: 0.15rem;">
-                                <strong style="color: #000; font-size: 0.88rem;">Rover is actively scanning</strong>
-                                <div style="font-size: 0.8rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
-                                    ${countryStatuses}
-                                </div>
-                            </div>
-                        </div>
-                        <div style="display: flex; align-items: center; gap: 0.75rem;">
-                            <span style="font-size: 0.75rem; background: #fff; border: 1px solid #A7F3D0; color: #047857; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 700; animation: flashBadge 1s ease-in-out infinite alternate; display: inline-flex; align-items: center; gap: 0.25rem;">✨ New jobs arriving</span>
-                            <span style="font-size: 0.75rem; background: #fff; border: 1px solid var(--border); color: #71717A; padding: 0.25rem 0.5rem; border-radius: 6px; font-weight: 750;">15-30m remains</span>
-                        </div>
-                    </div>
-                `;
-            }
-
-            let html = bannerHtml + `
+            let html = `
                 <div class="jobs-table-container">
                     <table class="jobs-table">
                         <thead>
