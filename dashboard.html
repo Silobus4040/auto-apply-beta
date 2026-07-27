@@ -131,13 +131,10 @@
             border-bottom: 2px solid rgba(0, 255, 204, 0.2);
             white-space: nowrap;
         }
-        .jobs-table th:nth-child(1) { width: 15%; }
-        .jobs-table th:nth-child(2) { width: 12%; }
-        .jobs-table th:nth-child(3) { width: 14%; }
-        .jobs-table th:nth-child(4) { width: 20%; }
-        .jobs-table th:nth-child(5) { width: 15%; }
-        .jobs-table th:nth-child(6) { width: 13%; }
-        .jobs-table th:nth-child(7) { width: 11%; }
+        .jobs-table th:nth-child(1) { width: 18%; }
+        .jobs-table th:nth-child(2) { width: 30%; }
+        .jobs-table th:nth-child(3) { width: 26%; }
+        .jobs-table th:nth-child(4) { width: 26%; }
         .jobs-table td {
             padding: 1.35rem 1.5rem;
             border-bottom: 1px solid var(--border);
@@ -164,30 +161,6 @@
             font-size: 0.875rem;
             font-weight: 600;
             margin-top: 0.2rem;
-        }
-        .table-workplace-tag {
-            display: inline-block;
-            padding: 0.25rem 0.7rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
-        .tag-remote {
-            background: rgba(0, 255, 204, 0.12);
-            color: #00997a;
-            border: 1px solid rgba(0, 255, 204, 0.25);
-        }
-        .tag-hybrid {
-            background: rgba(245, 158, 11, 0.12);
-            color: #92400e;
-            border: 1px solid rgba(245, 158, 11, 0.25);
-        }
-        .tag-onsite {
-            background: rgba(99, 102, 241, 0.12);
-            color: #4338ca;
-            border: 1px solid rgba(99, 102, 241, 0.25);
         }
         .table-salary {
             color: #10B981;
@@ -567,12 +540,8 @@
         .swipe-card-geo-badge.geo-unclear { background: #F4F4F5; color: #52525B; border: 1px solid var(--border); }
         .swipe-card-fit-badge { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 12px; margin-bottom: 0.9rem; position: relative; }
         .swipe-card-fit-badge.fit-high { background: #ECFDF5; border: 1px solid #A7F3D0; }
-        .swipe-card-fit-badge.fit-mid { background: #FFFBEB; border: 1px solid #FDE68A; }
-        .swipe-card-fit-badge.fit-low { background: #FEF2F2; border: 1px solid #FECACA; }
         .swipe-card-fit-score { font-size: 1.1rem; font-weight: 900; flex-shrink: 0; }
         .fit-high .swipe-card-fit-score { color: #059669; }
-        .fit-mid .swipe-card-fit-score { color: #B45309; }
-        .fit-low .swipe-card-fit-score { color: #DC2626; }
         .swipe-card-fit-reason-wrap { position: relative; flex: 1; min-width: 0; }
         .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .swipe-card-fit-more { display: none; margin-top: 0.2rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
@@ -962,6 +931,16 @@
             <h2>AI Cover Letter</h2>
             <div class="modal-company" id="cl-company">Tailored for Company Name</div>
             <div class="full-text" id="cl-text" style="font-family: 'Calibri', sans-serif; font-size: 11pt; padding: 2rem; background: white; color: black;">Loading...</div>
+        </div>
+    </div>
+
+    <!-- Screening Answers Modal -->
+    <div class="modal-overlay" id="qa-modal">
+        <div class="desc-modal">
+            <button class="close-modal" onclick="closeModal('qa-modal')">&times;</button>
+            <h2>Your Screening Answers</h2>
+            <div class="modal-company" id="qa-company">Company Name</div>
+            <div id="qa-list" style="display: flex; flex-direction: column; gap: 1.1rem; margin-top: 1rem;"></div>
         </div>
     </div>
 
@@ -1494,6 +1473,7 @@
                     industries: dbJob.industries || '',
                     resumeUrl: dbJob.resume_url || '',
                     coverLetterUrl: dbJob.cover_letter_url || '',
+                    screeningQa: Array.isArray(dbJob.screening_qa) ? dbJob.screening_qa : [],
                     salary_range: dbJob.salary_range || '',
                     workplaceType: dbJob.workplaceType || ''
                 };
@@ -1591,7 +1571,9 @@
             // match-pool-jobs), so there is no "scoring..." pending state to show.
             if (job.fit_score === null || job.fit_score === undefined) return '';
             const score = job.fit_score;
-            const colorClass = score >= 70 ? 'fit-high' : (score >= 40 ? 'fit-mid' : 'fit-low');
+            // Always the same badge color: the % itself is the differentiator,
+            // a lower score shouldn't also read as a red-flag warning color.
+            const colorClass = 'fit-high';
             const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
             const tags = missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`).join('');
             const reason = escapeHtml(job.fit_reason || '');
@@ -2000,6 +1982,12 @@
 
         function scrollToApplications() {
             const target = document.getElementById('job-list');
+            const deck = document.getElementById('swipe-deck-section');
+            // The deck and the table are two views of the same page, never
+            // both at once -- leaving the deck showing left its absolutely
+            // positioned card visually stacked on top of the table below it.
+            if (deck) deck.style.display = 'none';
+            setStatViewButtonsVisible(false);
             if (!target) return;
             // job-list is hidden (display:none) whenever the swipe deck has
             // cards -- that's the only reason this button exists -- so reveal
@@ -2133,11 +2121,9 @@
                         <thead>
                             <tr>
                                 <th>Company</th>
-                                <th>Location</th>
-                                <th>Employment Type</th>
                                 <th>Role</th>
                                 <th>Application Details</th>
-                                <th>RESUME & COVER LETTER</th>
+                                <th>APPLICATION MATERIALS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -2146,28 +2132,18 @@
             jobs.forEach((job, index) => {
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
                 const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : job.status === 'hired' ? '🏆 Hired' : job.status === 'rejected' ? '📪 Rejected' : job.status === 'Needs Human Review' ? '⚠️ Needs Review' : job.status === 'blocked' ? '🧍 Needs you' : '⏳ In Queue';
-                const wpType = (job.workplaceType || '').toLowerCase();
-                const tagClass = wpType.includes('remote') ? 'tag-remote' : wpType.includes('hybrid') ? 'tag-hybrid' : 'tag-onsite';
-                const workplaceLabel = job.workplaceType ? `<span class="table-workplace-tag ${tagClass}" style="margin-top: 0;">${job.workplaceType}</span>` : '';
                 const salaryLabel = job.salary_range ? `<span class="table-salary" style="margin-top: 0.25rem;">${job.salary_range}</span>` : '';
                 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; margin-top: 0.25rem; width: fit-content;">Application Link</a>` : '';
                 const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">View Custom Resume</button>` : '';
                 const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">View Custom Cover Letter</button>` : '';
+                const qaButton = (Array.isArray(job.screeningQa) && job.screeningQa.length) ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openQAModal(${index})">View My Answers</button>` : '';
 
                 html += `
                     <tr>
                         <td data-label="Company">
                             <div style="font-weight: 600; color: #000000;">${job.companyName}</div>
-                        </td>
-                        <td data-label="Location">
-                            <div style="font-weight: 600; color: var(--text-body);">${job.location}</div>
-                        </td>
-                        <td data-label="Employment Type">
-                            <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                ${workplaceLabel}
-                            </div>
                         </td>
                         <td data-label="Role">
                             <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">${job.title}</div>
@@ -2179,10 +2155,11 @@
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                             </div>
                         </td>
-                        <td data-label="Resume & Cover Letter">
+                        <td data-label="Application Materials">
                             <div style="display: flex; flex-direction: column; align-items: flex-start;">
                                 ${resumeButton}
                                 ${coverLetterButton}
+                                ${qaButton}
                             </div>
                         </td>
                     </tr>
@@ -2243,6 +2220,19 @@
             } catch (error) {
                 iframe.src = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
             }
+        }
+
+        function openQAModal(index) {
+            const job = currentJobs[index];
+            document.getElementById('qa-company').innerText = `${job.title} at ${job.companyName}`;
+            const list = document.getElementById('qa-list');
+            list.innerHTML = (job.screeningQa || []).map(qa => `
+                <div>
+                    <div style="font-weight: 700; color: #000; font-size: 0.9rem; margin-bottom: 0.3rem;">${escapeHtml(qa.question)}</div>
+                    <div style="color: var(--text-body); font-size: 0.9rem; line-height: 1.5;">${escapeHtml(qa.answer)}</div>
+                </div>
+            `).join('<hr style="border: none; border-top: 1px solid var(--border); margin: 0;">');
+            document.getElementById('qa-modal').classList.add('active');
         }
 
         async function openSettingsModal() {
