@@ -223,13 +223,13 @@
             border-radius: 4px;
         }
         .status-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.5px; border: 1px solid transparent; }
-        .status-queued { background: rgba(0, 255, 204, 0.08); color: #00b38f; border-color: rgba(0, 255, 204, 0.2); }
-        .status-applied { background: rgba(245, 158, 11, 0.08); color: #b45309; border-color: rgba(245, 158, 11, 0.15); }
-        .status-interview { background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15); }
-        .status-failed { background: rgba(220, 38, 38, 0.08); color: #b91c1c; border-color: rgba(220, 38, 38, 0.18); }
-        .status-blocked { background: rgba(220, 38, 38, 0.06); color: #9a3412; border-color: rgba(154, 52, 18, 0.16); }
-        .status-hired { background: rgba(234, 179, 8, 0.12); color: #a16207; border-color: rgba(234, 179, 8, 0.25); }
-        .status-rejected { background: rgba(100, 116, 139, 0.08); color: #475569; border-color: rgba(100, 116, 139, 0.16); }
+        /* Same neutral black-on-gray styling for every status -- the label
+           text itself (Applied/In Queue/Interview/...) is the differentiator,
+           it doesn't need a color code on top of it (same reasoning already
+           applied to the fit-score badge). */
+        .status-queued, .status-applied, .status-interview, .status-failed, .status-blocked, .status-hired, .status-rejected {
+            background: rgba(0, 0, 0, 0.05); color: #000000; border-color: rgba(0, 0, 0, 0.1);
+        }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
         .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
