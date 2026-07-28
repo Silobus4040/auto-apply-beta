@@ -1817,7 +1817,7 @@
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
                 const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">View Resume</button>` : '';
                 const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">View Cover Letter</button>` : '';
-                const qaButton = (Array.isArray(job.screeningQa) && job.screeningQa.length) ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
+                const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
 
                 html += `
                     <tr>
@@ -1899,12 +1899,14 @@
             const job = currentJobs[index];
             document.getElementById('qa-company').innerText = `${job.title} at ${job.companyName}`;
             const list = document.getElementById('qa-list');
-            list.innerHTML = (job.screeningQa || []).map(qa => `
+            const qa = Array.isArray(job.screeningQa) ? job.screeningQa : [];
+            list.innerHTML = qa.length ? qa.map(pair => `
                 <div>
-                    <div style="font-weight: 700; color: #000; font-size: 0.9rem; margin-bottom: 0.3rem;">${escapeHtml(qa.question)}</div>
-                    <div style="color: var(--text-body); font-size: 0.9rem; line-height: 1.5;">${escapeHtml(qa.answer)}</div>
+                    <div style="font-weight: 700; color: #000; font-size: 0.9rem; margin-bottom: 0.3rem;">${escapeHtml(pair.question)}</div>
+                    <div style="color: var(--text-body); font-size: 0.9rem; line-height: 1.5;">${escapeHtml(pair.answer)}</div>
                 </div>
-            `).join('<hr style="border: none; border-top: 1px solid var(--border); margin: 0;">');
+            `).join('<hr style="border: none; border-top: 1px solid var(--border); margin: 0;">')
+              : `<div style="color: var(--text-body); font-size: 0.9rem;">No submitted-form data was captured for this application.</div>`;
             document.getElementById('qa-modal').classList.add('active');
         }
 
