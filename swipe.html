@@ -767,12 +767,12 @@
                 <button class="hamburger-btn" onclick="toggleSidebar()" style="margin-left: auto;" aria-label="Close Menu">✕</button>
             </div>
             <div class="sidebar-nav">
-                <div class="sidebar-nav-item active">
+                <a class="sidebar-nav-item" href="dashboard.html" style="text-decoration: none; color: inherit;">
                     <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
-                </div>
-                <a class="sidebar-nav-item" href="swipe.html" style="text-decoration: none; color: inherit;">
-                    <i data-lucide="layers" class="sidebar-nav-icon"></i> Job deck
                 </a>
+                <div class="sidebar-nav-item active">
+                    <i data-lucide="layers" class="sidebar-nav-icon"></i> Job deck
+                </div>
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> AI inbox
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
@@ -805,7 +805,7 @@
 
         <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Dashboard</h1>
+            <h1 class="page-title">Job Deck</h1>
             <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">🚀 Upgrade</a>
         </div>
 
@@ -830,70 +830,40 @@
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
                     <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
-                    <button class="stat-view-btn" onclick="scrollToApplications()">View</button>
+                    <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
                 </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
                     <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
-                    <button class="stat-view-btn" onclick="scrollToApplications()">View</button>
+                    <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
                 </div>
             </div>
         </div>
 
 
-        <!-- Market Intelligence / Skill Gap Analyzer -->
-        <div id="market-intel-section" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
-            <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
-            <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
-            <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
-                A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: var(--accent);">Skill Gap</strong>. 
-                We analyzed <strong id="mi-total-analyzed" style="color: #000000;">0</strong> jobs for you. Here is exactly what the market is demanding that you are currently missing.
-            </p>
-            
-            <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
-                <div>
-                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Top Missing Skills</h4>
-                    <div id="mi-skills-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                        <!-- JS injected skills -->
-                    </div>
-                </div>
-            </div>
 
-            <div style="margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
-                <button onclick="document.getElementById('skill-gap-modal').classList.add('active')" style="background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary); transition: color 0.2s;">🔍 Curious to see the actual postings? Click here</button>
+        <!-- Swipe Deck (pre-scraped job pool) -->
+        <div id="swipe-deck-section" style="display: none;">
+            <div class="swipe-stack" id="swipe-stack"></div>
+            <div class="swipe-actions">
+                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip"><span class="swipe-btn-ico">✕</span> Skip</button>
+                <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply"><span class="swipe-btn-ico">✓</span> Apply</button>
             </div>
         </div>
 
-        <!-- Info Strip (Search Criteria) -->
-        <div class="info-strip" id="info-strip" style="margin-top: 1.5rem;">
-            <div class="info-strip-cell">
-                <span class="info-strip-label">Roles</span>
-                <span class="info-strip-value" id="pref-roles">Loading...</span>
-            </div>
-            <div class="info-strip-cell">
-                <span class="info-strip-label">Countries</span>
-                <span class="info-strip-value" id="pref-countries">Loading...</span>
-            </div>
-            <div class="info-strip-cell">
-                <span class="info-strip-label">Type</span>
-                <span class="info-strip-value" id="pref-workplaces">Loading...</span>
-            </div>
-            <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: none; gap: 0.75rem; flex-wrap: wrap;">
-                <div id="inbox-banner" style="display: none;">
-                    <button onclick="openInboxModal()" style="background: var(--primary); color: #000000; border: none; font-size: 0.75rem; padding: 0.45rem 1rem; border-radius: 6px; font-weight: 700; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Enable Auto-Apply &rarr;</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job List -->
-        <div id="job-list">
+        <!-- Shown instead of the deck when the pool has nothing left to offer. On
+             the old combined page this slot was filled by the applications table,
+             which now lives on dashboard.html. -->
+        <div id="deck-empty-state" style="display: none;">
             <div class="empty-state">
-                <h3>No jobs loaded yet</h3>
-                <p>Jobs will appear here once they are processed by the automated backend engine.</p>
+                <h3>No new jobs to review</h3>
+                <p>Rover is still scanning. New matches land here as soon as they're found — check your <a href="dashboard.html" style="color: var(--secondary); font-weight: 700;">applications</a> in the meantime.</p>
             </div>
         </div>
+
+
     </div> <!-- end container -->
         </div> <!-- end app-main -->
     </div> <!-- end app-layout -->
@@ -905,36 +875,6 @@
             <h2 id="modal-title">Job Title</h2>
             <div class="modal-company" id="modal-company">Company Name</div>
             <div class="full-text" id="modal-text">Loading...</div>
-        </div>
-    </div>
-
-    <!-- Resume Modal -->
-    <div class="modal-overlay" id="resume-modal">
-        <div class="desc-modal" style="max-width: 900px; width: 90%; max-height: 90vh; display: flex; flex-direction: column;">
-            <button class="close-modal" onclick="closeModal('resume-modal')">&times;</button>
-            <h2 id="resume-modal-title">Tailored Resume</h2>
-            <div class="modal-company" id="resume-modal-company">Company Name</div>
-            <iframe id="resume-iframe" src="" style="width: 100%; height: 70vh; border: none; background: white; margin-top: 1rem;"></iframe>
-        </div>
-    </div>
-
-    <!-- Cover Letter Modal -->
-    <div class="modal-overlay" id="cl-modal">
-        <div class="desc-modal">
-            <button class="close-modal" onclick="closeModal('cl-modal')">&times;</button>
-            <h2>AI Cover Letter</h2>
-            <div class="modal-company" id="cl-company">Tailored for Company Name</div>
-            <div class="full-text" id="cl-text" style="font-family: 'Calibri', sans-serif; font-size: 11pt; padding: 2rem; background: white; color: black;">Loading...</div>
-        </div>
-    </div>
-
-    <!-- Screening Answers Modal -->
-    <div class="modal-overlay" id="qa-modal">
-        <div class="desc-modal">
-            <button class="close-modal" onclick="closeModal('qa-modal')">&times;</button>
-            <h2>Your Screening Answers</h2>
-            <div class="modal-company" id="qa-company">Company Name</div>
-            <div id="qa-list" style="display: flex; flex-direction: column; gap: 1.1rem; margin-top: 1rem;"></div>
         </div>
     </div>
 
@@ -967,30 +907,6 @@
         </div>
     </div>
 
-    <!-- Skill Gap / Receipts Modal -->
-    <div class="modal-overlay" id="skill-gap-modal">
-        <div class="desc-modal" style="max-width: 1000px; width: 95%; max-height: 90vh; display: flex; flex-direction: column; padding: 2.5rem;">
-            <button class="close-modal" onclick="closeModal('skill-gap-modal')">&times;</button>
-            <h2 style="font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Evaluated Job Postings</h2>
-            <p style="color: var(--text-body); font-size: 0.9rem; margin-bottom: 1.5rem;">These are the real jobs we evaluated that did not match your profile due to missing skill requirements.</p>
-            
-            <div class="jobs-table-container" style="margin-bottom: 0; box-shadow: none;">
-                <table class="jobs-table" style="min-width: 900px;">
-                    <thead>
-                        <tr>
-                            <th style="width: 20%;">Company & Role</th>
-                            <th style="width: 20%;">Missing Skills</th>
-                            <th style="width: 50%;">AI Rejection Reason</th>
-                            <th style="width: 10%;">Link</th>
-                        </tr>
-                    </thead>
-                    <tbody id="mi-jobs-tbody">
-                        <!-- JS injected rows -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
 
     <!-- Queue Modal -->
     <div class="modal-overlay" id="queue-modal">
@@ -1199,7 +1115,7 @@
             }
 
             if (profile.is_activated) {
-                fetchPoolCount();
+                fetchPooledJobs(user.id);
             }
         })();
 
@@ -1476,10 +1392,315 @@
             currentJobs = dedupeJobs(currentJobs);
 
             updateStats(currentJobs, user.id);
-            renderJobs(currentJobs, isReallyScanning);
             updateInboxBannerVisibility();
         }
 
+        // ---- Swipe deck (pre-scraped job pool) ----
+        let pooledJobs = [];
+        let pooledJobIndex = 0;
+        const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
+
+        // match-pool-jobs used to return a bare array; it now returns
+        // { jobs, total_available }. Accept BOTH shapes so the frontend and the
+        // edge function can be deployed in either order without a broken window.
+        function unwrapPoolResponse(data) {
+            if (Array.isArray(data)) return { jobs: data, totalAvailable: null };
+            if (data && Array.isArray(data.jobs)) {
+                return {
+                    jobs: data.jobs,
+                    totalAvailable: typeof data.total_available === 'number' ? data.total_available : null,
+                };
+            }
+            return { jobs: [], totalAvailable: null };
+        }
+
+        async function fetchPooledJobs(userId) {
+            const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+            const { jobs, totalAvailable } = unwrapPoolResponse(data);
+            if (totalAvailable !== null) {
+                poolAvailableCount = totalAvailable;
+                applyPoolAvailableToStats();
+            }
+            const section = document.getElementById('swipe-deck-section');
+            const emptyState = document.getElementById('deck-empty-state');
+            if (error || !jobs || !jobs.length) {
+                if (section) section.style.display = 'none';
+                if (emptyState) emptyState.style.display = '';
+                return;
+            }
+            pooledJobs = jobs;
+            pooledJobIndex = 0;
+            if (section) section.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'none';
+            renderSwipeStack();
+        }
+
+        // Quietly top up the deck after a swipe: match-pool-jobs assigns more
+        // cards (and scores them) server-side before the buffer runs low, this
+        // just picks up anything new without disturbing the cards already shown.
+        async function refreshDeckSilently() {
+            const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+            if (error) return;
+            const { jobs, totalAvailable } = unwrapPoolResponse(data);
+            if (totalAvailable !== null) {
+                poolAvailableCount = totalAvailable;
+                applyPoolAvailableToStats();
+            }
+            if (!Array.isArray(jobs)) return;
+            const existingIds = new Set(pooledJobs.map(j => j.id));
+            const newOnes = jobs.filter(j => !existingIds.has(j.id));
+            if (newOnes.length) {
+                pooledJobs.push(...newOnes);
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        function buildGeoBadge(job) {
+            const scope = job.remote_geo_scope;
+            if (!scope || scope === 'not_remote') return '';
+            if (scope === 'anywhere') {
+                return `<div class="swipe-card-geo-badge geo-anywhere">🌍 Remote — Anywhere</div>`;
+            }
+            if (scope === 'restricted') {
+                const regions = Array.isArray(job.remote_geo_regions) ? job.remote_geo_regions.join(', ') : '';
+                return `<div class="swipe-card-geo-badge geo-restricted">📍 Remote — ${escapeHtml(regions || 'Restricted')} only</div>`;
+            }
+            return `<div class="swipe-card-geo-badge geo-unclear">❓ Remote scope unclear — verify with employer</div>`;
+        }
+
+        function buildFitScoreBadge(job) {
+            // A card only ever reaches the deck once already scored (see
+            // match-pool-jobs), so there is no "scoring..." pending state to show.
+            if (job.fit_score === null || job.fit_score === undefined) return '';
+            const score = job.fit_score;
+            // Always the same badge color: the % itself is the differentiator,
+            // a lower score shouldn't also read as a red-flag warning color.
+            const colorClass = 'fit-high';
+            const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
+            const tags = missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`).join('');
+            const reason = escapeHtml(job.fit_reason || '');
+            return `
+                <div class="swipe-card-fit-badge ${colorClass}">
+                    <span class="swipe-card-fit-score">${score}%</span>
+                    <div class="swipe-card-fit-reason-wrap">
+                        <span class="swipe-card-fit-reason">${reason}</span>
+                        <button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); toggleFitReason(this)">more</button>
+                        <div class="swipe-card-fit-reason-full"><button type="button" class="swipe-card-fit-less" onclick="event.stopPropagation(); toggleFitReason(this)">less</button>${reason}</div>
+                    </div>
+                </div>
+                ${tags ? `
+                <div class="swipe-card-fit-tags-wrap">
+                    <span class="swipe-card-fit-tags-label">Gaps</span>
+                    <div class="swipe-card-fit-tags">${tags}</div>
+                    <button type="button" class="swipe-card-tags-more" onclick="event.stopPropagation(); toggleFitTags(this)">more</button>
+                </div>` : ''}
+            `;
+        }
+
+        function renderSwipeStack() {
+            const stack = document.getElementById('swipe-stack');
+            if (!stack) return;
+            stack.innerHTML = '';
+
+            if (pooledJobIndex >= pooledJobs.length) {
+                stack.innerHTML = `
+                    <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center;">
+                        <div>
+                            <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">✅</span>
+                            <h4 style="font-weight: 800; margin-bottom: 0.35rem;">You're all caught up</h4>
+                            <p style="color: #71717a; font-size: 0.85rem;">We'll show more as Rover finds them.</p>
+                        </div>
+                    </div>`;
+                return;
+            }
+
+            // Render up to 3 cards stacked, current one on top and interactive.
+            const visible = pooledJobs.slice(pooledJobIndex, pooledJobIndex + 3).reverse();
+            visible.forEach((job, i) => {
+                const depthFromTop = visible.length - 1 - i; // 0 = the current, draggable card
+                const card = document.createElement('div');
+                card.className = 'swipe-card';
+                const scale = 1 - depthFromTop * 0.03;
+                const offsetY = depthFromTop * 10;
+                card.style.transform = `translateY(${offsetY}px) scale(${scale})`;
+                card.style.zIndex = String(10 - depthFromTop);
+
+                const placeText = (Array.isArray(job.workplace_locations) && job.workplace_locations.length)
+                    ? job.workplace_locations.join(', ')
+                    : (job.location || '');
+                const locationLine = [placeText, job.workplace_type].filter(Boolean).join(' · ');
+                const jobIndexInPool = pooledJobIndex + (visible.length - 1 - i);
+                card.innerHTML = `
+                    <div class="swipe-card-stamp pass">Skip</div>
+                    <div class="swipe-card-stamp apply">Apply</div>
+                    <div class="swipe-card-header">
+                        ${job.company_domain ? `<img class="swipe-card-logo" src="https://www.google.com/s2/favicons?domain=${escapeHtml(job.company_domain)}&sz=128" onerror="this.remove()" alt="">` : ''}
+                        <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
+                    </div>
+                    <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
+                    <div class="swipe-card-info">
+                        ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
+                        <div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${job.salary_range ? escapeHtml(job.salary_range) : 'Salary not stated'}</span></div>
+                    </div>
+                    ${buildGeoBadge(job)}
+                    ${buildFitScoreBadge(job)}
+                    <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Read full description →</button>
+                `;
+
+                if (depthFromTop === 0) {
+                    attachSwipeHandlers(card, job);
+                }
+                stack.appendChild(card);
+            });
+
+            // Only offer "more" on reasons that actually overflow the 3-line clamp.
+            requestAnimationFrame(() => {
+                stack.querySelectorAll('.swipe-card-fit-reason').forEach(el => {
+                    if (el.scrollHeight - el.clientHeight > 1) el.classList.add('is-clamped');
+                });
+                stack.querySelectorAll('.swipe-card-fit-tags').forEach(el => {
+                    if (el.scrollWidth - el.clientWidth > 1) el.classList.add('is-clamped');
+                });
+            });
+        }
+
+        function toggleFitReason(btn) {
+            const badge = btn.closest('.swipe-card-fit-badge');
+            if (badge) badge.classList.toggle('expanded');
+        }
+
+        function toggleFitTags(btn) {
+            const wrap = btn.closest('.swipe-card-fit-tags-wrap');
+            const tags = wrap && wrap.querySelector('.swipe-card-fit-tags');
+            if (!tags) return;
+            const expanded = tags.classList.toggle('expanded');
+            btn.textContent = expanded ? 'less' : 'more';
+        }
+
+        function openSwipeJobDescription(index) {
+            const job = pooledJobs[index];
+            if (!job) return;
+            document.getElementById('modal-title').innerText = job.title || 'Role';
+            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-text').innerText = job.description_text || 'No description available.';
+            document.getElementById('desc-modal').classList.add('active');
+        }
+
+        function attachSwipeHandlers(card, job) {
+            let startX = 0, startY = 0, currentX = 0, dragging = false;
+            const passStamp = card.querySelector('.swipe-card-stamp.pass');
+            const applyStamp = card.querySelector('.swipe-card-stamp.apply');
+
+            const onDown = (clientX, clientY) => {
+                dragging = true;
+                startX = clientX;
+                startY = clientY;
+                card.style.transition = 'none';
+            };
+            const onMove = (clientX, clientY) => {
+                if (!dragging) return;
+                currentX = clientX - startX;
+                const rotate = currentX * 0.05;
+                card.style.transform = `translateX(${currentX}px) translateY(${(clientY - startY) * 0.3}px) rotate(${rotate}deg)`;
+                const intensity = Math.min(Math.abs(currentX) / 100, 1);
+                if (currentX > 0) {
+                    applyStamp.style.opacity = intensity;
+                    passStamp.style.opacity = 0;
+                } else {
+                    passStamp.style.opacity = intensity;
+                    applyStamp.style.opacity = 0;
+                }
+            };
+            const onUp = () => {
+                if (!dragging) return;
+                dragging = false;
+                card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+                if (Math.abs(currentX) > 100) {
+                    finishSwipe(card, job, currentX > 0 ? 'apply' : 'skip');
+                } else {
+                    card.style.transform = '';
+                    passStamp.style.opacity = 0;
+                    applyStamp.style.opacity = 0;
+                }
+                currentX = 0;
+            };
+
+            card.addEventListener('mousedown', e => onDown(e.clientX, e.clientY));
+            window.addEventListener('mousemove', e => { if (dragging) onMove(e.clientX, e.clientY); });
+            window.addEventListener('mouseup', onUp);
+
+            card.addEventListener('touchstart', e => onDown(e.touches[0].clientX, e.touches[0].clientY), { passive: true });
+            card.addEventListener('touchmove', e => { if (dragging) onMove(e.touches[0].clientX, e.touches[0].clientY); }, { passive: true });
+            card.addEventListener('touchend', onUp);
+        }
+
+        function swipeCurrentCard(decision) {
+            const stack = document.getElementById('swipe-stack');
+            if (!stack) return;
+            const topCard = stack.lastElementChild;
+            if (!topCard) return;
+            const job = pooledJobs[pooledJobIndex];
+            if (!job) return;
+            finishSwipe(topCard, job, decision);
+        }
+
+        async function finishSwipe(card, job, decision) {
+            card.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+            card.style.transform = decision === 'apply'
+                ? 'translateX(600px) rotate(20deg)'
+                : 'translateX(-600px) rotate(-20deg)';
+            card.style.opacity = '0';
+
+            pooledJobIndex++;
+            setTimeout(renderSwipeStack, 280); // optimistic advance, no wait on the network calls below
+
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+
+            if (decision === 'apply') {
+                fetch(SWIPE_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: user.id, job_pool_id: job.id })
+                }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
+
+                // Record the swipe ourselves, right away. n8n's own pipeline
+                // (fit-check -> resume tailoring -> cover letter -> PDFs)
+                // takes ~20-25 real seconds and only records the swipe as
+                // its very last step -- a refresh inside that window used to
+                // show the job as never-swiped. Same upsert key as the skip
+                // path below, so n8n's later write is just a harmless no-op
+                // repeat. supabase-js's builder is a thenable, not a real
+                // Promise -- it has no .catch(), so this must use await +
+                // try/catch (same shape as skip, which has always worked).
+                try {
+                    await supabaseClient.from('user_job_swipes').upsert(
+                        { user_id: user.id, job_pool_id: job.id, decision: 'apply' },
+                        { onConflict: 'user_id,job_pool_id' }
+                    );
+                } catch (err) {
+                    console.error('Failed to record swipe', err);
+                }
+            } else {
+                await supabaseClient.from('user_job_swipes').upsert(
+                    { user_id: user.id, job_pool_id: job.id, decision: 'skip' },
+                    { onConflict: 'user_id,job_pool_id' }
+                );
+            }
+
+            // The swipe row is committed by this point, so recount now rather
+            // than waiting on the realtime event from job_applications -- that
+            // only fires once n8n's tailoring pipeline finishes, and never at
+            // all when it fails.
+            updateStats(currentJobs, user.id);
+
+            refreshDeckSilently();
+        }
 
         function updateInboxBannerVisibility() {
             const wrap = document.getElementById('test-webhook-banner');
@@ -1507,27 +1728,6 @@
                 button.onclick = openInboxModal;
                 button.style.textTransform = 'uppercase';
                 button.style.fontWeight = '750';
-            }
-        }
-
-        // The swipe deck itself lives on swipe.html now, but the JOBS FOUND stat
-        // still needs match-pool-jobs' total_available count. Same call this page
-        // has always made -- it just no longer renders cards from the response.
-        function unwrapPoolResponse(data) {
-            if (Array.isArray(data)) return { totalAvailable: null };
-            if (data && typeof data.total_available === 'number') {
-                return { totalAvailable: data.total_available };
-            }
-            return { totalAvailable: null };
-        }
-
-        async function fetchPoolCount() {
-            const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
-            if (error) return;
-            const { totalAvailable } = unwrapPoolResponse(data);
-            if (totalAvailable !== null) {
-                poolAvailableCount = totalAvailable;
-                applyPoolAvailableToStats();
             }
         }
 
@@ -1579,341 +1779,34 @@
                 document.getElementById('stat-queued').textContent = queued;
             }
 
-            fetchMarketIntelligence(userId);
         }
 
-        async function fetchMarketIntelligence(userId) {
-            try {
-                const { data: rejectedJobs, error } = await supabaseClient
-                    .from('rejected_jobs')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                const miSection = document.getElementById('market-intel-section');
-                if (!rejectedJobs || rejectedJobs.length === 0) {
-                    miSection.style.display = 'none';
-                    return;
-                }
-
-                miSection.style.display = 'block';
-                document.getElementById('mi-total-analyzed').textContent = rejectedJobs.length;
-
-                const skillCounts = {};
-                rejectedJobs.forEach(job => {
-                    if (job.missing_skills && Array.isArray(job.missing_skills)) {
-                        job.missing_skills.forEach(skill => {
-                            const s = skill.trim();
-                            if (s) {
-                                skillCounts[s] = (skillCounts[s] || 0) + 1;
-                            }
-                        });
-                    }
-                });
-
-                const sortedSkills = Object.entries(skillCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
-
-                if (sortedSkills.length === 0) {
-                    miSection.style.display = 'none';
-                    return;
-                }
-
-                const skillsListHtml = sortedSkills.map(([skill, count]) => {
-                    const percentage = Math.round((count / rejectedJobs.length) * 100);
-                    return `
-                        <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px;">
-                            <span style="font-weight: 700; color: #000000; font-size: 0.9rem;">${skill}</span>
-                            <span style="background: rgba(255, 107, 74, 0.1); color: var(--accent); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">Missed in ${percentage}% of jobs</span>
-                        </div>
-                    `;
-                }).join('');
-
-                document.getElementById('mi-skills-list').innerHTML = skillsListHtml;
-
-                const tbody = document.getElementById('mi-jobs-tbody');
-                tbody.innerHTML = rejectedJobs.map(job => {
-                    const skillsStr = (job.missing_skills || []).join(', ');
-                    const url = job.apply_url && job.apply_url !== '#' ? job.apply_url : '#';
-                    return `
-                        <tr>
-                            <td>
-                                <strong style="color: #000; display: block;">${job.company || 'Unknown'}</strong>
-                                <span style="font-weight: 600; font-size: 0.8rem; color: #52525B;">${job.job_title || 'Unknown'}</span>
-                            </td>
-                            <td style="color: var(--accent); font-weight: 600; font-size: 0.8rem;">${skillsStr || 'None listed'}</td>
-                            <td style="font-size: 0.8rem; color: #3f3f46; line-height: 1.5;">${job.reason || 'No reason provided.'}</td>
-                            <td>
-                                ${url !== '#' ? `<a href="${url}" target="_blank" class="table-btn table-btn-sm" style="background: var(--primary); color: #000; border: none; padding: 0.4rem 0.8rem;">View Job</a>` : '<span style="color: #A1A1AA; font-size: 0.8rem;">N/A</span>'}
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
-
-            } catch (err) {
-                console.error("Error fetching market intelligence:", err);
-            }
-        }
 
         function setupRealtime(userId) {
             supabaseClient.channel('jobs-updates')
               .on('postgres_changes', { event: '*', schema: 'public', table: 'job_applications', filter: `user_id=eq.${userId}` }, payload => fetchUserJobs())
-              .on('postgres_changes', { event: '*', schema: 'public', table: 'job_fit_scores', filter: `user_id=eq.${userId}` }, payload => {})
+              .on('postgres_changes', { event: '*', schema: 'public', table: 'job_fit_scores', filter: `user_id=eq.${userId}` }, payload => onFitScoreUpdate(payload))
               .subscribe();
+        }
+
+        function onFitScoreUpdate(payload) {
+            const row = payload.new;
+            if (!row || !row.job_pool_id) return;
+            const job = pooledJobs.find(j => j.id === row.job_pool_id);
+            if (!job) return;
+            job.fit_score = row.fit_score;
+            job.fit_reason = row.reason;
+            job.fit_missing_skills = row.missing_skills;
+            renderSwipeStack();
         }
 
         let currentResumeObjectUrl = null;
 
+        // Market intel lives on the dashboard now; this page only swipes.
         function goToMarketIntel() {
-            const mi = document.getElementById('market-intel-section');
-            if (mi && mi.style.display !== 'none') {
-                mi.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert("📊 Market intel builds up as Rover reviews jobs that don't match your resume. Nothing to show yet — check back after your next scan.");
-            }
+            window.location.href = 'dashboard.html#market-intel-section';
         }
 
-        function scrollToApplications() {
-            const target = document.getElementById('job-list');
-            if (!target) return;
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        function renderJobs(jobs, isScanning = false) {
-            const container = document.getElementById('job-list');
-            if (!jobs.length) {
-                if (isScanning) {
-                    const rolesList = (userProfile && userProfile.target_job_titles) ? userProfile.target_job_titles.split(', ') : [];
-                    const locationsList = (userProfile && userProfile.target_location) ? userProfile.target_location.split(', ') : [];
-                    const workplaceList = (userProfile && userProfile.workplace_type) ? userProfile.workplace_type.split(', ') : [];
-                    const userEmail = (userProfile && userProfile.Application_email) ? userProfile.Application_email : currentUserEmail;
-
-                    const rolesBadgesHtml = rolesList.map(r => `<span style="background: rgba(16, 185, 129, 0.08); color: #047857; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">${r}</span>`).join(' ');
-                    const locationText = locationsList.join(', ');
-                    const criteriaBadgesHtml = workplaceList.length > 0 ? `<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; display: inline-block;">${workplaceList.join(' · ')}</span>` : '';
-
-                    container.innerHTML = `
-                        <div class="active-scan-container" style="display: flex; flex-direction: column; gap: 1.5rem; max-width: 800px; margin: 0 auto; text-align: left;">
-                            
-                            <!-- 1. Confirmation Banner -->
-                            <div style="background: #ECFDF5; border: 1px solid #A7F3D0; border-radius: 16px; padding: 1.5rem; display: flex; gap: 1rem; align-items: flex-start;">
-                                <div style="width: 24px; height: 24px; background: #10B981; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem; flex-shrink: 0; margin-top: 0.15rem;">✓</div>
-                                <div style="flex-grow: 1;">
-                                    <h4 style="font-size: 1.05rem; font-weight: 800; color: #064E3B; margin-bottom: 0.25rem; text-transform: none;">Your search criteria is saved</h4>
-                                    <p style="font-size: 0.9rem; color: #065F46; line-height: 1.5; margin-bottom: 0.75rem;">Rover is now scanning the internet for your target roles across ${locationText || 'your target countries'}.</p>
-                                    <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center;">
-                                        ${rolesBadgesHtml}
-                                        ${criteriaBadgesHtml}
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 2. Time Expectation Card -->
-                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; display: flex; gap: 0.75rem; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
-                                <span style="font-size: 1.2rem; flex-shrink: 0;">⏱️</span>
-                                <span style="font-size: 0.9rem; color: #3f3f46; font-weight: 500;">
-                                    We'll email you at <strong>${userEmail}</strong> when they're ready.
-                                </span>
-                            </div>
-
-                            <!-- 3. Honest status - no fake step-by-step progress, since we
-                                 don't actually have a real backend signal for which step
-                                 the scan is on. Claiming otherwise was misleading. -->
-                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem 2rem; box-shadow: 0 4px 20px rgba(0,0,0,0.02); display: flex; gap: 1rem; align-items: center;">
-                                <span style="animation: spin 1.5s linear infinite; display: inline-block; font-size: 1.3rem;">⚙️</span>
-                                <div>
-                                    <h4 style="font-size: 0.95rem; font-weight: 750; color: #000; margin-bottom: 0.25rem;">Rover is actively searching</h4>
-                                    <p style="font-size: 0.85rem; color: #71717a; line-height: 1.5;">This can take anywhere from a few minutes to a few hours depending on job market activity for your target roles. We'll email you the moment matches are found - no need to keep this page open.</p>
-                                </div>
-                            </div>
-
-                            <!-- 4. While You Wait Cards -->
-                            <div>
-                                <h3 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 850; color: #71717a; margin-bottom: 1rem; letter-spacing: 0.8px;">While you wait</h3>
-                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem;">
-                                    
-                                    <!-- Card 1 -->
-                                    <div onclick="if(userProfile && userProfile.master_resume) { document.getElementById('resume-modal').classList.add('active'); document.getElementById('resume-iframe').srcdoc = userProfile.master_resume; }" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
-                                        <span style="font-size: 1.5rem; display: block; margin-bottom: 0.75rem;">📝</span>
-                                        <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.35rem;">Review your resume</h4>
-                                        <p style="font-size: 0.8rem; color: #71717a; line-height: 1.4;">Better resume = better AI matches. Check it's up to date.</p>
-                                    </div>
-
-                                    <!-- Card 2 -->
-                                    <div onclick="openSettingsModal()" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
-                                        <span style="font-size: 1.5rem; display: block; margin-bottom: 0.75rem;">⚙️</span>
-                                        <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.35rem;">Refine criteria</h4>
-                                        <p style="font-size: 0.8rem; color: #71717a; line-height: 1.4;">Add salary filters or seniority levels to narrow results.</p>
-                                    </div>
-
-                                    <!-- Card 3 -->
-                                    <div onclick="goToMarketIntel()" style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.borderColor='#10B981'; this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)'; this.style.transform='none'">
-                                        <span style="font-size: 1.5rem; display: block; margin-bottom: 0.75rem;">📊</span>
-                                        <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.35rem;">See market intel</h4>
-                                        <p style="font-size: 0.8rem; color: #71717a; line-height: 1.4;">What skills are most in demand for your target roles.</p>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- 5. Email Notification Loop -->
-                            <div style="background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 1px 3px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 1rem;">
-                                <div>
-                                    <h4 style="font-size: 0.9rem; font-weight: 800; color: #000; margin-bottom: 0.15rem;">Get notified when jobs are ready</h4>
-                                    <p style="font-size: 0.8rem; color: #71717a;">We'll send results to <strong>${userEmail}</strong></p>
-                                </div>
-                                <span style="background: #F4F4F5; border: 1px solid var(--border); color: #27272A; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.4rem;">
-                                    <span style="color: #10B981; font-weight: 900;">✓</span> Email confirmed
-                                </span>
-                            </div>
-
-                        </div>`;
-                } else if (userProfile && !userProfile.is_activated) {
-                    // Never activated - no scan has ever run, so "we completed the
-                    // live scan" would be a false claim. Say so honestly instead.
-                    container.innerHTML = `
-                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
-                            <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔒</span>
-                            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">Nothing Here Yet</h3>
-                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto; line-height: 1.65; font-weight: 500;">
-                                Enter your invite code above to activate Rover and run your first search.
-                            </p>
-                        </div>`;
-                } else {
-                    container.innerHTML = `
-                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
-                            <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
-                            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">No Matching Jobs Found Yet</h3>
-                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.65; font-weight: 500;">
-                                We completed the live scan, but found no active listings matching your criteria.
-                            </p>
-                            <a href="onboarding.html?edit=true" class="table-btn" style="font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 3px 3px 0px var(--border); border-radius: 50px;">⚙ Adjust Target Settings</a>
-                        </div>`;
-                }
-                return;
-            }
-
-            let html = `
-                <div class="jobs-table-container">
-                    <table class="jobs-table">
-                        <thead>
-                            <tr>
-                                <th>Company / Role</th>
-                                <th>Career Page</th>
-                                <th>Custom Resume &amp; Cover Letter</th>
-                                <th>Status</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-            `;
-
-            jobs.forEach((job, index) => {
-                const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
-                const statusLabel = job.status === 'applied' ? '✅ Applied' : job.status === 'interview' ? '🎉 Interview' : job.status === 'hired' ? '🏆 Hired' : job.status === 'rejected' ? '📪 Rejected' : job.status === 'Needs Human Review' ? '⚠️ Needs Review' : job.status === 'blocked' ? '🧍 Needs you' : '⏳ In Queue';
-                const salaryLabel = job.salary_range ? `<span class="table-salary" style="margin-top: 0.25rem;">${job.salary_range}</span>` : '';
-                
-                const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
-                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; margin-top: 0.25rem; width: fit-content;">Application Link</a>` : '';
-                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">View Custom Resume</button>` : '';
-                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">View Custom Cover Letter</button>` : '';
-                const qaButton = (Array.isArray(job.screeningQa) && job.screeningQa.length) ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
-
-                html += `
-                    <tr>
-                        <td data-label="Company / Role">
-                            <div style="font-weight: 600; color: #000000;">${job.companyName}</div>
-                            <div style="font-weight: 600; color: #000000; margin-top: 0.35rem;">${job.title}</div>
-                            ${salaryLabel}
-                        </td>
-                        <td data-label="Career Page">
-                            ${jobLinkButton}
-                        </td>
-                        <td data-label="Custom Resume & Cover Letter">
-                            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                ${resumeButton}
-                                ${coverLetterButton}
-                            </div>
-                        </td>
-                        <td data-label="Status">
-                            <div style="display: flex; flex-direction: column; align-items: flex-start;">
-                                <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
-                                ${qaButton}
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            });
-            
-            if (isScanning) {
-                html += `
-                    <tr class="skeleton-row" style="opacity: 0.55; animation: pulseOpacity 1.5s ease-in-out infinite alternate;">
-                        <td>
-                            <div style="height: 16px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 80%;"></div>
-                        </td>
-                        <td>
-                            <div style="height: 16px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 60%;"></div>
-                        </td>
-                        <td>
-                            <div style="height: 22px; background: #e5e7eb; border-radius: 50px; width: 70px;"></div>
-                        </td>
-                        <td>
-                            <div style="height: 16px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 90%;"></div>
-                            <div style="height: 12px; background: #e5e7eb; border-radius: 4px; width: 40%; margin-top: 0.25rem;"></div>
-                        </td>
-                        <td>
-                            <div style="height: 22px; background: #e5e7eb; border-radius: 50px; width: 90px;"></div>
-                        </td>
-                        <td>
-                            <div style="height: 28px; background: #e5e7eb; border-radius: 6px; width: 120px;"></div>
-                        </td>
-                    </tr>
-                `;
-            }
-
-            html += `
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            container.innerHTML = html;
-        }
-
-        async function openDocument(index, type) {
-            const job = currentJobs[index];
-            document.getElementById('resume-modal-title').innerText = type === 'coverLetter' ? `Cover Letter for ${job.title}` : `Resume for ${job.title}`;
-            document.getElementById('resume-modal-company').innerText = job.companyName;
-
-            if (currentResumeObjectUrl) URL.revokeObjectURL(currentResumeObjectUrl);
-
-            const iframe = document.getElementById('resume-iframe');
-            iframe.src = '';
-            document.getElementById('resume-modal').classList.add('active');
-
-            try {
-                const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
-                const response = await fetch(docUrl);
-                const blob = await response.blob();
-                currentResumeObjectUrl = URL.createObjectURL(blob);
-                iframe.src = currentResumeObjectUrl;
-            } catch (error) {
-                iframe.src = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
-            }
-        }
-
-        function openQAModal(index) {
-            const job = currentJobs[index];
-            document.getElementById('qa-company').innerText = `${job.title} at ${job.companyName}`;
-            const list = document.getElementById('qa-list');
-            list.innerHTML = (job.screeningQa || []).map(qa => `
-                <div>
-                    <div style="font-weight: 700; color: #000; font-size: 0.9rem; margin-bottom: 0.3rem;">${escapeHtml(qa.question)}</div>
-                    <div style="color: var(--text-body); font-size: 0.9rem; line-height: 1.5;">${escapeHtml(qa.answer)}</div>
-                </div>
-            `).join('<hr style="border: none; border-top: 1px solid var(--border); margin: 0;">');
-            document.getElementById('qa-modal').classList.add('active');
-        }
 
         async function openSettingsModal() {
             const { data: { user } } = await supabaseClient.auth.getUser();
