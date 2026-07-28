@@ -617,9 +617,23 @@
         .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
-        .swipe-card-fit-tags.expanded { flex-wrap: wrap; overflow: visible; }
+        /* A child's overflow:visible can't escape an ancestor's overflow:
+           hidden -- .swipe-card clips at its own edge regardless, so a long
+           gap tag expanding inline still got cut off mid-word (confirmed
+           live 2026-07-28, a real Coinbase posting). Same fix already proven
+           on .swipe-card-fit-reason-full: stack vertically, cap height, and
+           scroll internally instead of trying to grow past the fixed-height
+           card. Also switches the pill shape to a softer rounded rect --
+           border-radius:50px (a true pill) reads fine for one short line,
+           but looks wrong once wrapped across four lines. */
+        .swipe-card-fit-tags.expanded {
+            flex-direction: column; flex-wrap: nowrap; align-items: stretch;
+            max-height: 8rem; overflow-y: auto; overflow-x: hidden;
+        }
         .swipe-card-tag { flex-shrink: 0; white-space: nowrap; }
-        .swipe-card-fit-tags.expanded .swipe-card-tag { white-space: normal; }
+        .swipe-card-fit-tags.expanded .swipe-card-tag {
+            white-space: normal; border-radius: 8px;
+        }
         .swipe-card-tag.fit-gap { background: #FEF2F2; color: #DC2626; }
         .swipe-card-tags-more { display: none; margin-top: 0.4rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags.is-clamped ~ .swipe-card-tags-more { display: inline-block; }
@@ -808,7 +822,6 @@
                     </g>
                     <text x="208" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="#000" letter-spacing="-2px">VER</text>
                 </svg>
-                <span style="background: rgba(0,0,0,0.06); color: #71717a; font-size: 0.55rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; margin-left: 0.15rem;">BETA</span>
                 <button class="hamburger-btn" onclick="toggleSidebar()" style="margin-left: auto;" aria-label="Close Menu">✕</button>
             </div>
             <div class="sidebar-nav">

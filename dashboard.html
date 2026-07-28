@@ -440,7 +440,6 @@
             padding: 0.2rem 0.6rem; border-radius: 999px;
             font-size: 0.78rem; font-weight: 600; white-space: nowrap;
         }
-        .pref-chip-more { color: #71717A; font-weight: 600; }
         .info-strip-edit {
             position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
             font-weight: 700; color: var(--secondary); text-decoration: none;
@@ -587,7 +586,6 @@
                     </g>
                     <text x="208" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="#000" letter-spacing="-2px">VER</text>
                 </svg>
-                <span style="background: rgba(0,0,0,0.06); color: #71717a; font-size: 0.55rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; margin-left: 0.15rem;">BETA</span>
                 <button class="hamburger-btn" onclick="toggleSidebar()" style="margin-left: auto;" aria-label="Close Menu">✕</button>
             </div>
             <div class="sidebar-nav">
@@ -702,7 +700,7 @@
             </div>
             <div class="info-strip-cell">
                 <span class="info-strip-label">Type</span>
-                <span class="info-strip-value" id="pref-workplaces">Loading...</span>
+                <div class="pref-chips" id="pref-workplaces"><span class="info-strip-value">Loading...</span></div>
             </div>
             <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: none; gap: 0.75rem; flex-wrap: wrap;">
                 <div id="inbox-banner" style="display: none;">
@@ -955,11 +953,13 @@
         }
 
         // Renders a comma-separated profile field (target_job_titles /
-        // target_location) as individual pill chips instead of one run-on
-        // sentence. maxVisible caps how many chips show before collapsing
-        // the rest into a "+N more" chip -- pass null to show all (used for
-        // Countries, where every selection is meaningful; Roles caps at 3
-        // since the list is often long, synonym-heavy, and mostly redundant).
+        // target_location / workplace_type) as individual pill chips instead
+        // of one run-on sentence. maxVisible caps how many chips show; the
+        // rest are silently dropped from the DISPLAY only -- the real value
+        // (target_job_titles etc.) is untouched, this never shows a "+N
+        // more" count. Pass null to show all (Countries, Type -- every
+        // selection there is meaningful); Roles caps at 3 since the list is
+        // often long, synonym-heavy, and mostly redundant.
         function renderPrefChips(elId, csv, maxVisible) {
             const el = document.getElementById(elId);
             if (!el) return;
@@ -969,9 +969,7 @@
                 return;
             }
             const visible = maxVisible ? items.slice(0, maxVisible) : items;
-            const hiddenCount = items.length - visible.length;
-            el.innerHTML = visible.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('')
-                + (hiddenCount > 0 ? `<span class="pref-chip pref-chip-more">+${hiddenCount} more</span>` : '');
+            el.innerHTML = visible.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('');
         }
 
         // Promote Upgrade to a real primary CTA -- but ONLY once there's an
@@ -1015,9 +1013,17 @@
                 return;
             }
 
-            renderPrefChips('pref-roles', profile.target_job_titles, 3);
+            // Demo-only override for mosco's account (per explicit request):
+            // shows this exact 3-role set instead of whatever the profile's
+            // real target_job_titles happens to start with. Does not write
+            // to Supabase -- profile.target_job_titles itself is untouched,
+            // this only substitutes what gets handed to the chip renderer.
+            const rolesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
+                ? 'Marketing Manager, Sales Operations, Operations Manager'
+                : profile.target_job_titles;
+            renderPrefChips('pref-roles', rolesForDisplay, 3);
             renderPrefChips('pref-countries', profile.target_location, null);
-            document.getElementById('pref-workplaces').textContent = profile.workplace_type || 'Not specified';
+            renderPrefChips('pref-workplaces', profile.workplace_type, null);
 
             if (profile.master_resume) {
                 localStorage.setItem('master_resume', profile.master_resume);
