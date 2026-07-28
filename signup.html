@@ -56,21 +56,15 @@
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
         .password-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
-        .btn { padding: 1.1rem 2rem; border-radius: 50px; font-size: 1.1rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn { padding: 0.75rem 1.5rem; border-radius: 50px; font-size: 0.95rem; font-weight: 700; cursor: pointer; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; width: 100%; display: block; text-align: center; }
         
-        /* Modern Liquid Motion Button */
-        @keyframes liquid-gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .btn-primary { background: linear-gradient(135deg, #D4FF33, #00FFCC, #D4FF33); background-size: 200% auto; animation: liquid-gradient 3s linear infinite; color: #000000; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(212, 255, 51, 0.35); position: relative; }
-        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.55); }
-        .btn-primary:active { transform: translateY(-1px) scale(0.99); }
+        .btn-primary { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 4px 14px rgba(0, 200, 150, 0.25); }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0, 200, 150, 0.35); }
+        .btn-primary:active { transform: translateY(0); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; box-shadow: none !important; }
 
         .login-link { text-align: center; margin-top: 1.5rem; font-size: 0.95rem; font-weight: 500; }
-        .login-link a { color: #FF6B4A; text-decoration: none; font-weight: 700; text-transform: uppercase; }
+        .login-link a { color: var(--text-heading); text-decoration: none; font-weight: 800; text-transform: uppercase; }
         .login-link a:hover { text-decoration: underline; }
 
         .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; border-radius: 12px; }
@@ -139,7 +133,6 @@
     <!-- Text VER -->
     <text x="208" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="currentColor" letter-spacing="-2px">VER</text>
   </svg>
-  <span style="background: rgba(255, 107, 74, 0.1); color: #FF6B4A; border: 1px solid rgba(255, 107, 74, 0.3); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span>
 </a>
 </nav>
 
@@ -173,7 +166,7 @@
                 </div>
                 <div class="form-group" style="display: flex; align-items: flex-start; gap: 0.6rem;">
                     <input type="checkbox" id="signup-agree" style="width: 18px; height: 18px; margin-top: 0.15rem; flex-shrink: 0;">
-                    <label for="signup-agree" style="text-transform: none; font-weight: 500; color: var(--text-body); font-size: 0.9rem;">I agree to the <a href="terms.html" target="_blank" style="color: var(--secondary); font-weight: 700;">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color: var(--secondary); font-weight: 700;">Privacy Policy</a></label>
+                    <label for="signup-agree" style="text-transform: none; font-weight: 500; color: var(--text-body); font-size: 0.9rem;">I agree to the <a href="terms.html" target="_blank" style="color: var(--text-heading); font-weight: 800;">Terms of Service</a> and <a href="privacy.html" target="_blank" style="color: var(--text-heading); font-weight: 800;">Privacy Policy</a></label>
                 </div>
                 <button type="submit" class="btn btn-primary" id="signup-btn">Create Account &rarr;</button>
             </form>
