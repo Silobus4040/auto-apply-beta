@@ -1353,6 +1353,22 @@
 
             currentJobs = dedupeJobs(currentJobs);
 
+            // DEMO-ONLY display override for this one account, per explicit
+            // request -- forces specific row statuses for a recorded demo.
+            // Does NOT touch the real Supabase job_applications.status
+            // column or any query/matching logic; it only overwrites the
+            // in-memory copy right before render, on every other real
+            // account this block never runs at all. Rows 2-3 -> In Queue
+            // (which also correctly hides "View Submitted Form", since that
+            // button already gates on status === 'applied'); rows 4-6 ->
+            // Applied. Row 1 and anything past row 6 keep their real status.
+            if (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
+                const demoStatusByIndex = { 1: 'queued', 2: 'queued', 3: 'applied', 4: 'applied', 5: 'applied' };
+                currentJobs.forEach((job, i) => {
+                    if (demoStatusByIndex[i] !== undefined) job.status = demoStatusByIndex[i];
+                });
+            }
+
             updateStats(currentJobs, user.id);
             renderJobs(currentJobs, isReallyScanning);
             updateInboxBannerVisibility();

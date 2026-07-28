@@ -568,8 +568,10 @@
            space above the fit badge on any job without a salary. Content now
            stacks tight; the read-more button (margin-top:auto) takes the slack. */
         .swipe-card-info { display: flex; flex-direction: column; gap: 0.65rem; }
-        .swipe-card-info-row { display: flex; align-items: flex-start; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
-        .swipe-card-info-icon { font-size: 1.1rem; flex-shrink: 0; }
+        .swipe-card-info-row { display: flex; align-items: center; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
+        /* lucide SVGs, not emoji -- sized/stroked to match the sidebar's own
+           icon treatment (.sidebar-nav-icon) instead of emoji's font-size. */
+        .swipe-card-info-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
         .swipe-card-tag { background: #f4f4f5; border: 1px solid var(--border); color: #3f3f46; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; }
         /* Was margin-top:-1rem to claw back space from the old stretched info
            block; with that stretch gone the negative margin would overlap the
@@ -1608,8 +1610,8 @@
                     </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
                     <div class="swipe-card-info">
-                        ${locationLine ? `<div class="swipe-card-info-row"><span class="swipe-card-info-icon">📍</span><span>${escapeHtml(locationLine)}</span></div>` : ''}
-                        <div class="swipe-card-info-row"><span class="swipe-card-info-icon">💰</span><span>${job.salary_range ? escapeHtml(job.salary_range) : 'Salary not stated'}</span></div>
+                        ${locationLine ? `<div class="swipe-card-info-row"><i data-lucide="map-pin" class="swipe-card-info-icon"></i><span>${escapeHtml(locationLine)}</span></div>` : ''}
+                        <div class="swipe-card-info-row"><i data-lucide="banknote" class="swipe-card-info-icon"></i><span>${job.salary_range ? escapeHtml(job.salary_range) : 'Salary not stated'}</span></div>
                     </div>
                     ${buildGeoBadge(job)}
                     ${buildFitScoreBadge(job)}
@@ -1631,6 +1633,14 @@
                     if (el.scrollWidth - el.clientWidth > 1) el.classList.add('is-clamped');
                 });
             });
+
+            // The location-pin/salary icons are lucide SVGs now, not emoji --
+            // lucide only converts <i data-lucide> tags that exist AT CALL
+            // TIME, so the one-shot DOMContentLoaded init doesn't cover cards
+            // built later by every subsequent renderSwipeStack() (each swipe,
+            // each initial fetch). Must re-run here or every card after the
+            // first render shows raw unconverted <i> tags.
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function toggleFitReason(btn) {
