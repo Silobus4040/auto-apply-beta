@@ -122,6 +122,30 @@
             color: #000000;
         }
 
+        /* Upgrade as the ONE filled primary CTA -- applied by JS only once a
+           real checkout URL exists (see UPGRADE_URL). Uses the landing page's
+           established .btn-primary language (lime->mint, BLACK text) rather
+           than white-on-green, which fails contrast at these hues. Static, not
+           animated: an infinite shimmer belongs on a marketing page, not on a
+           tool people use every day. */
+        .nav-upgrade-primary {
+            display: inline-flex; align-items: center; gap: 0.4rem;
+            background: linear-gradient(135deg, #D4FF33, #00FFCC);
+            color: #000000;
+            padding: 0.5rem 1.25rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            text-decoration: none;
+            border: 1px solid rgba(0,0,0,0.08);
+            box-shadow: 0 6px 18px -6px rgba(0, 200, 150, 0.45);
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+        .nav-upgrade-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 10px 24px -8px rgba(0, 200, 150, 0.6);
+        }
+
         /* Table Style Dashboard */
         .jobs-table-container {
             width: 100%;
@@ -877,6 +901,22 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // ─── Upgrade / checkout link ───────────────────────────────────────
+        // PASTE YOUR PAYMENT PROVIDER'S CHECKOUT URL HERE (Stripe/Paystack/
+        // Lemon Squeezy/etc). Leave it as '' until you have one.
+        //
+        // While it's empty the Upgrade button deliberately stays QUIET and
+        // keeps pointing at the marketing pricing section -- because that
+        // path currently dead-ends (pricing's "Start Automating Now" sends
+        // you to signup.html, which a logged-in user already completed).
+        // Shouting at users to click a button that can't take their money is
+        // worse than saying nothing.
+        //
+        // The moment you set a real URL here, the button automatically
+        // becomes the filled primary CTA and links straight to checkout. No
+        // other edit needed.
+        const UPGRADE_URL = '';
+
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -895,6 +935,17 @@
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
+
+        // Promote Upgrade to a real primary CTA -- but ONLY once there's an
+        // actual checkout URL to send people to. See UPGRADE_URL above.
+        function applyUpgradeLink(btn) {
+            if (!btn || !UPGRADE_URL) return;
+            btn.href = UPGRADE_URL;
+            btn.target = '_blank';
+            btn.rel = 'noopener noreferrer';
+            btn.classList.add('nav-upgrade-primary');
+            btn.removeAttribute('style');
         }
 
         // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
@@ -964,7 +1015,8 @@
                 badgeEl.style.background = 'rgba(0, 0, 0, 0.04)';
                 badgeEl.style.color = '#71717A';
                 badgeEl.style.borderColor = 'rgba(0, 0, 0, 0.1)';
-                if (upgradeBtn) upgradeBtn.style.display = 'inline-block';
+                if (upgradeBtn) upgradeBtn.style.display = 'inline-flex';
+                applyUpgradeLink(upgradeBtn);
             }
 
             if (profile.Application_email) {
