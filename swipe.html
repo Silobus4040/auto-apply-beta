@@ -575,9 +575,12 @@
            block; with that stretch gone the negative margin would overlap the
            location line, so it is a normal small gap now. */
         .swipe-card-geo-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; align-self: flex-start; margin-top: 0.65rem; margin-bottom: 0.9rem; }
-        .swipe-card-geo-badge.geo-anywhere { background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; }
-        .swipe-card-geo-badge.geo-restricted { background: #FFFBEB; color: #B45309; border: 1px solid #FDE68A; }
-        .swipe-card-geo-badge.geo-unclear { background: #F4F4F5; color: #52525B; border: 1px solid var(--border); }
+        /* Same color regardless of scope (Anywhere/US-only/London-only/
+           Unclear) -- the words already say which, same reasoning already
+           applied to the status pill and fit-score badge. */
+        .swipe-card-geo-badge.geo-anywhere, .swipe-card-geo-badge.geo-restricted, .swipe-card-geo-badge.geo-unclear {
+            background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0;
+        }
         .swipe-card-fit-badge { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 12px; margin-bottom: 0.9rem; position: relative; }
         .swipe-card-fit-badge.fit-high { background: #ECFDF5; border: 1px solid #A7F3D0; }
         .swipe-card-fit-score { font-size: 1.1rem; font-weight: 900; flex-shrink: 0; }
