@@ -92,18 +92,35 @@
         .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
         .stat-number { color: #000000; font-size: 2rem; font-weight: 900; line-height: 1; }
         .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
+        /* Jumping to the table below is a TERTIARY action -- the least
+           important thing on the page, and near-redundant now that the table
+           is always visible here (the swipe deck moved to swipe.html). It was
+           previously a saturated lime/teal glass pill, a leftover from an
+           earlier glassmorphism pass that everything else got flattened out
+           of -- which made the quietest action the loudest element on screen.
+           Matches .table-btn-sm's neutral register instead. */
         .stat-view-btn {
-            height: 26px; padding: 0 0.75rem; border-radius: 999px; font-size: 0.68rem;
-            font-weight: 800; letter-spacing: 0.02em; color: #053b2e; cursor: pointer;
-            white-space: nowrap; display: inline-flex; align-items: center;
-            background: linear-gradient(135deg, rgba(212,255,51,.55), rgba(0,255,204,.45));
-            -webkit-backdrop-filter: blur(14px) saturate(180%);
-            backdrop-filter: blur(14px) saturate(180%);
-            border: 1px solid rgba(255,255,255,.78);
-            box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 8px 16px -8px rgba(10,15,35,.4);
-            transition: transform .15s ease;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-body);
+            padding: 0.3rem 0.65rem;
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: 4px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            white-space: nowrap;
         }
-        .stat-view-btn:hover { transform: translateY(-1px); }
+        .stat-view-btn:hover {
+            border-color: #000000;
+            background: rgba(0, 0, 0, 0.03);
+            color: #000000;
+        }
 
         /* Table Style Dashboard */
         .jobs-table-container {
