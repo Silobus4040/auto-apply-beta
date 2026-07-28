@@ -419,27 +419,32 @@
         .info-strip {
             background: #fff; border: 1px solid var(--border); border-radius: 16px;
             padding: 0.85rem 1.25rem; margin-bottom: 1rem;
-            display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0.5rem 2.5rem;
+            display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); justify-content: start; gap: 0.5rem 2.5rem;
             align-items: start; position: relative;
         }
         .info-strip-cell {
-            display: flex; flex-direction: column; gap: 0.15rem;
+            display: flex; flex-direction: column; gap: 0.15rem; min-width: 0;
         }
         .info-strip-label {
             font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
             color: #A1A1AA; letter-spacing: 0.5px;
         }
         .info-strip-value { font-size: 0.85rem; font-weight: 600; color: #000; }
-        /* Roles/Countries as individual chips instead of one run-on comma
-           sentence -- easier to scan, and lets roles cap at 3 + "N more"
-           instead of wrapping across several lines. */
-        .pref-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+        /* Roles/Countries/Type as individual chips instead of one run-on comma
+           sentence. Chips stay on one line (nowrap) and overflow is measured
+           in JS -- whatever doesn't fit collapses into a "+N" chip that
+           expands to a wrapped, multi-line view on click. */
+        .pref-chips { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.35rem; align-items: center; min-width: 0; }
         .pref-chip {
             background: rgba(0, 0, 0, 0.05); color: #000000;
             border: 1px solid rgba(0, 0, 0, 0.08);
             padding: 0.2rem 0.6rem; border-radius: 999px;
-            font-size: 0.78rem; font-weight: 600; white-space: nowrap;
+            font-size: 0.78rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
         }
+        .pref-chip-more {
+            cursor: pointer; background: rgba(0, 0, 0, 0.08); font-weight: 800;
+        }
+        .pref-chip-more:hover { background: rgba(0, 0, 0, 0.14); }
         .info-strip-edit {
             position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
             font-weight: 700; color: var(--secondary); text-decoration: none;
@@ -952,15 +957,7 @@
             document.getElementById('sidebar-overlay').classList.toggle('open');
         }
 
-        // Renders a comma-separated profile field (target_job_titles /
-        // target_location / workplace_type) as individual pill chips instead
-        // of one run-on sentence. maxVisible caps how many chips show; the
-        // rest are silently dropped from the DISPLAY only -- the real value
-        // (target_job_titles etc.) is untouched, this never shows a "+N
-        // more" count. Pass null to show all (Countries, Type -- every
-        // selection there is meaningful); Roles caps at 3 since the list is
-        // often long, synonym-heavy, and mostly redundant.
-        function renderPrefChips(elId, csv, maxVisible) {
+        function renderPrefChips(elId, csv) {
             const el = document.getElementById(elId);
             if (!el) return;
             const items = (csv || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -968,8 +965,36 @@
                 el.innerHTML = '<span class="info-strip-value">Not specified</span>';
                 return;
             }
-            const visible = maxVisible ? items.slice(0, maxVisible) : items;
-            el.innerHTML = visible.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('');
+            el.dataset.items = JSON.stringify(items);
+            renderChipsCollapsed(el, items);
+        }
+
+        function renderChipsCollapsed(el, items) {
+            el.style.flexWrap = 'nowrap';
+            el.style.overflow = 'hidden';
+            el.innerHTML = items.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('');
+            let visibleCount = items.length;
+            while (visibleCount > 1 && el.scrollWidth > el.clientWidth) {
+                visibleCount--;
+                const hiddenCount = items.length - visibleCount;
+                el.innerHTML = items.slice(0, visibleCount).map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('')
+                    + `<span class="pref-chip pref-chip-more" onclick="expandPrefChips('${el.id}')">+${hiddenCount}</span>`;
+            }
+        }
+
+        function expandPrefChips(elId) {
+            const el = document.getElementById(elId);
+            const items = JSON.parse(el.dataset.items || '[]');
+            el.style.flexWrap = 'wrap';
+            el.style.overflow = 'visible';
+            el.innerHTML = items.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('')
+                + `<span class="pref-chip pref-chip-more" onclick="collapsePrefChips('${el.id}')">&minus;</span>`;
+        }
+
+        function collapsePrefChips(elId) {
+            const el = document.getElementById(elId);
+            const items = JSON.parse(el.dataset.items || '[]');
+            renderChipsCollapsed(el, items);
         }
 
         // Promote Upgrade to a real primary CTA -- but ONLY once there's an
@@ -1021,9 +1046,9 @@
             const rolesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
                 ? 'Marketing Manager, Sales Operations, Operations Manager'
                 : profile.target_job_titles;
-            renderPrefChips('pref-roles', rolesForDisplay, 3);
-            renderPrefChips('pref-countries', profile.target_location, null);
-            renderPrefChips('pref-workplaces', profile.workplace_type, null);
+            renderPrefChips('pref-roles', rolesForDisplay);
+            renderPrefChips('pref-countries', profile.target_location);
+            renderPrefChips('pref-workplaces', profile.workplace_type);
 
             if (profile.master_resume) {
                 localStorage.setItem('master_resume', profile.master_resume);
