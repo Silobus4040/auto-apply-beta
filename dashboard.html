@@ -430,6 +430,17 @@
             color: #A1A1AA; letter-spacing: 0.5px;
         }
         .info-strip-value { font-size: 0.85rem; font-weight: 600; color: #000; }
+        /* Roles/Countries as individual chips instead of one run-on comma
+           sentence -- easier to scan, and lets roles cap at 3 + "N more"
+           instead of wrapping across several lines. */
+        .pref-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
+        .pref-chip {
+            background: rgba(0, 0, 0, 0.05); color: #000000;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 0.2rem 0.6rem; border-radius: 999px;
+            font-size: 0.78rem; font-weight: 600; white-space: nowrap;
+        }
+        .pref-chip-more { color: #71717A; font-weight: 600; }
         .info-strip-edit {
             position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
             font-weight: 700; color: var(--secondary); text-decoration: none;
@@ -683,11 +694,11 @@
         <div class="info-strip" id="info-strip" style="margin-top: 1.5rem;">
             <div class="info-strip-cell">
                 <span class="info-strip-label">Roles</span>
-                <span class="info-strip-value" id="pref-roles">Loading...</span>
+                <div class="pref-chips" id="pref-roles"><span class="info-strip-value">Loading...</span></div>
             </div>
             <div class="info-strip-cell">
                 <span class="info-strip-label">Countries</span>
-                <span class="info-strip-value" id="pref-countries">Loading...</span>
+                <div class="pref-chips" id="pref-countries"><span class="info-strip-value">Loading...</span></div>
             </div>
             <div class="info-strip-cell">
                 <span class="info-strip-label">Type</span>
@@ -931,10 +942,36 @@
         // well before its own position in the file.
         let poolAvailableCount = null;
 
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
         // ─── Sidebar Toggle (Mobile) ───
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
+        }
+
+        // Renders a comma-separated profile field (target_job_titles /
+        // target_location) as individual pill chips instead of one run-on
+        // sentence. maxVisible caps how many chips show before collapsing
+        // the rest into a "+N more" chip -- pass null to show all (used for
+        // Countries, where every selection is meaningful; Roles caps at 3
+        // since the list is often long, synonym-heavy, and mostly redundant).
+        function renderPrefChips(elId, csv, maxVisible) {
+            const el = document.getElementById(elId);
+            if (!el) return;
+            const items = (csv || '').split(',').map(s => s.trim()).filter(Boolean);
+            if (!items.length) {
+                el.innerHTML = '<span class="info-strip-value">Not specified</span>';
+                return;
+            }
+            const visible = maxVisible ? items.slice(0, maxVisible) : items;
+            const hiddenCount = items.length - visible.length;
+            el.innerHTML = visible.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('')
+                + (hiddenCount > 0 ? `<span class="pref-chip pref-chip-more">+${hiddenCount} more</span>` : '');
         }
 
         // Promote Upgrade to a real primary CTA -- but ONLY once there's an
@@ -978,8 +1015,8 @@
                 return;
             }
 
-            document.getElementById('pref-roles').textContent = profile.target_job_titles || 'Not specified';
-            document.getElementById('pref-countries').textContent = profile.target_location || 'Not specified';
+            renderPrefChips('pref-roles', profile.target_job_titles, 3);
+            renderPrefChips('pref-countries', profile.target_location, null);
             document.getElementById('pref-workplaces').textContent = profile.workplace_type || 'Not specified';
 
             if (profile.master_resume) {
