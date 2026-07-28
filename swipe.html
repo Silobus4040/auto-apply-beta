@@ -355,6 +355,10 @@
         }
         .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
         .sidebar-nav-item.active .sidebar-nav-icon { color: var(--secondary); }
+        /* Log Out anchored to the bottom of the sidebar, separated from the
+           main nav group -- standard modern layout instead of sitting inline
+           as just another item after Settings. */
+        .sidebar-nav-item.sidebar-nav-logout { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
         .sidebar-badge {
             margin-left: auto; background: var(--secondary); color: #fff; font-size: 0.65rem;
             padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 700; min-width: 20px; text-align: center;
@@ -783,7 +787,7 @@
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
                 </button>
-                <button class="sidebar-nav-item" onclick="logout()">
+                <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
                     <i data-lucide="log-out" class="sidebar-nav-icon"></i> Log Out
                 </button>
             </div>
@@ -1054,9 +1058,12 @@
                 return;
             }
 
-            document.getElementById('pref-roles').textContent = profile.target_job_titles || 'Not specified';
-            document.getElementById('pref-countries').textContent = profile.target_location || 'Not specified';
-            document.getElementById('pref-workplaces').textContent = profile.workplace_type || 'Not specified';
+            // The Roles/Countries/Type search-criteria strip lives on
+            // dashboard.html only -- this page has no pref-roles/pref-countries/
+            // pref-workplaces elements, so setting their textContent here threw
+            // (confirmed live 2026-07-28) and silently aborted the rest of
+            // authGuard() -- fetchUserJobs, setupRealtime, and fetchPooledJobs
+            // never ran, which is why the whole page rendered blank.
 
             if (profile.master_resume) {
                 localStorage.setItem('master_resume', profile.master_resume);

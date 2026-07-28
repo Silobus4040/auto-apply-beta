@@ -355,6 +355,10 @@
         }
         .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
         .sidebar-nav-item.active .sidebar-nav-icon { color: var(--secondary); }
+        /* Log Out anchored to the bottom of the sidebar, separated from the
+           main nav group -- standard modern layout instead of sitting inline
+           as just another item after Settings. */
+        .sidebar-nav-item.sidebar-nav-logout { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
         .sidebar-badge {
             margin-left: auto; background: var(--secondary); color: #fff; font-size: 0.65rem;
             padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 700; min-width: 20px; text-align: center;
@@ -551,7 +555,7 @@
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
                 </button>
-                <button class="sidebar-nav-item" onclick="logout()">
+                <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
                     <i data-lucide="log-out" class="sidebar-nav-icon"></i> Log Out
                 </button>
             </div>
@@ -1583,8 +1587,8 @@
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
-                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">View Resume</button>` : '';
-                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">View Cover Letter</button>` : '';
+                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">Custom Resume</button>` : '';
+                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">Custom Cover Letter</button>` : '';
                 const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
 
                 html += `
