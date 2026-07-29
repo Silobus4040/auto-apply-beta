@@ -1447,12 +1447,19 @@
         }
 
         async function fetchPoolCount(userId) {
+            if (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
+                // DEMO-ONLY: fixed count for this account, independent of
+                // match-pool-jobs' real response (which can legitimately be
+                // empty/erroring without that mattering for the demo number).
+                poolAvailableCount = 1389;
+                applyPoolAvailableToStats();
+                return;
+            }
             const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
             if (error) return;
             const { totalAvailable } = unwrapPoolResponse(data);
             if (totalAvailable !== null) {
-                // DEMO-ONLY display override for this one account
-                poolAvailableCount = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') ? 1389 : totalAvailable;
+                poolAvailableCount = totalAvailable;
                 applyPoolAvailableToStats();
             }
         }
