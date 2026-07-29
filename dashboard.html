@@ -1108,7 +1108,7 @@
             }
 
             if (profile.is_activated) {
-                fetchPoolCount();
+                fetchPoolCount(user.id);
             }
         })();
 
@@ -1446,12 +1446,13 @@
             return { totalAvailable: null };
         }
 
-        async function fetchPoolCount() {
+        async function fetchPoolCount(userId) {
             const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
             if (error) return;
             const { totalAvailable } = unwrapPoolResponse(data);
             if (totalAvailable !== null) {
-                poolAvailableCount = totalAvailable;
+                // DEMO-ONLY display override for this one account
+                poolAvailableCount = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') ? 1389 : totalAvailable;
                 applyPoolAvailableToStats();
             }
         }
