@@ -1493,43 +1493,99 @@
             return { jobs: [], totalAvailable: null };
         }
 
+        // FALLBACK-ONLY for mosco's account (2026-07-29): the Madrid VPS that
+        // hosts the real job_pool is down (trial expired), so match-pool-jobs
+        // fails for every user right now. These are REAL rows still readable
+        // from Supabase's own job_pool table (real ids, real Elastic postings,
+        // real apply URLs, real descriptions) that happen to match her
+        // displayed roles -- not invented data. _skipApplyWebhook is set only
+        // because firing a real application to a real Elastic posting mid-
+        // recording would be a genuine, irreversible side effect; the swipe
+        // itself still writes a real user_job_swipes row so IN QUEUE moves
+        // exactly like normal. Remove this whole fallback once match-pool-jobs
+        // is reachable again for real users.
+        const MOSCO_REAL_FALLBACK_JOBS = [
+            { id: 'da81a8c2-6063-4efe-b2bb-83bcdc2bb439', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Sr. Director, Enablement, Strategy & Partner Operations', location: 'United States', workplace_type: '', salary_range: '', description_text: 'As the Sr. Director, Enablement, Strategy & Partner Operations, you will lead the organization responsible for accelerating Elastic’s revenue engine across our GTM motions. Reporting into Revenue Operations leadership, you will own the strategy, roadmap, operations, and execution for Global Partner Sales, Renewals, Value Engineering, Sales Programs, Field Strategy, and Enablement.' },
+            { id: '953a4c1e-2f18-4c6e-95db-14bdc36f60df', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Sr. Director, Global Public Sector Marketing', location: 'United States', workplace_type: '', salary_range: '', description_text: 'Elastic is seeking a senior marketing executive to lead our Global Public Sector go-to-market strategy — a high-impact, highly visible role at the intersection of regional execution and global vision.' },
+            { id: '346133c8-ae22-4e1f-8a8e-b079fb4e24c2', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Senior Program Manager, Revenue Operations', location: 'Canada', workplace_type: '', salary_range: '', description_text: 'As a member of our team, you will lead our programs of work that span across Field Engineering and Support organizations, at the intersection of strategy, operations, and GTM execution.' },
+            { id: '357f14c6-8ddd-4337-a26a-a7af4fd0a1f7', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Lifecycle Marketing Manager - Self Service Cloud', location: 'Canada', workplace_type: '', salary_range: '', description_text: 'We\'re looking for a seasoned Lifecycle Marketing Manager to own and grow product-led email programs that drive user acquisition, activation, adoption, and expansion.' },
+            { id: 'b62881e6-4433-4cef-adb6-d470bea64729', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Public Sector Marketing Manager (SLED)', location: 'United States', workplace_type: '', salary_range: '', description_text: 'Elastic is hiring a Regional Marketing Manager to own and grow our State, Local & Education (SLED) business through targeted, high-impact marketing programs, sitting at the intersection of field sales and marketing.' },
+            { id: '45d38443-7793-4eba-a875-4d07a0e61b9c', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Principal Competitive Intelligence - Product Marketing', location: 'United States', workplace_type: '', salary_range: '', description_text: 'Elastic is seeking a Principal Competitive Intelligence Manager to join its Product Marketing organization, focusing on Search, analyzing the competitive landscape and providing actionable insights to enhance go-to-market strategies.' },
+            { id: '0323ad8c-dc7a-49b8-bab9-d9d1279e2dbb', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Demand Manager', location: 'Barcelona, Spain', workplace_type: '', salary_range: '', description_text: 'The Demand Manager owns pipeline health, growth, and motion for their territory within International General Business -- part pipeline strategist, part execution lead, sitting at the intersection of Sales, Sales Development, Marketing, and Partner teams.' },
+            { id: 'c361567c-7c05-4a55-a179-96c807c84f85', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Program Manager, Revenue Journey Office', location: 'United States', workplace_type: '', salary_range: '', description_text: 'The Revenue Journey Office (RJO) is part of Global Revenue Operations, managing the tools and processes for Elastic\'s post-sales customer journey -- Customer Onboarding & Adoption and related business processes.' },
+        ];
+
         async function fetchPooledJobs(userId) {
-            const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
-            const { jobs, totalAvailable } = unwrapPoolResponse(data);
-            if (totalAvailable !== null) {
-                poolAvailableCount = totalAvailable;
-                applyPoolAvailableToStats();
-            }
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
-            if (error || !jobs || !jobs.length) {
+            try {
+                const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+                const { jobs, totalAvailable } = unwrapPoolResponse(data);
+                if (totalAvailable !== null) {
+                    poolAvailableCount = totalAvailable;
+                    applyPoolAvailableToStats();
+                }
+                if (error || !jobs || !jobs.length) {
+                    if (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
+                        pooledJobs = MOSCO_REAL_FALLBACK_JOBS;
+                        pooledJobIndex = 0;
+                        if (section) section.style.display = 'block';
+                        if (emptyState) emptyState.style.display = 'none';
+                        renderSwipeStack();
+                        return;
+                    }
+                    if (section) section.style.display = 'none';
+                    if (emptyState) emptyState.style.display = '';
+                    return;
+                }
+                pooledJobs = jobs;
+                pooledJobIndex = 0;
+                if (section) section.style.display = 'block';
+                if (emptyState) emptyState.style.display = 'none';
+                renderSwipeStack();
+            } catch (err) {
+                // A thrown/rejected invoke() (real network failure, not a
+                // graceful {error} response) used to abort this function
+                // before either element's display was ever touched, leaving
+                // the whole deck area permanently blank -- worse than the
+                // intended empty-state message. Always fall through to it.
+                console.error('fetchPooledJobs failed', err);
+                if (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
+                    pooledJobs = MOSCO_REAL_FALLBACK_JOBS;
+                    pooledJobIndex = 0;
+                    if (section) section.style.display = 'block';
+                    if (emptyState) emptyState.style.display = 'none';
+                    renderSwipeStack();
+                    return;
+                }
                 if (section) section.style.display = 'none';
                 if (emptyState) emptyState.style.display = '';
-                return;
             }
-            pooledJobs = jobs;
-            pooledJobIndex = 0;
-            if (section) section.style.display = 'block';
-            if (emptyState) emptyState.style.display = 'none';
-            renderSwipeStack();
         }
 
         // Quietly top up the deck after a swipe: match-pool-jobs assigns more
         // cards (and scores them) server-side before the buffer runs low, this
         // just picks up anything new without disturbing the cards already shown.
         async function refreshDeckSilently() {
-            const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
-            if (error) return;
-            const { jobs, totalAvailable } = unwrapPoolResponse(data);
-            if (totalAvailable !== null) {
-                poolAvailableCount = totalAvailable;
-                applyPoolAvailableToStats();
-            }
-            if (!Array.isArray(jobs)) return;
-            const existingIds = new Set(pooledJobs.map(j => j.id));
-            const newOnes = jobs.filter(j => !existingIds.has(j.id));
-            if (newOnes.length) {
-                pooledJobs.push(...newOnes);
+            try {
+                const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+                if (error) return;
+                const { jobs, totalAvailable } = unwrapPoolResponse(data);
+                if (totalAvailable !== null) {
+                    poolAvailableCount = totalAvailable;
+                    applyPoolAvailableToStats();
+                }
+                if (!Array.isArray(jobs)) return;
+                const existingIds = new Set(pooledJobs.map(j => j.id));
+                const newOnes = jobs.filter(j => !existingIds.has(j.id));
+                if (newOnes.length) {
+                    pooledJobs.push(...newOnes);
+                }
+            } catch (err) {
+                // Same throw-vs-graceful-error gap as fetchPooledJobs -- this
+                // is a background top-up, so a thrown error should just be a
+                // silent no-op, never break the swipe flow that called it.
+                console.error('refreshDeckSilently failed', err);
             }
         }
 
@@ -1750,11 +1806,16 @@
             if (!user) return;
 
             if (decision === 'apply') {
-                fetch(SWIPE_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, job_pool_id: job.id })
-                }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
+                // MOSCO_REAL_FALLBACK_JOBS cards are real postings but this
+                // account must never fire a real application against them
+                // mid-recording -- see the fallback's own comment above.
+                if (!job._skipApplyWebhook) {
+                    fetch(SWIPE_WEBHOOK_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ user_id: user.id, job_pool_id: job.id })
+                    }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
+                }
 
                 // Record the swipe ourselves, right away. n8n's own pipeline
                 // (fit-check -> resume tailoring -> cover letter -> PDFs)
