@@ -1059,14 +1059,148 @@
         </div>
     </div>
 
+    <!-- Upgrade / Top-up Modal -->
+    <div class="modal-overlay" id="upgrade-modal">
+        <div class="desc-modal" style="max-width: 500px; padding: 2.5rem; text-align: left;">
+            <button class="close-modal" onclick="closeModal('upgrade-modal')">&times;</button>
+            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">🚀 Upgrade Your Account</h2>
+            <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 2rem;">Choose the number of job applications you want. The AI engine will scan and apply for you instantly.</p>
+            
+            <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
+                    <span style="font-size: 0.75rem; font-weight: 750; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px;">Volume</span>
+                    <strong id="slider-jobs-display" style="font-size: 1.5rem; color: #000;">100 Jobs</strong>
+                </div>
+                
+                <!-- Range Slider -->
+                <input type="range" id="upgrade-slider" min="100" max="5000" step="10" value="100" style="width: 100%; margin-bottom: 1.5rem; accent-color: var(--primary); cursor: pointer;" oninput="updateUpgradePrice()">
+                
+                <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <span style="font-size: 0.75rem; font-weight: 750; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px;">Total Price</span>
+                    <strong id="slider-price-display" style="font-size: 1.5rem; color: #000;">₦30,000</strong>
+                </div>
+            </div>
+            
+            <button id="upgrade-checkout-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800;" onclick="triggerUpgradeCheckout()">Proceed to Checkout &rarr;</button>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ─── Upgrade / checkout link ───────────────────────────────────────
-        // Kept in sync with dashboard.html's UPGRADE_URL -- set the same
-        // value in both files. See the comment there for why it's empty by
-        // default and what changes once it's set.
-        const UPGRADE_URL = '';
+        let localCurrency = 'USD';
+        let localUnitPrice = 0.20; // $0.20 per job
+
+        async function detectLocation() {
+            try {
+                let countryCode = 'US';
+                try {
+                    const ipRes = await fetch('https://ipapi.co/json/');
+                    const ipData = await ipRes.json();
+                    if (ipData && ipData.country_code) countryCode = ipData.country_code;
+                } catch(e) {
+                    try {
+                        const ipRes2 = await fetch('https://get.geojs.io/v1/ip/country.json');
+                        const ipData2 = await ipRes2.json();
+                        if (ipData2 && ipData2.country) countryCode = ipData2.country;
+                    } catch(e2) {}
+                }
+                
+                if (countryCode === 'NG') {
+                    localCurrency = 'NGN';
+                    localUnitPrice = 300; // ₦300 per job
+                } else {
+                    localCurrency = 'USD';
+                    localUnitPrice = 0.20; // $0.20 per job
+                }
+            } catch (err) {
+                console.error("Location detection failed", err);
+            }
+            updateUpgradePrice();
+        }
+
+        function openUpgradeModal() {
+            const slider = document.getElementById('upgrade-slider');
+            const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
+            
+            if (isPremium) {
+                slider.min = "10";
+                slider.value = "10";
+            } else {
+                slider.min = "100";
+                slider.value = "100";
+            }
+            
+            detectLocation().then(() => {
+                document.getElementById('upgrade-modal').classList.add('active');
+            });
+        }
+
+        function updateUpgradePrice() {
+            const slider = document.getElementById('upgrade-slider');
+            const jobs = parseInt(slider.value, 10);
+            document.getElementById('slider-jobs-display').textContent = `${jobs} Jobs`;
+            
+            const totalPrice = jobs * localUnitPrice;
+            if (localCurrency === 'NGN') {
+                document.getElementById('slider-price-display').textContent = `₦${totalPrice.toLocaleString()}`;
+            } else {
+                document.getElementById('slider-price-display').textContent = `$${totalPrice.toFixed(2)}`;
+            }
+        }
+
+        async function triggerUpgradeCheckout() {
+            const slider = document.getElementById('upgrade-slider');
+            const jobs = parseInt(slider.value, 10);
+            
+            // Quantity in Bachs represents groups of 10 jobs (since 1 unit = 10 jobs)
+            const quantityUnits = jobs / 10;
+
+            const btn = document.getElementById('upgrade-checkout-btn');
+            btn.disabled = true;
+            btn.textContent = 'Preparing checkout...';
+
+            try {
+                const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
+                
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                // Call the apply-api reverse proxy routed through Caddy
+                const res = await fetch('https://n8n.leadscompass.ai/apply-api/create-checkout-session', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        userId: session.user.id,
+                        email: session.user.email,
+                        name: userProfile ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() : session.user.email.split('@')[0],
+                        quantity: quantityUnits,
+                        isAlreadyPremium: isPremium
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Failed to initialize checkout.');
+                    btn.disabled = false;
+                    btn.textContent = 'Proceed to Checkout →';
+                    return;
+                }
+
+                window.location.href = data.checkout_url;
+            } catch (err) {
+                console.error('Checkout error:', err);
+                alert('Connection error. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Proceed to Checkout →';
+            }
+        }
 
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
@@ -1075,29 +1209,21 @@
         let currentJobs = [];
         let userProfile = null;
         let currentUserEmail = '';
-        // Real matching supply from the pool, set by match-pool-jobs. Stays null
-        // until the first successful call (or when talking to an older version of
-        // the function), in which case the stats fall back to the old behaviour.
-        // Declared up here with the other globals because fetchPooledJobs reads it
-        // well before its own position in the file.
         let poolAvailableCount = null;
 
-        // ─── Sidebar Toggle (Mobile) ───
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
         }
 
-        // Promote Upgrade to a real primary CTA -- but ONLY once there's an
-        // actual checkout URL to send people to. See UPGRADE_URL above.
         function applyUpgradeLink(btn) {
-            if (!btn || !UPGRADE_URL) return;
-            btn.href = UPGRADE_URL;
-            btn.target = '_blank';
-            btn.rel = 'noopener noreferrer';
+            if (!btn) return;
+            btn.href = 'javascript:void(0)';
+            btn.onclick = () => openUpgradeModal();
             btn.classList.add('nav-upgrade-primary');
             btn.removeAttribute('style');
         }
+
 
         // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
         (async function authGuard() {
@@ -1493,28 +1619,6 @@
             return { jobs: [], totalAvailable: null };
         }
 
-        // FALLBACK-ONLY for mosco's account (2026-07-29): the Madrid VPS that
-        // hosts the real job_pool is down (trial expired), so match-pool-jobs
-        // fails for every user right now. These are REAL rows still readable
-        // from Supabase's own job_pool table (real ids, real Elastic postings,
-        // real apply URLs, real descriptions) that happen to match her
-        // displayed roles -- not invented data. _skipApplyWebhook is set only
-        // because firing a real application to a real Elastic posting mid-
-        // recording would be a genuine, irreversible side effect; the swipe
-        // itself still writes a real user_job_swipes row so IN QUEUE moves
-        // exactly like normal. Remove this whole fallback once match-pool-jobs
-        // is reachable again for real users.
-        const MOSCO_REAL_FALLBACK_JOBS = [
-            { id: 'da81a8c2-6063-4efe-b2bb-83bcdc2bb439', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Sr. Director, Enablement, Strategy & Partner Operations', location: 'United States', workplace_type: '', salary_range: '', description_text: 'As the Sr. Director, Enablement, Strategy & Partner Operations, you will lead the organization responsible for accelerating Elastic’s revenue engine across our GTM motions. Reporting into Revenue Operations leadership, you will own the strategy, roadmap, operations, and execution for Global Partner Sales, Renewals, Value Engineering, Sales Programs, Field Strategy, and Enablement.' },
-            { id: '953a4c1e-2f18-4c6e-95db-14bdc36f60df', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Sr. Director, Global Public Sector Marketing', location: 'United States', workplace_type: '', salary_range: '', description_text: 'Elastic is seeking a senior marketing executive to lead our Global Public Sector go-to-market strategy — a high-impact, highly visible role at the intersection of regional execution and global vision.' },
-            { id: '346133c8-ae22-4e1f-8a8e-b079fb4e24c2', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Senior Program Manager, Revenue Operations', location: 'Canada', workplace_type: '', salary_range: '', description_text: 'As a member of our team, you will lead our programs of work that span across Field Engineering and Support organizations, at the intersection of strategy, operations, and GTM execution.' },
-            { id: '357f14c6-8ddd-4337-a26a-a7af4fd0a1f7', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Lifecycle Marketing Manager - Self Service Cloud', location: 'Canada', workplace_type: '', salary_range: '', description_text: 'We\'re looking for a seasoned Lifecycle Marketing Manager to own and grow product-led email programs that drive user acquisition, activation, adoption, and expansion.' },
-            { id: 'b62881e6-4433-4cef-adb6-d470bea64729', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Public Sector Marketing Manager (SLED)', location: 'United States', workplace_type: '', salary_range: '', description_text: 'Elastic is hiring a Regional Marketing Manager to own and grow our State, Local & Education (SLED) business through targeted, high-impact marketing programs, sitting at the intersection of field sales and marketing.' },
-            { id: '45d38443-7793-4eba-a875-4d07a0e61b9c', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Principal Competitive Intelligence - Product Marketing', location: 'United States', workplace_type: '', salary_range: '', description_text: 'Elastic is seeking a Principal Competitive Intelligence Manager to join its Product Marketing organization, focusing on Search, analyzing the competitive landscape and providing actionable insights to enhance go-to-market strategies.' },
-            { id: '0323ad8c-dc7a-49b8-bab9-d9d1279e2dbb', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Demand Manager', location: 'Barcelona, Spain', workplace_type: '', salary_range: '', description_text: 'The Demand Manager owns pipeline health, growth, and motion for their territory within International General Business -- part pipeline strategist, part execution lead, sitting at the intersection of Sales, Sales Development, Marketing, and Partner teams.' },
-            { id: 'c361567c-7c05-4a55-a179-96c807c84f85', _skipApplyWebhook: true, company_name: 'Elastic', company_domain: 'elastic.co', title: 'Program Manager, Revenue Journey Office', location: 'United States', workplace_type: '', salary_range: '', description_text: 'The Revenue Journey Office (RJO) is part of Global Revenue Operations, managing the tools and processes for Elastic\'s post-sales customer journey -- Customer Onboarding & Adoption and related business processes.' },
-        ];
-
         async function fetchPooledJobs(userId) {
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
@@ -1526,14 +1630,6 @@
                     applyPoolAvailableToStats();
                 }
                 if (error || !jobs || !jobs.length) {
-                    if (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
-                        pooledJobs = MOSCO_REAL_FALLBACK_JOBS;
-                        pooledJobIndex = 0;
-                        if (section) section.style.display = 'block';
-                        if (emptyState) emptyState.style.display = 'none';
-                        renderSwipeStack();
-                        return;
-                    }
                     if (section) section.style.display = 'none';
                     if (emptyState) emptyState.style.display = '';
                     return;
@@ -1550,14 +1646,6 @@
                 // the whole deck area permanently blank -- worse than the
                 // intended empty-state message. Always fall through to it.
                 console.error('fetchPooledJobs failed', err);
-                if (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
-                    pooledJobs = MOSCO_REAL_FALLBACK_JOBS;
-                    pooledJobIndex = 0;
-                    if (section) section.style.display = 'block';
-                    if (emptyState) emptyState.style.display = 'none';
-                    renderSwipeStack();
-                    return;
-                }
                 if (section) section.style.display = 'none';
                 if (emptyState) emptyState.style.display = '';
             }
@@ -1806,16 +1894,11 @@
             if (!user) return;
 
             if (decision === 'apply') {
-                // MOSCO_REAL_FALLBACK_JOBS cards are real postings but this
-                // account must never fire a real application against them
-                // mid-recording -- see the fallback's own comment above.
-                if (!job._skipApplyWebhook) {
-                    fetch(SWIPE_WEBHOOK_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ user_id: user.id, job_pool_id: job.id })
-                    }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
-                }
+                fetch(SWIPE_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: user.id, job_pool_id: job.id })
+                }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
 
                 // Record the swipe ourselves, right away. n8n's own pipeline
                 // (fit-check -> resume tailoring -> cover letter -> PDFs)
