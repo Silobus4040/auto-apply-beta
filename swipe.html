@@ -527,6 +527,28 @@
 
         /* Swipe deck */
         #swipe-deck-section { max-width: 480px; margin: 0 auto 2.5rem; }
+        /* Loading skeleton -- occupies the same footprint as a real card so the
+           layout doesn't jump when cards arrive. */
+        #deck-loading-state { max-width: 480px; margin: 0 auto 2.5rem; }
+        .deck-skeleton { display: flex; flex-direction: column; gap: 0.85rem; justify-content: flex-start; }
+        .deck-skeleton .sk-line, .deck-skeleton .sk-block {
+            background: linear-gradient(90deg, #f4f4f5 25%, #e9e9ec 37%, #f4f4f5 63%);
+            background-size: 400% 100%;
+            animation: sk-shimmer 1.4s ease infinite;
+            border-radius: 6px;
+        }
+        .deck-skeleton .sk-line { height: 0.85rem; }
+        .deck-skeleton .sk-sm { width: 35%; }
+        .deck-skeleton .sk-md { width: 65%; }
+        .deck-skeleton .sk-lg { width: 85%; height: 1.4rem; }
+        .deck-skeleton .sk-block { height: 4.5rem; border-radius: 12px; }
+        @keyframes sk-shimmer {
+            0% { background-position: 100% 50%; }
+            100% { background-position: 0 50%; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .deck-skeleton .sk-line, .deck-skeleton .sk-block { animation: none; }
+        }
         /* ---- Fit-to-screen deck sizing ----
            Instead of a hardcoded height, size the card off the REAL viewport:
            take the full viewport height and subtract the chrome that sits
@@ -909,6 +931,26 @@
                 <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip"><span class="swipe-btn-ico">✕</span> Skip</button>
                 <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply"><span class="swipe-btn-ico">✓</span> Apply</button>
             </div>
+        </div>
+
+        <!-- Shown from page load until the first fetch actually resolves. Without
+             this the deck had only two states -- cards, or "no jobs" -- so during
+             the (multi-second) fetch a user saw the FAILURE message even though
+             jobs were on the way, which reads as "this app is broken". Starts
+             visible; every fetch path hides it exactly once it knows the real
+             answer. -->
+        <div id="deck-loading-state">
+            <div class="swipe-stack">
+                <div class="swipe-card deck-skeleton" style="position: static;">
+                    <div class="sk-line sk-sm"></div>
+                    <div class="sk-line sk-lg"></div>
+                    <div class="sk-line sk-md"></div>
+                    <div class="sk-block"></div>
+                    <div class="sk-line sk-md"></div>
+                    <div class="sk-line sk-sm"></div>
+                </div>
+            </div>
+            <p style="text-align: center; color: #71717a; font-size: 0.85rem; margin-top: 1rem;">Loading your matches…</p>
         </div>
 
         <!-- Shown instead of the deck when the pool has nothing left to offer. On
@@ -1330,6 +1372,10 @@
             // yet, hold the scrape and show the activation gate instead.
             if (!profile.is_activated) {
                 document.getElementById('activation-gate-banner').style.display = 'block';
+                // This branch never calls fetchPooledJobs, so nothing would ever
+                // clear the loading skeleton -- it would spin forever behind the
+                // activation gate.
+                hideDeckLoading();
             } else if (localStorage.getItem('trigger_initial_scrape') === 'true') {
                 localStorage.removeItem('trigger_initial_scrape');
                 triggerInitialScrape(user, profile);
@@ -1640,6 +1686,13 @@
             return { jobs: [], totalAvailable: null };
         }
 
+        // The skeleton is visible from page load; hide it the moment we know the
+        // real answer (cards, empty, or error) -- never before.
+        function hideDeckLoading() {
+            const loading = document.getElementById('deck-loading-state');
+            if (loading) loading.style.display = 'none';
+        }
+
         async function fetchPooledJobs(userId) {
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
@@ -1651,12 +1704,14 @@
                     applyPoolAvailableToStats();
                 }
                 if (error || !jobs || !jobs.length) {
+                    hideDeckLoading();
                     if (section) section.style.display = 'none';
                     if (emptyState) emptyState.style.display = '';
                     return;
                 }
                 pooledJobs = jobs;
                 pooledJobIndex = 0;
+                hideDeckLoading();
                 if (section) section.style.display = 'block';
                 if (emptyState) emptyState.style.display = 'none';
                 renderSwipeStack();
@@ -1667,6 +1722,7 @@
                 // the whole deck area permanently blank -- worse than the
                 // intended empty-state message. Always fall through to it.
                 console.error('fetchPooledJobs failed', err);
+                hideDeckLoading();
                 if (section) section.style.display = 'none';
                 if (emptyState) emptyState.style.display = '';
             }
