@@ -913,7 +913,7 @@
     <div class="modal-overlay" id="upgrade-modal">
         <div class="desc-modal" style="max-width: 500px; padding: 2.5rem; text-align: left;">
             <button class="close-modal" onclick="closeModal('upgrade-modal')">&times;</button>
-            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Upgrade Your Account</h2>
+            <h2 id="upgrade-modal-title" style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Upgrade Your Account</h2>
             <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 2rem;">Choose the number of job applications you want.</p>
             
             <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
@@ -973,7 +973,9 @@
         function openUpgradeModal() {
             const slider = document.getElementById('upgrade-slider');
             const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
-            
+            const titleEl = document.getElementById('upgrade-modal-title');
+            if (titleEl) titleEl.textContent = isPremium ? 'Top Up Your Jobs' : 'Upgrade Your Account';
+
             if (isPremium) {
                 slider.min = "10";
                 slider.value = "10";
@@ -981,7 +983,7 @@
                 slider.min = "100";
                 slider.value = "100";
             }
-            
+
             detectLocation().then(() => {
                 document.getElementById('upgrade-modal').classList.add('active');
             });
@@ -1194,7 +1196,15 @@
                 badgeEl.style.background = 'rgba(16, 185, 129, 0.06)';
                 badgeEl.style.color = '#10B981';
                 badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.2)';
-                if (upgradeBtn) upgradeBtn.style.display = 'none'; 
+                // Premium users can still buy more jobs (the modal already
+                // supports this -- see openUpgradeModal's isPremium branch,
+                // slider min drops to 10). Hiding the button entirely left no
+                // way to reach it at all; relabel instead of hiding.
+                if (upgradeBtn) {
+                    upgradeBtn.style.display = 'inline-flex';
+                    upgradeBtn.textContent = 'Top Up';
+                    applyUpgradeLink(upgradeBtn);
+                }
             } else {
                 badgeEl.innerHTML = '⏳ Free Trial';
                 badgeEl.style.background = 'rgba(0, 0, 0, 0.04)';
