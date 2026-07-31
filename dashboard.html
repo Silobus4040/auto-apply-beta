@@ -651,21 +651,18 @@
         <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 0.6rem;">
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
-                <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
+                    <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
+                    <a class="stat-view-btn" href="swipe.html" style="text-decoration: none;">View</a>
+                </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
-                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
-                    <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
-                    <button class="stat-view-btn" onclick="scrollToApplications()">View</button>
-                </div>
+                <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
-                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
-                    <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
-                    <button class="stat-view-btn" onclick="scrollToApplications()">View</button>
-                </div>
+                <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
             </div>
         </div>
 
@@ -1709,12 +1706,6 @@
             } else {
                 alert("📊 Market intel builds up as Rover reviews jobs that don't match your resume. Nothing to show yet — check back after your next scan.");
             }
-        }
-
-        function scrollToApplications() {
-            const target = document.getElementById('job-list');
-            if (!target) return;
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function renderJobs(jobs, isScanning = false) {
