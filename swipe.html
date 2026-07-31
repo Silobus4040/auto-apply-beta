@@ -1153,9 +1153,6 @@
         async function triggerUpgradeCheckout() {
             const slider = document.getElementById('upgrade-slider');
             const jobs = parseInt(slider.value, 10);
-            
-            // Quantity in Bachs represents groups of 10 jobs (since 1 unit = 10 jobs)
-            const quantityUnits = jobs / 10;
 
             const btn = document.getElementById('upgrade-checkout-btn');
             btn.disabled = true;
@@ -1170,18 +1167,17 @@
                     return;
                 }
 
-                // Call the apply-api reverse proxy routed through Caddy
-                const res = await fetch('https://n8n.leadscompass.ai/apply-api/create-checkout-session', {
+                const res = await fetch('https://n8n.leadscompass.ai/webhook/bachs-create-checkout', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        userId: session.user.id,
+                        user_id: session.user.id,
                         email: session.user.email,
                         name: userProfile ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() : session.user.email.split('@')[0],
-                        quantity: quantityUnits,
-                        isAlreadyPremium: isPremium
+                        job_count: jobs,
+                        is_already_premium: isPremium
                     })
                 });
 

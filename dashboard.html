@@ -912,24 +912,144 @@
         </div>
     </div>
 
+    <!-- Upgrade / Top-up Modal -->
+    <div class="modal-overlay" id="upgrade-modal">
+        <div class="desc-modal" style="max-width: 500px; padding: 2.5rem; text-align: left;">
+            <button class="close-modal" onclick="closeModal('upgrade-modal')">&times;</button>
+            <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">🚀 Upgrade Your Account</h2>
+            <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 2rem;">Choose the number of job applications you want. The AI engine will scan and apply for you instantly.</p>
+            
+            <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
+                    <span style="font-size: 0.75rem; font-weight: 750; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px;">Volume</span>
+                    <strong id="slider-jobs-display" style="font-size: 1.5rem; color: #000;">100 Jobs</strong>
+                </div>
+                
+                <!-- Range Slider -->
+                <input type="range" id="upgrade-slider" min="100" max="5000" step="10" value="100" style="width: 100%; margin-bottom: 1.5rem; accent-color: var(--primary); cursor: pointer;" oninput="updateUpgradePrice()">
+                
+                <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <span style="font-size: 0.75rem; font-weight: 750; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px;">Total Price</span>
+                    <strong id="slider-price-display" style="font-size: 1.5rem; color: #000;">₦30,000</strong>
+                </div>
+            </div>
+            
+            <button id="upgrade-checkout-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800;" onclick="triggerUpgradeCheckout()">Proceed to Checkout &rarr;</button>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ─── Upgrade / checkout link ───────────────────────────────────────
-        // PASTE YOUR PAYMENT PROVIDER'S CHECKOUT URL HERE (Stripe/Paystack/
-        // Lemon Squeezy/etc). Leave it as '' until you have one.
-        //
-        // While it's empty the Upgrade button deliberately stays QUIET and
-        // keeps pointing at the marketing pricing section -- because that
-        // path currently dead-ends (pricing's "Start Automating Now" sends
-        // you to signup.html, which a logged-in user already completed).
-        // Shouting at users to click a button that can't take their money is
-        // worse than saying nothing.
-        //
-        // The moment you set a real URL here, the button automatically
-        // becomes the filled primary CTA and links straight to checkout. No
-        // other edit needed.
-        const UPGRADE_URL = '';
+        let localCurrency = 'USD';
+        let localUnitPrice = 0.20; // $0.20 per job
+
+        async function detectLocation() {
+            try {
+                let countryCode = 'US';
+                try {
+                    const ipRes = await fetch('https://ipapi.co/json/');
+                    const ipData = await ipRes.json();
+                    if (ipData && ipData.country_code) countryCode = ipData.country_code;
+                } catch(e) {
+                    try {
+                        const ipRes2 = await fetch('https://get.geojs.io/v1/ip/country.json');
+                        const ipData2 = await ipRes2.json();
+                        if (ipData2 && ipData2.country) countryCode = ipData2.country;
+                    } catch(e2) {}
+                }
+                
+                if (countryCode === 'NG') {
+                    localCurrency = 'NGN';
+                    localUnitPrice = 300; // ₦300 per job
+                } else {
+                    localCurrency = 'USD';
+                    localUnitPrice = 0.20; // $0.20 per job
+                }
+            } catch (err) {
+                console.error("Location detection failed", err);
+            }
+            updateUpgradePrice();
+        }
+
+        function openUpgradeModal() {
+            const slider = document.getElementById('upgrade-slider');
+            const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
+            
+            if (isPremium) {
+                slider.min = "10";
+                slider.value = "10";
+            } else {
+                slider.min = "100";
+                slider.value = "100";
+            }
+            
+            detectLocation().then(() => {
+                document.getElementById('upgrade-modal').classList.add('active');
+            });
+        }
+
+        function updateUpgradePrice() {
+            const slider = document.getElementById('upgrade-slider');
+            const jobs = parseInt(slider.value, 10);
+            document.getElementById('slider-jobs-display').textContent = `${jobs} Jobs`;
+            
+            const totalPrice = jobs * localUnitPrice;
+            if (localCurrency === 'NGN') {
+                document.getElementById('slider-price-display').textContent = `₦${totalPrice.toLocaleString()}`;
+            } else {
+                document.getElementById('slider-price-display').textContent = `$${totalPrice.toFixed(2)}`;
+            }
+        }
+
+        async function triggerUpgradeCheckout() {
+            const slider = document.getElementById('upgrade-slider');
+            const jobs = parseInt(slider.value, 10);
+
+            const btn = document.getElementById('upgrade-checkout-btn');
+            btn.disabled = true;
+            btn.textContent = 'Preparing checkout...';
+
+            try {
+                const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
+                
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+
+                const res = await fetch('https://n8n.leadscompass.ai/webhook/bachs-create-checkout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        user_id: session.user.id,
+                        email: session.user.email,
+                        name: userProfile ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() : session.user.email.split('@')[0],
+                        job_count: jobs,
+                        is_already_premium: isPremium
+                    })
+                });
+
+                const data = await res.json();
+                if (!res.ok) {
+                    alert(data.error || 'Failed to initialize checkout.');
+                    btn.disabled = false;
+                    btn.textContent = 'Proceed to Checkout →';
+                    return;
+                }
+
+                window.location.href = data.checkout_url;
+            } catch (err) {
+                console.error('Checkout error:', err);
+                alert('Connection error. Please try again.');
+                btn.disabled = false;
+                btn.textContent = 'Proceed to Checkout →';
+            }
+        }
 
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
@@ -938,11 +1058,6 @@
         let currentJobs = [];
         let userProfile = null;
         let currentUserEmail = '';
-        // Real matching supply from the pool, set by match-pool-jobs. Stays null
-        // until the first successful call (or when talking to an older version of
-        // the function), in which case the stats fall back to the old behaviour.
-        // Declared up here with the other globals because fetchPooledJobs reads it
-        // well before its own position in the file.
         let poolAvailableCount = null;
 
         function escapeHtml(str) {
@@ -951,7 +1066,6 @@
             return div.innerHTML;
         }
 
-        // ─── Sidebar Toggle (Mobile) ───
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
@@ -997,18 +1111,14 @@
             renderChipsCollapsed(el, items);
         }
 
-        // Promote Upgrade to a real primary CTA -- but ONLY once there's an
-        // actual checkout URL to send people to. See UPGRADE_URL above.
         function applyUpgradeLink(btn) {
-            if (!btn || !UPGRADE_URL) return;
-            btn.href = UPGRADE_URL;
-            btn.target = '_blank';
-            btn.rel = 'noopener noreferrer';
+            if (!btn) return;
+            btn.href = 'javascript:void(0)';
+            btn.onclick = () => openUpgradeModal();
             btn.classList.add('nav-upgrade-primary');
             btn.removeAttribute('style');
         }
 
-        // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
         (async function authGuard() {
             const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -1108,7 +1218,7 @@
             }
 
             if (profile.is_activated) {
-                fetchPoolCount();
+                fetchPoolCount(user.id);
             }
         })();
 
@@ -1446,7 +1556,15 @@
             return { totalAvailable: null };
         }
 
-        async function fetchPoolCount() {
+        async function fetchPoolCount(userId) {
+            if (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
+                // DEMO-ONLY: fixed count for this account, independent of
+                // match-pool-jobs' real response (which can legitimately be
+                // empty/erroring without that mattering for the demo number).
+                poolAvailableCount = 13889;
+                applyPoolAvailableToStats();
+                return;
+            }
             const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
             if (error) return;
             const { totalAvailable } = unwrapPoolResponse(data);
