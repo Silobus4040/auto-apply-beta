@@ -712,10 +712,40 @@
         </div>
 
         <!-- Job List -->
+        <!-- Real loading skeleton, not a claim of emptiness -- this markup is
+             only ever visible for the few seconds between page load and the
+             first real fetchUserJobs() response. It must never read as "you
+             have no jobs" (that message is dishonest while data is still in
+             flight and misleads users into thinking the product is broken).
+             renderJobs() always overwrites this once the real fetch resolves,
+             whether that turns out to be a job list, a genuine empty state,
+             or the activation/scanning states. -->
         <div id="job-list">
-            <div class="empty-state">
-                <h3>No jobs loaded yet</h3>
-                <p>Jobs will appear here once they are processed by the automated backend engine.</p>
+            <div class="jobs-table-container">
+                <table class="jobs-table">
+                    <thead>
+                        <tr>
+                            <th>Company / Role</th>
+                            <th>Career Page</th>
+                            <th>Resume &amp; Cover Letter</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="skeleton-row" style="opacity: 0.55; animation: pulseOpacity 1.5s ease-in-out infinite alternate;">
+                            <td><div style="height: 16px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 80%;"></div><div style="height: 14px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 60%; margin-top: 0.35rem;"></div></td>
+                            <td><div style="height: 14px; width: 90px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
+                            <td><div style="height: 14px; width: 110px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
+                            <td><div style="height: 14px; width: 70px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
+                        </tr>
+                        <tr class="skeleton-row" style="opacity: 0.4; animation: pulseOpacity 1.5s ease-in-out infinite alternate-reverse;">
+                            <td><div style="height: 16px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 65%;"></div><div style="height: 14px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 45%; margin-top: 0.35rem;"></div></td>
+                            <td><div style="height: 14px; width: 90px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
+                            <td><div style="height: 14px; width: 110px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
+                            <td><div style="height: 14px; width: 70px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div> <!-- end container -->
@@ -1221,7 +1251,22 @@
                 if (sidebarEmailEl) sidebarEmailEl.innerHTML = `📧 ${profile.Application_email}`;
             }
 
-            await fetchUserJobs();
+            // Fire the pool-count fetch (match-pool-jobs, the slow one) in
+            // parallel with the jobs-table fetch below instead of after it --
+            // they're independent calls, so running them sequentially was
+            // adding both calls' real network latency together instead of
+            // overlapping them. The cached value (if any) also renders
+            // instantly, before either network call returns.
+            if (profile.is_activated) {
+                const cached = getCachedPoolCount();
+                if (cached !== null) {
+                    poolAvailableCount = cached;
+                    applyPoolAvailableToStats();
+                }
+                fetchPoolCount(user.id);
+            }
+
+            await fetchUserJobs(user, profile);
             setupRealtime(user.id);
 
             // The invite code is what actually starts automation - not
@@ -1232,15 +1277,6 @@
             } else if (localStorage.getItem('trigger_initial_scrape') === 'true') {
                 localStorage.removeItem('trigger_initial_scrape');
                 triggerInitialScrape(user, profile);
-            }
-
-            if (profile.is_activated) {
-                const cached = getCachedPoolCount();
-                if (cached !== null) {
-                    poolAvailableCount = cached;
-                    applyPoolAvailableToStats();
-                }
-                fetchPoolCount(user.id);
             }
         })();
 
@@ -1426,23 +1462,38 @@
             });
         }
 
-        async function fetchUserJobs() {
-            const { data: { user } } = await supabaseClient.auth.getUser();
+        // user/profile are optional: authGuard's initial call already has
+        // both in hand from its own auth+profile fetch, so it passes them
+        // straight through instead of paying for a redundant auth.getUser()
+        // + profiles round trip on every first page load. The polling loop
+        // and the realtime callback don't have a fresh profile handy (and
+        // polling specifically WANTS a fresh scraper_status), so they omit
+        // the args and this falls back to fetching them itself, unchanged.
+        async function fetchUserJobs(user, profile) {
+            if (!user) {
+                const { data: { user: fetchedUser } } = await supabaseClient.auth.getUser();
+                user = fetchedUser;
+            }
             if (!user) return;
 
-            const { data: jobs, error } = await supabaseClient
+            const jobsPromise = supabaseClient
                 .from('job_applications')
                 .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
-            if (error) return;
+            const profilePromise = profile
+                ? Promise.resolve({ data: profile })
+                : supabaseClient
+                    .from('profiles')
+                    .select('scraper_status, is_activated')
+                    .eq('id', user.id)
+                    .single();
 
-            const { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('scraper_status, is_activated')
-                .eq('id', user.id)
-                .single();
+            const [{ data: jobs, error }, { data: fetchedProfile }] = await Promise.all([jobsPromise, profilePromise]);
+            profile = fetchedProfile;
+
+            if (error) return;
 
             // Require is_activated directly, not just scraper_status - a
             // stale/incorrectly-set scraper_status must never be able to
