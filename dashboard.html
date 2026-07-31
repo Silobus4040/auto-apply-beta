@@ -1056,6 +1056,15 @@
         let userProfile = null;
         let currentUserEmail = '';
         let poolAvailableCount = null;
+        let cachedUserId = null;
+
+        function getCachedPoolCount() {
+            if (!cachedUserId) return null;
+            try {
+                const raw = localStorage.getItem(`poolCount_${cachedUserId}`);
+                return raw !== null ? Number(raw) : null;
+            } catch (e) { return null; }
+        }
 
         function escapeHtml(str) {
             const div = document.createElement('div');
@@ -1126,6 +1135,7 @@
 
             const user = session.user;
             currentUserEmail = user.email;
+            cachedUserId = user.id;
 
             if (!user.email_confirmed_at) {
                 sessionStorage.setItem('pending_verification_email', user.email);
@@ -1215,6 +1225,11 @@
             }
 
             if (profile.is_activated) {
+                const cached = getCachedPoolCount();
+                if (cached !== null) {
+                    poolAvailableCount = cached;
+                    applyPoolAvailableToStats();
+                }
                 fetchPoolCount(user.id);
             }
         })();
@@ -1570,6 +1585,9 @@
             el.textContent = poolAvailableCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
+            if (cachedUserId) {
+                try { localStorage.setItem(`poolCount_${cachedUserId}`, String(poolAvailableCount)); } catch (e) {}
+            }
         }
 
         async function updateStats(jobs, userId) {
@@ -1577,16 +1595,21 @@
             const rows = jobs || [];
             const applied = rows.filter(j => j.status === 'applied').length;
 
-            if (rows.length === 0 && poolAvailableCount === null) {
+            if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
             } else {
                 bar.style.display = 'flex';
-                // JOBS FOUND = how many real jobs match this user and are still
-                // undecided. It used to show rows.length -- the number of
-                // applications ALREADY created -- so a user with thousands of
-                // genuine matches saw a single digit.
-                document.getElementById('stat-total').textContent =
-                    poolAvailableCount !== null ? poolAvailableCount.toLocaleString() : rows.length;
+                // JOBS FOUND must only ever be the real match-pool-jobs supply
+                // figure (or the last known-good cached one), never rows.length
+                // (applications already created) -- that's a completely
+                // different, much smaller number and showing it as a fallback
+                // is what caused the "34 flashes before the real ~800+ shows up"
+                // bug. If neither a fresh nor cached value exists yet, show a
+                // neutral placeholder instead of a wrong number.
+                if (poolAvailableCount === null) {
+                    const cached = getCachedPoolCount();
+                    document.getElementById('stat-total').textContent = cached !== null ? cached.toLocaleString() : '—';
+                }
                 document.getElementById('stat-applied').textContent = applied;
 
                 // IN QUEUE = right-swipes not yet applied. Counting

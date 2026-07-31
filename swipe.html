@@ -1206,6 +1206,15 @@
         let userProfile = null;
         let currentUserEmail = '';
         let poolAvailableCount = null;
+        let cachedUserId = null;
+
+        function getCachedPoolCount() {
+            if (!cachedUserId) return null;
+            try {
+                const raw = localStorage.getItem(`poolCount_${cachedUserId}`);
+                return raw !== null ? Number(raw) : null;
+            } catch (e) { return null; }
+        }
 
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
@@ -1232,6 +1241,7 @@
 
             const user = session.user;
             currentUserEmail = user.email;
+            cachedUserId = user.id;
 
             if (!user.email_confirmed_at) {
                 sessionStorage.setItem('pending_verification_email', user.email);
@@ -1316,6 +1326,11 @@
             }
 
             if (profile.is_activated) {
+                const cached = getCachedPoolCount();
+                if (cached !== null) {
+                    poolAvailableCount = cached;
+                    applyPoolAvailableToStats();
+                }
                 fetchPooledJobs(user.id);
             }
         })();
@@ -1703,11 +1718,23 @@
             const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
             const tags = missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`).join('');
             const reason = escapeHtml(job.fit_reason || '');
+            // Whether "more"/"View" buttons show used to depend entirely on a
+            // one-shot pixel measurement taken right after render (see
+            // renderSwipeStack's requestAnimationFrame block) -- if the web
+            // font finished loading a moment later, the text reflowed onto
+            // more lines AFTER that check already decided "fits, no button
+            // needed", leaving real overflow with no way to read the rest.
+            // Decide up front from content length instead, so the button is
+            // never missing; the later pixel check still runs too and can
+            // only ADD the class, never remove it, so it's a safe backstop
+            // for cases this estimate misses.
+            const reasonLikelyClamped = reason.length > 130;
+            const tagsLikelyClamped = missing.length > 1 || (missing[0] && missing[0].length > 20);
             return `
                 <div class="swipe-card-fit-badge ${colorClass}">
                     <span class="swipe-card-fit-score">${score}%</span>
                     <div class="swipe-card-fit-reason-wrap">
-                        <span class="swipe-card-fit-reason">${reason}</span>
+                        <span class="swipe-card-fit-reason${reasonLikelyClamped ? ' is-clamped' : ''}">${reason}</span>
                         <button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); toggleFitReason(this)">more</button>
                         <div class="swipe-card-fit-reason-full"><button type="button" class="swipe-card-fit-less" onclick="event.stopPropagation(); toggleFitReason(this)">less</button>${reason}</div>
                     </div>
@@ -1715,7 +1742,7 @@
                 ${tags ? `
                 <div class="swipe-card-fit-tags-wrap">
                     <span class="swipe-card-fit-tags-label">Gaps</span>
-                    <div class="swipe-card-fit-tags">${tags}</div>
+                    <div class="swipe-card-fit-tags${tagsLikelyClamped ? ' is-clamped' : ''}">${tags}</div>
                     <button type="button" class="swipe-card-tags-more" onclick="event.stopPropagation(); toggleFitTags(this)">more</button>
                 </div>` : ''}
             `;
@@ -1965,6 +1992,9 @@
             el.textContent = poolAvailableCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
+            if (cachedUserId) {
+                try { localStorage.setItem(`poolCount_${cachedUserId}`, String(poolAvailableCount)); } catch (e) {}
+            }
         }
 
         async function updateStats(jobs, userId) {
@@ -1972,16 +2002,21 @@
             const rows = jobs || [];
             const applied = rows.filter(j => j.status === 'applied').length;
 
-            if (rows.length === 0 && poolAvailableCount === null) {
+            if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
             } else {
                 bar.style.display = 'flex';
-                // JOBS FOUND = how many real jobs match this user and are still
-                // undecided. It used to show rows.length -- the number of
-                // applications ALREADY created -- so a user with thousands of
-                // genuine matches saw a single digit.
-                document.getElementById('stat-total').textContent =
-                    poolAvailableCount !== null ? poolAvailableCount.toLocaleString() : rows.length;
+                // JOBS FOUND must only ever be the real match-pool-jobs supply
+                // figure (or the last known-good cached one), never rows.length
+                // (applications already created) -- that's a completely
+                // different, much smaller number and showing it as a fallback
+                // is what caused the "34 flashes before the real ~800+ shows up"
+                // bug. If neither a fresh nor cached value exists yet, show a
+                // neutral placeholder instead of a wrong number.
+                if (poolAvailableCount === null) {
+                    const cached = getCachedPoolCount();
+                    document.getElementById('stat-total').textContent = cached !== null ? cached.toLocaleString() : '—';
+                }
                 document.getElementById('stat-applied').textContent = applied;
 
                 // IN QUEUE = right-swipes not yet applied. Counting
