@@ -495,7 +495,12 @@
                 padding: 1rem 1.1rem;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             }
+            /* Alternating card tint, using the same mint the desktop table's
+               zebra striping already uses -- 1st card tinted, 2nd plain, etc. */
             .jobs-table tbody tr:nth-child(even) td { background: transparent; }
+            .jobs-table tbody tr:not(.skeleton-row):nth-child(odd) {
+                background: rgba(0, 255, 204, 0.06);
+            }
             .jobs-table td { border-bottom: none; padding: 0; }
 
             /* Drop the uppercase field labels -- content is self-evident on a card */
