@@ -246,11 +246,27 @@
             <p style="margin-bottom: 1.25rem; color: #52525B; font-size: 0.95rem;">Set a new password for your account.</p>
             <div style="margin-bottom: 1rem; text-align: left;">
                 <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">NEW PASSWORD</label>
-                <input type="password" id="new-password" placeholder="At least 8 characters" style="width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                <div style="position:relative;">
+                    <input type="password" id="new-password" placeholder="At least 8 characters" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                    <button type="button" onclick="togglePasswordVisibility('new-password', 'new-password-eye')" aria-label="Show password" style="position:absolute; top:50%; right:0.9rem; transform:translateY(-50%); background:none; border:none; padding:0.2rem; cursor:pointer; color:#71717A; display:flex; align-items:center;">
+                        <svg id="new-password-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div style="margin-bottom: 1.25rem; text-align: left;">
                 <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">CONFIRM NEW PASSWORD</label>
-                <input type="password" id="confirm-password" placeholder="Re-enter password" style="width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                <div style="position:relative;">
+                    <input type="password" id="confirm-password" placeholder="Re-enter password" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                    <button type="button" onclick="togglePasswordVisibility('confirm-password', 'confirm-password-eye')" aria-label="Show password" style="position:absolute; top:50%; right:0.9rem; transform:translateY(-50%); background:none; border:none; padding:0.2rem; cursor:pointer; color:#71717A; display:flex; align-items:center;">
+                        <svg id="confirm-password-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <button class="btn btn-primary" id="set-password-btn" onclick="setNewPassword()">Set Password &rarr;</button>
         </div>
@@ -436,6 +452,17 @@
                 btn.disabled = false;
                 btn.textContent = 'Verify & Continue →';
             }
+        }
+
+        // ─── Show/hide password (mirrors login.html's toggle) ───
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.innerHTML = isHidden
+                ? '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.6M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
+                : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle>';
         }
 
         // ─── Set New Password (forgot-password flow only) ───
