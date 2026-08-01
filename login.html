@@ -295,18 +295,26 @@
             // no-ops for already-confirmed accounts) and not signInWithOtp (blocked outright
             // by this project's "disable public signup" setting, even for existing users).
             // resetPasswordForEmail is exempt from that gate since it never creates a user.
-            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {});
+            //
+            // redirectTo sends the user straight into verify.html with a real recovery
+            // session already established from the emailed link -- no code to type. This
+            // relies on the Supabase project's "Reset Password" email template actually
+            // sending {{ .ConfirmationURL }} (a link), not {{ .Token }} (a code); that
+            // template lives in the Supabase dashboard, not in this repo.
+            // Hardcoded, not window.location.origin -- a stale/cached copy of this app
+            // living on an old, now-broken domain would otherwise send the recovery link
+            // back to that dead domain instead of the real, live one. Always send users
+            // to the one true production URL regardless of where the form was submitted from.
+            const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+                redirectTo: 'https://myrolerover.com/verify.html',
+            });
 
             if (error) {
-                errorMsg.textContent = '❌ ' + (error.message || 'Could not send code. Please contact support.');
+                errorMsg.textContent = '❌ ' + (error.message || 'Could not send reset link. Please contact support.');
                 errorMsg.style.display = 'block';
             } else {
-                successMsg.textContent = '✅ Verification code sent to ' + email + '! Enter the 8-digit code to log in.';
+                successMsg.textContent = '✅ Password reset link sent to ' + email + '! Check your email and click the link to set a new password.';
                 successMsg.style.display = 'block';
-                // Store email and redirect to verify page
-                sessionStorage.setItem('pending_verification_email', email);
-                sessionStorage.setItem('otp_flow', 'login');
-                setTimeout(() => { window.location.href = 'verify.html'; }, 2000);
             }
         }
     </script>
