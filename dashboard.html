@@ -495,12 +495,11 @@
                 padding: 1rem 1.1rem;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             }
-            /* Alternating card tint, using the same mint the desktop table's
-               zebra striping already uses -- 1st card tinted, 2nd plain, etc. */
+            /* No zebra striping on cards: that's a TABLE convention (it helps the
+               eye track across long horizontal rows). Cards are already separated
+               by their own border, gap and shadow, so the stripe was decorative
+               only -- and a 6% tint is close to invisible on a phone in daylight. */
             .jobs-table tbody tr:nth-child(even) td { background: transparent; }
-            .jobs-table tbody tr:not(.skeleton-row):nth-child(odd) {
-                background: rgba(0, 255, 204, 0.06);
-            }
             .jobs-table td { border-bottom: none; padding: 0; }
 
             /* Drop the uppercase field labels -- content is self-evident on a card */
@@ -508,9 +507,13 @@
 
             /* Company (eyebrow) + role (headline), full width at top */
             .jobs-table td[data-label="Company / Role"] { flex: 1 1 100%; order: 1; }
+            /* Slightly darker than the old #6b7280 so it reads as a BRAND, not a
+               form label. Uppercase stays: company names are stored inconsistently
+               (anthropic / lastpass / boomilp are all lowercase in job_pool), and
+               the transform quietly normalises that. */
             .jobs-table td[data-label="Company / Role"] div:first-child {
                 font-size: 0.78rem !important; font-weight: 700 !important;
-                color: #6b7280 !important; text-transform: uppercase; letter-spacing: 0.4px;
+                color: #52525B !important; text-transform: uppercase; letter-spacing: 0.4px;
                 margin-top: 0 !important;
             }
             .jobs-table td[data-label="Company / Role"] div:last-child {
@@ -528,6 +531,26 @@
                 flex-direction: row !important; flex-wrap: wrap; gap: 0.5rem;
             }
             .jobs-table td[data-label="Resume & Cover Letter"] .table-btn { margin-top: 0 !important; }
+
+            /* Button hierarchy. Previously all four buttons rendered at identical
+               weight, which read as a flat grey wall under the title and left the
+               user nothing to aim at. Three tiers now, purely by position -- no JS
+               or markup changes needed:
+                 1. View Posting  -- primary action, brand fill
+                 2. View Submitted Form -- secondary, keeps the outline
+                 3. Resume / Cover Letter -- tertiary, de-emphasised documents */
+            .jobs-table td[data-label="Career Page"] .table-btn {
+                background: var(--primary);
+                border-color: var(--primary);
+                color: #000;
+                font-weight: 700;
+            }
+            .jobs-table td[data-label="Resume & Cover Letter"] .table-btn {
+                background: rgba(0, 0, 0, 0.035);
+                border-color: transparent;
+                color: #52525B;
+                font-weight: 600;
+            }
 
             /* Loading skeleton rows keep a simple padded card */
             .jobs-table tr.skeleton-row {
