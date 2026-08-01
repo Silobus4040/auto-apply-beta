@@ -883,6 +883,19 @@
             </div>
         </div>
 
+        <!-- Gap Caveat Modal -- first-time-only, blocking (no close button, no
+             backdrop dismiss). Shown before the deck ever loads so a new user
+             doesn't self-select out of jobs with an imperfect fit score.
+             Dismissal is persisted server-side (profiles.has_seen_gap_caveat),
+             not localStorage, so it stays dismissed across devices. -->
+        <div class="modal-overlay" id="gap-caveat-modal">
+            <div class="desc-modal" style="max-width: 480px; text-align: left; padding: 2.5rem;">
+                <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 1rem;">Before you start swiping</h2>
+                <p style="color: var(--text-body); font-size: 0.98rem; line-height: 1.7; margin-bottom: 1.75rem;">Pro tip: 100% match without a gap is rare. If your score is green, it means you're qualified enough to swipe. Rover addresses any gaps directly in your cover letter.</p>
+                <button class="table-btn table-btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem;" onclick="acknowledgeGapCaveat()">I Understand →</button>
+            </div>
+        </div>
+
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Job Deck</h1>
@@ -1296,7 +1309,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit, has_seen_gap_caveat')
                 .eq('id', user.id)
                 .single();
 
@@ -1387,9 +1400,28 @@
                     poolAvailableCount = cached;
                     applyPoolAvailableToStats();
                 }
+                // First-time-only blocking gate. The deck fetch still kicks off
+                // right away behind the modal (fetchPooledJobs already shows its
+                // own skeleton) so the wait isn't wasted -- the user just can't
+                // see/act on cards until they've acknowledged the caveat.
+                if (!profile.has_seen_gap_caveat) {
+                    document.getElementById('gap-caveat-modal').classList.add('active');
+                }
                 fetchPooledJobs(user.id);
             }
         })();
+
+        async function acknowledgeGapCaveat() {
+            document.getElementById('gap-caveat-modal').classList.remove('active');
+            if (userProfile) userProfile.has_seen_gap_caveat = true;
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+            const { error } = await supabaseClient
+                .from('profiles')
+                .update({ has_seen_gap_caveat: true })
+                .eq('id', user.id);
+            if (error) console.error('failed to persist gap caveat ack:', error);
+        }
 
         async function activateWithInviteCode() {
             const input = document.getElementById('activation-code-input');
