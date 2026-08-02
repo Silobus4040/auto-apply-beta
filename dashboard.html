@@ -1958,13 +1958,16 @@
 
             jobs.forEach((job, index) => {
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
-                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Needs Review' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
+                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Retrying' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
                 const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">Custom Resume</button>` : '';
                 const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">Custom Cover Letter</button>` : '';
                 const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
+                // Reassure the user Rover is handling this, not asking them to -- see
+                // memory: "Needs Review" implied a human reviewer that doesn't exist.
+                const retryingNote = job.status === 'Needs Human Review' ? `<div style="font-size: 0.78rem; color: #71717A; margin-top: 0.35rem; max-width: 220px;">Application didn't go through — Rover will retry automatically. You're not charged for it.</div>` : '';
 
                 html += `
                     <tr>
@@ -1985,6 +1988,7 @@
                             <div style="display: flex; flex-direction: column; align-items: flex-start;">
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                                 ${qaButton}
+                                ${retryingNote}
                             </div>
                         </td>
                     </tr>
