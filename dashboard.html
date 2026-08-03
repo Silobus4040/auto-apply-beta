@@ -773,6 +773,15 @@
              renderJobs() always overwrites this once the real fetch resolves,
              whether that turns out to be a job list, a genuine empty state,
              or the activation/scanning states. -->
+        <div id="job-filter-bar" style="display: none; margin-bottom: 1.25rem;">
+            <div class="field" style="max-width: 360px; margin-bottom: 0.85rem;">
+                <input type="text" id="job-search-input" placeholder="Search by company or title..." oninput="onJobSearchInput(this.value)">
+            </div>
+            <div class="filter-row" style="margin-top: 0;">
+                <span class="filter-label">Status</span>
+                <div class="filter-chips" id="job-status-chips"></div>
+            </div>
+        </div>
         <div id="job-list">
             <div class="jobs-table-container">
                 <table class="jobs-table">
@@ -1140,6 +1149,9 @@
         let currentJobs = [];
         let userProfile = null;
         let currentUserEmail = '';
+        let activeStatusFilter = 'all';
+        let jobSearchQuery = '';
+        let lastIsScanning = false;
         let poolAvailableCount = null;
         let cachedUserId = null;
 
@@ -1621,6 +1633,7 @@
             currentJobs = dedupeJobs(currentJobs);
 
             updateStats(currentJobs, user.id);
+            lastIsScanning = isReallyScanning;
             renderJobs(currentJobs, isReallyScanning);
             updateInboxBannerVisibility();
         }
@@ -1829,8 +1842,67 @@
             }
         }
 
+        const STATUS_FILTER_DEFS = [
+            { key: 'all', label: 'All' },
+            { key: 'Needs Human Review', label: 'Retrying' },
+            { key: 'blocked', label: 'Needs You' },
+            { key: 'in_queue', label: 'In Queue' },
+            { key: 'applied', label: 'Applied' },
+            { key: 'interview', label: 'Interview' },
+            { key: 'hired', label: 'Hired' },
+            { key: 'rejected', label: 'Rejected' }
+        ];
+        const KNOWN_NON_QUEUE_STATUSES = ['applied', 'interview', 'hired', 'rejected', 'Needs Human Review', 'blocked'];
+
+        function jobMatchesStatusFilter(job, key) {
+            if (key === 'all') return true;
+            if (key === 'in_queue') return !KNOWN_NON_QUEUE_STATUSES.includes(job.status);
+            return job.status === key;
+        }
+
+        function jobMatchesSearch(job, query) {
+            if (!query) return true;
+            const hay = `${job.companyName || ''} ${job.title || ''}`.toLowerCase();
+            return hay.includes(query.toLowerCase());
+        }
+
+        function getFilteredJobs() {
+            return currentJobs.filter(j => jobMatchesStatusFilter(j, activeStatusFilter) && jobMatchesSearch(j, jobSearchQuery));
+        }
+
+        function renderStatusChips() {
+            const chipsEl = document.getElementById('job-status-chips');
+            if (!chipsEl) return;
+            chipsEl.innerHTML = STATUS_FILTER_DEFS.map(def => {
+                const count = currentJobs.filter(j => jobMatchesStatusFilter(j, def.key)).length;
+                const activeClass = activeStatusFilter === def.key ? ' active' : '';
+                return `<span class="chip${activeClass}" onclick="setStatusFilter('${def.key}')">${def.label}<span class="chip-count">${count}</span></span>`;
+            }).join('');
+        }
+
+        function setStatusFilter(key) {
+            activeStatusFilter = key;
+            renderJobs(currentJobs, lastIsScanning);
+        }
+
+        function onJobSearchInput(value) {
+            jobSearchQuery = value;
+            renderJobs(currentJobs, lastIsScanning);
+        }
+
+        function clearJobFilters() {
+            activeStatusFilter = 'all';
+            jobSearchQuery = '';
+            const searchInput = document.getElementById('job-search-input');
+            if (searchInput) searchInput.value = '';
+            renderJobs(currentJobs, lastIsScanning);
+        }
+
         function renderJobs(jobs, isScanning = false) {
             const container = document.getElementById('job-list');
+            const filterBar = document.getElementById('job-filter-bar');
+            if (filterBar) filterBar.style.display = jobs.length ? 'block' : 'none';
+            if (jobs.length) renderStatusChips();
             if (!jobs.length) {
                 if (isScanning) {
                     const rolesList = (userProfile && userProfile.target_job_titles) ? userProfile.target_job_titles.split(', ') : [];
@@ -1942,6 +2014,19 @@
                 return;
             }
 
+            const filteredJobs = getFilteredJobs();
+
+            if (!filteredJobs.length) {
+                container.innerHTML = `
+                    <div class="empty-state" style="padding: 2.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                        <span style="font-size: 2rem; display: block; margin-bottom: 1rem;">🔍</span>
+                        <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 0.5rem; color: #000000;">No applications match this filter</h3>
+                        <p style="font-size: 0.88rem; color: var(--text-body); margin-bottom: 1.25rem;">Try a different status or clear your search.</p>
+                        <button onclick="clearJobFilters()" class="table-btn" style="font-weight: 700; padding: 0.6rem 1.25rem; font-size: 0.82rem; border-radius: 50px; cursor: pointer;">Clear filters</button>
+                    </div>`;
+                return;
+            }
+
             let html = `
                 <div class="jobs-table-container">
                     <table class="jobs-table">
@@ -1956,7 +2041,8 @@
                         <tbody>
             `;
 
-            jobs.forEach((job, index) => {
+            filteredJobs.forEach((job) => {
+                const index = currentJobs.indexOf(job);
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
                 const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Retrying' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
 
