@@ -773,13 +773,14 @@
              renderJobs() always overwrites this once the real fetch resolves,
              whether that turns out to be a job list, a genuine empty state,
              or the activation/scanning states. -->
-        <div id="job-filter-bar" style="display: none; margin-bottom: 1.25rem;">
-            <div class="field" style="max-width: 360px; margin-bottom: 0.85rem;">
+        <div id="job-filter-bar" style="display: none; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.25rem;">
+            <div class="field" style="flex: 1; min-width: 220px; max-width: 360px;">
+                <label for="job-search-input">Search</label>
                 <input type="text" id="job-search-input" placeholder="Search by company or title..." oninput="onJobSearchInput(this.value)">
             </div>
-            <div class="filter-row" style="margin-top: 0;">
-                <span class="filter-label">Status</span>
-                <div class="filter-chips" id="job-status-chips"></div>
+            <div class="field" style="min-width: 200px;">
+                <label for="job-status-select">Status</label>
+                <select id="job-status-select" onchange="setStatusFilter(this.value)"></select>
             </div>
         </div>
         <div id="job-list">
@@ -1871,12 +1872,12 @@
         }
 
         function renderStatusChips() {
-            const chipsEl = document.getElementById('job-status-chips');
-            if (!chipsEl) return;
-            chipsEl.innerHTML = STATUS_FILTER_DEFS.map(def => {
+            const selectEl = document.getElementById('job-status-select');
+            if (!selectEl) return;
+            selectEl.innerHTML = STATUS_FILTER_DEFS.map(def => {
                 const count = currentJobs.filter(j => jobMatchesStatusFilter(j, def.key)).length;
-                const activeClass = activeStatusFilter === def.key ? ' active' : '';
-                return `<span class="chip${activeClass}" onclick="setStatusFilter('${def.key}')">${def.label}<span class="chip-count">${count}</span></span>`;
+                const selected = activeStatusFilter === def.key ? ' selected' : '';
+                return `<option value="${def.key}"${selected}>${def.label} (${count})</option>`;
             }).join('');
         }
 
@@ -1901,7 +1902,7 @@
         function renderJobs(jobs, isScanning = false) {
             const container = document.getElementById('job-list');
             const filterBar = document.getElementById('job-filter-bar');
-            if (filterBar) filterBar.style.display = jobs.length ? 'block' : 'none';
+            if (filterBar) filterBar.style.display = jobs.length ? 'flex' : 'none';
             if (jobs.length) renderStatusChips();
             if (!jobs.length) {
                 if (isScanning) {
