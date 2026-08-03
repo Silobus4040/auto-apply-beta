@@ -87,6 +87,18 @@
         .search-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212, 255, 51, 0.35); }
         .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
+        /* Auto-Apply toggle bar */
+        .auto-apply-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1.25rem; margin-bottom: 1rem; flex-wrap: wrap; }
+        .auto-apply-label { display: flex; align-items: center; gap: 0.6rem; }
+        .auto-apply-title { font-weight: 800; font-size: 0.9rem; color: #000000; }
+        .auto-apply-desc { font-size: 0.78rem; color: #71717A; }
+        .auto-apply-switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
+        .auto-apply-switch input { opacity: 0; width: 0; height: 0; }
+        .auto-apply-switch-track { position: absolute; cursor: pointer; inset: 0; background: #d4d4d8; border-radius: 999px; transition: background 0.2s; }
+        .auto-apply-switch-track::before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px; background: #ffffff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+        .auto-apply-switch input:checked + .auto-apply-switch-track { background: var(--primary); }
+        .auto-apply-switch input:checked + .auto-apply-switch-track::before { transform: translateX(18px); }
+
         /* Stats Bar */
         .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
@@ -913,6 +925,20 @@
             </div>
         </div>
 
+        <!-- Auto-Apply toggle -->
+        <div class="auto-apply-bar" id="auto-apply-bar" style="display: none;">
+            <div class="auto-apply-label">
+                <div>
+                    <div class="auto-apply-title">⚡ Auto-Apply</div>
+                    <div class="auto-apply-desc" id="auto-apply-desc">Automatically apply to matches ≥ <span id="auto-apply-min-score-display">70</span>% — no swiping needed. Manual swipes below this score still go through, since that's your own call.</div>
+                </div>
+            </div>
+            <label class="auto-apply-switch">
+                <input type="checkbox" id="auto-apply-toggle" onchange="toggleAutoApply(this.checked)">
+                <span class="auto-apply-switch-track"></span>
+            </label>
+        </div>
+
         <!-- Stats Bar (Hero Position) -->
         <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 0.6rem;">
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
@@ -1309,7 +1335,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit, has_seen_gap_caveat')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score')
                 .eq('id', user.id)
                 .single();
 
@@ -1330,6 +1356,7 @@
             }
 
             userProfile = profile;
+            initAutoApplyToggle(profile);
 
             const firstName = profile.first_name || '';
             const lastName = profile.last_name || '';
@@ -1747,6 +1774,7 @@
                 if (section) section.style.display = 'block';
                 if (emptyState) emptyState.style.display = 'none';
                 renderSwipeStack();
+                if (userProfile && userProfile.auto_apply_enabled) await autoApplySweepAndFilter(userId);
             } catch (err) {
                 // A thrown/rejected invoke() (real network failure, not a
                 // graceful {error} response) used to abort this function
@@ -1777,6 +1805,9 @@
                 const newOnes = jobs.filter(j => !existingIds.has(j.id));
                 if (newOnes.length) {
                     pooledJobs.push(...newOnes);
+                    if (userProfile && userProfile.auto_apply_enabled && cachedUserId) {
+                        await autoApplySweepAndFilter(cachedUserId);
+                    }
                 }
             } catch (err) {
                 // Same throw-vs-graceful-error gap as fetchPooledJobs -- this
@@ -2015,29 +2046,7 @@
             if (!user) return;
 
             if (decision === 'apply') {
-                fetch(SWIPE_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ user_id: user.id, job_pool_id: job.id })
-                }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
-
-                // Record the swipe ourselves, right away. n8n's own pipeline
-                // (fit-check -> resume tailoring -> cover letter -> PDFs)
-                // takes ~20-25 real seconds and only records the swipe as
-                // its very last step -- a refresh inside that window used to
-                // show the job as never-swiped. Same upsert key as the skip
-                // path below, so n8n's later write is just a harmless no-op
-                // repeat. supabase-js's builder is a thenable, not a real
-                // Promise -- it has no .catch(), so this must use await +
-                // try/catch (same shape as skip, which has always worked).
-                try {
-                    await supabaseClient.from('user_job_swipes').upsert(
-                        { user_id: user.id, job_pool_id: job.id, decision: 'apply' },
-                        { onConflict: 'user_id,job_pool_id' }
-                    );
-                } catch (err) {
-                    console.error('Failed to record swipe', err);
-                }
+                await submitApplyForJob(user.id, job);
             } else {
                 await supabaseClient.from('user_job_swipes').upsert(
                     { user_id: user.id, job_pool_id: job.id, decision: 'skip' },
@@ -2051,6 +2060,95 @@
             // all when it fails.
             updateStats(currentJobs, user.id);
 
+            refreshDeckSilently();
+        }
+
+        // Shared by both the manual "Apply" swipe and the Auto-Apply sweep
+        // below -- exact same webhook + upsert this always did (see
+        // finishSwipe's original comment on why the upsert is written
+        // ourselves rather than waiting on n8n's own ~20-25s-later write).
+        // Per the standing product decision (PROGRESS_LOG Run 38/39): a
+        // human swipe is a deliberate decision and the AI fit-check can never
+        // veto it, at ANY score -- that's already true here structurally,
+        // since this function has no score check of its own. The score gate
+        // for auto-apply lives OUTSIDE this function, in
+        // autoApplySweepAndFilter, exactly matching the original design
+        // ("swipe bypasses [the check], auto keeps it, since that path has
+        // no human safety net") -- now enforced client-side since the
+        // backend veto this used to lean on was deliberately removed
+        // entirely for every swipe-initiated call, automatic or manual.
+        async function submitApplyForJob(userId, job) {
+            fetch(SWIPE_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, job_pool_id: job.id })
+            }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
+
+            try {
+                await supabaseClient.from('user_job_swipes').upsert(
+                    { user_id: userId, job_pool_id: job.id, decision: 'apply' },
+                    { onConflict: 'user_id,job_pool_id' }
+                );
+            } catch (err) {
+                console.error('Failed to record swipe', err);
+            }
+        }
+
+        function initAutoApplyToggle(profile) {
+            const toggle = document.getElementById('auto-apply-toggle');
+            const scoreDisplay = document.getElementById('auto-apply-min-score-display');
+            if (scoreDisplay) scoreDisplay.textContent = profile.auto_apply_min_score ?? 70;
+            if (toggle) toggle.checked = !!profile.auto_apply_enabled;
+        }
+
+        async function toggleAutoApply(enabled) {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return;
+            if (userProfile) userProfile.auto_apply_enabled = enabled;
+            try {
+                await supabaseClient.from('profiles').update({ auto_apply_enabled: enabled }).eq('id', user.id);
+            } catch (err) {
+                console.error('Failed to save auto_apply_enabled', err);
+            }
+            // Switching on should act on cards already sitting in the deck
+            // right now, not just future fetches -- otherwise a user turning
+            // this on mid-session would have to wait for the next top-up
+            // before anything actually auto-applies.
+            if (enabled) await autoApplySweepAndFilter(user.id);
+        }
+
+        // Deterministic score gate for the UNATTENDED auto-apply path only
+        // (see submitApplyForJob's comment for why manual swipe never gates
+        // on score). Removes every eligible job (fit_score >= threshold)
+        // from `pooledJobs` from pooledJobIndex onward, submits each one for
+        // real via the exact same path a manual swipe uses, and re-renders
+        // once at the end. Jobs below the threshold are left untouched in
+        // the deck for the user to swipe on manually, same as today.
+        async function autoApplySweepAndFilter(userId) {
+            if (!userProfile || !userProfile.auto_apply_enabled) return;
+            const minScore = userProfile.auto_apply_min_score ?? 70;
+            const remaining = pooledJobs.slice(0, pooledJobIndex);
+            const candidates = pooledJobs.slice(pooledJobIndex);
+            const keep = [];
+            const eligible = [];
+            for (const job of candidates) {
+                if (typeof job.fit_score === 'number' && job.fit_score >= minScore) {
+                    eligible.push(job);
+                } else {
+                    keep.push(job);
+                }
+            }
+            if (!eligible.length) return;
+            for (const job of eligible) {
+                try {
+                    await submitApplyForJob(userId, job);
+                } catch (err) {
+                    console.error('Auto-apply failed for job', job.id, err);
+                }
+            }
+            pooledJobs = remaining.concat(keep);
+            renderSwipeStack();
+            updateStats(currentJobs, userId);
             refreshDeckSilently();
         }
 
@@ -2090,6 +2188,8 @@
             el.textContent = poolAvailableCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
+            const autoApplyBar = document.getElementById('auto-apply-bar');
+            if (autoApplyBar && poolAvailableCount > 0) autoApplyBar.style.display = 'flex';
             if (cachedUserId) {
                 try { localStorage.setItem(`poolCount_${cachedUserId}`, String(poolAvailableCount)); } catch (e) {}
             }
@@ -2097,13 +2197,16 @@
 
         async function updateStats(jobs, userId) {
             const bar = document.getElementById('stats-bar');
+            const autoApplyBar = document.getElementById('auto-apply-bar');
             const rows = jobs || [];
             const applied = rows.filter(j => j.status === 'applied').length;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
+                if (autoApplyBar) autoApplyBar.style.display = 'none';
             } else {
                 bar.style.display = 'flex';
+                if (autoApplyBar) autoApplyBar.style.display = 'flex';
                 // JOBS FOUND must only ever be the real match-pool-jobs supply
                 // figure (or the last known-good cached one), never rows.length
                 // (applications already created) -- that's a completely
