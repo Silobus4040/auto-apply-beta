@@ -91,12 +91,13 @@
         .auto-apply-bar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1.25rem; margin-bottom: 1rem; flex-wrap: wrap; }
         .auto-apply-label { display: flex; align-items: center; gap: 0.6rem; }
         .auto-apply-title { font-weight: 800; font-size: 0.9rem; color: #000000; }
-        .auto-apply-desc { font-size: 0.78rem; color: #71717A; }
+        .auto-apply-desc { font-size: 0.78rem; color: #71717A; margin-top: 0.3rem; }
+        .auto-apply-readmore { margin-left: 0.4rem; font-size: 0.72rem; font-weight: 700; color: #71717A; text-decoration: underline; cursor: pointer; }
         .auto-apply-switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
         .auto-apply-switch input { opacity: 0; width: 0; height: 0; }
         .auto-apply-switch-track { position: absolute; cursor: pointer; inset: 0; background: #d4d4d8; border-radius: 999px; transition: background 0.2s; }
         .auto-apply-switch-track::before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px; background: #ffffff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
-        .auto-apply-switch input:checked + .auto-apply-switch-track { background: var(--primary); }
+        .auto-apply-switch input:checked + .auto-apply-switch-track { background: linear-gradient(135deg, #D4FF33, #00FFCC); }
         .auto-apply-switch input:checked + .auto-apply-switch-track::before { transform: translateX(18px); }
 
         /* Stats Bar */
@@ -903,7 +904,7 @@
         <div class="modal-overlay" id="gap-caveat-modal">
             <div class="desc-modal" style="max-width: 480px; text-align: left; padding: 2.5rem;">
                 <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 1rem;">Before you start swiping</h2>
-                <p style="color: var(--text-body); font-size: 0.98rem; line-height: 1.7; margin-bottom: 1.75rem;">Pro tip: 100% match without a gap is rare. If your score is green, it means you're qualified enough to swipe. Rover addresses any gaps directly in your cover letter.</p>
+                <p style="color: var(--text-body); font-size: 0.98rem; line-height: 1.7; margin-bottom: 1.75rem;">Pro tip: 100% match without a gap is rare. If your matching score is high, it means you're qualified enough to swipe. Rover addresses any gaps directly in your cover letter.</p>
                 <button class="table-btn table-btn-primary" style="width: 100%; justify-content: center; padding: 0.85rem;" onclick="acknowledgeGapCaveat()">I Understand →</button>
             </div>
         </div>
@@ -929,8 +930,8 @@
         <div class="auto-apply-bar" id="auto-apply-bar" style="display: none;">
             <div class="auto-apply-label">
                 <div>
-                    <div class="auto-apply-title">⚡ Auto-Apply</div>
-                    <div class="auto-apply-desc" id="auto-apply-desc">Automatically apply to matches ≥ <span id="auto-apply-min-score-display">70</span>% — no swiping needed. Manual swipes below this score still go through, since that's your own call.</div>
+                    <div class="auto-apply-title">⚡ Auto-Apply<a href="javascript:void(0)" class="auto-apply-readmore" id="auto-apply-readmore" onclick="toggleAutoApplyDesc()">Read more</a></div>
+                    <div class="auto-apply-desc" id="auto-apply-desc" style="display: none;">Automatically apply to matches ≥ <span id="auto-apply-min-score-display">70</span>% — no swiping needed. Manual swipes below this score still go through, since that's your own call.</div>
                 </div>
             </div>
             <label class="auto-apply-switch">
@@ -2115,6 +2116,14 @@
             // this on mid-session would have to wait for the next top-up
             // before anything actually auto-applies.
             if (enabled) await autoApplySweepAndFilter(user.id);
+        }
+
+        function toggleAutoApplyDesc() {
+            const desc = document.getElementById('auto-apply-desc');
+            const link = document.getElementById('auto-apply-readmore');
+            const expanded = desc.style.display !== 'none';
+            desc.style.display = expanded ? 'none' : 'block';
+            link.textContent = expanded ? 'Read more' : 'Read less';
         }
 
         // Deterministic score gate for the UNATTENDED auto-apply path only
