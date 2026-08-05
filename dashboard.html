@@ -399,10 +399,8 @@
         /* Log Out anchored to the bottom of the sidebar, separated from the
            main nav group -- standard modern layout instead of sitting inline
            as just another item after Settings. */
-        .sidebar-nav-item.sidebar-nav-logout { padding-top: 0.4rem; }
-        .sidebar-account-badge { display: flex; align-items: center; gap: 0.6rem; margin-top: auto; padding: 0.85rem 0.9rem 0.5rem; border-top: 1px solid var(--border); }
-        .sidebar-account-avatar { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.72rem; flex-shrink: 0; }
-        .sidebar-account-email { font-size: 0.76rem; font-weight: 700; color: #000; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sidebar-nav-item.sidebar-nav-logout { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
+        .sidebar-account-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.65rem; flex-shrink: 0; background: #e4e4e7; color: #71717a; }
         .sidebar-badge {
             margin-left: auto; background: var(--secondary); color: #fff; font-size: 0.65rem;
             padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 700; min-width: 20px; text-align: center;
@@ -666,12 +664,9 @@
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
                 </button>
-                <div class="sidebar-account-badge" id="sidebar-account-badge" style="display: none;">
-                    <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
-                    <span class="sidebar-account-email" id="sidebar-account-email"></span>
-                </div>
                 <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
-                    <i data-lucide="log-out" class="sidebar-nav-icon"></i> Log Out
+                    <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
+                    Log Out
                 </button>
             </div>
         </aside>
@@ -1044,10 +1039,8 @@
 
         function renderAccountBadge(email) {
             if (!email) return;
-            const badge = document.getElementById('sidebar-account-badge');
             const avatar = document.getElementById('sidebar-account-avatar');
-            const emailEl = document.getElementById('sidebar-account-email');
-            if (!badge || !avatar || !emailEl) return;
+            if (!avatar) return;
             const palette = [
                 { bg: '#d6f4e6', text: '#0a7d3c' },
                 { bg: '#dbe8ff', text: '#1d54c7' },
@@ -1061,9 +1054,6 @@
             avatar.textContent = email.trim().charAt(0).toUpperCase();
             avatar.style.background = colors.bg;
             avatar.style.color = colors.text;
-            emailEl.textContent = email;
-            emailEl.title = email;
-            badge.style.display = 'flex';
         }
 
         async function detectLocation() {
