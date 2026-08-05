@@ -949,16 +949,23 @@
                 <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
-                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
-                    <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
+                    <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
                     <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
                 </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
-                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">INTERVIEW</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
-                    <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
+                    <span class="stat-number" id="stat-interview" style="font-size: 1.6rem;">0</span>
+                    <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
+                </div>
+            </div>
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">OFFER</span>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
+                    <span class="stat-number" id="stat-offer" style="font-size: 1.6rem;">0</span>
                     <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
                 </div>
             </div>
@@ -2233,6 +2240,8 @@
             const autoApplyBar = document.getElementById('auto-apply-bar');
             const rows = jobs || [];
             const applied = rows.filter(j => j.status === 'applied').length;
+            const interviewing = rows.filter(j => j.status === 'interview').length;
+            const onOffer = rows.filter(j => j.status === 'offer').length;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
@@ -2252,27 +2261,8 @@
                     document.getElementById('stat-total').textContent = cached !== null ? cached.toLocaleString() : '—';
                 }
                 document.getElementById('stat-applied').textContent = applied;
-
-                // IN QUEUE = right-swipes not yet applied. Counting
-                // job_applications rows meant this only moved once the tailoring
-                // pipeline finished (~20-25s later) and stayed frozen entirely
-                // whenever that pipeline failed -- which is why swiping appeared
-                // to do nothing. Swipes are recorded synchronously, so this
-                // reflects the user's own action immediately.
-                let queued = rows.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
-                try {
-                    const { count, error } = await supabaseClient
-                        .from('user_job_swipes')
-                        .select('job_pool_id', { count: 'exact', head: true })
-                        .eq('user_id', userId)
-                        .eq('decision', 'apply');
-                    if (!error && typeof count === 'number') {
-                        queued = Math.max(count - applied, 0);
-                    }
-                } catch (err) {
-                    console.error('Queue count fallback in use', err);
-                }
-                document.getElementById('stat-queued').textContent = queued;
+                document.getElementById('stat-interview').textContent = interviewing;
+                document.getElementById('stat-offer').textContent = onOffer;
             }
 
         }
