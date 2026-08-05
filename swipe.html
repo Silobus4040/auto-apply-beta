@@ -624,32 +624,18 @@
         .swipe-card-fit-score { font-size: 1.1rem; font-weight: 900; flex-shrink: 0; }
         .fit-high .swipe-card-fit-score { color: #059669; }
         .swipe-card-fit-reason-wrap { position: relative; flex: 1; min-width: 0; }
-        .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .swipe-card-fit-more { display: none; margin-top: 0.2rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
-        .swipe-card-fit-reason.is-clamped + .swipe-card-fit-more { display: inline-block; }
-        /* Expands IN FLOW, not as an absolutely-positioned overlay. The overlay
-           version sat on top of the GAPS section instead of pushing it down, and
-           because .swipe-card has overflow:hidden, anything taller than the card
-           got clipped -- including the "less" button at its bottom edge, which is
-           why long reasons expanded into a half-visible block with no way back. */
-        .swipe-card-fit-reason-full {
-            display: none;
-            margin-top: 0.15rem;
-            font-size: 0.8rem; color: #3f3f46; line-height: 1.45;
-            max-height: 11rem; overflow-y: auto;
-        }
-        .swipe-card-fit-badge.expanded .swipe-card-fit-reason-full { display: block; }
-        /* Swap the clamped preview out for the full text rather than stacking both. */
-        .swipe-card-fit-badge.expanded .swipe-card-fit-reason { display: none; }
-        .swipe-card-fit-badge.expanded .swipe-card-fit-more { display: none; }
-        /* The badge must be free to grow while expanded, and the GAPS row below it
-           yields its space -- you're reading the reason, not the gaps. Together
-           these keep the expanded block inside the card instead of overflowing it. */
-        .swipe-card-fit-badge.expanded { overflow: visible; }
-        .swipe-card:has(.swipe-card-fit-badge.expanded) .swipe-card-fit-tags-wrap { display: none; }
-        /* Floated so it pins to the top-right of the expanded block and stays on
-           screen even when the text itself scrolls. */
-        .swipe-card-fit-less { float: right; margin: 0 0 0.25rem 0.5rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+        /* Truncation is decided entirely in JS from the real string length
+           (see buildFitScoreBadge) -- no CSS line-clamp, no pixel measurement,
+           no dependency on webfont load timing. max-height+overflow-y here is
+           just a safety cap for the EXPANDED full-text state, so a long reason
+           scrolls internally instead of growing the card past its fixed height
+           (.swipe-card clips at its own edge) -- it never engages on the short
+           preview text. */
+        .swipe-card-fit-reason { display: block; font-size: 0.8rem; color: #3f3f46; line-height: 1.4; max-height: 11rem; overflow-y: auto; }
+        /* No display:none default -- the button is only ever put in the DOM
+           (see buildFitScoreBadge) when the reason actually needed truncating,
+           so there's no hidden-by-default state that can fail to flip on. */
+        .swipe-card-fit-more { display: inline-block; margin-top: 0.2rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
@@ -804,10 +790,6 @@
             .swipe-card-info-row { font-size: 0.85rem; }
             .swipe-card-geo-badge { margin-top: 0.4rem; margin-bottom: 0.5rem; }
             .swipe-card-fit-badge { padding: 0.45rem 0.6rem; margin-bottom: 0.5rem; }
-            /* the fit blurb is the biggest single block; 2 lines instead of 3 is
-               what finally lets the whole card + buttons fit at 600px. The
-               "more" toggle still expands it on demand. */
-            .swipe-card-fit-reason { -webkit-line-clamp: 2; }
             .swipe-card-readmore { padding-top: 0.5rem; }
             .swipe-actions { padding: 0.6rem 0 0.75rem !important; gap: 0.75rem !important; }
             .swipe-btn { height: 44px !important; min-width: 112px; font-size: 0.85rem !important; }
@@ -1870,7 +1852,18 @@
             return `<div class="swipe-card-geo-badge geo-unclear">❓ Remote scope unclear — verify with employer</div>`;
         }
 
-        function buildFitScoreBadge(job) {
+        // How much of the reason to show before truncating. Deliberately a
+        // character budget, not a CSS line-clamp -- line-based clamping was
+        // the root cause of the "more" button silently failing to appear: it
+        // depended on a pixel measurement of rendered line count, which could
+        // run before the webfont finished loading and reflowed the text onto
+        // more lines than were measured, or on a rough character-count GUESS
+        // of where lines would wrap (which doesn't hold across card widths).
+        // A fixed character budget needs no measurement and no guessing --
+        // truncation is decided the instant the string is available.
+        const FIT_REASON_PREVIEW_LIMIT = 140;
+
+        function buildFitScoreBadge(job, jobIndex) {
             // A card only ever reaches the deck once already scored (see
             // match-pool-jobs), so there is no "scoring..." pending state to show.
             if (job.fit_score === null || job.fit_score === undefined) return '';
@@ -1880,32 +1873,26 @@
             const colorClass = 'fit-high';
             const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
             const tags = missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`).join('');
-            const reason = escapeHtml(job.fit_reason || '');
-            // Whether "more"/"View" buttons show used to depend entirely on a
-            // one-shot pixel measurement taken right after render (see
-            // renderSwipeStack's requestAnimationFrame block) -- if the web
-            // font finished loading a moment later, the text reflowed onto
-            // more lines AFTER that check already decided "fits, no button
-            // needed", leaving real overflow with no way to read the rest.
-            // Decide up front from content length instead, so the button is
-            // never missing; the later pixel check still runs too and can
-            // only ADD the class, never remove it, so it's a safe backstop
-            // for cases this estimate misses.
-            // 90, not 130: the clamp is 2 lines on narrow/mobile cards, which
-            // holds ~100-110 chars -- a 120-char reason there wraps to 3 lines
-            // and gets cut with an ellipsis but was under the old 130 estimate,
-            // so it showed "..." with NO "more" button (the exact bug). Erring
-            // toward showing the button is always safe; the pixel re-measure
-            // below is the authoritative signal, this is just the instant guess.
-            const reasonLikelyClamped = reason.length > 90;
             const tagsLikelyClamped = missing.length > 1 || (missing[0] && missing[0].length > 20);
+
+            const rawReason = job.fit_reason || '';
+            const reasonNeedsMore = rawReason.length > FIT_REASON_PREVIEW_LIMIT;
+            const reasonPreviewText = reasonNeedsMore
+                ? rawReason.slice(0, FIT_REASON_PREVIEW_LIMIT).trim() + '…'
+                : rawReason;
+            // The button is only ever written into the DOM when truncation
+            // actually happened -- no display:none default relying on a CSS
+            // class to reveal it, so there's no state where it's present but
+            // hidden. toggleFitReason looks the raw text back up from
+            // pooledJobs[jobIndex] and swaps textContent directly (which is
+            // inherently escape-safe, unlike building an HTML attribute out of
+            // reason text that could itself contain quote characters).
             return `
                 <div class="swipe-card-fit-badge ${colorClass}">
                     <span class="swipe-card-fit-score">${score}%</span>
                     <div class="swipe-card-fit-reason-wrap">
-                        <span class="swipe-card-fit-reason${reasonLikelyClamped ? ' is-clamped' : ''}">${reason}</span>
-                        <button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); toggleFitReason(this)">more</button>
-                        <div class="swipe-card-fit-reason-full"><button type="button" class="swipe-card-fit-less" onclick="event.stopPropagation(); toggleFitReason(this)">less</button>${reason}</div>
+                        <span class="swipe-card-fit-reason" id="fit-reason-${jobIndex}">${escapeHtml(reasonPreviewText)}</span>
+                        ${reasonNeedsMore ? `<button type="button" class="swipe-card-fit-more" id="fit-reason-btn-${jobIndex}" onclick="event.stopPropagation(); toggleFitReason(${jobIndex})">more</button>` : ''}
                     </div>
                 </div>
                 ${tags ? `
@@ -1963,7 +1950,7 @@
                         <div class="swipe-card-info-row"><i data-lucide="banknote" class="swipe-card-info-icon"></i><span>${job.salary_range ? escapeHtml(job.salary_range) : 'Salary not stated'}</span></div>
                     </div>
                     ${buildGeoBadge(job)}
-                    ${buildFitScoreBadge(job)}
+                    ${buildFitScoreBadge(job, jobIndexInPool)}
                     <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Read full description →</button>
                 `;
 
@@ -1973,34 +1960,15 @@
                 stack.appendChild(card);
             });
 
-            // Only offer "more" on reasons that actually overflow the clamp.
-            // Runs THREE times, and each pass can only ADD is-clamped, never
-            // remove it, so whichever pass first sees the real overflow wins:
-            //   1. immediately (rAF) -- catches the common case when the font
-            //      is already cached,
-            //   2. after document.fonts.ready -- the real root-cause fix: the
-            //      web font can finish loading AFTER the rAF pass, reflowing
-            //      the text onto more lines than were measured, which is how a
-            //      genuinely-clamped reason kept ending up with no "more"
-            //      button,
-            //   3. on the next resize -- covers a viewport/orientation change
-            //      that re-wraps the text (desktop 3-line <-> mobile 2-line).
-            const measureClamp = () => {
-                stack.querySelectorAll('.swipe-card-fit-reason').forEach(el => {
-                    if (el.scrollHeight - el.clientHeight > 1) el.classList.add('is-clamped');
-                });
+            // Gap tags: only offer "more" on rows that actually overflow the
+            // clamp (unrelated to the fit-reason fix above -- reason
+            // truncation is now decided in JS from the string length, not
+            // measured, so it needs no pass here at all).
+            requestAnimationFrame(() => {
                 stack.querySelectorAll('.swipe-card-fit-tags').forEach(el => {
                     if (el.scrollWidth - el.clientWidth > 1) el.classList.add('is-clamped');
                 });
-            };
-            requestAnimationFrame(measureClamp);
-            if (document.fonts && document.fonts.ready) {
-                document.fonts.ready.then(() => requestAnimationFrame(measureClamp));
-            }
-            if (!window.__fitClampResizeBound) {
-                window.__fitClampResizeBound = true;
-                window.addEventListener('resize', () => requestAnimationFrame(measureClamp));
-            }
+            });
 
             // The location-pin/salary icons are lucide SVGs now, not emoji --
             // lucide only converts <i data-lucide> tags that exist AT CALL
@@ -2011,9 +1979,25 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function toggleFitReason(btn) {
-            const badge = btn.closest('.swipe-card-fit-badge');
-            if (badge) badge.classList.toggle('expanded');
+        function toggleFitReason(jobIndex) {
+            const job = pooledJobs[jobIndex];
+            const span = document.getElementById('fit-reason-' + jobIndex);
+            const btn = document.getElementById('fit-reason-btn-' + jobIndex);
+            if (!job || !span || !btn) return;
+            const rawReason = job.fit_reason || '';
+            // .textContent is inherently escape-safe (no HTML parsing), so
+            // this needs no escapeHtml call -- unlike building an HTML
+            // attribute out of reason text, which could contain a literal
+            // quote character and break the attribute.
+            if (btn.textContent === 'less') {
+                span.textContent = rawReason.length > FIT_REASON_PREVIEW_LIMIT
+                    ? rawReason.slice(0, FIT_REASON_PREVIEW_LIMIT).trim() + '…'
+                    : rawReason;
+                btn.textContent = 'more';
+            } else {
+                span.textContent = rawReason;
+                btn.textContent = 'less';
+            }
         }
 
         function toggleFitTags(btn) {
