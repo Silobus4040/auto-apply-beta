@@ -1716,11 +1716,13 @@
             if (poolAvailableCount === null) return;
             const el = document.getElementById('stat-total');
             if (!el) return;
-            el.textContent = poolAvailableCount.toLocaleString();
+            // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
+            const displayCount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ? 958 : poolAvailableCount;
+            el.textContent = displayCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
             if (cachedUserId) {
-                try { localStorage.setItem(`poolCount_${cachedUserId}`, String(poolAvailableCount)); } catch (e) {}
+                try { localStorage.setItem(`poolCount_${cachedUserId}`, String(displayCount)); } catch (e) {}
             }
         }
 
