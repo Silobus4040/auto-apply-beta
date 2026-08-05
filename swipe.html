@@ -2250,6 +2250,10 @@
             const interviewing = rows.filter(j => j.status === 'interview').length;
             const onOffer = rows.filter(j => j.status === 'offer').length;
             const rejected = rows.filter(j => j.status === 'rejected').length;
+            // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
+            const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
+            const displayInterviewing = isDemoAccount ? 7 : interviewing;
+            const displayRejected = isDemoAccount ? 11 : rejected;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
@@ -2269,9 +2273,9 @@
                     document.getElementById('stat-total').textContent = cached !== null ? cached.toLocaleString() : '—';
                 }
                 document.getElementById('stat-applied').textContent = applied;
-                document.getElementById('stat-interview').textContent = interviewing;
+                document.getElementById('stat-interview').textContent = displayInterviewing;
                 document.getElementById('stat-offer').textContent = onOffer;
-                document.getElementById('stat-rejected').textContent = rejected;
+                document.getElementById('stat-rejected').textContent = displayRejected;
             }
 
         }
