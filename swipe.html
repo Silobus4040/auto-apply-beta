@@ -1861,7 +1861,12 @@
         // of where lines would wrap (which doesn't hold across card widths).
         // A fixed character budget needs no measurement and no guessing --
         // truncation is decided the instant the string is available.
-        const FIT_REASON_PREVIEW_LIMIT = 140;
+        const FIT_REASON_WORD_LIMIT = 15;
+        function truncateReasonWords(text) {
+            const words = text.trim().split(/\s+/).filter(Boolean);
+            if (words.length <= FIT_REASON_WORD_LIMIT) return { preview: text, needsMore: false };
+            return { preview: words.slice(0, FIT_REASON_WORD_LIMIT).join(' ') + '…', needsMore: true };
+        }
 
         function buildFitScoreBadge(job, jobIndex) {
             // A card only ever reaches the deck once already scored (see
@@ -1876,10 +1881,7 @@
             const tagsLikelyClamped = missing.length > 1 || (missing[0] && missing[0].length > 20);
 
             const rawReason = job.fit_reason || '';
-            const reasonNeedsMore = rawReason.length > FIT_REASON_PREVIEW_LIMIT;
-            const reasonPreviewText = reasonNeedsMore
-                ? rawReason.slice(0, FIT_REASON_PREVIEW_LIMIT).trim() + '…'
-                : rawReason;
+            const { preview: reasonPreviewText, needsMore: reasonNeedsMore } = truncateReasonWords(rawReason);
             // The button is only ever written into the DOM when truncation
             // actually happened -- no display:none default relying on a CSS
             // class to reveal it, so there's no state where it's present but
@@ -1990,9 +1992,7 @@
             // attribute out of reason text, which could contain a literal
             // quote character and break the attribute.
             if (btn.textContent === 'less') {
-                span.textContent = rawReason.length > FIT_REASON_PREVIEW_LIMIT
-                    ? rawReason.slice(0, FIT_REASON_PREVIEW_LIMIT).trim() + '…'
-                    : rawReason;
+                span.textContent = truncateReasonWords(rawReason).preview;
                 btn.textContent = 'more';
             } else {
                 span.textContent = rawReason;
