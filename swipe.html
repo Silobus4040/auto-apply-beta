@@ -1891,7 +1891,13 @@
             // never missing; the later pixel check still runs too and can
             // only ADD the class, never remove it, so it's a safe backstop
             // for cases this estimate misses.
-            const reasonLikelyClamped = reason.length > 130;
+            // 90, not 130: the clamp is 2 lines on narrow/mobile cards, which
+            // holds ~100-110 chars -- a 120-char reason there wraps to 3 lines
+            // and gets cut with an ellipsis but was under the old 130 estimate,
+            // so it showed "..." with NO "more" button (the exact bug). Erring
+            // toward showing the button is always safe; the pixel re-measure
+            // below is the authoritative signal, this is just the instant guess.
+            const reasonLikelyClamped = reason.length > 90;
             const tagsLikelyClamped = missing.length > 1 || (missing[0] && missing[0].length > 20);
             return `
                 <div class="swipe-card-fit-badge ${colorClass}">
@@ -1967,15 +1973,34 @@
                 stack.appendChild(card);
             });
 
-            // Only offer "more" on reasons that actually overflow the 3-line clamp.
-            requestAnimationFrame(() => {
+            // Only offer "more" on reasons that actually overflow the clamp.
+            // Runs THREE times, and each pass can only ADD is-clamped, never
+            // remove it, so whichever pass first sees the real overflow wins:
+            //   1. immediately (rAF) -- catches the common case when the font
+            //      is already cached,
+            //   2. after document.fonts.ready -- the real root-cause fix: the
+            //      web font can finish loading AFTER the rAF pass, reflowing
+            //      the text onto more lines than were measured, which is how a
+            //      genuinely-clamped reason kept ending up with no "more"
+            //      button,
+            //   3. on the next resize -- covers a viewport/orientation change
+            //      that re-wraps the text (desktop 3-line <-> mobile 2-line).
+            const measureClamp = () => {
                 stack.querySelectorAll('.swipe-card-fit-reason').forEach(el => {
                     if (el.scrollHeight - el.clientHeight > 1) el.classList.add('is-clamped');
                 });
                 stack.querySelectorAll('.swipe-card-fit-tags').forEach(el => {
                     if (el.scrollWidth - el.clientWidth > 1) el.classList.add('is-clamped');
                 });
-            });
+            };
+            requestAnimationFrame(measureClamp);
+            if (document.fonts && document.fonts.ready) {
+                document.fonts.ready.then(() => requestAnimationFrame(measureClamp));
+            }
+            if (!window.__fitClampResizeBound) {
+                window.__fitClampResizeBound = true;
+                window.addEventListener('resize', () => requestAnimationFrame(measureClamp));
+            }
 
             // The location-pin/salary icons are lucide SVGs now, not emoji --
             // lucide only converts <i data-lucide> tags that exist AT CALL
