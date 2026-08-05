@@ -631,11 +631,22 @@
            scrolls internally instead of growing the card past its fixed height
            (.swipe-card clips at its own edge) -- it never engages on the short
            preview text. */
-        .swipe-card-fit-reason { display: block; font-size: 0.8rem; color: #3f3f46; line-height: 1.4; max-height: 11rem; overflow-y: auto; }
+        /* display stays the inline default (a span) so "more" flows as part
+           of the same wrapped text instead of forcing its own row -- a
+           block-level row here needs extra height the card doesn't always
+           have to spare, and the parent's overflow:hidden (below) clips a
+           whole missing row rather than shrinking it, silently eating the
+           button (confirmed live 2026-08-05, Dropbox card). is-expanded
+           (added by toggleFitReason) switches to the scrollable box only
+           for the full-text state, which can be much longer. */
+        .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; }
+        .swipe-card-fit-reason.is-expanded { display: block; max-height: 11rem; overflow-y: auto; margin-bottom: 0.2rem; }
         /* No display:none default -- the button is only ever put in the DOM
            (see buildFitScoreBadge) when the reason actually needed truncating,
-           so there's no hidden-by-default state that can fail to flip on. */
-        .swipe-card-fit-more { display: inline-block; margin-top: 0.2rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
+           so there's no hidden-by-default state that can fail to flip on.
+           display:inline (not inline-block) so it wraps as part of the same
+           line as the text rather than needing a row of its own. */
+        .swipe-card-fit-more { display: inline; margin-left: 0.35rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
@@ -1993,9 +2004,11 @@
             // quote character and break the attribute.
             if (btn.textContent === 'less') {
                 span.textContent = truncateReasonWords(rawReason).preview;
+                span.classList.remove('is-expanded');
                 btn.textContent = 'more';
             } else {
                 span.textContent = rawReason;
+                span.classList.add('is-expanded');
                 btn.textContent = 'less';
             }
         }
