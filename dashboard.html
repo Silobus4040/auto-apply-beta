@@ -1784,7 +1784,10 @@
             const rejected = rows.filter(j => j.status === 'rejected').length;
             // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
             const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
-            const displayApplied = isDemoAccount ? 132 : applied;
+            // Applied is NOT inflated -- it reflects the real live count (same
+            // source as the Status dropdown) so real swipes/applications
+            // increment it. Only the outcome stats below stay manufactured.
+            const displayApplied = applied;
             const displayInterviewing = isDemoAccount ? 14 : interviewing;
             const displayOffer = isDemoAccount ? 3 : onOffer;
             const displayRejected = isDemoAccount ? 21 : rejected;
