@@ -880,12 +880,12 @@
             
             <div class="email-sidebar">
                 <div class="email-sidebar-header">
-                    <h3>📥 Proxy Inbox</h3>
-                    <button onclick="fetchEmails()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Refresh">🔄</button>
+                    <h3 style="display: flex; align-items: center; gap: 0.4rem;"><i data-lucide="inbox" style="width: 16px; height: 16px;"></i> Rover Inbox</h3>
+                    <button onclick="fetchEmails()" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000000; transition: background 0.15s;" title="Refresh" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i></button>
                 </div>
                 <div style="display: flex; border-bottom: 1px solid var(--border); background: #fafafa;">
-                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s;">📥 Inbox</button>
-                    <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s;">📤 Sent</button>
+                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="inbox" style="width: 14px; height: 14px;"></i>Inbox</button>
+                    <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="send" style="width: 14px; height: 14px;"></i>Sent</button>
                 </div>
                 <div class="email-list" id="email-list">
                     <div style="padding: 2rem; text-align: center; color: #a1a1aa; font-size: 0.9rem;">Loading emails...</div>
