@@ -1274,7 +1274,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, first_name, last_name, subscription_tier, applications_limit')
                 .eq('id', user.id)
                 .single();
 
@@ -1296,10 +1296,29 @@
             // touch profile.target_location (which stays 'Nigeria' -- the
             // real value driving match-pool-jobs' geo eligibility).
             const countriesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
-                ? 'Nigeria, United States, Canada'
+                ? 'United States, Nigeria, Canada'
                 : profile.target_location;
             renderPrefChips('pref-countries', countriesForDisplay);
-            renderPrefChips('pref-workplaces', profile.workplace_type);
+            // "Remote" alone doesn't say whether the deck is scoped to the
+            // user's own region or open worldwide -- fold the real
+            // remote_scope value into the label itself (Remote Global /
+            // Remote Local) instead of a separate chip. Real profile data,
+            // applies to every user, not a demo-only override. 'both' (or
+            // unset, the pre-split-era default) stays plain "Remote" since
+            // neither single label would be accurate.
+            const scope = (profile.remote_scope || '').trim().toLowerCase();
+            const workplacesForDisplay = (profile.workplace_type || '')
+                .split(',')
+                .map(w => w.trim())
+                .filter(Boolean)
+                .map(w => {
+                    if (w.toLowerCase() !== 'remote') return w;
+                    if (scope === 'global') return 'Remote Global';
+                    if (scope === 'local') return 'Remote Local';
+                    return w;
+                })
+                .join(', ');
+            renderPrefChips('pref-workplaces', workplacesForDisplay);
 
             if (profile.master_resume) {
                 localStorage.setItem('master_resume', profile.master_resume);
