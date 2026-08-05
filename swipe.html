@@ -2231,7 +2231,7 @@
             const el = document.getElementById('stat-total');
             if (!el) return;
             // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
-            const displayCount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ? 958 : poolAvailableCount;
+            const displayCount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ? 1080 : poolAvailableCount;
             el.textContent = displayCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
@@ -2252,8 +2252,10 @@
             const rejected = rows.filter(j => j.status === 'rejected').length;
             // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
             const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
-            const displayInterviewing = isDemoAccount ? 7 : interviewing;
-            const displayRejected = isDemoAccount ? 11 : rejected;
+            const displayApplied = isDemoAccount ? 132 : applied;
+            const displayInterviewing = isDemoAccount ? 14 : interviewing;
+            const displayOffer = isDemoAccount ? 3 : onOffer;
+            const displayRejected = isDemoAccount ? 21 : rejected;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
@@ -2272,9 +2274,9 @@
                     const cached = getCachedPoolCount();
                     document.getElementById('stat-total').textContent = cached !== null ? cached.toLocaleString() : '—';
                 }
-                document.getElementById('stat-applied').textContent = applied;
+                document.getElementById('stat-applied').textContent = displayApplied;
                 document.getElementById('stat-interview').textContent = displayInterviewing;
-                document.getElementById('stat-offer').textContent = onOffer;
+                document.getElementById('stat-offer').textContent = displayOffer;
                 document.getElementById('stat-rejected').textContent = displayRejected;
             }
 
