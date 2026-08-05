@@ -1292,7 +1292,13 @@
                 ? 'Marketing Manager, Sales Operations, Operations Manager'
                 : profile.target_job_titles;
             renderPrefChips('pref-roles', rolesForDisplay);
-            renderPrefChips('pref-countries', profile.target_location);
+            // Same demo-only treatment as roles above: display only, doesn't
+            // touch profile.target_location (which stays 'Nigeria' -- the
+            // real value driving match-pool-jobs' geo eligibility).
+            const countriesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
+                ? 'Nigeria, United States, Canada'
+                : profile.target_location;
+            renderPrefChips('pref-countries', countriesForDisplay);
             renderPrefChips('pref-workplaces', profile.workplace_type);
 
             if (profile.master_resume) {
