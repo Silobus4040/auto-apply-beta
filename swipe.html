@@ -969,6 +969,13 @@
                     <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
                 </div>
             </div>
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">REJECTED</span>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
+                    <span class="stat-number" id="stat-rejected" style="font-size: 1.6rem;">0</span>
+                    <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
+                </div>
+            </div>
         </div>
 
 
@@ -2242,6 +2249,7 @@
             const applied = rows.filter(j => j.status === 'applied').length;
             const interviewing = rows.filter(j => j.status === 'interview').length;
             const onOffer = rows.filter(j => j.status === 'offer').length;
+            const rejected = rows.filter(j => j.status === 'rejected').length;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
@@ -2263,6 +2271,7 @@
                 document.getElementById('stat-applied').textContent = applied;
                 document.getElementById('stat-interview').textContent = interviewing;
                 document.getElementById('stat-offer').textContent = onOffer;
+                document.getElementById('stat-rejected').textContent = rejected;
             }
 
         }

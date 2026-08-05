@@ -723,6 +723,10 @@
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">OFFER</span>
                 <span class="stat-number" id="stat-offer" style="font-size: 1.6rem;">0</span>
             </div>
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">REJECTED</span>
+                <span class="stat-number" id="stat-rejected" style="font-size: 1.6rem;">0</span>
+            </div>
         </div>
 
 
@@ -1736,6 +1740,7 @@
             const applied = rows.filter(j => j.status === 'applied').length;
             const interviewing = rows.filter(j => j.status === 'interview').length;
             const onOffer = rows.filter(j => j.status === 'offer').length;
+            const rejected = rows.filter(j => j.status === 'rejected').length;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
@@ -1755,6 +1760,7 @@
                 document.getElementById('stat-applied').textContent = applied;
                 document.getElementById('stat-interview').textContent = interviewing;
                 document.getElementById('stat-offer').textContent = onOffer;
+                document.getElementById('stat-rejected').textContent = rejected;
             }
 
             fetchMarketIntelligence(userId);
