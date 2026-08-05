@@ -626,21 +626,18 @@
         .swipe-card-fit-reason-wrap { position: relative; flex: 1; min-width: 0; }
         /* Truncation is decided entirely in JS from the real string length
            (see buildFitScoreBadge) -- no CSS line-clamp, no pixel measurement,
-           no dependency on webfont load timing. max-height+overflow-y here is
-           just a safety cap for the EXPANDED full-text state, so a long reason
-           scrolls internally instead of growing the card past its fixed height
-           (.swipe-card clips at its own edge) -- it never engages on the short
-           preview text. */
-        /* display stays the inline default (a span) so "more" flows as part
-           of the same wrapped text instead of forcing its own row -- a
-           block-level row here needs extra height the card doesn't always
-           have to spare, and the parent's overflow:hidden (below) clips a
-           whole missing row rather than shrinking it, silently eating the
-           button (confirmed live 2026-08-05, Dropbox card). is-expanded
-           (added by toggleFitReason) switches to the scrollable box only
-           for the full-text state, which can be much longer. */
+           no dependency on webfont load timing. display stays the inline
+           default (a span) so "more" flows as part of the same wrapped text
+           instead of forcing its own row -- a block-level row here needs
+           extra height the card doesn't always have to spare, and the
+           parent's overflow:hidden (below) clips a whole missing row rather
+           than shrinking it, silently eating the button (confirmed live
+           2026-08-05, Dropbox card). "more" opens the full reason in
+           desc-modal (see showFitReasonModal) instead of expanding in place
+           -- expanding inline inside this fixed-height, clipped card hit
+           the exact same clipping problem one level up, no matter how the
+           inner scroll box was tuned. */
         .swipe-card-fit-reason { font-size: 0.8rem; color: #3f3f46; line-height: 1.4; }
-        .swipe-card-fit-reason.is-expanded { display: block; max-height: 11rem; overflow-y: auto; margin-bottom: 0.2rem; }
         /* No display:none default -- the button is only ever put in the DOM
            (see buildFitScoreBadge) when the reason actually needed truncating,
            so there's no hidden-by-default state that can fail to flip on.
@@ -1896,16 +1893,19 @@
             // The button is only ever written into the DOM when truncation
             // actually happened -- no display:none default relying on a CSS
             // class to reveal it, so there's no state where it's present but
-            // hidden. toggleFitReason looks the raw text back up from
-            // pooledJobs[jobIndex] and swaps textContent directly (which is
-            // inherently escape-safe, unlike building an HTML attribute out of
-            // reason text that could itself contain quote characters).
+            // hidden. It opens the full-screen desc-modal (see
+            // openSwipeJobDescription) instead of expanding in place --
+            // expanding inline inside .swipe-card's fixed-height, clipped
+            // flex layout kept getting silently cut off regardless of how
+            // the truncation itself was tuned (confirmed live 2026-08-05,
+            // Dropbox card). The modal isn't inside that clipped box, so
+            // there's no ancestor overflow left to fight.
             return `
                 <div class="swipe-card-fit-badge ${colorClass}">
                     <span class="swipe-card-fit-score">${score}%</span>
                     <div class="swipe-card-fit-reason-wrap">
                         <span class="swipe-card-fit-reason" id="fit-reason-${jobIndex}">${escapeHtml(reasonPreviewText)}</span>
-                        ${reasonNeedsMore ? `<button type="button" class="swipe-card-fit-more" id="fit-reason-btn-${jobIndex}" onclick="event.stopPropagation(); toggleFitReason(${jobIndex})">more</button>` : ''}
+                        ${reasonNeedsMore ? `<button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); showFitReasonModal(${jobIndex})">more</button>` : ''}
                     </div>
                 </div>
                 ${tags ? `
@@ -1992,25 +1992,13 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        function toggleFitReason(jobIndex) {
+        function showFitReasonModal(jobIndex) {
             const job = pooledJobs[jobIndex];
-            const span = document.getElementById('fit-reason-' + jobIndex);
-            const btn = document.getElementById('fit-reason-btn-' + jobIndex);
-            if (!job || !span || !btn) return;
-            const rawReason = job.fit_reason || '';
-            // .textContent is inherently escape-safe (no HTML parsing), so
-            // this needs no escapeHtml call -- unlike building an HTML
-            // attribute out of reason text, which could contain a literal
-            // quote character and break the attribute.
-            if (btn.textContent === 'less') {
-                span.textContent = truncateReasonWords(rawReason).preview;
-                span.classList.remove('is-expanded');
-                btn.textContent = 'more';
-            } else {
-                span.textContent = rawReason;
-                span.classList.add('is-expanded');
-                btn.textContent = 'less';
-            }
+            if (!job) return;
+            document.getElementById('modal-title').innerText = "Why you're a fit";
+            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-text').innerText = job.fit_reason || '';
+            document.getElementById('desc-modal').classList.add('active');
         }
 
         function toggleFitTags(btn) {
