@@ -130,7 +130,7 @@
            tool people use every day. */
         .nav-upgrade-primary {
             display: inline-flex; align-items: center; gap: 0.4rem;
-            background: linear-gradient(135deg, #D4FF33, #00FFCC);
+            background: linear-gradient(135deg, #E4F5B0, #B9F2E0);
             color: #000000;
             padding: 0.5rem 1.25rem;
             border-radius: 8px;
@@ -688,7 +688,15 @@
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Dashboard</h1>
-            <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
+            <div style="display: flex; align-items: center; gap: 0.85rem;">
+                <div id="credit-balance-block" style="display: none; align-items: center; text-align: right;">
+                    <div>
+                        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #A1A1AA; text-transform: uppercase; margin-bottom: 3px;">Credit balance</div>
+                        <span style="display: inline-flex; align-items: center; background: #f4f4f5; border: 1px solid var(--border); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.9rem; font-weight: 800; color: #000000;" id="credit-balance-value">0</span>
+                    </div>
+                </div>
+                <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
+            </div>
         </div>
 
         <!-- Activation Gate: shown until a valid invite code is redeemed. No scraping/applying happens before this. -->
@@ -1264,6 +1272,14 @@
             currentUserEmail = user.email;
             cachedUserId = user.id;
             renderAccountBadge(user.email);
+            // Demo-only display, mosco's account only -- no real credit_balance
+            // field exists yet, so this stays hardcoded rather than hidden.
+            if (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
+                const creditBlock = document.getElementById('credit-balance-block');
+                const creditValue = document.getElementById('credit-balance-value');
+                if (creditBlock) creditBlock.style.display = 'flex';
+                if (creditValue) creditValue.textContent = '68';
+            }
 
             if (!user.email_confirmed_at) {
                 sessionStorage.setItem('pending_verification_email', user.email);
