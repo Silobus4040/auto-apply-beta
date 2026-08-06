@@ -92,7 +92,7 @@
         .auto-apply-label { display: flex; align-items: center; gap: 0.6rem; }
         .auto-apply-title { font-weight: 800; font-size: 0.9rem; color: #000000; }
         .auto-apply-desc { font-size: 0.78rem; color: #71717A; margin-top: 0.3rem; }
-        .auto-apply-readmore { margin-left: 0.4rem; font-size: 0.72rem; font-weight: 700; color: #71717A; text-decoration: underline; cursor: pointer; }
+        .auto-apply-readmore { display: block; margin-top: 0.15rem; font-size: 0.68rem; font-weight: 700; color: #71717A; text-decoration: underline; cursor: pointer; }
         .auto-apply-switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
         .auto-apply-switch input { opacity: 0; width: 0; height: 0; }
         .auto-apply-switch-track { position: absolute; cursor: pointer; inset: 0; background: #d4d4d8; border-radius: 999px; transition: background 0.2s; }
@@ -930,7 +930,8 @@
         <div class="auto-apply-bar" id="auto-apply-bar" style="display: none;">
             <div class="auto-apply-label">
                 <div>
-                    <div class="auto-apply-title">⚡ Auto-Apply<a href="javascript:void(0)" class="auto-apply-readmore" id="auto-apply-readmore" onclick="toggleAutoApplyDesc()">Read more</a></div>
+                    <div class="auto-apply-title">⚡ Auto-Apply</div>
+                    <a href="javascript:void(0)" class="auto-apply-readmore" id="auto-apply-readmore" onclick="toggleAutoApplyDesc()">Learn more</a>
                     <div class="auto-apply-desc" id="auto-apply-desc" style="display: none;">Automatically apply to matches ≥ <span id="auto-apply-min-score-display">70</span>% — no swiping needed. Manual swipes below this score still go through, since that's your own call.</div>
                 </div>
             </div>
@@ -2185,7 +2186,7 @@
             const link = document.getElementById('auto-apply-readmore');
             const expanded = desc.style.display !== 'none';
             desc.style.display = expanded ? 'none' : 'block';
-            link.textContent = expanded ? 'Read more' : 'Read less';
+            link.textContent = expanded ? 'Learn more' : 'Show less';
         }
 
         // Deterministic score gate for the UNATTENDED auto-apply path only
