@@ -87,18 +87,17 @@
         .search-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212, 255, 51, 0.35); }
         .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-        /* Auto-Apply toggle bar */
-        .auto-apply-bar { display: flex; align-items: center; justify-content: flex-start; gap: 1.25rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 0.9rem 1.25rem; margin-bottom: 1rem; flex-wrap: wrap; }
-        .auto-apply-label { display: flex; align-items: center; gap: 0.6rem; }
-        .auto-apply-title { font-weight: 800; font-size: 0.9rem; color: #000000; }
-        .auto-apply-desc { font-size: 0.78rem; color: #71717A; margin-top: 0.3rem; }
-        .auto-apply-readmore { display: block; margin-top: 0.15rem; font-size: 0.68rem; font-weight: 700; color: #71717A; text-decoration: underline; cursor: pointer; }
-        .auto-apply-switch { position: relative; display: inline-block; width: 44px; height: 26px; flex-shrink: 0; }
+        /* Auto-Apply toggle -- lives in the header next to Upgrade, same
+           treatment as credit-balance-block: no card, no border, no extra
+           lines, just label + switch ending the row. */
+        .auto-apply-bar { display: none; align-items: center; gap: 0.5rem; }
+        .auto-apply-title { font-weight: 700; font-size: 0.85rem; color: #000000; white-space: nowrap; }
+        .auto-apply-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }
         .auto-apply-switch input { opacity: 0; width: 0; height: 0; }
         .auto-apply-switch-track { position: absolute; cursor: pointer; inset: 0; background: #d4d4d8; border-radius: 999px; transition: background 0.2s; }
-        .auto-apply-switch-track::before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px; background: #ffffff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
+        .auto-apply-switch-track::before { content: ""; position: absolute; height: 16px; width: 16px; left: 3px; top: 3px; background: #ffffff; border-radius: 50%; transition: transform 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.25); }
         .auto-apply-switch input:checked + .auto-apply-switch-track { background: linear-gradient(135deg, #D4FF33, #00FFCC); }
-        .auto-apply-switch input:checked + .auto-apply-switch-track::before { transform: translateX(18px); }
+        .auto-apply-switch input:checked + .auto-apply-switch-track::before { transform: translateX(16px); }
 
         /* Stats Bar */
         .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
@@ -912,6 +911,13 @@
                     </div>
                 </div>
                 <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
+                <div class="auto-apply-bar" id="auto-apply-bar" style="display: none;">
+                    <span class="auto-apply-title">⚡ Auto-Apply</span>
+                    <label class="auto-apply-switch">
+                        <input type="checkbox" id="auto-apply-toggle" onchange="toggleAutoApply(this.checked)">
+                        <span class="auto-apply-switch-track"></span>
+                    </label>
+                </div>
             </div>
         </div>
 
@@ -960,22 +966,6 @@
                     <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
                 </div>
             </div>
-        </div>
-
-        <!-- Auto-Apply toggle -- sits directly above the deck it controls,
-             not up by the header, so the two read as connected. -->
-        <div class="auto-apply-bar" id="auto-apply-bar" style="display: none;">
-            <div class="auto-apply-label">
-                <div>
-                    <div class="auto-apply-title">⚡ Auto-Apply</div>
-                    <a href="javascript:void(0)" class="auto-apply-readmore" id="auto-apply-readmore" onclick="toggleAutoApplyDesc()">Learn more</a>
-                    <div class="auto-apply-desc" id="auto-apply-desc" style="display: none;">Automatically apply to matches ≥ <span id="auto-apply-min-score-display">70</span>% — no swiping needed. Manual swipes below this score still go through, since that's your own call.</div>
-                </div>
-            </div>
-            <label class="auto-apply-switch">
-                <input type="checkbox" id="auto-apply-toggle" onchange="toggleAutoApply(this.checked)">
-                <span class="auto-apply-switch-track"></span>
-            </label>
         </div>
 
         <!-- Swipe Deck (pre-scraped job pool) -->
@@ -2140,8 +2130,6 @@
 
         function initAutoApplyToggle(profile) {
             const toggle = document.getElementById('auto-apply-toggle');
-            const scoreDisplay = document.getElementById('auto-apply-min-score-display');
-            if (scoreDisplay) scoreDisplay.textContent = profile.auto_apply_min_score ?? 70;
             if (toggle) toggle.checked = !!profile.auto_apply_enabled;
         }
 
@@ -2178,14 +2166,6 @@
             avatar.textContent = email.trim().charAt(0).toUpperCase();
             avatar.style.background = colors.bg;
             avatar.style.color = colors.text;
-        }
-
-        function toggleAutoApplyDesc() {
-            const desc = document.getElementById('auto-apply-desc');
-            const link = document.getElementById('auto-apply-readmore');
-            const expanded = desc.style.display !== 'none';
-            desc.style.display = expanded ? 'none' : 'block';
-            link.textContent = expanded ? 'Learn more' : 'Show less';
         }
 
         // Deterministic score gate for the UNATTENDED auto-apply path only
