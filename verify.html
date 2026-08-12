@@ -541,13 +541,27 @@
             }, 1000);
         }
 
+        let _resendInFlight = false;
         async function resendCode() {
+            // Guard: never fire two recovery requests in quick succession -- Supabase
+            // invalidates the previous token on each new request, so a double-fire makes
+            // the first emailed link fail with "One-time token not found" (confirmed via
+            // auth logs 2026-08-12: two user_recovery_requested in the same second ->
+            // 403 invalid/expired on click -> verify.html bounced the user to signup).
+            if (_resendInFlight) return;
+            _resendInFlight = true;
             const resendBtn = document.getElementById('resend-btn');
             resendBtn.disabled = true;
 
             try {
                 const { error } = otpFlow === 'login'
-                    ? await supabaseClient.auth.resetPasswordForEmail(pendingEmail, {})
+                    // Reset-password resend MUST carry the SAME redirectTo as login.html's
+                    // primary call. Omitting it sent the recovery link to the default Site
+                    // URL instead of verify.html, so the recovery token never reached the
+                    // set-password form -- the direct cause of the signup.html bounce.
+                    ? await supabaseClient.auth.resetPasswordForEmail(pendingEmail, {
+                        redirectTo: 'https://myrolerover.com/verify.html',
+                      })
                     : await supabaseClient.auth.resend({
                         type: 'signup',
                         email: pendingEmail
@@ -564,6 +578,8 @@
             } catch (err) {
                 showError(err.message || 'Failed to resend code. Try again later.');
                 resendBtn.disabled = false;
+            } finally {
+                _resendInFlight = false;
             }
         }
 
