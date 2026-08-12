@@ -299,8 +299,14 @@
         const pendingEmail = sessionStorage.getItem('pending_verification_email');
         // 'signup' (default) = new account confirmation OTP flow
         const otpFlow = sessionStorage.getItem('otp_flow') || 'signup';
-        if (!pendingEmail && !isRecoveryLink) {
-            // No email to verify and not a recovery link, redirect back to signup
+        // A recovery/confirmation link that expired or was already used redirects back here
+        // with an error in the hash -- do NOT bounce to signup (that dumped confused users
+        // on the wrong page). Show a clear message and let them request a fresh link.
+        const hasAuthError = window.location.hash.includes('error')
+            || new URLSearchParams(window.location.search).has('error');
+        if (hasAuthError) {
+            showError('This reset link has expired or was already used. Go back to Login -> "Forgot Password?" for a fresh link, and click it right away.');
+        } else if (!pendingEmail && !isRecoveryLink) {
             window.location.href = 'signup.html';
         }
         document.getElementById('user-email').textContent = pendingEmail || '';
@@ -549,6 +555,18 @@
             // auth logs 2026-08-12: two user_recovery_requested in the same second ->
             // 403 invalid/expired on click -> verify.html bounced the user to signup).
             if (_resendInFlight) return;
+            // Cross-page single-send guard (mirrors login.html): block a repeat recovery
+            // email within 60s so a second token can't invalidate the first.
+            if (otpFlow === 'login') {
+                const _rrKey = 'rr_recovery_sent_' + (pendingEmail || '').toLowerCase();
+                if (Date.now() - Number(localStorage.getItem(_rrKey) || 0) < 60000) {
+                    const sm = document.getElementById('success-msg');
+                    sm.textContent = '📧 A reset link was just sent — check your inbox (and spam) and click the newest one.';
+                    sm.style.display = 'block';
+                    return;
+                }
+                localStorage.setItem(_rrKey, String(Date.now()));
+            }
             _resendInFlight = true;
             const resendBtn = document.getElementById('resend-btn');
             resendBtn.disabled = true;

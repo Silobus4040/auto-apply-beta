@@ -305,6 +305,17 @@
             // living on an old, now-broken domain would otherwise send the recovery link
             // back to that dead domain instead of the real, live one. Always send users
             // to the one true production URL regardless of where the form was submitted from.
+            // Cross-page single-send guard: a 2nd recovery email invalidates the 1st token,
+            // so any double-fire produces "One-time token not found" on the clicked link
+            // (proven via auth logs 2026-08-12). localStorage survives the login.html ->
+            // verify.html navigation, which an in-memory flag cannot.
+            const _rrKey = 'rr_recovery_sent_' + email.toLowerCase();
+            if (Date.now() - Number(localStorage.getItem(_rrKey) || 0) < 60000) {
+                successMsg.textContent = '✅ Reset link already sent to ' + email + '. Check your email (and spam) and click the NEWEST link.';
+                successMsg.style.display = 'block';
+                return;
+            }
+            localStorage.setItem(_rrKey, String(Date.now()));
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                 redirectTo: 'https://myrolerover.com/verify.html',
             });
