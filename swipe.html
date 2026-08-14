@@ -2180,6 +2180,14 @@
         // real via the exact same path a manual swipe uses, and re-renders
         // once at the end. Jobs below the threshold are left untouched in
         // the deck for the user to swipe on manually, same as today.
+        // TEMPORARY 2026-08-14 (see stagehand_poc/PROGRESS_LOG.md Run 76 for
+        // full context + these exact revert steps): caps one auto-apply sweep at 5 real
+        // submissions so a controlled multi-account test can't fire an
+        // uncontrolled burst at real employers. REVERT by deleting this
+        // constant and changing `eligible.slice(0, TEMP_AUTO_APPLY_SWEEP_CAP)`
+        // back to plain `eligible` below (2 lines).
+        const TEMP_AUTO_APPLY_SWEEP_CAP = 5;
+
         async function autoApplySweepAndFilter(userId) {
             if (!userProfile || !userProfile.auto_apply_enabled) return;
             const minScore = userProfile.auto_apply_min_score ?? 70;
@@ -2195,14 +2203,16 @@
                 }
             }
             if (!eligible.length) return;
-            for (const job of eligible) {
+            const toSubmit = eligible.slice(0, TEMP_AUTO_APPLY_SWEEP_CAP);
+            const deferred = eligible.slice(TEMP_AUTO_APPLY_SWEEP_CAP); // stays in the deck, untouched, for a later sweep
+            for (const job of toSubmit) {
                 try {
                     await submitApplyForJob(userId, job);
                 } catch (err) {
                     console.error('Auto-apply failed for job', job.id, err);
                 }
             }
-            pooledJobs = remaining.concat(keep);
+            pooledJobs = remaining.concat(keep).concat(deferred);
             renderSwipeStack();
             updateStats(currentJobs, userId);
             refreshDeckSilently();
