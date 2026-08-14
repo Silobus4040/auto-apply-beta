@@ -280,8 +280,14 @@
         }
 
         // ─── Forgot Password → Resend Signup OTP (only confirmed working email type) ───
+        const resetPageInstanceId = crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + '-' + Math.random();
+        let resetInvocationSequence = 0;
+
         async function sendPasswordReset() {
             const email = document.getElementById('login-email').value.trim();
+            const invocationId = ++resetInvocationSequence;
+            const requestId = resetPageInstanceId + ':' + invocationId;
+            console.info('[password-reset] invoked', { requestId, pageInstanceId: resetPageInstanceId, invocationId, at: new Date().toISOString() });
             if (!email) {
                 alert('Please enter your email address first, then click Forgot Password.');
                 return;
@@ -316,6 +322,7 @@
                 return;
             }
             localStorage.setItem(_rrKey, String(Date.now()));
+            console.info('[password-reset] sending recovery request', { requestId, pageInstanceId: resetPageInstanceId, invocationId, at: new Date().toISOString() });
             const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
                 redirectTo: 'https://myrolerover.com/verify.html',
             });
