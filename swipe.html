@@ -1749,6 +1749,7 @@
         // ---- Swipe deck (pre-scraped job pool) ----
         let pooledJobs = [];
         let pooledJobIndex = 0;
+        let autoApplySweepRunning = false;
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
         // match-pool-jobs used to return a bare array; it now returns
@@ -2072,6 +2073,26 @@
             finishSwipe(topCard, job, decision);
         }
 
+        function wait(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
+        }
+
+        async function autoSwipeCurrentCard(decision) {
+            const stack = document.getElementById('swipe-stack');
+            if (!stack) return false;
+            const topCard = stack.lastElementChild;
+            const job = pooledJobs[pooledJobIndex];
+            if (!topCard || !job || topCard.classList.contains('swipe-empty')) return false;
+            const passStamp = topCard.querySelector('.swipe-card-stamp.pass');
+            const applyStamp = topCard.querySelector('.swipe-card-stamp.apply');
+            if (decision === 'apply' && applyStamp) applyStamp.style.opacity = 1;
+            if (decision !== 'apply' && passStamp) passStamp.style.opacity = 1;
+            await wait(120);
+            await finishSwipe(topCard, job, decision);
+            await wait(420);
+            return true;
+        }
+
         async function finishSwipe(card, job, decision) {
             card.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
             card.style.transform = decision === 'apply'
@@ -2174,46 +2195,26 @@
             avatar.style.color = colors.text;
         }
 
-        // Deterministic score gate for the UNATTENDED auto-apply path only
-        // (see submitApplyForJob's comment for why manual swipe never gates
-        // on score). Removes every eligible job (fit_score >= threshold)
-        // from `pooledJobs` from pooledJobIndex onward, submits each one for
-        // real via the exact same path a manual swipe uses, and re-renders
-        // once at the end. Jobs below the threshold are left untouched in
-        // the deck for the user to swipe on manually, same as today.
-        // TEMPORARY 2026-08-15: cap Auto-Apply sweeps while running the
-        // Mosco/Barnaves two-account end-to-end test. Revert after testing by
-        // removing this constant and submitting every eligible job again.
-        const TEMP_AUTO_APPLY_SWEEP_CAP = 5;
-
+        // Auto-Apply visibly works through the deck in order: score 70+ swipes
+        // right and queues the application, anything below the threshold swipes
+        // left and is recorded as skipped.
         async function autoApplySweepAndFilter(userId) {
             if (!userProfile || !userProfile.auto_apply_enabled) return;
-            const minScore = userProfile.auto_apply_min_score ?? 70;
-            const remaining = pooledJobs.slice(0, pooledJobIndex);
-            const candidates = pooledJobs.slice(pooledJobIndex);
-            const keep = [];
-            const eligible = [];
-            for (const job of candidates) {
-                if (typeof job.fit_score === 'number' && job.fit_score >= minScore) {
-                    eligible.push(job);
-                } else {
-                    keep.push(job);
+            if (autoApplySweepRunning) return;
+            autoApplySweepRunning = true;
+            const minScore = 70;
+            try {
+                while (userProfile && userProfile.auto_apply_enabled && pooledJobIndex < pooledJobs.length) {
+                    const job = pooledJobs[pooledJobIndex];
+                    const decision = typeof job.fit_score === 'number' && job.fit_score >= minScore ? 'apply' : 'skip';
+                    const swiped = await autoSwipeCurrentCard(decision);
+                    if (!swiped) break;
                 }
+                updateStats(currentJobs, userId);
+                refreshDeckSilently();
+            } finally {
+                autoApplySweepRunning = false;
             }
-            if (!eligible.length) return;
-            const toSubmit = eligible.slice(0, TEMP_AUTO_APPLY_SWEEP_CAP);
-            const deferred = eligible.slice(TEMP_AUTO_APPLY_SWEEP_CAP);
-            for (const job of toSubmit) {
-                try {
-                    await submitApplyForJob(userId, job);
-                } catch (err) {
-                    console.error('Auto-apply failed for job', job.id, err);
-                }
-            }
-            pooledJobs = remaining.concat(keep).concat(deferred);
-            renderSwipeStack();
-            updateStats(currentJobs, userId);
-            refreshDeckSilently();
         }
 
         function updateInboxBannerVisibility() {
