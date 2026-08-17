@@ -19,6 +19,21 @@
             font-size: 1.5rem;
             margin-bottom: 0.25rem;
         }
+        /* Rover loading state — compass spins while scoring in progress */
+        .rover-loading {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 3rem 2rem; text-align: center;
+        }
+        .rover-loading-svg {
+            animation: rover-spin 4s linear infinite;
+            width: 100px; height: 100px; margin-bottom: 1.5rem;
+        }
+        .rover-loading h3 {
+            color: #000000; font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem;
+        }
+        .rover-loading p {
+            color: #71717A; font-size: 0.85rem; max-width: 280px; line-height: 1.5;
+        }
         :root {
             --bg-color: #ffffff;
             --surface-color: #ffffff;
@@ -990,17 +1005,31 @@
              visible; every fetch path hides it exactly once it knows the real
              answer. -->
         <div id="deck-loading-state">
-            <div class="swipe-stack">
-                <div class="swipe-card deck-skeleton" style="position: static;">
-                    <div class="sk-line sk-sm"></div>
-                    <div class="sk-line sk-lg"></div>
-                    <div class="sk-line sk-md"></div>
-                    <div class="sk-block"></div>
-                    <div class="sk-line sk-md"></div>
-                    <div class="sk-line sk-sm"></div>
-                </div>
+            <div class="rover-loading">
+                <svg class="rover-loading-svg" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="compass-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" stop-color="#B2FF33" />
+                            <stop offset="100%" stop-color="#33FFAA" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="28" cy="28" r="26" stroke="url(#compass-grad)" stroke-width="4" fill="none"/>
+                    <circle cx="28" cy="28" r="22" stroke="#000" stroke-width="1" stroke-dasharray="1.5 2.5" opacity="0.2" fill="none"/>
+                    <text x="28" y="10" font-family="'Outfit', sans-serif" font-size="8" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">N</text>
+                    <text x="28" y="46" font-family="'Outfit', sans-serif" font-size="8" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">S</text>
+                    <text x="10" y="28" font-family="'Outfit', sans-serif" font-size="8" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">W</text>
+                    <text x="46" y="28" font-family="'Outfit', sans-serif" font-size="8" font-weight="900" fill="#000" text-anchor="middle" dominant-baseline="middle">E</text>
+                    <g transform="rotate(-8 28 28)">
+                        <polygon points="28,28 25,28 28,18" fill="#D4FF33"/>
+                        <polygon points="28,28 31,28 28,18" fill="#00FFCC"/>
+                        <polygon points="28,28 25,28 28,38" fill="#a1a1aa"/>
+                        <polygon points="28,28 31,28 28,38" fill="#52525b"/>
+                        <circle cx="28" cy="28" r="2" fill="#ffffff" stroke="#18181b" stroke-width="0.8"/>
+                    </g>
+                </svg>
+                <h3>Roving for roles</h3>
+                <p>Checking every nook and cranny of the job market. This usually takes up to 5 minutes.</p>
             </div>
-            <p style="text-align: center; color: #71717a; font-size: 0.85rem; margin-top: 1rem;">Loading your matches…</p>
         </div>
 
         <!-- Shown instead of the deck when the pool has nothing left to offer. On
@@ -1776,37 +1805,41 @@
         async function fetchPooledJobs(userId) {
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
-            try {
-                const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
-                const { jobs, totalAvailable } = unwrapPoolResponse(data);
-                if (totalAvailable !== null) {
-                    poolAvailableCount = totalAvailable;
-                    applyPoolAvailableToStats();
+            // Retry up to ~2 minutes (12 x 10s) while scoring completes.
+            // match-pool-jobs assigns cards immediately but fit scores arrive
+            // asynchronously from the score-deck webhook, so the first few
+            // calls return empty until OpenAI finishes scoring the batch.
+            const MAX_RETRIES = 12;
+            const RETRY_DELAY = 10000;
+            for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+                try {
+                    const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
+                    const { jobs, totalAvailable } = unwrapPoolResponse(data);
+                    if (totalAvailable !== null) {
+                        poolAvailableCount = totalAvailable;
+                        applyPoolAvailableToStats();
+                    }
+                    if (!error && jobs && jobs.length) {
+                        pooledJobs = jobs;
+                        pooledJobIndex = 0;
+                        hideDeckLoading();
+                        if (section) section.style.display = 'block';
+                        if (emptyState) emptyState.style.display = 'none';
+                        renderSwipeStack();
+                        if (userProfile && userProfile.auto_apply_enabled) await autoApplySweepAndFilter(userId);
+                        return;
+                    }
+                } catch (err) {
+                    console.error('fetchPooledJobs attempt failed', attempt, err);
                 }
-                if (error || !jobs || !jobs.length) {
-                    hideDeckLoading();
-                    if (section) section.style.display = 'none';
-                    if (emptyState) emptyState.style.display = '';
-                    return;
+                if (attempt < MAX_RETRIES - 1) {
+                    await new Promise(r => setTimeout(r, RETRY_DELAY));
                 }
-                pooledJobs = jobs;
-                pooledJobIndex = 0;
-                hideDeckLoading();
-                if (section) section.style.display = 'block';
-                if (emptyState) emptyState.style.display = 'none';
-                renderSwipeStack();
-                if (userProfile && userProfile.auto_apply_enabled) await autoApplySweepAndFilter(userId);
-            } catch (err) {
-                // A thrown/rejected invoke() (real network failure, not a
-                // graceful {error} response) used to abort this function
-                // before either element's display was ever touched, leaving
-                // the whole deck area permanently blank -- worse than the
-                // intended empty-state message. Always fall through to it.
-                console.error('fetchPooledJobs failed', err);
-                hideDeckLoading();
-                if (section) section.style.display = 'none';
-                if (emptyState) emptyState.style.display = '';
             }
+            // All retries exhausted — show the real empty state
+            hideDeckLoading();
+            if (section) section.style.display = 'none';
+            if (emptyState) emptyState.style.display = '';
         }
 
         // Quietly top up the deck after a swipe: match-pool-jobs assigns more
