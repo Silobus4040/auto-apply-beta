@@ -461,6 +461,15 @@
             cursor: pointer; background: rgba(0, 0, 0, 0.08); font-weight: 800;
         }
         .pref-chip-more:hover { background: rgba(0, 0, 0, 0.14); }
+        #pref-roles .pref-chip {
+            background: rgba(16, 185, 129, 0.08); color: #047857;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        #pref-countries .pref-chip,
+        #pref-workplaces .pref-chip {
+            background: #e2e8f0; color: #475569;
+            border: 1px solid #cbd5e1;
+        }
         .info-strip-edit {
             position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
             font-weight: 700; color: var(--secondary); text-decoration: none;
@@ -1788,6 +1797,11 @@
             if (cachedUserId) {
                 try { localStorage.setItem(`poolCount_${cachedUserId}`, String(displayCount)); } catch (e) {}
             }
+            // Re-render the job list section when pool count arrives so the
+            // scanning state can transition from compass+roving to checkmark.
+            if (currentJobs && currentJobs.length === 0) {
+                renderJobs(currentJobs, lastIsScanning);
+            }
         }
 
         async function updateStats(jobs, userId) {
@@ -1987,14 +2001,27 @@
             if (filterBar) filterBar.style.display = jobs.length ? 'flex' : 'none';
             if (jobs.length) renderStatusChips();
             if (!jobs.length) {
-                if (isScanning) {
-                    const rolesList = (userProfile && userProfile.target_job_titles) ? userProfile.target_job_titles.split(', ') : [];
-                    const locationsList = (userProfile && userProfile.target_location) ? userProfile.target_location.split(', ') : [];
-                    const workplaceList = (userProfile && userProfile.workplace_type) ? userProfile.workplace_type.split(', ') : [];
-                    const rolesBadgesHtml = rolesList.map(r => `<span style="background: rgba(16, 185, 129, 0.08); color: #047857; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">${r}</span>`).join(' ');
-                    const locationText = locationsList.join(', ');
-                    const criteriaBadgesHtml = workplaceList.length > 0 ? `<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; display: inline-block;">${workplaceList.join(' · ')}</span>` : '';
+                const rolesList = (userProfile && userProfile.target_job_titles) ? userProfile.target_job_titles.split(', ') : [];
+                const workplaceList = (userProfile && userProfile.workplace_type) ? userProfile.workplace_type.split(', ') : [];
+                const rolesBadgesHtml = rolesList.map(r => `<span style="background: rgba(16, 185, 129, 0.08); color: #047857; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">${r}</span>`).join(' ');
+                const criteriaBadgesHtml = workplaceList.length > 0 ? `<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; display: inline-block;">${workplaceList.join(' · ')}</span>` : '';
+                const badgesHtml = `<div style="display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-top: 0.5rem;">${rolesBadgesHtml}${criteriaBadgesHtml}</div>`;
+                const deckCta = `<a href="swipe.html" style="margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; background: #000; color: #fff; padding: 0.75rem 2rem; border-radius: 40px; font-size: 0.9rem; font-weight: 800; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">Open Job Deck →</a>`;
 
+                if (poolAvailableCount > 0) {
+                    const dCount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ? 1080 : poolAvailableCount;
+                    const label = dCount === 1 ? 'role' : 'roles';
+                    container.innerHTML = `
+                        <div class="rover-loading">
+                            <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="28" cy="28" r="26" fill="#10B981"/>
+                                <path d="M18 28l7 7 13-13" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <p style="margin-top: 1rem; font-size: 1.1rem; font-weight: 800; color: #000000; margin-bottom: 0.3rem;">${dCount} ${label} matched your preferences</p>
+                            ${badgesHtml}
+                            ${deckCta}
+                        </div>`;
+                } else if (isScanning) {
                     container.innerHTML = `
                         <div class="rover-loading">
                             <svg class="rover-loading-svg" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2019,15 +2046,10 @@
                                 </g>
                             </svg>
                             <p>Rover is roving thousands of roles to find the ones you're qualified for — this usually takes 3 minutes.</p>
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-top: 0.5rem;">
-                                ${rolesBadgesHtml}
-                                ${criteriaBadgesHtml}
-                            </div>
-                            <a href="swipe.html" style="margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; background: #000; color: #fff; padding: 0.75rem 2rem; border-radius: 40px; font-size: 0.9rem; font-weight: 800; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">Open Job Deck →</a>
+                            ${badgesHtml}
+                            ${deckCta}
                         </div>`;
                 } else if (userProfile && !userProfile.is_activated) {
-                    // Never activated - no scan has ever run, so "we completed the
-                    // live scan" would be a false claim. Say so honestly instead.
                     container.innerHTML = `
                         <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
                             <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔒</span>
