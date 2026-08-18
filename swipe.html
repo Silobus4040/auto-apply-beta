@@ -1817,10 +1817,6 @@
         async function fetchPooledJobs(userId) {
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
-            // Retry up to ~3 minutes (18 x 10s) while scoring + enrichment complete.
-            // match-pool-jobs assigns cards immediately but fit scores and enrichment
-            // arrive asynchronously from the score-deck and enrich-deck webhooks, so
-            // the first few calls return empty until both finish.
             const MAX_RETRIES = 18;
             const RETRY_DELAY = 10000;
             for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -1840,6 +1836,21 @@
                         if (emptyState) emptyState.style.display = 'none';
                         renderSwipeStack();
                         if (userProfile && userProfile.auto_apply_enabled) await autoApplySweepAndFilter(userId);
+                        return;
+                    }
+                    // If matches are found but not yet scored, show the waiting
+                    // state immediately instead of keeping the spinner for 3
+                    // minutes (18 retries) while scoring/enrichment completes.
+                    if (!error && totalAvailable !== null && totalAvailable > 0 && (!jobs || !jobs.length)) {
+                        hideDeckLoading();
+                        if (section) section.style.display = 'none';
+                        if (emptyState) {
+                            emptyState.style.display = '';
+                            const h3 = emptyState.querySelector('h3');
+                            const p = emptyState.querySelector('p');
+                            if (h3) h3.textContent = 'Preparing your matches...';
+                            if (p) p.innerHTML = `${totalAvailable} roles matched your preferences! They are being scored and prepared for your deck — this takes about 60 seconds. Check your <a href="dashboard.html" style="color: var(--secondary); font-weight: 700;">Dashboard</a> in the meantime.`;
+                        }
                         return;
                     }
                 } catch (err) {
