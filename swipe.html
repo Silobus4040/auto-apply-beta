@@ -1802,6 +1802,18 @@
             if (loading) loading.style.display = 'none';
         }
 
+        function updateDeckLoadingText(count) {
+            const h3 = document.querySelector('#deck-loading-state h3');
+            const p = document.querySelector('#deck-loading-state p');
+            if (count > 0) {
+                if (h3) h3.textContent = 'Analyzing matches...';
+                if (p) p.textContent = `We found ${count} matching roles! Rover is currently scoring and preparing them for your deck — this takes about 60 seconds.`;
+            } else {
+                if (h3) h3.textContent = 'Roving for roles';
+                if (p) p.textContent = "Rover is roving thousands of roles to find the ones you're qualified for — this usually takes 3 minutes.";
+            }
+        }
+
         async function fetchPooledJobs(userId) {
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
@@ -1818,6 +1830,7 @@
                     if (totalAvailable !== null) {
                         poolAvailableCount = totalAvailable;
                         applyPoolAvailableToStats();
+                        updateDeckLoadingText(totalAvailable);
                     }
                     if (!error && jobs && jobs.length) {
                         pooledJobs = jobs;
