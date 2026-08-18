@@ -5,7 +5,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoApply AI | Dashboard</title>
-    <meta name="robots" content="noindex,nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
@@ -131,7 +130,7 @@
            tool people use every day. */
         .nav-upgrade-primary {
             display: inline-flex; align-items: center; gap: 0.4rem;
-            background: linear-gradient(135deg, #E4F5B0, #B9F2E0);
+            background: linear-gradient(135deg, #D4FF33, #00FFCC);
             color: #000000;
             padding: 0.5rem 1.25rem;
             border-radius: 8px;
@@ -401,7 +400,6 @@
            main nav group -- standard modern layout instead of sitting inline
            as just another item after Settings. */
         .sidebar-nav-item.sidebar-nav-logout { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
-        .sidebar-account-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.65rem; flex-shrink: 0; background: #e4e4e7; color: #71717a; }
         .sidebar-badge {
             margin-left: auto; background: var(--secondary); color: #fff; font-size: 0.65rem;
             padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 700; min-width: 20px; text-align: center;
@@ -421,32 +419,28 @@
         .info-strip {
             background: #fff; border: 1px solid var(--border); border-radius: 16px;
             padding: 0.85rem 1.25rem; margin-bottom: 1rem;
-            display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); justify-content: start; gap: 0.5rem 2.5rem;
+            display: grid; grid-template-columns: repeat(3, auto); justify-content: start; gap: 0.5rem 2.5rem;
             align-items: start; position: relative;
         }
         .info-strip-cell {
-            display: flex; flex-direction: column; gap: 0.15rem; min-width: 0;
+            display: flex; flex-direction: column; gap: 0.15rem;
         }
         .info-strip-label {
             font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
             color: #A1A1AA; letter-spacing: 0.5px;
         }
         .info-strip-value { font-size: 0.85rem; font-weight: 600; color: #000; }
-        /* Roles/Countries/Type as individual chips instead of one run-on comma
-           sentence. Chips stay on one line (nowrap) and overflow is measured
-           in JS -- whatever doesn't fit collapses into a "+N" chip that
-           expands to a wrapped, multi-line view on click. */
-        .pref-chips { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.35rem; align-items: center; min-width: 0; }
+        /* Roles/Countries as individual chips instead of one run-on comma
+           sentence -- easier to scan, and lets roles cap at 3 + "N more"
+           instead of wrapping across several lines. */
+        .pref-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; align-items: center; }
         .pref-chip {
             background: rgba(0, 0, 0, 0.05); color: #000000;
             border: 1px solid rgba(0, 0, 0, 0.08);
             padding: 0.2rem 0.6rem; border-radius: 999px;
-            font-size: 0.78rem; font-weight: 600; white-space: nowrap; flex-shrink: 0;
+            font-size: 0.78rem; font-weight: 600; white-space: nowrap;
         }
-        .pref-chip-more {
-            cursor: pointer; background: rgba(0, 0, 0, 0.08); font-weight: 800;
-        }
-        .pref-chip-more:hover { background: rgba(0, 0, 0, 0.14); }
+        .pref-chip-more { color: #71717A; font-weight: 600; }
         .info-strip-edit {
             position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
             font-weight: 700; color: var(--secondary); text-decoration: none;
@@ -477,88 +471,35 @@
             .stat { min-width: 100%; }
             .info-strip { grid-template-columns: 1fr; }
 
-            /* Compact mobile card (redesigned): company eyebrow + role headline,
-               status pill, then a tight inline row of action buttons -- instead of
-               the old mechanically-stacked table cells that ran a full screen tall.
-               The desktop table (>768px) is completely untouched. */
+            /* Card layout for the jobs table below 768px so users don't have to scroll both axes */
             .jobs-table-container { overflow-x: visible; border: none; box-shadow: none; background: transparent; }
             .jobs-table, .jobs-table thead, .jobs-table tbody, .jobs-table tr, .jobs-table td { display: block; width: 100%; }
             .jobs-table thead { position: absolute; left: -9999px; top: -9999px; }
-
-            .jobs-table tr:not(.skeleton-row) {
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                gap: 0.55rem 0.6rem;
+            .jobs-table tr {
                 background: var(--surface-color);
                 border: 1px solid var(--border);
-                border-radius: 14px;
-                margin-bottom: 0.85rem;
-                padding: 1rem 1.1rem;
+                border-radius: 12px;
+                margin-bottom: 1rem;
+                padding: 0.5rem 0;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             }
-            /* No zebra striping on cards: that's a TABLE convention (it helps the
-               eye track across long horizontal rows). Cards are already separated
-               by their own border, gap and shadow, so the stripe was decorative
-               only -- and a 6% tint is close to invisible on a phone in daylight. */
             .jobs-table tbody tr:nth-child(even) td { background: transparent; }
-            .jobs-table td { border-bottom: none; padding: 0; }
-
-            /* Drop the uppercase field labels -- content is self-evident on a card */
-            .jobs-table td::before { content: none !important; }
-
-            /* Company (eyebrow) + role (headline), full width at top */
-            .jobs-table td[data-label="Company / Role"] { flex: 1 1 100%; order: 1; }
-            /* Slightly darker than the old #6b7280 so it reads as a BRAND, not a
-               form label. Uppercase stays: company names are stored inconsistently
-               (anthropic / lastpass / boomilp are all lowercase in job_pool), and
-               the transform quietly normalises that. */
-            .jobs-table td[data-label="Company / Role"] div:first-child {
-                font-size: 0.78rem !important; font-weight: 700 !important;
-                color: #52525B !important; text-transform: uppercase; letter-spacing: 0.4px;
-                margin-top: 0 !important;
+            .jobs-table td {
+                border-bottom: 1px solid var(--border);
+                padding: 0.85rem 1.25rem;
             }
-            .jobs-table td[data-label="Company / Role"] div:last-child {
-                font-size: 1.05rem !important; font-weight: 700 !important;
-                color: #000 !important; margin-top: 0.15rem !important; line-height: 1.3;
+            .jobs-table tr:last-child td, .jobs-table td:last-child { border-bottom: none; }
+            .jobs-table td::before {
+                content: attr(data-label);
+                display: block;
+                font-size: 0.68rem;
+                font-weight: 800;
+                text-transform: uppercase;
+                letter-spacing: 0.6px;
+                color: #00997a;
+                margin-bottom: 0.35rem;
             }
-
-            /* Status pill on its own line under the title */
-            .jobs-table td[data-label="Status"] { flex: 1 1 100%; order: 2; }
-
-            /* Action buttons: tight inline row, wrapping as needed */
-            .jobs-table td[data-label="Career Page"],
-            .jobs-table td[data-label="Resume & Cover Letter"] { flex: 0 0 auto; order: 3; }
-            .jobs-table td[data-label="Resume & Cover Letter"] > div {
-                flex-direction: row !important; flex-wrap: wrap; gap: 0.5rem;
-            }
-            .jobs-table td[data-label="Resume & Cover Letter"] .table-btn { margin-top: 0 !important; }
-
-            /* Button hierarchy. Previously all four buttons rendered at identical
-               weight, which read as a flat grey wall under the title and left the
-               user nothing to aim at. Three tiers now, purely by position -- no JS
-               or markup changes needed:
-                 1. View Posting  -- primary action, brand fill
-                 2. View Submitted Form -- secondary, keeps the outline
-                 3. Resume / Cover Letter -- tertiary, de-emphasised documents */
-            .jobs-table td[data-label="Career Page"] .table-btn {
-                background: var(--primary);
-                border-color: var(--primary);
-                color: #000;
-                font-weight: 700;
-            }
-            .jobs-table td[data-label="Resume & Cover Letter"] .table-btn {
-                background: rgba(0, 0, 0, 0.035);
-                border-color: transparent;
-                color: #52525B;
-                font-weight: 600;
-            }
-
-            /* Loading skeleton rows keep a simple padded card */
-            .jobs-table tr.skeleton-row {
-                background: var(--surface-color); border: 1px solid var(--border);
-                border-radius: 14px; margin-bottom: 0.85rem; padding: 1rem 1.1rem;
-            }
+            .jobs-table td:not([data-label])::before { content: none; }
         }
 
     </style>
@@ -646,6 +587,7 @@
                     </g>
                     <text x="208" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="#000" letter-spacing="-2px">VER</text>
                 </svg>
+                <span style="background: rgba(0,0,0,0.06); color: #71717a; font-size: 0.55rem; padding: 0.1rem 0.35rem; border-radius: 3px; font-weight: 700; letter-spacing: 0.5px; margin-left: 0.15rem;">BETA</span>
                 <button class="hamburger-btn" onclick="toggleSidebar()" style="margin-left: auto;" aria-label="Close Menu">✕</button>
             </div>
             <div class="sidebar-nav">
@@ -666,8 +608,7 @@
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
                 </button>
                 <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
-                    <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
-                    Log Out
+                    <i data-lucide="log-out" class="sidebar-nav-icon"></i> Log Out
                 </button>
             </div>
         </aside>
@@ -689,15 +630,7 @@
         <!-- Page Header -->
         <div class="page-header">
             <h1 class="page-title">Dashboard</h1>
-            <div style="display: flex; align-items: center; gap: 0.85rem;">
-                <div id="credit-balance-block" style="display: none; align-items: center; text-align: right;">
-                    <div>
-                        <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #A1A1AA; text-transform: uppercase; margin-bottom: 3px;">Credit balance</div>
-                        <span style="display: inline-flex; align-items: center; background: #f4f4f5; border: 1px solid var(--border); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.9rem; font-weight: 800; color: #000000;" id="credit-balance-value">0</span>
-                    </div>
-                </div>
-                <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
-            </div>
+            <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">🚀 Upgrade</a>
         </div>
 
         <!-- Activation Gate: shown until a valid invite code is redeemed. No scraping/applying happens before this. -->
@@ -715,26 +648,21 @@
         <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 0.6rem;">
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
+                <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
+            </div>
+            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">IN QUEUE</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
-                    <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
-                    <a class="stat-view-btn" href="swipe.html" style="text-decoration: none;">View</a>
+                    <span class="stat-number" id="stat-queued" style="font-size: 1.6rem;">0</span>
+                    <button class="stat-view-btn" onclick="scrollToApplications()">View</button>
                 </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
-                <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
-            </div>
-            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
-                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">INTERVIEW</span>
-                <span class="stat-number" id="stat-interview" style="font-size: 1.6rem;">0</span>
-            </div>
-            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
-                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">OFFER</span>
-                <span class="stat-number" id="stat-offer" style="font-size: 1.6rem;">0</span>
-            </div>
-            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
-                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">REJECTED</span>
-                <span class="stat-number" id="stat-rejected" style="font-size: 1.6rem;">0</span>
+                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
+                    <span class="stat-number" id="stat-applied" style="font-size: 1.6rem;">0</span>
+                    <button class="stat-view-btn" onclick="scrollToApplications()">View</button>
+                </div>
             </div>
         </div>
 
@@ -774,7 +702,7 @@
             </div>
             <div class="info-strip-cell">
                 <span class="info-strip-label">Type</span>
-                <div class="pref-chips" id="pref-workplaces"><span class="info-strip-value">Loading...</span></div>
+                <span class="info-strip-value" id="pref-workplaces">Loading...</span>
             </div>
             <div id="test-webhook-banner" style="grid-column: 1 / -1; padding-top: 0.75rem; border-top: 1px solid var(--border); margin-top: 0.25rem; display: none; gap: 0.75rem; flex-wrap: wrap;">
                 <div id="inbox-banner" style="display: none;">
@@ -784,50 +712,10 @@
         </div>
 
         <!-- Job List -->
-        <!-- Real loading skeleton, not a claim of emptiness -- this markup is
-             only ever visible for the few seconds between page load and the
-             first real fetchUserJobs() response. It must never read as "you
-             have no jobs" (that message is dishonest while data is still in
-             flight and misleads users into thinking the product is broken).
-             renderJobs() always overwrites this once the real fetch resolves,
-             whether that turns out to be a job list, a genuine empty state,
-             or the activation/scanning states. -->
-        <div id="job-filter-bar" style="display: none; gap: 1rem; flex-wrap: wrap; align-items: flex-end; margin-bottom: 1.25rem;">
-            <div class="field" style="flex: 1; min-width: 220px; max-width: 360px;">
-                <label for="job-search-input">Search</label>
-                <input type="text" id="job-search-input" placeholder="Search by company or title..." oninput="onJobSearchInput(this.value)">
-            </div>
-            <div class="field" style="min-width: 200px; margin-left: auto;">
-                <label for="job-status-select">Status</label>
-                <select id="job-status-select" onchange="setStatusFilter(this.value)"></select>
-            </div>
-        </div>
         <div id="job-list">
-            <div class="jobs-table-container">
-                <table class="jobs-table">
-                    <thead>
-                        <tr>
-                            <th>Company / Role</th>
-                            <th>Career Page</th>
-                            <th>Resume &amp; Cover Letter</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr class="skeleton-row" style="opacity: 0.55; animation: pulseOpacity 1.5s ease-in-out infinite alternate;">
-                            <td><div style="height: 16px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 80%;"></div><div style="height: 14px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 60%; margin-top: 0.35rem;"></div></td>
-                            <td><div style="height: 14px; width: 90px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
-                            <td><div style="height: 14px; width: 110px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
-                            <td><div style="height: 14px; width: 70px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
-                        </tr>
-                        <tr class="skeleton-row" style="opacity: 0.4; animation: pulseOpacity 1.5s ease-in-out infinite alternate-reverse;">
-                            <td><div style="height: 16px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 65%;"></div><div style="height: 14px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px; width: 45%; margin-top: 0.35rem;"></div></td>
-                            <td><div style="height: 14px; width: 90px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
-                            <td><div style="height: 14px; width: 110px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
-                            <td><div style="height: 14px; width: 70px; background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%); background-size: 200% 100%; animation: skeletonLoading 1.5s infinite; border-radius: 6px;"></div></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="empty-state">
+                <h3>No jobs loaded yet</h3>
+                <p>Jobs will appear here once they are processed by the automated backend engine.</p>
             </div>
         </div>
     </div> <!-- end container -->
@@ -881,12 +769,12 @@
             
             <div class="email-sidebar">
                 <div class="email-sidebar-header">
-                    <h3 style="display: flex; align-items: center; gap: 0.4rem;"><i data-lucide="inbox" style="width: 16px; height: 16px;"></i> Rover Inbox</h3>
-                    <button onclick="fetchEmails()" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000000; transition: background 0.15s;" title="Refresh" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i></button>
+                    <h3>📥 Proxy Inbox</h3>
+                    <button onclick="fetchEmails()" style="background:none;border:none;cursor:pointer;font-size:1.1rem;" title="Refresh">🔄</button>
                 </div>
                 <div style="display: flex; border-bottom: 1px solid var(--border); background: #fafafa;">
-                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="inbox" style="width: 14px; height: 14px;"></i>Inbox</button>
-                    <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="send" style="width: 14px; height: 14px;"></i>Sent</button>
+                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s;">📥 Inbox</button>
+                    <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s;">📤 Sent</button>
                 </div>
                 <div class="email-list" id="email-list">
                     <div style="padding: 2rem; text-align: center; color: #a1a1aa; font-size: 0.9rem;">Loading emails...</div>
@@ -895,9 +783,9 @@
             
             <div class="email-content" id="email-content-pane">
                 <div class="email-empty-state">
-                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active!</h3>
-                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">This managed inbox keeps your job search out of your personal inbox until it matters. Portal sign-ups, verification codes, and "Thank you for applying" emails stop here. Only real recruiter emails get forwarded to you right away. <br><br><span style="color:var(--secondary); font-weight:700;">PS:</span> You can reply from your Rover Inbox or directly from your email -- either way, the recruiter only ever sees your assigned email.</p>
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">✉️</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your AI Inbox is Active!</h3>
+                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">All recruiter emails are stored securely here AND forwarded to your personal inbox. <br><br><span style="color:var(--secondary); font-weight:700;">Pro Tip:</span> You can reply directly from your personal Gmail app! RoleRover automatically masks your real identity on the way out.</p>
                 </div>
             </div>
         </div>
@@ -1021,165 +909,24 @@
         </div>
     </div>
 
-    <!-- Upgrade / Top-up Modal -->
-    <div class="modal-overlay" id="upgrade-modal">
-        <div class="desc-modal" style="max-width: 500px; padding: 2.5rem; text-align: left;">
-            <button class="close-modal" onclick="closeModal('upgrade-modal')">&times;</button>
-            <h2 id="upgrade-modal-title" style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Upgrade Your Account</h2>
-            <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 2rem;">Choose the number of job applications you want.</p>
-            
-            <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
-                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
-                    <span style="font-size: 0.75rem; font-weight: 750; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px;">Volume</span>
-                    <strong id="slider-jobs-display" style="font-size: 1.5rem; color: #000;">100 Jobs</strong>
-                </div>
-                
-                <!-- Range Slider -->
-                <input type="range" id="upgrade-slider" min="100" max="5000" step="10" value="100" style="width: 100%; margin-bottom: 1.5rem; accent-color: var(--primary); cursor: pointer;" oninput="updateUpgradePrice()">
-                
-                <div style="display: flex; justify-content: space-between; align-items: baseline; border-top: 1px solid var(--border); padding-top: 1rem;">
-                    <span style="font-size: 0.75rem; font-weight: 750; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px;">Total Price</span>
-                    <strong id="slider-price-display" style="font-size: 1.5rem; color: #000;">₦30,000</strong>
-                </div>
-            </div>
-            
-            <button id="upgrade-checkout-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800;" onclick="triggerUpgradeCheckout()">Proceed to Checkout &rarr;</button>
-        </div>
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ─── Upgrade / checkout link ───────────────────────────────────────
-        let localCurrency = 'USD';
-        let localUnitPrice = 0.20; // $0.20 per job
-
-        function renderAccountBadge(email) {
-            if (!email) return;
-            const avatar = document.getElementById('sidebar-account-avatar');
-            if (!avatar) return;
-            const palette = [
-                { bg: '#d6f4e6', text: '#0a7d3c' },
-                { bg: '#dbe8ff', text: '#1d54c7' },
-                { bg: '#fde3d0', text: '#b1500f' },
-                { bg: '#f4dcee', text: '#a02e82' },
-                { bg: '#fdeacb', text: '#a06a06' },
-            ];
-            let hash = 0;
-            for (let i = 0; i < email.length; i++) hash = (hash * 31 + email.charCodeAt(i)) >>> 0;
-            const colors = palette[hash % palette.length];
-            avatar.textContent = email.trim().charAt(0).toUpperCase();
-            avatar.style.background = colors.bg;
-            avatar.style.color = colors.text;
-        }
-
-        async function detectLocation() {
-            try {
-                let countryCode = 'US';
-                try {
-                    const ipRes = await fetch('https://ipapi.co/json/');
-                    const ipData = await ipRes.json();
-                    if (ipData && ipData.country_code) countryCode = ipData.country_code;
-                } catch(e) {
-                    try {
-                        const ipRes2 = await fetch('https://get.geojs.io/v1/ip/country.json');
-                        const ipData2 = await ipRes2.json();
-                        if (ipData2 && ipData2.country) countryCode = ipData2.country;
-                    } catch(e2) {}
-                }
-                
-                if (countryCode === 'NG') {
-                    localCurrency = 'NGN';
-                    localUnitPrice = 300; // ₦300 per job
-                } else {
-                    localCurrency = 'USD';
-                    localUnitPrice = 0.20; // $0.20 per job
-                }
-            } catch (err) {
-                console.error("Location detection failed", err);
-            }
-            updateUpgradePrice();
-        }
-
-        function openUpgradeModal() {
-            const slider = document.getElementById('upgrade-slider');
-            const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
-            const titleEl = document.getElementById('upgrade-modal-title');
-            if (titleEl) titleEl.textContent = isPremium ? 'Top Up Your Jobs' : 'Upgrade Your Account';
-
-            if (isPremium) {
-                slider.min = "10";
-                slider.value = "10";
-            } else {
-                slider.min = "100";
-                slider.value = "100";
-            }
-
-            detectLocation().then(() => {
-                document.getElementById('upgrade-modal').classList.add('active');
-            });
-        }
-
-        function updateUpgradePrice() {
-            const slider = document.getElementById('upgrade-slider');
-            const jobs = parseInt(slider.value, 10);
-            document.getElementById('slider-jobs-display').textContent = `${jobs} Jobs`;
-            
-            const totalPrice = jobs * localUnitPrice;
-            if (localCurrency === 'NGN') {
-                document.getElementById('slider-price-display').textContent = `₦${totalPrice.toLocaleString()}`;
-            } else {
-                document.getElementById('slider-price-display').textContent = `$${totalPrice.toFixed(2)}`;
-            }
-        }
-
-        async function triggerUpgradeCheckout() {
-            const slider = document.getElementById('upgrade-slider');
-            const jobs = parseInt(slider.value, 10);
-
-            const btn = document.getElementById('upgrade-checkout-btn');
-            btn.disabled = true;
-            btn.textContent = 'Preparing checkout...';
-
-            try {
-                const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
-                
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (!session) {
-                    window.location.href = 'login.html';
-                    return;
-                }
-
-                const res = await fetch('https://n8n.leadscompass.ai/webhook/bachs-create-checkout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user_id: session.user.id,
-                        email: session.user.email,
-                        name: userProfile ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() : session.user.email.split('@')[0],
-                        job_count: jobs,
-                        is_already_premium: isPremium
-                    })
-                });
-
-                const data = await res.json();
-                if (!res.ok) {
-                    alert(data.error || 'Failed to initialize checkout.');
-                    btn.disabled = false;
-                    btn.textContent = 'Proceed to Checkout →';
-                    return;
-                }
-
-                window.location.href = data.checkout_url;
-            } catch (err) {
-                console.error('Checkout error:', err);
-                alert('Connection error. Please try again.');
-                btn.disabled = false;
-                btn.textContent = 'Proceed to Checkout →';
-            }
-        }
+        // PASTE YOUR PAYMENT PROVIDER'S CHECKOUT URL HERE (Stripe/Paystack/
+        // Lemon Squeezy/etc). Leave it as '' until you have one.
+        //
+        // While it's empty the Upgrade button deliberately stays QUIET and
+        // keeps pointing at the marketing pricing section -- because that
+        // path currently dead-ends (pricing's "Start Automating Now" sends
+        // you to signup.html, which a logged-in user already completed).
+        // Shouting at users to click a button that can't take their money is
+        // worse than saying nothing.
+        //
+        // The moment you set a real URL here, the button automatically
+        // becomes the filled primary CTA and links straight to checkout. No
+        // other edit needed.
+        const UPGRADE_URL = '';
 
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
@@ -1188,19 +935,12 @@
         let currentJobs = [];
         let userProfile = null;
         let currentUserEmail = '';
-        let activeStatusFilter = 'all';
-        let jobSearchQuery = '';
-        let lastIsScanning = false;
+        // Real matching supply from the pool, set by match-pool-jobs. Stays null
+        // until the first successful call (or when talking to an older version of
+        // the function), in which case the stats fall back to the old behaviour.
+        // Declared up here with the other globals because fetchPooledJobs reads it
+        // well before its own position in the file.
         let poolAvailableCount = null;
-        let cachedUserId = null;
-
-        function getCachedPoolCount() {
-            if (!cachedUserId) return null;
-            try {
-                const raw = localStorage.getItem(`poolCount_${cachedUserId}`);
-                return raw !== null ? Number(raw) : null;
-            } catch (e) { return null; }
-        }
 
         function escapeHtml(str) {
             const div = document.createElement('div');
@@ -1208,12 +948,19 @@
             return div.innerHTML;
         }
 
+        // ─── Sidebar Toggle (Mobile) ───
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
             document.getElementById('sidebar-overlay').classList.toggle('open');
         }
 
-        function renderPrefChips(elId, csv) {
+        // Renders a comma-separated profile field (target_job_titles /
+        // target_location) as individual pill chips instead of one run-on
+        // sentence. maxVisible caps how many chips show before collapsing
+        // the rest into a "+N more" chip -- pass null to show all (used for
+        // Countries, where every selection is meaningful; Roles caps at 3
+        // since the list is often long, synonym-heavy, and mostly redundant).
+        function renderPrefChips(elId, csv, maxVisible) {
             const el = document.getElementById(elId);
             if (!el) return;
             const items = (csv || '').split(',').map(s => s.trim()).filter(Boolean);
@@ -1221,46 +968,24 @@
                 el.innerHTML = '<span class="info-strip-value">Not specified</span>';
                 return;
             }
-            el.dataset.items = JSON.stringify(items);
-            renderChipsCollapsed(el, items);
+            const visible = maxVisible ? items.slice(0, maxVisible) : items;
+            const hiddenCount = items.length - visible.length;
+            el.innerHTML = visible.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('')
+                + (hiddenCount > 0 ? `<span class="pref-chip pref-chip-more">+${hiddenCount} more</span>` : '');
         }
 
-        function renderChipsCollapsed(el, items) {
-            el.style.flexWrap = 'nowrap';
-            el.style.overflow = 'hidden';
-            el.innerHTML = items.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('');
-            let visibleCount = items.length;
-            while (visibleCount > 1 && el.scrollWidth > el.clientWidth) {
-                visibleCount--;
-                const hiddenCount = items.length - visibleCount;
-                el.innerHTML = items.slice(0, visibleCount).map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('')
-                    + `<span class="pref-chip pref-chip-more" onclick="expandPrefChips('${el.id}')">+${hiddenCount}</span>`;
-            }
-        }
-
-        function expandPrefChips(elId) {
-            const el = document.getElementById(elId);
-            const items = JSON.parse(el.dataset.items || '[]');
-            el.style.flexWrap = 'wrap';
-            el.style.overflow = 'visible';
-            el.innerHTML = items.map(v => `<span class="pref-chip">${escapeHtml(v)}</span>`).join('')
-                + `<span class="pref-chip pref-chip-more" onclick="collapsePrefChips('${el.id}')">&minus;</span>`;
-        }
-
-        function collapsePrefChips(elId) {
-            const el = document.getElementById(elId);
-            const items = JSON.parse(el.dataset.items || '[]');
-            renderChipsCollapsed(el, items);
-        }
-
+        // Promote Upgrade to a real primary CTA -- but ONLY once there's an
+        // actual checkout URL to send people to. See UPGRADE_URL above.
         function applyUpgradeLink(btn) {
-            if (!btn) return;
-            btn.href = 'javascript:void(0)';
-            btn.onclick = () => openUpgradeModal();
+            if (!btn || !UPGRADE_URL) return;
+            btn.href = UPGRADE_URL;
+            btn.target = '_blank';
+            btn.rel = 'noopener noreferrer';
             btn.classList.add('nav-upgrade-primary');
             btn.removeAttribute('style');
         }
 
+        // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
         (async function authGuard() {
             const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -1271,16 +996,6 @@
 
             const user = session.user;
             currentUserEmail = user.email;
-            cachedUserId = user.id;
-            renderAccountBadge(user.email);
-            // Demo-only display, mosco's account only -- no real credit_balance
-            // field exists yet, so this stays hardcoded rather than hidden.
-            if (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
-                const creditBlock = document.getElementById('credit-balance-block');
-                const creditValue = document.getElementById('credit-balance-value');
-                if (creditBlock) creditBlock.style.display = 'flex';
-                if (creditValue) creditValue.textContent = '68';
-            }
 
             if (!user.email_confirmed_at) {
                 sessionStorage.setItem('pending_verification_email', user.email);
@@ -1291,7 +1006,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, first_name, last_name, subscription_tier, applications_limit')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit')
                 .eq('id', user.id)
                 .single();
 
@@ -1300,42 +1015,9 @@
                 return;
             }
 
-            // Demo-only override for mosco's account (per explicit request):
-            // shows this exact 3-role set instead of whatever the profile's
-            // real target_job_titles happens to start with. Does not write
-            // to Supabase -- profile.target_job_titles itself is untouched,
-            // this only substitutes what gets handed to the chip renderer.
-            const rolesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
-                ? 'Marketing Manager, Sales Operations, Operations Manager'
-                : profile.target_job_titles;
-            renderPrefChips('pref-roles', rolesForDisplay);
-            // Same demo-only treatment as roles above: display only, doesn't
-            // touch profile.target_location (which stays 'Nigeria' -- the
-            // real value driving match-pool-jobs' geo eligibility).
-            const countriesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
-                ? 'United States, Nigeria, Canada'
-                : profile.target_location;
-            renderPrefChips('pref-countries', countriesForDisplay);
-            // "Remote" alone doesn't say whether the deck is scoped to the
-            // user's own region or open worldwide -- fold the real
-            // remote_scope value into the label itself (Remote Global /
-            // Remote Local) instead of a separate chip. Real profile data,
-            // applies to every user, not a demo-only override. 'both' (or
-            // unset, the pre-split-era default) stays plain "Remote" since
-            // neither single label would be accurate.
-            const scope = (profile.remote_scope || '').trim().toLowerCase();
-            const workplacesForDisplay = (profile.workplace_type || '')
-                .split(',')
-                .map(w => w.trim())
-                .filter(Boolean)
-                .map(w => {
-                    if (w.toLowerCase() !== 'remote') return w;
-                    if (scope === 'global') return 'Remote Global';
-                    if (scope === 'local') return 'Remote Local';
-                    return w;
-                })
-                .join(', ');
-            renderPrefChips('pref-workplaces', workplacesForDisplay);
+            renderPrefChips('pref-roles', profile.target_job_titles, 3);
+            renderPrefChips('pref-countries', profile.target_location, null);
+            document.getElementById('pref-workplaces').textContent = profile.workplace_type || 'Not specified';
 
             if (profile.master_resume) {
                 localStorage.setItem('master_resume', profile.master_resume);
@@ -1364,15 +1046,7 @@
                 badgeEl.style.background = 'rgba(16, 185, 129, 0.06)';
                 badgeEl.style.color = '#10B981';
                 badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.2)';
-                // Premium users can still buy more jobs (the modal already
-                // supports this -- see openUpgradeModal's isPremium branch,
-                // slider min drops to 10). Hiding the button entirely left no
-                // way to reach it at all; relabel instead of hiding.
-                if (upgradeBtn) {
-                    upgradeBtn.style.display = 'inline-flex';
-                    upgradeBtn.textContent = 'Top Up';
-                    applyUpgradeLink(upgradeBtn);
-                }
+                if (upgradeBtn) upgradeBtn.style.display = 'none'; 
             } else {
                 badgeEl.innerHTML = '⏳ Free Trial';
                 badgeEl.style.background = 'rgba(0, 0, 0, 0.04)';
@@ -1389,22 +1063,7 @@
                 if (sidebarEmailEl) sidebarEmailEl.innerHTML = `📧 ${profile.Application_email}`;
             }
 
-            // Fire the pool-count fetch (match-pool-jobs, the slow one) in
-            // parallel with the jobs-table fetch below instead of after it --
-            // they're independent calls, so running them sequentially was
-            // adding both calls' real network latency together instead of
-            // overlapping them. The cached value (if any) also renders
-            // instantly, before either network call returns.
-            if (profile.is_activated) {
-                const cached = getCachedPoolCount();
-                if (cached !== null) {
-                    poolAvailableCount = cached;
-                    applyPoolAvailableToStats();
-                }
-                fetchPoolCount(user.id);
-            }
-
-            await fetchUserJobs(user, profile);
+            await fetchUserJobs();
             setupRealtime(user.id);
 
             // The invite code is what actually starts automation - not
@@ -1415,6 +1074,10 @@
             } else if (localStorage.getItem('trigger_initial_scrape') === 'true') {
                 localStorage.removeItem('trigger_initial_scrape');
                 triggerInitialScrape(user, profile);
+            }
+
+            if (profile.is_activated) {
+                fetchPoolCount();
             }
         })();
 
@@ -1600,38 +1263,23 @@
             });
         }
 
-        // user/profile are optional: authGuard's initial call already has
-        // both in hand from its own auth+profile fetch, so it passes them
-        // straight through instead of paying for a redundant auth.getUser()
-        // + profiles round trip on every first page load. The polling loop
-        // and the realtime callback don't have a fresh profile handy (and
-        // polling specifically WANTS a fresh scraper_status), so they omit
-        // the args and this falls back to fetching them itself, unchanged.
-        async function fetchUserJobs(user, profile) {
-            if (!user) {
-                const { data: { user: fetchedUser } } = await supabaseClient.auth.getUser();
-                user = fetchedUser;
-            }
+        async function fetchUserJobs() {
+            const { data: { user } } = await supabaseClient.auth.getUser();
             if (!user) return;
 
-            const jobsPromise = supabaseClient
+            const { data: jobs, error } = await supabaseClient
                 .from('job_applications')
                 .select('*')
                 .eq('user_id', user.id)
                 .order('created_at', { ascending: false });
 
-            const profilePromise = profile
-                ? Promise.resolve({ data: profile })
-                : supabaseClient
-                    .from('profiles')
-                    .select('scraper_status, is_activated')
-                    .eq('id', user.id)
-                    .single();
-
-            const [{ data: jobs, error }, { data: fetchedProfile }] = await Promise.all([jobsPromise, profilePromise]);
-            profile = fetchedProfile;
-
             if (error) return;
+
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('scraper_status, is_activated')
+                .eq('id', user.id)
+                .single();
 
             // Require is_activated directly, not just scraper_status - a
             // stale/incorrectly-set scraper_status must never be able to
@@ -1706,7 +1354,6 @@
             currentJobs = dedupeJobs(currentJobs);
 
             updateStats(currentJobs, user.id);
-            lastIsScanning = isReallyScanning;
             renderJobs(currentJobs, isReallyScanning);
             updateInboxBannerVisibility();
         }
@@ -1752,7 +1399,7 @@
             return { totalAvailable: null };
         }
 
-        async function fetchPoolCount(userId) {
+        async function fetchPoolCount() {
             const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
             if (error) return;
             const { totalAvailable } = unwrapPoolResponse(data);
@@ -1766,52 +1413,48 @@
             if (poolAvailableCount === null) return;
             const el = document.getElementById('stat-total');
             if (!el) return;
-            // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
-            const displayCount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ? 1080 : poolAvailableCount;
-            el.textContent = displayCount.toLocaleString();
+            el.textContent = poolAvailableCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
-            if (cachedUserId) {
-                try { localStorage.setItem(`poolCount_${cachedUserId}`, String(displayCount)); } catch (e) {}
-            }
         }
 
         async function updateStats(jobs, userId) {
             const bar = document.getElementById('stats-bar');
             const rows = jobs || [];
             const applied = rows.filter(j => j.status === 'applied').length;
-            const interviewing = rows.filter(j => j.status === 'interview').length;
-            const onOffer = rows.filter(j => j.status === 'offer').length;
-            const rejected = rows.filter(j => j.status === 'rejected').length;
-            // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
-            const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
-            // Applied is NOT inflated -- it reflects the real live count (same
-            // source as the Status dropdown) so real swipes/applications
-            // increment it. Only the outcome stats below stay manufactured.
-            const displayApplied = applied;
-            const displayInterviewing = isDemoAccount ? 14 : interviewing;
-            const displayOffer = isDemoAccount ? 3 : onOffer;
-            const displayRejected = isDemoAccount ? 21 : rejected;
 
-            if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
+            if (rows.length === 0 && poolAvailableCount === null) {
                 bar.style.display = 'none';
             } else {
                 bar.style.display = 'flex';
-                // JOBS FOUND must only ever be the real match-pool-jobs supply
-                // figure (or the last known-good cached one), never rows.length
-                // (applications already created) -- that's a completely
-                // different, much smaller number and showing it as a fallback
-                // is what caused the "34 flashes before the real ~800+ shows up"
-                // bug. If neither a fresh nor cached value exists yet, show a
-                // neutral placeholder instead of a wrong number.
-                if (poolAvailableCount === null) {
-                    const cached = getCachedPoolCount();
-                    document.getElementById('stat-total').textContent = cached !== null ? cached.toLocaleString() : '—';
+                // JOBS FOUND = how many real jobs match this user and are still
+                // undecided. It used to show rows.length -- the number of
+                // applications ALREADY created -- so a user with thousands of
+                // genuine matches saw a single digit.
+                document.getElementById('stat-total').textContent =
+                    poolAvailableCount !== null ? poolAvailableCount.toLocaleString() : rows.length;
+                document.getElementById('stat-applied').textContent = applied;
+
+                // IN QUEUE = right-swipes not yet applied. Counting
+                // job_applications rows meant this only moved once the tailoring
+                // pipeline finished (~20-25s later) and stayed frozen entirely
+                // whenever that pipeline failed -- which is why swiping appeared
+                // to do nothing. Swipes are recorded synchronously, so this
+                // reflects the user's own action immediately.
+                let queued = rows.filter(j => j.status !== 'applied' && j.status !== 'interview').length;
+                try {
+                    const { count, error } = await supabaseClient
+                        .from('user_job_swipes')
+                        .select('job_pool_id', { count: 'exact', head: true })
+                        .eq('user_id', userId)
+                        .eq('decision', 'apply');
+                    if (!error && typeof count === 'number') {
+                        queued = Math.max(count - applied, 0);
+                    }
+                } catch (err) {
+                    console.error('Queue count fallback in use', err);
                 }
-                document.getElementById('stat-applied').textContent = displayApplied;
-                document.getElementById('stat-interview').textContent = displayInterviewing;
-                document.getElementById('stat-offer').textContent = displayOffer;
-                document.getElementById('stat-rejected').textContent = displayRejected;
+                document.getElementById('stat-queued').textContent = queued;
             }
 
             fetchMarketIntelligence(userId);
@@ -1911,67 +1554,14 @@
             }
         }
 
-        const STATUS_FILTER_DEFS = [
-            { key: 'all', label: 'All' },
-            { key: 'Needs Human Review', label: 'Retrying' },
-            { key: 'blocked', label: 'Needs You' },
-            { key: 'in_queue', label: 'In Queue' },
-            { key: 'applied', label: 'Applied' },
-            { key: 'interview', label: 'Interview' },
-            { key: 'hired', label: 'Hired' },
-            { key: 'rejected', label: 'Rejected' }
-        ];
-        const KNOWN_NON_QUEUE_STATUSES = ['applied', 'interview', 'hired', 'rejected', 'Needs Human Review', 'blocked'];
-
-        function jobMatchesStatusFilter(job, key) {
-            if (key === 'all') return true;
-            if (key === 'in_queue') return !KNOWN_NON_QUEUE_STATUSES.includes(job.status);
-            return job.status === key;
-        }
-
-        function jobMatchesSearch(job, query) {
-            if (!query) return true;
-            const hay = `${job.companyName || ''} ${job.title || ''}`.toLowerCase();
-            return hay.includes(query.toLowerCase());
-        }
-
-        function getFilteredJobs() {
-            return currentJobs.filter(j => jobMatchesStatusFilter(j, activeStatusFilter) && jobMatchesSearch(j, jobSearchQuery));
-        }
-
-        function renderStatusChips() {
-            const selectEl = document.getElementById('job-status-select');
-            if (!selectEl) return;
-            selectEl.innerHTML = STATUS_FILTER_DEFS.map(def => {
-                const count = currentJobs.filter(j => jobMatchesStatusFilter(j, def.key)).length;
-                const selected = activeStatusFilter === def.key ? ' selected' : '';
-                return `<option value="${def.key}"${selected}>${def.label} (${count})</option>`;
-            }).join('');
-        }
-
-        function setStatusFilter(key) {
-            activeStatusFilter = key;
-            renderJobs(currentJobs, lastIsScanning);
-        }
-
-        function onJobSearchInput(value) {
-            jobSearchQuery = value;
-            renderJobs(currentJobs, lastIsScanning);
-        }
-
-        function clearJobFilters() {
-            activeStatusFilter = 'all';
-            jobSearchQuery = '';
-            const searchInput = document.getElementById('job-search-input');
-            if (searchInput) searchInput.value = '';
-            renderJobs(currentJobs, lastIsScanning);
+        function scrollToApplications() {
+            const target = document.getElementById('job-list');
+            if (!target) return;
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
 
         function renderJobs(jobs, isScanning = false) {
             const container = document.getElementById('job-list');
-            const filterBar = document.getElementById('job-filter-bar');
-            if (filterBar) filterBar.style.display = jobs.length ? 'flex' : 'none';
-            if (jobs.length) renderStatusChips();
             if (!jobs.length) {
                 if (isScanning) {
                     const rolesList = (userProfile && userProfile.target_job_titles) ? userProfile.target_job_titles.split(', ') : [];
@@ -2083,19 +1673,6 @@
                 return;
             }
 
-            const filteredJobs = getFilteredJobs();
-
-            if (!filteredJobs.length) {
-                container.innerHTML = `
-                    <div class="empty-state" style="padding: 2.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
-                        <span style="font-size: 2rem; display: block; margin-bottom: 1rem;">🔍</span>
-                        <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 0.5rem; color: #000000;">No applications match this filter</h3>
-                        <p style="font-size: 0.88rem; color: var(--text-body); margin-bottom: 1.25rem;">Try a different status or clear your search.</p>
-                        <button onclick="clearJobFilters()" class="table-btn" style="font-weight: 700; padding: 0.6rem 1.25rem; font-size: 0.82rem; border-radius: 50px; cursor: pointer;">Clear filters</button>
-                    </div>`;
-                return;
-            }
-
             let html = `
                 <div class="jobs-table-container">
                     <table class="jobs-table">
@@ -2110,19 +1687,15 @@
                         <tbody>
             `;
 
-            filteredJobs.forEach((job) => {
-                const index = currentJobs.indexOf(job);
+            jobs.forEach((job, index) => {
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
-                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Retrying' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
+                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Needs Review' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
                 const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">Custom Resume</button>` : '';
                 const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">Custom Cover Letter</button>` : '';
                 const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
-                // Reassure the user Rover is handling this, not asking them to -- see
-                // memory: "Needs Review" implied a human reviewer that doesn't exist.
-                const retryingNote = job.status === 'Needs Human Review' ? `<div style="font-size: 0.78rem; color: #71717A; margin-top: 0.35rem; max-width: 220px;">Application didn't go through — Rover will retry automatically. You're not charged for it.</div>` : '';
 
                 html += `
                     <tr>
@@ -2143,7 +1716,6 @@
                             <div style="display: flex; flex-direction: column; align-items: flex-start;">
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
                                 ${qaButton}
-                                ${retryingNote}
                             </div>
                         </td>
                     </tr>
@@ -2432,12 +2004,10 @@
             renderEmailList();
             document.getElementById('email-content-pane').innerHTML = `
                 <div class="email-empty-state">
-                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active!</h3>
-                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">This managed inbox keeps your job search out of your personal inbox until it matters. Portal sign-ups, verification codes, and "Thank you for applying" emails stop here. Only real recruiter emails get forwarded to you right away. <br><br><span style="color:var(--secondary); font-weight:700;">PS:</span> You can reply from your Rover Inbox or directly from your email -- either way, the recruiter only ever sees your assigned email.</p>
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">✉️</div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Select an email to read</h3>
                 </div>
             `;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function renderEmailList() {

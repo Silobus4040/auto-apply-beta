@@ -1028,7 +1028,7 @@
                     </g>
                 </svg>
                 <h3>Roving for roles</h3>
-                <p>Checking every nook and cranny of the job market. This usually takes up to 5 minutes.</p>
+                <p>Rover is roving thousands of roles to find the ones you're qualified for — this usually takes 3 minutes.</p>
             </div>
         </div>
 
@@ -1805,11 +1805,11 @@
         async function fetchPooledJobs(userId) {
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
-            // Retry up to ~2 minutes (12 x 10s) while scoring completes.
-            // match-pool-jobs assigns cards immediately but fit scores arrive
-            // asynchronously from the score-deck webhook, so the first few
-            // calls return empty until OpenAI finishes scoring the batch.
-            const MAX_RETRIES = 12;
+            // Retry up to ~3 minutes (18 x 10s) while scoring + enrichment complete.
+            // match-pool-jobs assigns cards immediately but fit scores and enrichment
+            // arrive asynchronously from the score-deck and enrich-deck webhooks, so
+            // the first few calls return empty until both finish.
+            const MAX_RETRIES = 18;
             const RETRY_DELAY = 10000;
             for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
                 try {

@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /Secret_testing-vault.html
-Disallow: /linkedin_test.html
-
-Sitemap: https://myrolerover.com/sitemap.xml
