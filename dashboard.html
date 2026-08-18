@@ -1311,7 +1311,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, first_name, last_name, subscription_tier, applications_limit')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit')
                 .eq('id', user.id)
                 .single();
 
@@ -1644,7 +1644,7 @@
                 ? Promise.resolve({ data: profile })
                 : supabaseClient
                     .from('profiles')
-                    .select('scraper_status, is_activated')
+                    .select('scraper_status, is_activated, deck_ready')
                     .eq('id', user.id)
                     .single();
 
@@ -1658,7 +1658,7 @@
             // claim a scan is running for an account that was never
             // actually activated with an invite code.
             const scraperStatus = profile ? profile.scraper_status : 'idle';
-            const isReallyScanning = scraperStatus === 'scanning' && !!(profile && profile.is_activated);
+            const isReallyScanning = scraperStatus === 'scanning' && !!(profile && profile.is_activated) && !profile.deck_ready;
 
             if (isReallyScanning) {
                 startPolling();
@@ -1779,10 +1779,11 @@
             if (totalAvailable !== null) {
                 poolAvailableCount = totalAvailable;
                 applyPoolAvailableToStats();
-                // If jobs exist but scraper_status is still 'scanning', flip it
-                // to 'idle' so the dashboard doesn't show the compass on re-login.
-                if (totalAvailable > 0 && userProfile && userProfile.scraper_status === 'scanning') {
-                    await supabaseClient.from('profiles').update({ scraper_status: 'idle' }).eq('id', userId);
+                // First time jobs found: mark deck_ready so future logins
+                // skip the compass entirely regardless of scraper_status.
+                if (totalAvailable > 0 && userProfile && !userProfile.deck_ready) {
+                    await supabaseClient.from('profiles').update({ deck_ready: true, scraper_status: 'idle' }).eq('id', userId);
+                    userProfile.deck_ready = true;
                     userProfile.scraper_status = 'idle';
                 }
             }

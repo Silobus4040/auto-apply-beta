@@ -1384,7 +1384,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, first_name, last_name, subscription_tier, applications_limit, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score')
                 .eq('id', user.id)
                 .single();
 
@@ -1486,6 +1486,11 @@
                     const section = document.getElementById('swipe-deck-section');
                     if (section) section.style.display = 'block';
                     renderSwipeStack();
+                } else if (profile.deck_ready) {
+                    // Jobs exist on server but no cache (new device). Hide the
+                    // loading spinner immediately; fetchPooledJobs will show
+                    // "Preparing your matches..." once the first call returns.
+                    hideDeckLoading();
                 }
                 // First-time-only blocking gate. The deck fetch still kicks off
                 // right away behind the modal (fetchPooledJobs already shows its
@@ -1706,7 +1711,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('scraper_status, is_activated')
+                .select('scraper_status, is_activated, deck_ready')
                 .eq('id', user.id)
                 .single();
 
@@ -1715,7 +1720,7 @@
             // claim a scan is running for an account that was never
             // actually activated with an invite code.
             const scraperStatus = profile ? profile.scraper_status : 'idle';
-            const isReallyScanning = scraperStatus === 'scanning' && !!(profile && profile.is_activated);
+            const isReallyScanning = scraperStatus === 'scanning' && !!(profile && profile.is_activated) && !profile.deck_ready;
 
             if (isReallyScanning) {
                 startPolling();
@@ -1863,6 +1868,10 @@
                         pooledJobs = jobs;
                         pooledJobIndex = 0;
                         cacheDeckJobs(userId, jobs, 0);
+                        if (userProfile && !userProfile.deck_ready) {
+                            await supabaseClient.from('profiles').update({ deck_ready: true }).eq('id', userId);
+                            userProfile.deck_ready = true;
+                        }
                         hideDeckLoading();
                         if (section) section.style.display = 'block';
                         if (emptyState) emptyState.style.display = 'none';
