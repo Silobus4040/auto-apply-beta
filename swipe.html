@@ -1476,6 +1476,17 @@
                     poolAvailableCount = cached;
                     applyPoolAvailableToStats();
                 }
+                // Restore cached deck jobs for instant render on re-login
+                // -- no loading spinner for returning users.
+                const cachedDeck = loadCachedDeckJobs(user.id);
+                if (cachedDeck && cachedDeck.jobs.length) {
+                    pooledJobs = cachedDeck.jobs;
+                    pooledJobIndex = cachedDeck.index;
+                    hideDeckLoading();
+                    const section = document.getElementById('swipe-deck-section');
+                    if (section) section.style.display = 'block';
+                    renderSwipeStack();
+                }
                 // First-time-only blocking gate. The deck fetch still kicks off
                 // right away behind the modal (fetchPooledJobs already shows its
                 // own skeleton) so the wait isn't wasted -- the user just can't
@@ -1775,11 +1786,30 @@
             updateInboxBannerVisibility();
         }
 
-        // ---- Swipe deck (pre-scraped job pool) ----
+// ---- Swipe deck (pre-scraped job pool) ----
         let pooledJobs = [];
         let pooledJobIndex = 0;
         let autoApplySweepRunning = false;
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
+
+        function cacheDeckJobs(userId, jobs, index) {
+            try {
+                localStorage.setItem(`deckJobs_${userId}`, JSON.stringify(jobs));
+                localStorage.setItem(`deckIndex_${userId}`, String(index));
+            } catch (e) {}
+        }
+        function loadCachedDeckJobs(userId) {
+            try {
+                const raw = localStorage.getItem(`deckJobs_${userId}`);
+                const indexRaw = localStorage.getItem(`deckIndex_${userId}`);
+                if (raw) {
+                    const jobs = JSON.parse(raw);
+                    const index = indexRaw ? parseInt(indexRaw, 10) : 0;
+                    return { jobs, index };
+                }
+            } catch (e) {}
+            return null;
+        }
 
         // match-pool-jobs used to return a bare array; it now returns
         // { jobs, total_available }. Accept BOTH shapes so the frontend and the
@@ -1817,6 +1847,7 @@
         async function fetchPooledJobs(userId) {
             const section = document.getElementById('swipe-deck-section');
             const emptyState = document.getElementById('deck-empty-state');
+            const alreadyHasJobs = pooledJobs.length > 0;
             const MAX_RETRIES = 18;
             const RETRY_DELAY = 10000;
             for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -1831,6 +1862,7 @@
                     if (!error && jobs && jobs.length) {
                         pooledJobs = jobs;
                         pooledJobIndex = 0;
+                        cacheDeckJobs(userId, jobs, 0);
                         hideDeckLoading();
                         if (section) section.style.display = 'block';
                         if (emptyState) emptyState.style.display = 'none';
@@ -1841,7 +1873,8 @@
                     // If matches are found but not yet scored, show the waiting
                     // state immediately instead of keeping the spinner for 3
                     // minutes (18 retries) while scoring/enrichment completes.
-                    if (!error && totalAvailable !== null && totalAvailable > 0 && (!jobs || !jobs.length)) {
+                    // Skip if we already have a cached deck — silently retry instead.
+                    if (!error && totalAvailable !== null && totalAvailable > 0 && (!jobs || !jobs.length) && !alreadyHasJobs) {
                         hideDeckLoading();
                         if (section) section.style.display = 'none';
                         if (emptyState) {
@@ -1860,10 +1893,12 @@
                     await new Promise(r => setTimeout(r, RETRY_DELAY));
                 }
             }
-            // All retries exhausted — show the real empty state
-            hideDeckLoading();
-            if (section) section.style.display = 'none';
-            if (emptyState) emptyState.style.display = '';
+            // All retries exhausted — show empty state only if no cached deck
+            if (!alreadyHasJobs) {
+                hideDeckLoading();
+                if (section) section.style.display = 'none';
+                if (emptyState) emptyState.style.display = '';
+            }
         }
 
         // Quietly top up the deck after a swipe: match-pool-jobs assigns more
