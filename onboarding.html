@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoApply AI | Profile Setup</title>
+    <meta name="robots" content="noindex,nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
@@ -190,9 +191,9 @@
                     
                     <!-- STEP 1: RESUME & TARGETS -->
                     <div class="form-step">
-                        <div class="card">
+<div class="card">
                             <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
-                            
+
                             <div class="form-group">
                                 <label>Target Job Titles & Experience <span style="color: #FF6B4A;">*</span></label>
                                 <div id="job-titles-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
@@ -200,6 +201,25 @@
                                 </div>
                                 <button type="button" class="btn btn-secondary" onclick="addJobTitleField()" style="padding: 0.6rem 1rem; font-size: 0.8rem; margin-top: 0.5rem; margin-bottom: 0;">+ Add Another Role</button>
                                 <p class="form-hint" style="margin-top: 0.5rem;">The specific roles and seniority levels you want the AI to target.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
+                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Remote Local" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; my area
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Remote Global" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; worldwide
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="Hybrid" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Hybrid
+                                    </label>
+                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                        <input type="checkbox" name="workplace" value="On-site" style="width: 16px; height: 16px; margin: 0; padding: 0;"> On-site
+                                    </label>
+                                </div>
+                                <p class="form-hint" style="margin-top: 0.5rem;"><strong>Remote &mdash; my area:</strong> remote roles open to your city, state or country. <strong>Remote &mdash; worldwide:</strong> remote roles open to anyone, anywhere, including companies based in other countries. Pick both if you're open to either.</p>
                             </div>
 
                             <div class="form-group">
@@ -256,26 +276,7 @@
                                     <option value="United States">United States</option>
                                     <option value="Vietnam">Vietnam</option>
                                 </select>
-                                <p class="form-hint" style="margin-top: 0.5rem;">Select as many countries as you want to target.</p>
-                            </div>
-
-                            <div class="form-group">
-                                <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
-                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="Remote Local" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; my area
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="Remote Global" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; worldwide
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="Hybrid" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Hybrid
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="On-site" style="width: 16px; height: 16px; margin: 0; padding: 0;"> On-site
-                                    </label>
-                                </div>
-                                <p class="form-hint" style="margin-top: 0.5rem;"><strong>Remote &mdash; my area:</strong> remote roles open to your city, state or country. <strong>Remote &mdash; worldwide:</strong> remote roles open to anyone, anywhere, including companies based in other countries. Pick both if you're open to either.</p>
+<p class="form-hint" style="margin-top: 0.5rem;">For remote worldwide roles, choose your home country &mdash; Rover automatically includes eligible worldwide remote roles behind the scenes. For hybrid or on-site roles, Rover uses the city, state, and country from your profile.</p>
                             </div>
 
                             <div class="form-group">
@@ -337,10 +338,15 @@
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label>Country <span style="color: #FF6B4A;">*</span></label>
-                            <input type="text" id="country" required placeholder="United States">
-                        </div>
+<div class="form-group">
+                                <label>Country <span style="color: #FF6B4A;">*</span></label>
+                                <input type="text" id="country" required placeholder="United States">
+                            </div>
+
+                            <div class="form-group">
+                                <label>Nationality <span style="color: #FF6B4A;">*</span></label>
+                                <input type="text" id="nationality" required placeholder="American">
+                            </div>
 
 
                             <div class="form-group">
@@ -615,7 +621,7 @@
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
             
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -653,6 +659,9 @@
                 }
                 if (profile.country && !localStorage.getItem('onb_country') && document.getElementById('country')) {
                     document.getElementById('country').value = profile.country;
+                }
+                if (profile.nationality && !localStorage.getItem('onb_nationality') && document.getElementById('nationality')) {
+                    document.getElementById('nationality').value = profile.nationality;
                 }
                 if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
                     document.getElementById('industry').value = profile.industry;
@@ -990,6 +999,7 @@
                     city: city,
                     state: state,
                     country: country,
+                    nationality: document.getElementById('nationality').value.trim(),
                     email: currentUserEmail,
                     Application_email: generatedAiEmail,
                     phone: phone,
