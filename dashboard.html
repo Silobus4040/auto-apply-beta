@@ -321,7 +321,7 @@
             color: #000000; font-size: 1.1rem; font-weight: 800; margin-bottom: 0.5rem;
         }
         .rover-loading p {
-            color: #71717A; font-size: 0.85rem; max-width: 280px; line-height: 1.5;
+            color: #71717A; font-size: 0.85rem; max-width: 360px; line-height: 1.5;
         }
 
         /* Background Glow Blobs */
@@ -1991,8 +1991,6 @@
                     const rolesList = (userProfile && userProfile.target_job_titles) ? userProfile.target_job_titles.split(', ') : [];
                     const locationsList = (userProfile && userProfile.target_location) ? userProfile.target_location.split(', ') : [];
                     const workplaceList = (userProfile && userProfile.workplace_type) ? userProfile.workplace_type.split(', ') : [];
-                    const userEmail = (userProfile && userProfile.Application_email) ? userProfile.Application_email : currentUserEmail;
-
                     const rolesBadgesHtml = rolesList.map(r => `<span style="background: rgba(16, 185, 129, 0.08); color: #047857; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600;">${r}</span>`).join(' ');
                     const locationText = locationsList.join(', ');
                     const criteriaBadgesHtml = workplaceList.length > 0 ? `<span style="background: #e2e8f0; color: #475569; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; font-weight: 600; margin-top: 0.25rem; display: inline-block;">${workplaceList.join(' · ')}</span>` : '';
@@ -2020,12 +2018,11 @@
                                     <circle cx="28" cy="28" r="2" fill="#ffffff" stroke="#18181b" stroke-width="0.8"/>
                                 </g>
                             </svg>
-                            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-bottom: 1.25rem;">
+                            <p>Rover is roving thousands of roles to find the ones you're qualified for — this usually takes 3 minutes.</p>
+                            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; justify-content: center; margin-top: 0.5rem;">
                                 ${rolesBadgesHtml}
                                 ${criteriaBadgesHtml}
                             </div>
-                            <h3>Roving for roles</h3>
-                            <p>Rover is scanning thousands of live career pages for your target roles. We'll email ${userEmail} the moment matches are found — no need to keep this page open.</p>
                             <a href="swipe.html" style="margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; background: #000; color: #fff; padding: 0.75rem 2rem; border-radius: 40px; font-size: 0.9rem; font-weight: 800; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">Open Job Deck →</a>
                         </div>`;
                 } else if (userProfile && !userProfile.is_activated) {
