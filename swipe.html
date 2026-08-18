@@ -1486,7 +1486,7 @@
                     const section = document.getElementById('swipe-deck-section');
                     if (section) section.style.display = 'block';
                     renderSwipeStack();
-                } else if (profile.deck_ready) {
+                } else if (profile.deck_ready || poolAvailableCount > 0) {
                     // Jobs exist on server but no cache (new device). Hide the
                     // loading spinner immediately; fetchPooledJobs will show
                     // "Preparing your matches..." once the first call returns.
