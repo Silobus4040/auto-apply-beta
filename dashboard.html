@@ -1779,6 +1779,12 @@
             if (totalAvailable !== null) {
                 poolAvailableCount = totalAvailable;
                 applyPoolAvailableToStats();
+                // If jobs exist but scraper_status is still 'scanning', flip it
+                // to 'idle' so the dashboard doesn't show the compass on re-login.
+                if (totalAvailable > 0 && userProfile && userProfile.scraper_status === 'scanning') {
+                    await supabaseClient.from('profiles').update({ scraper_status: 'idle' }).eq('id', userId);
+                    userProfile.scraper_status = 'idle';
+                }
             }
         }
 
@@ -2242,7 +2248,12 @@
 
         async function logout() {
             await supabaseClient.auth.signOut();
-            localStorage.clear();
+            // Preserve user caches (pool count, deck jobs) across logout
+            // so returning users don't see the loading spinner again.
+            const keep = ['poolCount_', 'deckJobs_', 'deckIndex_'];
+            Object.keys(localStorage).forEach(key => {
+                if (!keep.some(p => key.startsWith(p))) localStorage.removeItem(key);
+            });
             window.location.href = 'login.html';
         }
 

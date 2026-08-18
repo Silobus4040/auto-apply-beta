@@ -2471,7 +2471,12 @@
 
         async function logout() {
             await supabaseClient.auth.signOut();
-            localStorage.clear();
+            // Preserve user caches (pool count, deck jobs) across logout
+            // so returning users don't see the loading spinner again.
+            const keep = ['poolCount_', 'deckJobs_', 'deckIndex_'];
+            Object.keys(localStorage).forEach(key => {
+                if (!keep.some(p => key.startsWith(p))) localStorage.removeItem(key);
+            });
             window.location.href = 'login.html';
         }
 
