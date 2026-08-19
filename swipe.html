@@ -1883,6 +1883,12 @@
                     // state immediately instead of keeping the spinner for 3
                     // minutes (18 retries) while scoring/enrichment completes.
                     // Skip if we already have a cached deck — silently retry instead.
+                    // IMPORTANT: do not return here -- there is no other timer or
+                    // poller that re-invokes this function. A bare return left the
+                    // user stuck on "preparing your matches" forever once scoring
+                    // finished, because nothing ever checked again. Falls through
+                    // to the same retry delay/loop below instead, so it keeps
+                    // polling until jobs actually score or retries are exhausted.
                     if (!error && totalAvailable !== null && totalAvailable > 0 && (!jobs || !jobs.length) && !alreadyHasJobs) {
                         hideDeckLoading();
                         if (section) section.style.display = 'none';
@@ -1893,7 +1899,6 @@
                             if (h3) h3.textContent = 'Preparing your matches...';
                             if (p) p.innerHTML = `${totalAvailable} roles matched your preferences! They are being scored and prepared for your deck — this takes about 60 seconds. Check your <a href="dashboard.html" style="color: var(--secondary); font-weight: 700;">Dashboard</a> in the meantime.`;
                         }
-                        return;
                     }
                 } catch (err) {
                     console.error('fetchPooledJobs attempt failed', attempt, err);
