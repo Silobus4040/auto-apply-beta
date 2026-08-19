@@ -391,7 +391,13 @@
         @media (max-width: 768px) {
             #email-client-modal { padding: 0.75rem; }
             .email-client-container { flex-direction: column; height: 92vh; }
-            .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+            /* flex-direction:column means the sidebar no longer auto-stretches
+               to the container's height (that's a row-axis default) -- without
+               flex+min-height:0 here it just sizes to its content, so the list
+               below never gets a bounded height to scroll within and anything
+               past the fold is simply clipped, unreachable, not just hidden. */
+            .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex: 1; min-height: 0; }
+            .email-list { min-height: 0; }
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
             .email-client-container.mobile-show-content .email-content { display: flex; }
