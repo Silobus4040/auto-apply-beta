@@ -372,6 +372,26 @@
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
         .email-iframe { width: 100%; height: 100%; border: none; }
         .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
+        .email-content-back-btn { display: none; }
+
+        /* On mobile the two email panes can't sit side-by-side (the 350px list
+           alone is wider than most phone screens), which silently pushed the
+           detail pane off-screen -- tapping an email looked like nothing
+           happened. Stack instead: list view first, tap opens a full-screen
+           detail view with a back button, same pattern as the app sidebar. */
+        @media (max-width: 768px) {
+            #email-client-modal { padding: 0.75rem; }
+            .email-client-container { flex-direction: column; height: 92vh; }
+            .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); }
+            .email-content { display: none; }
+            .email-client-container.mobile-show-content .email-sidebar { display: none; }
+            .email-client-container.mobile-show-content .email-content { display: flex; }
+            .email-content-back-btn {
+                display: inline-flex; align-items: center; gap: 0.3rem;
+                background: none; border: none; color: #000; font-weight: 700;
+                font-size: 0.85rem; cursor: pointer; padding: 0 0 0.75rem; margin: 0;
+            }
+        }
         
         .nav-inbox-btn { background: #000; color: #fff; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.4rem; }
         .nav-inbox-btn:hover { background: #27272a; transform: translateY(-1px); }
@@ -2373,7 +2393,12 @@
         
         async function openEmailClient() {
             document.getElementById('email-client-modal').classList.add('active');
+            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
             await fetchEmails();
+        }
+
+        function closeMobileEmailDetail() {
+            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
         }
         
         function closeEmailClient() {
@@ -2437,6 +2462,7 @@
             document.getElementById('tab-sent').style.color = tab === 'sent' ? '#000' : '#71717A';
             
             renderEmailList();
+            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
             document.getElementById('email-content-pane').innerHTML = `
                 <div class="email-empty-state">
                     <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
@@ -2533,6 +2559,8 @@
                 supabaseClient.from('emails').update({ is_read: true }).eq('id', email.id).then();
             }
             
+            document.querySelector('.email-client-container').classList.add('mobile-show-content');
+
             const pane = document.getElementById('email-content-pane');
             const d = new Date(email.created_at);
             const fullDate = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -2560,6 +2588,7 @@
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%;">
                     <div class="email-content-header">
+                        <button class="email-content-back-btn" onclick="closeMobileEmailDetail()">&larr; Back to Inbox</button>
                         <div class="email-content-subject">${email.subject || '(No Subject)'}</div>
                         <div class="email-content-meta">
                             <div class="email-content-sender">${icon}${directionLabel} <span style="font-weight:700;">${displayAddress.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
