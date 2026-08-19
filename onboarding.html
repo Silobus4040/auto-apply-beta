@@ -50,7 +50,7 @@
         .container { max-width: 700px; margin: 3rem auto 5rem; padding: 0 5%; overflow: hidden; position: relative; z-index: 1; }
 
         .header-section { text-align: center; margin-bottom: 2.5rem; }
-        .step-badge { display: inline-block; background: rgba(0,255,204,0.08); color: #00e6b8; border: 1px solid rgba(0,255,204,0.25); padding: 0.4rem 1.2rem; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; border-radius: 20px; }
+        .step-badge { display: inline-block; background: rgba(212,255,51,0.15); color: #7A8C00; border: 1px solid rgba(212,255,51,0.4); padding: 0.4rem 1.2rem; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; border-radius: 20px; }
         h1 { color: var(--text-heading); font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 1rem; text-transform: uppercase; }
         .header-sub { color: #52525B; font-size: 1.05rem; max-width: 560px; margin: 0 auto; font-weight: 500; }
 
@@ -60,7 +60,7 @@
 
         .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); margin-bottom: 1.5rem; }
         .card-title { color: #000000; font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-        .card-title .num { background: #00FFCC; color: #000; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; border-radius: 50%; }
+        .card-title .num { background: #D4FF33; color: #000; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; border-radius: 50%; }
 
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; color: #52525B; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -70,8 +70,8 @@
         .form-group input[type="file"]:hover { border-color: #00FFCC; }
         .choices__inner { position: relative !important; border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.5rem 2.5rem 0.5rem 1rem !important; }
         .choices__inner::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; }
-        .choices.is-focused .choices__inner { border-color: var(--primary) !important; box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15) !important; }
-        .choices__list--multiple .choices__item { background-color: #00FFCC !important; border: 1px solid #00e6b8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; }
+        .choices.is-focused .choices__inner { border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
+        .choices__list--multiple .choices__item { background-color: #F4F4F5 !important; border: 1px solid #D4D4D8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
         .select-wrapper { position: relative; }
@@ -89,8 +89,8 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        .btn-primary { background: #FF6B4A; color: #000000; border: none; box-shadow: 0 10px 30px rgba(255, 107, 74, 0.35); position: relative; }
-        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(255, 107, 74, 0.55); }
+        .btn-primary { background: #D4FF33; color: #000000; border: none; box-shadow: 0 10px 30px rgba(212, 255, 51, 0.35); position: relative; }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.55); }
         
         .btn-secondary { background: #ffffff; color: #52525B; border: 1px solid var(--border); margin-bottom: 1rem; border-radius: 50px; }
         .btn-secondary:hover { color: #FF6B4A; border-color: #FF6B4A; }
@@ -108,6 +108,11 @@
         @keyframes rover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         .mobile-nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; flex-direction: column; gap: 4px; }
         .mobile-nav-toggle span { display: block; width: 22px; height: 2.5px; background: #000; border-radius: 2px; transition: 0.2s; }
+        /* Hidden by default -- the media query below only handles show/slide-in
+           behavior at mobile widths. Without this base rule, desktop viewports
+           had no rule hiding this panel at all, so it rendered inline at the
+           top of the page instead of staying off-screen. */
+        .mobile-nav-panel { display: none; }
         @media(max-width: 768px) {
           nav { display: flex; align-items: center; justify-content: space-between; }
           .mobile-nav-toggle { display: flex; }
@@ -243,8 +248,9 @@
 
                             <div class="form-group">
                                 <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote &mdash; Local:</strong> best for US, Canada, UK, and EU countries. Local jobs from almost every other country are available but limited. Add Remote Global if you're outside the listed countries for more roles.</p>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote &mdash; Global:</strong> remote roles open to anyone, anywhere in the world, including companies based in other countries. Pick both if you're open to either.</p>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Local):</strong> Best for US, Canada, UK, and EU Users. Local jobs from almost every other country are available but limited. Add Remote Global if you're outside the listed countries to see more roles.</p>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Global):</strong> Global remote roles are open to anyone, anywhere in the world, including companies based in other countries.</p>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Pick both if you're open to either.</p>
                                 <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
                                     <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                         <input type="checkbox" name="workplace" value="Remote Local" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; Local
@@ -262,7 +268,10 @@
                             </div>
 
                             <div class="form-group">
-                                <label style="margin-bottom: 0.8rem;">Home Market <span style="color: #FF6B4A;">*</span></label>
+                                <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.8rem;">
+                                    <label style="margin-bottom: 0;">Home Market <span style="color: #FF6B4A;">*</span></label>
+                                    <span class="form-hint" style="margin: 0;">Select your country.</span>
+                                </div>
                                 <select id="target-countries" name="target-countries" multiple>
                                     <option value="Australia">Australia</option>
                                     <option value="Austria">Austria</option>
@@ -315,7 +324,6 @@
                                     <option value="United States">United States</option>
                                     <option value="Vietnam">Vietnam</option>
                                 </select>
-<p class="form-hint" style="margin-top: 0.5rem;">Select your country.</p>
                             </div>
 
                             <div class="form-group">
