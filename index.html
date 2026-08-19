@@ -91,6 +91,34 @@
         .highlight { background: linear-gradient(135deg, rgba(212, 255, 51, 0.15) 0%, rgba(0, 255, 204, 0.15) 100%); color: #000000; padding: 0.2rem 0.8rem; display: inline-block; border-radius: 12px; border: 1px solid rgba(212, 255, 51, 0.4); }
         p.hero-sub { font-size: 1.25rem; max-width: 800px; margin-bottom: 3rem; color: #52525B; font-weight: 500; }
 
+        /* Problem rotator: 4 problems reveal one at a time instead of stacking as a block of text */
+        .problem-rotator { position: relative; width: 100%; min-height: 3.2em; }
+        .problem-rotator li {
+            position: absolute; top: 0; left: 0; width: 100%;
+            padding-left: 1.2rem; text-indent: -1.2rem;
+            opacity: 0;
+            animation-name: problem-cycle;
+            animation-duration: 3.6s;
+            animation-timing-function: ease-in-out;
+            animation-fill-mode: both;
+        }
+        .problem-rotator li.problem-rotator-last { animation-name: problem-cycle-in; animation-fill-mode: forwards; }
+        @keyframes problem-cycle {
+            0%   { opacity: 0; transform: translateY(6px); }
+            8%   { opacity: 1; transform: translateY(0); }
+            86%  { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-6px); }
+        }
+        @keyframes problem-cycle-in {
+            0%   { opacity: 0; transform: translateY(6px); }
+            15%  { opacity: 1; transform: translateY(0); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .problem-rotator { min-height: 0; }
+            .problem-rotator li { position: static; opacity: 1; transform: none; animation: none; margin-bottom: 0.6rem; }
+        }
+
         .cta-group { display: flex; gap: 1rem; justify-content: flex-start; flex-wrap: wrap; }
         .btn { padding: 0.8rem 1.85rem; border-radius: 50px; font-size: 0.95rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: inline-block; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; }
         .btn-nav { padding: 0.55rem 1.25rem; font-size: 0.8rem; box-shadow: 0 4px 14px rgba(212, 255, 51, 0.3) !important; }
@@ -131,6 +159,7 @@
         .price-card .price-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: #000000; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
         .price-card .price-amount { font-size: 4.5rem; font-weight: 950; color: #000000; margin-bottom: 0.75rem; line-height: 1; letter-spacing: -2px; }
         .price-card .price-amount span { font-size: 1.5rem; color: #71717a; font-weight: 600; letter-spacing: 0; }
+        #price-val { font-size: 4.5rem; font-weight: 950; letter-spacing: -2px; color: #ffffff; }
         .price-card .price-sub { color: #52525b; font-size: 0.9rem; margin-bottom: 2.5rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .price-card .price-features { list-style: none; margin-bottom: 3rem; flex-grow: 1; }
         .price-card .price-features li { padding: 0.9rem 0; border-bottom: 1px solid #f4f4f5; color: #3f3f46; font-weight: 500; font-size: 0.95rem; }
@@ -299,10 +328,19 @@
             .hero { padding-top: 2rem; margin-top: 3rem; }
             h1 { font-size: 2.8rem; }
             .section-title { font-size: 2rem; }
-            .comparison-wrapper { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
             table { min-width: 700px !important; }
             th, td { padding: 1rem 0.75rem !important; font-size: 0.85rem !important; }
             .mockup-table { min-width: 700px !important; }
+
+            /* Comparison table reflows into stacked cards instead of scrolling horizontally */
+            .compare-wrapper { overflow-x: visible !important; border: none !important; box-shadow: none !important; background: transparent !important; }
+            .compare-table { min-width: 0 !important; width: 100% !important; }
+            .compare-table thead { display: none; }
+            .compare-table, .compare-table tbody, .compare-table tr, .compare-table td { display: block; width: 100% !important; }
+            .compare-table tr { margin-bottom: 1.25rem; border: 1px solid #e4e4e7; border-radius: 16px; overflow: hidden; background: #ffffff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03); }
+            .compare-table td { border-left: none !important; border-right: none !important; text-align: left !important; padding: 0.9rem 1.25rem !important; font-size: 0.9rem !important; }
+            .compare-table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #a1a1aa; margin-bottom: 0.3rem; }
+            .compare-table td:first-child { background: #fafafa; font-size: 1rem !important; padding: 1.1rem 1.25rem !important; border-bottom: 1px solid #f4f4f5 !important; }
             .logo { font-size: 1.25rem; }
             .mockup-header { flex-direction: column; align-items: flex-start; }
             .mockup-stats { flex-direction: column; }
@@ -402,7 +440,7 @@
 </div>
 
         <div class="nav-links" style="display: flex; gap: 2rem; align-items: center;">
-            <a href="#how-it-works" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">How it works</a>
+            <a href="#how-it-works" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; white-space: nowrap;">How it works</a>
             <a href="#roles" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Roles</a>
             <a href="#countries" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Countries</a>
             <a href="#pricing" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Pricing</a>
@@ -419,11 +457,11 @@
             <p style="font-size: 0.95rem; line-height: 1.7; color: #52525B; margin-bottom: 1rem;">
                 <strong style="color: #000;">Job hunting isn't one problem. It's 4 problems stacked into one:</strong>
             </p>
-            <ul style="list-style: none; padding: 0; margin: 0 0 1.25rem; font-size: 0.9rem; line-height: 1.6; color: #52525B;">
-                <li style="margin-bottom: 0.6rem; padding-left: 1.2rem; text-indent: -1.2rem;"><strong>The Blindspot</strong> — You miss roles, or apply late as #300. Nobody refreshes career pages 24/7.</li>
-                <li style="margin-bottom: 0.6rem; padding-left: 1.2rem; text-indent: -1.2rem;"><strong>Form Fatigue</strong> — 5–10 minutes of repetitive questions, every single application.</li>
-                <li style="margin-bottom: 0.6rem; padding-left: 1.2rem; text-indent: -1.2rem;"><strong>The Tailoring Bottleneck</strong> — Every role needs its own resume and cover letter.</li>
-                <li style="margin-bottom: 0.6rem; padding-left: 1.2rem; text-indent: -1.2rem;"><strong>The ATS Black Hole</strong> — Generic resume in, auto-rejected. No recruiter ever sees it.</li>
+            <ul class="problem-rotator" style="list-style: none; padding: 0; margin: 0 0 1.25rem; font-size: 0.9rem; line-height: 1.6; color: #52525B;">
+                <li style="animation-delay: 0s;"><strong>The Blindspot</strong> — You miss roles, or apply late as #300. Nobody refreshes career pages 24/7.</li>
+                <li style="animation-delay: 3.6s;"><strong>Form Fatigue</strong> — 5–10 minutes of repetitive questions, every single application.</li>
+                <li style="animation-delay: 7.2s;"><strong>The Tailoring Bottleneck</strong> — Every role needs its own resume and cover letter.</li>
+                <li class="problem-rotator-last" style="animation-delay: 10.8s;"><strong>The ATS Black Hole</strong> — Generic resume in, auto-rejected. No recruiter ever sees it.</li>
             </ul>
             <p style="font-size: 0.95rem; line-height: 1.7; color: #000; margin-bottom: 1.5rem; font-weight: 700;">
                 RoleRover breaks the entire cycle — from job search to submitted application.
@@ -434,9 +472,6 @@
             </div>
             <p style="font-size: 0.8rem; color: #71717A; margin-top: 0.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
                 <span>✓ Free to start</span> <span>✓ No credit card required</span> <span>✓ Set up in 2 minutes</span>
-            </p>
-            <p style="font-size: 0.8rem; line-height: 1.6; color: #A1A1AA; margin-top: 1rem;">
-                RoleRover is an AI job search assistant that watches the career pages of 100k+ companies across 50 countries, matches you with relevant roles, tailors ATS-friendly resumes and cover letters, and automates repetitive job applications so you can focus on interviews.
             </p>
         </div>
         <div class="agent-visual" aria-hidden="true">
@@ -488,34 +523,6 @@
         <div class="proof-cell"><span class="proof-num">&lt;3s</span><span class="proof-lbl">From job posted to applied</span></div>
     </section>
 
-    <!-- The pain: why we exist -->
-    <section class="pain-section">
-        <div class="pain-inner">
-            <h2 class="pain-title reveal">The job hunt is broken.<br>You already know it.</h2>
-            <p class="pain-sub reveal">If you've ever refreshed your inbox hoping a recruiter finally wrote back — this is for you.</p>
-            <div class="pain-grid">
-                <div class="pain-card reveal">
-                    <span class="pain-emoji">🕳️</span>
-                    <h3>You apply into a void</h3>
-                    <p>You spend 30 minutes on one application. An ATS robot scans it for 6 seconds, finds a missing keyword, and bins it. No human ever saw your name.</p>
-                </div>
-                <div class="pain-card reveal">
-                    <span class="pain-emoji">👻</span>
-                    <h3>Then comes the silence</h3>
-                    <p>No rejection. No feedback. Just nothing. Being ghosted a hundred times doesn't just cost you time — it grinds down your confidence one unanswered application at a time.</p>
-                </div>
-                <div class="pain-card reveal">
-                    <span class="pain-emoji">⏰</span>
-                    <h3>And the best roles are gone in hours</h3>
-                    <p>The perfect job was posted at 2 AM your time. By the time you saw it, 400 people had applied and the recruiter had stopped reading. You never stood a chance.</p>
-                </div>
-            </div>
-            <div class="pain-turn reveal">
-                <p>It's not you. It's a volume game rigged by machines. <strong>So we built a machine that plays it for you</strong> — one that never sleeps, never gets discouraged, and never misses a posting.</p>
-            </div>
-        </div>
-    </section>
-
     <!-- While you sleep narrative -->
     <section class="night-section">
         <h2 class="section-title reveal" style="text-align: center;">While you sleep, Rover hunts</h2>
@@ -544,8 +551,8 @@
         <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Why Us?</h2>
         <p style="font-size: 0.95rem; color: #52525B; text-align: center; margin-bottom: 4rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">How we compare to traditional applying and basic AI tools.</p>
         
-        <div style="width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: 24px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.02); background: #ffffff;">
-            <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 800px;">
+        <div class="compare-wrapper" style="width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: 24px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.02); background: #ffffff;">
+            <table class="compare-table" style="width: 100%; border-collapse: collapse; text-align: left; min-width: 800px;">
                 <thead>
                     <tr style="border-bottom: 1px solid #e4e4e7;">
                         <th style="padding: 2rem 1.5rem; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; color: #71717A; width: 28%;">Features</th>
@@ -566,27 +573,27 @@
                     <!-- Row 1: Dynamic CV Customization -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Dynamic CV & Resume Customization</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Single generic file for all roles
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Custom-tailored for every single job
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Requires manual prompting & edits
                         </td>
                     </tr>
-                    
+
                     <!-- Row 2: Average Application Time -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Average Application Time</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> 30+ minutes per application
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Under 3 seconds
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> 5 to 10 minutes
                         </td>
                     </tr>
@@ -594,13 +601,13 @@
                     <!-- Row 3: Automated Cover Letter Generation -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Automated Cover Letter Generation</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Written manually or completely skipped
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Formatted & tailored on autopilot
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Copy-paste and manual edits required
                         </td>
                     </tr>
@@ -608,13 +615,13 @@
                     <!-- Row 4: Auto-Emailing Hiring Managers -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Auto-Emailing Hiring Managers</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Requires manual outreach setups
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Automatic draft & outbound dispatch
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #52525B; font-size: 0.9rem;">
+                            <span style="background: #000; color: #fff; padding: 0.15rem 0.55rem; border-radius: 12px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 0.4rem; display: inline-block;">Coming Soon</span> Automatic draft & outbound dispatch
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No active emailing capability
                         </td>
                     </tr>
@@ -622,13 +629,13 @@
                     <!-- Row 5: Unified Job Hunt Dashboard -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Unified Job Hunt Dashboard</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Scattered browser tabs and sheets
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Sourcing, tracking & applying in one view
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Messy separate chat conversations
                         </td>
                     </tr>
@@ -636,13 +643,13 @@
                     <!-- Row 6: Live Job Board Sourcing -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Live Job Board Sourcing</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Manual search across boards only
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Checks 100k+ company sites 24/7
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No internet/active search features
                         </td>
                     </tr>
@@ -650,13 +657,13 @@
                     <!-- Row 7: End-to-End Autopilot Applying -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">End-to-End Autopilot Applying</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Hours of typing and clicking forms
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Completely automated form submissions
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Manual entry in browser is required
                         </td>
                     </tr>
@@ -664,13 +671,13 @@
                     <!-- Row 8: Intelligent Job Matching -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Intelligent Job Matching</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Requires manual description parsing
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Matches based on target titles & background
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No persistent context memory
                         </td>
                     </tr>
@@ -678,13 +685,13 @@
                     <!-- Row 9: Real-Time Tracking & Logging -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Real-Time Tracking & Logging</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Must maintain tracking spreadsheet manually
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Logs every submission & interview phase
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No execution logs maintained
                         </td>
                     </tr>
@@ -692,13 +699,13 @@
                     <!-- Row 10: Polished Application Quality -->
                     <tr>
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Polished Application Quality</td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> High quality, but manually slow and exhausting
                         </td>
-                        <td style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
                             <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Tailored, clean formatting at scale
                         </td>
-                        <td style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Good output, but requires editing review
                         </td>
                     </tr>
@@ -759,36 +766,6 @@
                 <div style="display: flex; align-items: center; gap: 1rem;">
                     <div class="mockup-badge">✅ Premium Active</div>
                     <div style="width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid #e4e4e7;">JD</div>
-                </div>
-            </div>
-            
-            <!-- Mockup Preference Summary -->
-            <div class="mockup-agent-card">
-                <div class="mockup-agent-info">
-                    <h3 style="color: #000000; font-size: 1.25rem; margin-bottom: 0.5rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase;">🤖 AI Agent Live</h3>
-                    <p style="color: #52525B; font-size: 0.9rem; margin-bottom: 1.25rem;">Our cloud engine automatically scouts and matches listings to your profile 24/7.</p>
-                    
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; background: rgba(0,0,0,0.01); padding: 1.25rem; border: 1px solid #e4e4e7; border-radius: 12px;">
-                        <div>
-                            <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 750; color: #71717A; display: block; margin-bottom: 0.2rem; letter-spacing: 0.5px;">Target Roles</span>
-                            <span style="color: #000000; font-weight: 600; font-size: 0.85rem;">Senior Software Engineer, Full Stack Engineer</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 750; color: #71717A; display: block; margin-bottom: 0.2rem; letter-spacing: 0.5px;">Target Countries</span>
-                            <span style="color: #000000; font-weight: 600; font-size: 0.85rem;">United States, Canada, United Kingdom</span>
-                        </div>
-                        <div>
-                            <span style="font-size: 0.72rem; text-transform: uppercase; font-weight: 750; color: #71717A; display: block; margin-bottom: 0.2rem; letter-spacing: 0.5px;">Workplace Types</span>
-                            <span style="color: #000000; font-weight: 600; font-size: 0.85rem;">Remote, Hybrid</span>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Scanning Indicator -->
-                <div class="mockup-agent-status">
-                    <div class="mockup-dot"></div>
-                    <h4 style="color: #000000; text-transform: uppercase; font-size: 0.9rem; margin-bottom: 0.25rem; font-weight: 850; letter-spacing: 0.5px;">Scraper Scanning</h4>
-                    <p style="color: #71717A; font-size: 0.8rem; line-height: 1.4; margin: 0;">Sourcing new matches in real-time</p>
                 </div>
             </div>
             
@@ -966,32 +943,28 @@
             <div class="step-card">
                 <div class="step-num">01</div>
                 <h3>Sourcing Jobs 24/7</h3>
-                <p>Our cloud monitors job boards around the clock. The second a role matching your target title is posted, it is captured instantly—ensuring you are always first in line.</p>
+                <p>Our cloud monitors company career pages 24/7. The second a role matching your target title is posted, it is captured instantly—ensuring you are always first in line.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">02</div>
                 <h3>Beat the ATS Screening</h3>
-                <p>Companies use AI algorithms to filter out candidate resumes. Our engine beats them at their own game. For every single job, it tailors your resume and cover letter to match their exact criteria perfectly.</p>
+                <p>Automatically aligns your skills, achievements, and formatting with the job's critical keywords to score high and clear automated screening filters.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">03</div>
-                <h3>Automated Submissions</h3>
-                <p>Our AI Agent handles the entire application form. It uploads documents, answers standard questions, and registers candidate profiles on portals requiring accounts (e.g. SuccessFactors, Workday).</p>
+                <h3>Custom Cover Letter</h3>
+                <p>Generates natural, persuasive cover letters that connect your real experience to the job description and explain any gaps without robotic buzzwords or generic fluff.</p>
             </div>
             <div class="step-card">
                 <div class="step-num">04</div>
+                <h3>Smart Auto-Fill</h3>
+                <p>Handles the entire application form. It uploads documents, answers standard and custom questions smartly, and registers candidate profiles on job application portals requiring signups.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">05</div>
+                <span style="position: absolute; top: 1.25rem; right: 1.5rem; z-index: 2; background: #000; color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Coming Soon</span>
                 <h3>Recruiter Follow-Ups</h3>
                 <p>To ensure your application doesn't get lost in the pile, our agent automatically drafts and sends a professional follow-up email directly to the hiring manager to get you noticed.</p>
-            </div>
-            <div class="step-card" style="background: linear-gradient(135deg, #D4FF33, #00FFCC); box-shadow: 0 15px 35px rgba(212, 255, 51, 0.2);">
-                <div class="step-num" style="color: #ffffff; opacity: 0.3;">05</div>
-                <h3>Dynamic Semantic Role Matching</h3>
-                <p style="color: #000000; font-weight: 600;">Stop missing hidden opportunities. Job titles are confusing. An "Account Executive" at one company is a "Client Partner" at another. Our AI doesn't search for static words—it dynamically matches your resume against live market data, finding roles you qualify for even if the title is completely different.</p>
-            </div>
-            <div class="step-card" style="background: #000000; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);">
-                <div class="step-num" style="color: #ffffff; opacity: 0.05;">06</div>
-                <h3 style="color: #ffffff;">Market Intelligence & Skill Gap</h3>
-                <p style="color: #a1a1aa;">Don't just apply. Evolve. Role Rover doesn't just find you jobs—it tells you exactly why you aren't getting hired. It tracks the exact skills and certifications you are missing from unmatched applications so you know exactly what to learn to double your salary.</p>
             </div>
         </div>
     </section>
@@ -1122,30 +1095,33 @@
             <!-- Free Trial Card -->
             <div class="price-card" style="text-align: center;">
                 <div class="price-name">Free Trial</div>
-                <div class="price-amount"><span>$</span>0</div>
+                <div class="price-amount" style="font-size: 3.5rem;">Free</div>
                 <div class="price-sub">Experience the Automation</div>
                 <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
-                    <li>Silent AI Resume Optimization</li>
-                    <li><strong>10 Free Automated Job Applications</strong></li>
-                    <li>AI Cover Letters Included</li>
-                    <li>Test the full automation engine</li>
+                    <li>24/7 active scanning for matching roles</li>
+                    <li>Swipe-to-Apply or Auto-apply to 10 remote jobs (no form filling + credits never expire)</li>
+                    <li>ATS-optimized resume for every role</li>
+                    <li>Custom cover letters for every role</li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="background: #ffffff; color: #000000; border: 1px solid rgba(0,0,0,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 1.5rem;">Start Free Trial</a>
+                <a href="signup.html" class="btn btn-primary" style="background: #ffffff; color: #000000; border: 1px solid rgba(0,0,0,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 1.5rem;">Automate Your Job Hunt for Free &rarr;</a>
             </div>
 
             <!-- Pro Card -->
             <div class="price-card popular" style="text-align: center;">
                 <div class="popular-badge">Full Automation</div>
                 <div class="price-name">Auto-Apply Engine</div>
+                <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0 1rem;">
+                    Just <span id="price-unit-sym">$</span><span id="price-unit-val">0.25</span> per job — sourced, tailored resume, cover letter &amp; submitted
+                </div>
                 <div class="price-amount"><span id="price-sym">$</span><span id="price-val">25</span></div>
-                <div class="price-sub">150 Applications in 1-30 days</div>
+                <div class="price-sub">100 Applications in 1-30 days</div>
                 <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
-                    <li>Unlimited ATS resume tailoring</li>
-                    <li>Auto-apply to 150 remote jobs (credits never expire)</li>
-                    <li>AI cover letters for every role</li>
-                    <li>24/7 active scanning for matching roles <span style="display:block; font-size:0.85rem; color:#a1a1aa; margin-top:0.3rem; line-height:1.4;">(timeline varies from 1-30 days based on job market availability)</span></li>
+                    <li>24/7 active scanning for matching roles</li>
+                    <li>Swipe-to-Apply or Auto-apply to 100 remote jobs (no form filling + credits never expire)</li>
+                    <li>ATS-optimized resume for every role</li>
+                    <li>Custom cover letters for every role</li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Start Automating Now</a>
+                <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Automate Your Job Hunt for Free &rarr;</a>
             </div>
         </div>
     </section>
@@ -1168,11 +1144,7 @@
             </details>
             <details class="faq-item">
                 <summary>How many jobs will the AI agent apply to?</summary>
-                <p>Depending on your plan, our Auto-Apply Engine will apply to up to 150 relevant jobs within 1 to 30 days, dynamically adjusting the speed based on matching job availability to prevent spamming.</p>
-            </details>
-            <details class="faq-item">
-                <summary>Can I review the applications before they are submitted?</summary>
-                <p>You can track every application, optimization, and submission status in real-time directly from your dashboard.</p>
+                <p>Depending on your plan, our Auto-Apply Engine will apply to up to 100 relevant jobs within 1 to 30 days, dynamically adjusting the speed based on matching job availability to prevent spamming.</p>
             </details>
             <details class="faq-item">
                 <summary>Do my credits expire? What if there aren't many jobs in my country?</summary>
@@ -1186,7 +1158,7 @@
         <h2 class="reveal">Your next role has<br><span class="glow">already been posted.</span></h2>
         <p class="reveal">Somewhere in the 100,000 career pages Rover watches, a job with your name on it just went live. The only question is whether you're first in line — or number 400.</p>
         <div class="reveal">
-            <a href="signup.html" class="btn btn-primary" style="font-size: 1.25rem; padding: 1.25rem 3rem;">Put Rover on the Hunt — Free</a>
+            <a href="signup.html" class="btn btn-primary" style="font-size: 1.25rem; padding: 1.25rem 3rem;">Automate Your Job Hunt for Free &rarr;</a>
             <p style="color: #71717a; font-size: 0.85rem; margin-top: 1.25rem; font-weight: 600;">10 free automated applications · No credit card required</p>
         </div>
     </section>
@@ -1217,10 +1189,14 @@
                 
                 if (countryCode === 'NG') {
                     document.getElementById('price-sym').textContent = '₦';
-                    document.getElementById('price-val').textContent = '30,000';
+                    document.getElementById('price-val').textContent = '25,000';
+                    document.getElementById('price-unit-sym').textContent = '₦';
+                    document.getElementById('price-unit-val').textContent = '250';
                 } else {
                     document.getElementById('price-sym').textContent = '$';
                     document.getElementById('price-val').textContent = '25';
+                    document.getElementById('price-unit-sym').textContent = '$';
+                    document.getElementById('price-unit-val').textContent = '0.25';
                 }
             } catch (err) {
                 console.error("Pricing localization failed, using defaults", err);
