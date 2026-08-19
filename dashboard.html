@@ -59,6 +59,16 @@
         .search-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1.25rem; align-items: end; }
         @media (max-width: 768px) { .search-row { grid-template-columns: 1fr; } }
 
+        /* iOS/mobile Safari ignores the <a download> attribute and just opens
+           the PDF instead of saving it -- "Download" would be a false promise
+           there. Swap the label only; the underlying download attribute and
+           blob-URL behavior are unchanged (desktop still saves in one click). */
+        .download-label-mobile { display: none; }
+        @media (max-width: 768px) {
+            .download-label-desktop { display: none; }
+            .download-label-mobile { display: inline; }
+        }
+
         .field { display: flex; flex-direction: column; gap: 0.5rem; }
         .field label { color: #52525B; font-weight: 750; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .field input, .field select { padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; color: #000000; font-size: 0.95rem; transition: all 0.2s; }
@@ -941,7 +951,7 @@
             <div class="modal-company" id="resume-modal-company">Company Name</div>
             <div style="margin-bottom: 0.75rem;">
                 <div id="resume-modal-filename" style="font-size: 0.8rem; color: #71717A; word-break: break-all; margin-bottom: 0.5rem;"></div>
-                <a id="resume-modal-download" href="#" download style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 700; color: #000; text-decoration: none; background: rgba(0,0,0,0.04); padding: 0.4rem 0.9rem; border-radius: 8px;">&darr; Download</a>
+                <a id="resume-modal-download" href="#" download style="display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.85rem; font-weight: 700; color: #000; text-decoration: none; background: rgba(0,0,0,0.04); padding: 0.4rem 0.9rem; border-radius: 8px;">&darr; <span class="download-label-desktop">Download</span><span class="download-label-mobile">View / Save</span></a>
             </div>
             <iframe id="resume-iframe" src="" style="width: 100%; height: 70vh; border: none; background: white; margin-top: 0.25rem;"></iframe>
         </div>
