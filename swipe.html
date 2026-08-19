@@ -998,13 +998,12 @@
             </div>
         </div>
 
-        <!-- Shown from page load until the first fetch actually resolves. Without
-             this the deck had only two states -- cards, or "no jobs" -- so during
-             the (multi-second) fetch a user saw the FAILURE message even though
-             jobs were on the way, which reads as "this app is broken". Starts
-             visible; every fetch path hides it exactly once it knows the real
-             answer. -->
-        <div id="deck-loading-state">
+        <!-- The "Roving for roles" compass -- claims a fresh, ~3-minute scan is
+             underway. Starts HIDDEN: we cannot know at page paint whether that's
+             actually true, and most page loads are a returning user who already
+             has a deck. Only the init script's genuine "no signal this user has
+             any jobs yet" branch ever shows this -- never by default. -->
+        <div id="deck-loading-state" style="display: none;">
             <div class="rover-loading">
                 <svg class="rover-loading-svg" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
@@ -1032,13 +1031,19 @@
             </div>
         </div>
 
-        <!-- Shown instead of the deck when the pool has nothing left to offer. On
-             the old combined page this slot was filled by the applications table,
-             which now lives on dashboard.html. -->
-        <div id="deck-empty-state" style="display: none;">
+        <!-- Default visible state at page load -- neutral "still figuring out
+             what to show you" placeholder, replacing the old default of showing
+             the "Roving for 3 minutes" compass to EVERYONE including users who
+             already have a full deck (that was the actual bug: the compass was
+             visible before any JS had even run). The init script and
+             fetchPooledJobs both overwrite this text/visibility once they
+             actually know the answer -- real cards, "Preparing your matches",
+             the compass (only for a genuine fresh scan), or this text stays as
+             a last resort if nothing else fires. -->
+        <div id="deck-empty-state">
             <div class="empty-state">
-                <h3>No new jobs to review</h3>
-                <p>Rover is still scanning. New matches land here as soon as they're found — check your <a href="dashboard.html" style="color: var(--secondary); font-weight: 700;">applications</a> in the meantime.</p>
+                <h3>Loading your deck...</h3>
+                <p>Fetching your matched roles now.</p>
             </div>
         </div>
 
@@ -1465,6 +1470,8 @@
                 // clear the loading skeleton -- it would spin forever behind the
                 // activation gate.
                 hideDeckLoading();
+                const notActivatedPlaceholder = document.getElementById('deck-empty-state');
+                if (notActivatedPlaceholder) notActivatedPlaceholder.style.display = 'none';
             } else if (localStorage.getItem('trigger_initial_scrape') === 'true') {
                 localStorage.removeItem('trigger_initial_scrape');
                 triggerInitialScrape(user, profile);
@@ -1504,6 +1511,17 @@
                         if (h3) h3.textContent = 'Loading your deck...';
                         if (p) p.textContent = 'Fetching your matched roles now.';
                     }
+                } else {
+                    // No signal at all yet that this user has any jobs -- no
+                    // cache, no deck_ready, no cached pool count. This is the
+                    // ONLY branch that shows the "Roving for 3 minutes" compass.
+                    // It only ever fires for a genuinely brand-new/never-scanned
+                    // account, never for a returning user who already has a
+                    // deck -- those are always caught by the two branches above.
+                    const stillUnknownPlaceholder = document.getElementById('deck-empty-state');
+                    if (stillUnknownPlaceholder) stillUnknownPlaceholder.style.display = 'none';
+                    const loading = document.getElementById('deck-loading-state');
+                    if (loading) loading.style.display = '';
                 }
                 // First-time-only blocking gate. The deck fetch still kicks off
                 // right away behind the modal (fetchPooledJobs already shows its
@@ -1920,11 +1938,20 @@
                     await new Promise(r => setTimeout(r, RETRY_DELAY));
                 }
             }
-            // All retries exhausted — show empty state only if no cached deck
+            // All retries exhausted — show empty state only if no cached deck.
+            // Reset the text explicitly: the default/placeholder text is
+            // "Loading your deck...", which would otherwise sit there stale
+            // and wrong after genuinely giving up.
             if (!alreadyHasJobs) {
                 hideDeckLoading();
                 if (section) section.style.display = 'none';
-                if (emptyState) emptyState.style.display = '';
+                if (emptyState) {
+                    emptyState.style.display = '';
+                    const h3 = emptyState.querySelector('h3');
+                    const p = emptyState.querySelector('p');
+                    if (h3) h3.textContent = 'No new jobs to review';
+                    if (p) p.innerHTML = `Rover is still scanning. New matches land here as soon as they're found — check your <a href="dashboard.html" style="color: var(--secondary); font-weight: 700;">applications</a> in the meantime.`;
+                }
             }
         }
 
