@@ -34,6 +34,33 @@
         .rover-loading p {
             color: #71717A; font-size: 0.85rem; max-width: 280px; line-height: 1.5;
         }
+        /* Scan rotator: reassuring messages cycle on loop while nothing is found yet */
+        .scan-rotator { position: relative; width: 100%; max-width: 280px; min-height: 2.6em; margin: 0 auto; padding: 0; }
+        .scan-rotator li {
+            position: absolute; top: 0; left: 0; width: 100%; list-style: none;
+            color: #71717A; font-size: 0.85rem; line-height: 1.5;
+            opacity: 0;
+            animation-name: scan-cycle;
+            animation-duration: 3.6s;
+            animation-timing-function: ease-in-out;
+            animation-fill-mode: both;
+        }
+        .scan-rotator li.scan-rotator-last { animation-name: scan-cycle-in; animation-fill-mode: forwards; }
+        @keyframes scan-cycle {
+            0%   { opacity: 0; transform: translateY(6px); }
+            8%   { opacity: 1; transform: translateY(0); }
+            86%  { opacity: 1; transform: translateY(0); }
+            100% { opacity: 0; transform: translateY(-6px); }
+        }
+        @keyframes scan-cycle-in {
+            0%   { opacity: 0; transform: translateY(6px); }
+            15%  { opacity: 1; transform: translateY(0); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .scan-rotator { min-height: 0; }
+            .scan-rotator li { position: static; opacity: 1; transform: none; animation: none; margin-bottom: 0.4rem; }
+        }
         :root {
             --bg-color: #ffffff;
             --surface-color: #ffffff;
@@ -1027,7 +1054,12 @@
                     </g>
                 </svg>
                 <h3>Roving for roles</h3>
-                <p>Rover is roving thousands of roles to find the ones you're qualified for — this usually takes 3 minutes.</p>
+                <p id="deck-loading-p" style="display: none;">Rover is roving thousands of roles to find the ones you're qualified for — this usually takes 3 minutes.</p>
+                <ul class="scan-rotator" id="deck-loading-rotator">
+                    <li style="animation-delay: 0s;">Rover just started roving — this usually takes about 3 minutes.</li>
+                    <li style="animation-delay: 3.6s;">Scanning company career pages for your target roles...</li>
+                    <li class="scan-rotator-last" style="animation-delay: 7.2s;">Almost there — hang tight.</li>
+                </ul>
             </div>
         </div>
 
@@ -1870,13 +1902,19 @@
 
         function updateDeckLoadingText(count) {
             const h3 = document.querySelector('#deck-loading-state h3');
-            const p = document.querySelector('#deck-loading-state p');
+            const p = document.getElementById('deck-loading-p');
+            const rotator = document.getElementById('deck-loading-rotator');
             if (count > 0) {
                 if (h3) h3.textContent = 'Analyzing matches...';
-                if (p) p.textContent = `We found ${count} matching roles! Rover is currently scoring and preparing them for your deck — this takes about 60 seconds.`;
+                if (p) {
+                    p.textContent = `We found ${count} matching roles! Rover is currently scoring and preparing them for your deck — this takes about 60 seconds.`;
+                    p.style.display = '';
+                }
+                if (rotator) rotator.style.display = 'none';
             } else {
                 if (h3) h3.textContent = 'Roving for roles';
-                if (p) p.textContent = "Rover is roving thousands of roles to find the ones you're qualified for — this usually takes 3 minutes.";
+                if (p) p.style.display = 'none';
+                if (rotator) rotator.style.display = '';
             }
         }
 
@@ -1949,8 +1987,8 @@
                     emptyState.style.display = '';
                     const h3 = emptyState.querySelector('h3');
                     const p = emptyState.querySelector('p');
-                    if (h3) h3.textContent = 'No new jobs to review';
-                    if (p) p.innerHTML = `Rover is still scanning. New matches land here as soon as they're found — check your <a href="dashboard.html" style="color: var(--secondary); font-weight: 700;">applications</a> in the meantime.`;
+                    if (h3) h3.textContent = 'No Matching Jobs Found Yet';
+                    if (p) p.innerHTML = `Rover completed its first scan but didn't find any active listings matching your criteria. It keeps scanning in the background — new matches will appear here the moment they're found.<br><br>Try widening your search: add a few more job titles (including close variations of your role), add more countries, or uncheck a workplace-type filter if you've only selected Remote. <a href="onboarding.html?edit=true" style="color: var(--secondary); font-weight: 700;">Adjust your target settings →</a>`;
                 }
             }
         }
