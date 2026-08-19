@@ -1488,9 +1488,22 @@
                     renderSwipeStack();
                 } else if (profile.deck_ready || poolAvailableCount > 0) {
                     // Jobs exist on server but no cache (new device). Hide the
-                    // loading spinner immediately; fetchPooledJobs will show
-                    // "Preparing your matches..." once the first call returns.
+                    // compass but show a lightweight placeholder in its place --
+                    // fetchPooledJobs's real answer can take 5-8s (slow
+                    // match-pool-jobs round trip), and hiding the compass with
+                    // nothing to replace it left a multi-second blank white
+                    // screen the whole time. fetchPooledJobs overwrites this
+                    // text with "Preparing your matches..." or renders real
+                    // cards as soon as it actually knows the answer.
                     hideDeckLoading();
+                    const placeholderState = document.getElementById('deck-empty-state');
+                    if (placeholderState) {
+                        placeholderState.style.display = '';
+                        const h3 = placeholderState.querySelector('h3');
+                        const p = placeholderState.querySelector('p');
+                        if (h3) h3.textContent = 'Loading your deck...';
+                        if (p) p.textContent = 'Fetching your matched roles now.';
+                    }
                 }
                 // First-time-only blocking gate. The deck fetch still kicks off
                 // right away behind the modal (fetchPooledJobs already shows its
