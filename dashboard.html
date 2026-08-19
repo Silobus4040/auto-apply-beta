@@ -373,10 +373,14 @@
         .email-iframe { width: 100%; height: 100%; border: none; }
         .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
         .email-content-back-btn { display: none; }
+        .email-intro-dismiss-btn { display: none; }
         /* Desktop shows the "Your Job Hunt Email is Active" intro inside the
            always-visible content pane. On mobile that pane is hidden until an
            email is tapped, which was silently hiding the intro entirely -- so
-           it's duplicated here as a card pinned above the list, mobile-only. */
+           it's duplicated here as a card pinned above the list, mobile-only.
+           It was crowding the list out entirely on first render (a11y report:
+           "don't let user see inbox"), so it's now a one-time, dismissible,
+           height-capped card -- see dismissJobHuntIntro(). */
         .email-mobile-intro { display: none; }
 
         /* On mobile the two email panes can't sit side-by-side (the 350px list
@@ -391,8 +395,13 @@
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
             .email-client-container.mobile-show-content .email-content { display: flex; }
-            .email-mobile-intro { display: block; padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; }
+            .email-mobile-intro { display: block; padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; max-height: 45vh; overflow-y: auto; flex-shrink: 0; }
             .email-mobile-intro .email-empty-state { color: #71717A; }
+            .email-intro-dismiss-btn {
+                display: inline-flex; margin-top: 1rem; background: #000; color: #fff;
+                border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700;
+                font-size: 0.85rem; cursor: pointer; font-family: inherit;
+            }
             .email-content-back-btn {
                 display: inline-flex; align-items: center; gap: 0.3rem;
                 background: none; border: none; color: #000; font-weight: 700;
@@ -2408,18 +2417,47 @@
                         <br><br>
                         When a real recruiter reaches out, it's forwarded to your personal email automatically.
                         <br><br>
-                        <strong>Replying to a recruiter:</strong> Just hit reply in your personal inbox like normal -- behind the scenes we automatically route it back through your Job Hunt Email before it reaches them, so there's nothing extra to set up. Prefer to stay in one place? You can also reply right here in the dashboard. Either way, the recruiter only ever sees your dedicated email address, never your personal one.
+                        <strong>Replying to a recruiter:</strong> Just hit reply in your personal inbox like normal -- and it gets routed through your Job Hunt Email.
+                        <br><br>
+                        Prefer to stay in one place? You can also reply right in the dashboard. Either way, the recruiter only ever sees your Job Hunt Email address, never your personal one.
                     </p>
+                    <button class="email-intro-dismiss-btn" onclick="dismissJobHuntIntro()">Got it</button>
                 </div>
             `;
+        }
+
+        function jobHuntIntroSeenKey() {
+            const uid = (typeof cachedUserId !== 'undefined' && cachedUserId) ? cachedUserId : 'anon';
+            return `rr_job_hunt_intro_seen_${uid}`;
+        }
+
+        function hasSeenJobHuntIntro() {
+            try { return localStorage.getItem(jobHuntIntroSeenKey()) === '1'; } catch (e) { return false; }
+        }
+
+        function dismissJobHuntIntro() {
+            try { localStorage.setItem(jobHuntIntroSeenKey(), '1'); } catch (e) {}
+            const mobileIntro = document.getElementById('email-mobile-intro');
+            if (mobileIntro) { mobileIntro.innerHTML = ''; mobileIntro.style.display = 'none'; }
         }
 
         function renderInboxIntro() {
             const html = getInboxIntroHtml();
             const pane = document.getElementById('email-content-pane');
             if (pane) pane.innerHTML = html;
+            // Mobile pins this above the email list (see .email-mobile-intro),
+            // which otherwise crowded the list out of view on every single
+            // open. Show it once per user, then remember the dismissal.
             const mobileIntro = document.getElementById('email-mobile-intro');
-            if (mobileIntro) mobileIntro.innerHTML = html;
+            if (mobileIntro) {
+                if (hasSeenJobHuntIntro()) {
+                    mobileIntro.innerHTML = '';
+                    mobileIntro.style.display = 'none';
+                } else {
+                    mobileIntro.innerHTML = html;
+                    mobileIntro.style.display = '';
+                }
+            }
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
