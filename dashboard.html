@@ -373,6 +373,11 @@
         .email-iframe { width: 100%; height: 100%; border: none; }
         .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
         .email-content-back-btn { display: none; }
+        /* Desktop shows the "Your Job Hunt Email is Active" intro inside the
+           always-visible content pane. On mobile that pane is hidden until an
+           email is tapped, which was silently hiding the intro entirely -- so
+           it's duplicated here as a card pinned above the list, mobile-only. */
+        .email-mobile-intro { display: none; }
 
         /* On mobile the two email panes can't sit side-by-side (the 350px list
            alone is wider than most phone screens), which silently pushed the
@@ -386,6 +391,8 @@
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
             .email-client-container.mobile-show-content .email-content { display: flex; }
+            .email-mobile-intro { display: block; padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; }
+            .email-mobile-intro .email-empty-state { color: #71717A; }
             .email-content-back-btn {
                 display: inline-flex; align-items: center; gap: 0.3rem;
                 background: none; border: none; color: #000; font-weight: 700;
@@ -928,18 +935,13 @@
                     <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="inbox" style="width: 14px; height: 14px;"></i>Inbox</button>
                     <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="send" style="width: 14px; height: 14px;"></i>Sent</button>
                 </div>
+                <div class="email-mobile-intro" id="email-mobile-intro"></div>
                 <div class="email-list" id="email-list">
                     <div style="padding: 2rem; text-align: center; color: #a1a1aa; font-size: 0.9rem;">Loading emails...</div>
                 </div>
             </div>
-            
-            <div class="email-content" id="email-content-pane">
-                <div class="email-empty-state">
-                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active!</h3>
-                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">This managed inbox keeps your job search out of your personal inbox until it matters. Portal sign-ups, verification codes, and "Thank you for applying" emails stop here. Only real recruiter emails get forwarded to you right away. <br><br><span style="color:var(--secondary); font-weight:700;">PS:</span> You can reply from your Rover Inbox or directly from your email -- either way, the recruiter only ever sees your assigned email.</p>
-                </div>
-            </div>
+
+            <div class="email-content" id="email-content-pane"></div>
         </div>
     </div>
 
@@ -1382,6 +1384,7 @@
             }
 
             userProfile = profile;
+            if (typeof renderInboxIntro === 'function') renderInboxIntro();
 
             const firstName = profile.first_name || '';
             const lastName = profile.last_name || '';
@@ -2390,10 +2393,40 @@
 
         // --- EMAIL CLIENT LOGIC ---
         let currentEmails = [];
-        
+
+        function getInboxIntroHtml() {
+            const email = (typeof userProfile !== 'undefined' && userProfile && userProfile.Application_email)
+                ? userProfile.Application_email
+                : 'Generating your dedicated email...';
+            return `
+                <div class="email-empty-state">
+                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Job Hunt Email is Active</h3>
+                    <div style="font-weight: 800; color: #000; font-size: 1rem; margin-bottom: 1rem; word-break: break-all;">${email}</div>
+                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">
+                        This is your private inbox for job hunting, separate from your personal email. Every application goes out under this address, so sign-up confirmations, verification codes, and "thanks for applying" auto-replies land here -- not in your regular inbox.
+                        <br><br>
+                        When a real recruiter reaches out, it's forwarded to your personal email automatically.
+                        <br><br>
+                        <strong>Replying to a recruiter:</strong> You can reply from your Job Hunt Email, or straight from your personal email -- either way works. The recruiter only ever sees your dedicated email address, never your personal one.
+                    </p>
+                </div>
+            `;
+        }
+
+        function renderInboxIntro() {
+            const html = getInboxIntroHtml();
+            const pane = document.getElementById('email-content-pane');
+            if (pane) pane.innerHTML = html;
+            const mobileIntro = document.getElementById('email-mobile-intro');
+            if (mobileIntro) mobileIntro.innerHTML = html;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
         async function openEmailClient() {
             document.getElementById('email-client-modal').classList.add('active');
             document.querySelector('.email-client-container').classList.remove('mobile-show-content');
+            renderInboxIntro();
             await fetchEmails();
         }
 
@@ -2463,14 +2496,7 @@
             
             renderEmailList();
             document.querySelector('.email-client-container').classList.remove('mobile-show-content');
-            document.getElementById('email-content-pane').innerHTML = `
-                <div class="email-empty-state">
-                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active!</h3>
-                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">This managed inbox keeps your job search out of your personal inbox until it matters. Portal sign-ups, verification codes, and "Thank you for applying" emails stop here. Only real recruiter emails get forwarded to you right away. <br><br><span style="color:var(--secondary); font-weight:700;">PS:</span> You can reply from your Rover Inbox or directly from your email -- either way, the recruiter only ever sees your assigned email.</p>
-                </div>
-            `;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            renderInboxIntro();
         }
 
         function renderEmailList() {
