@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoApply AI | Verify Email</title>
+    <meta name="robots" content="noindex,nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <style>
     <style>
@@ -70,6 +71,14 @@
             text-align: center;
             caret-color: var(--secondary);
             transition: all 0.2s;
+        }
+        /* 8 boxes at 48px + 7 gaps at 0.75rem = 468px, wider than every phone
+           screen (iPhone tops out ~430px) -- the 8th box was silently
+           overflowing off-screen with no way to reach it. Shrink box size
+           and gap on narrow viewports so all 8 stay visible and tappable. */
+        @media (max-width: 480px) {
+            .otp-container { gap: 0.4rem; }
+            .otp-input { width: 34px; height: 46px; font-size: 1.2rem; }
         }
         .otp-input:focus {
             outline: none;
@@ -238,11 +247,27 @@
             <p style="margin-bottom: 1.25rem; color: #52525B; font-size: 0.95rem;">Set a new password for your account.</p>
             <div style="margin-bottom: 1rem; text-align: left;">
                 <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">NEW PASSWORD</label>
-                <input type="password" id="new-password" placeholder="At least 8 characters" style="width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                <div style="position:relative;">
+                    <input type="password" id="new-password" placeholder="At least 8 characters" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                    <button type="button" onclick="togglePasswordVisibility('new-password', 'new-password-eye')" aria-label="Show password" style="position:absolute; top:50%; right:0.9rem; transform:translateY(-50%); background:none; border:none; padding:0.2rem; cursor:pointer; color:#71717A; display:flex; align-items:center;">
+                        <svg id="new-password-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div style="margin-bottom: 1.25rem; text-align: left;">
                 <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">CONFIRM NEW PASSWORD</label>
-                <input type="password" id="confirm-password" placeholder="Re-enter password" style="width:100%; padding:0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                <div style="position:relative;">
+                    <input type="password" id="confirm-password" placeholder="Re-enter password" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                    <button type="button" onclick="togglePasswordVisibility('confirm-password', 'confirm-password-eye')" aria-label="Show password" style="position:absolute; top:50%; right:0.9rem; transform:translateY(-50%); background:none; border:none; padding:0.2rem; cursor:pointer; color:#71717A; display:flex; align-items:center;">
+                        <svg id="confirm-password-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                            <circle cx="12" cy="12" r="3"></circle>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <button class="btn btn-primary" id="set-password-btn" onclick="setNewPassword()">Set Password &rarr;</button>
         </div>
@@ -254,12 +279,35 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Retrieve email from sessionStorage (set during signup, or during forgot-password login)
+        // A real password-reset email link (resetPasswordForEmail's redirectTo) lands here
+        // with recovery tokens in the URL that supabase-js auto-detects on page load, firing
+        // a PASSWORD_RECOVERY auth event -- no code to type, no sessionStorage dependency
+        // (which matters: opening the email on a different device/tab than the one that
+        // requested the reset would otherwise strand the user with no pending email on record).
+        const isRecoveryLink = window.location.hash.includes('type=recovery')
+            || new URLSearchParams(window.location.search).has('code');
+
+        supabaseClient.auth.onAuthStateChange((event) => {
+            if (event === 'PASSWORD_RECOVERY') {
+                document.querySelector('.header').style.display = 'none';
+                document.querySelector('.progress').style.display = 'none';
+                document.querySelector('.card').style.display = 'none';
+                document.getElementById('new-password-card').style.display = 'block';
+            }
+        });
+
+        // Retrieve email from sessionStorage (set during signup)
         const pendingEmail = sessionStorage.getItem('pending_verification_email');
-        // 'signup' (default) = new account confirmation; 'login' = forgot-password / returning-user OTP
+        // 'signup' (default) = new account confirmation OTP flow
         const otpFlow = sessionStorage.getItem('otp_flow') || 'signup';
-        if (!pendingEmail) {
-            // No email to verify, redirect back to signup
+        // A recovery/confirmation link that expired or was already used redirects back here
+        // with an error in the hash -- do NOT bounce to signup (that dumped confused users
+        // on the wrong page). Show a clear message and let them request a fresh link.
+        const hasAuthError = window.location.hash.includes('error')
+            || new URLSearchParams(window.location.search).has('error');
+        if (hasAuthError) {
+            showError('This reset link has expired or was already used. Go back to Login -> "Forgot Password?" for a fresh link, and click it right away.');
+        } else if (!pendingEmail && !isRecoveryLink) {
             window.location.href = 'signup.html';
         }
         document.getElementById('user-email').textContent = pendingEmail || '';
@@ -413,6 +461,17 @@
             }
         }
 
+        // ─── Show/hide password (mirrors login.html's toggle) ───
+        function togglePasswordVisibility(inputId, iconId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(iconId);
+            const isHidden = input.type === 'password';
+            input.type = isHidden ? 'text' : 'password';
+            icon.innerHTML = isHidden
+                ? '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.6M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
+                : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle>';
+        }
+
         // ─── Set New Password (forgot-password flow only) ───
         async function setNewPassword() {
             const pwErrorMsg = document.getElementById('pw-error-msg');
@@ -489,13 +548,39 @@
             }, 1000);
         }
 
+        let _resendInFlight = false;
         async function resendCode() {
+            // Guard: never fire two recovery requests in quick succession -- Supabase
+            // invalidates the previous token on each new request, so a double-fire makes
+            // the first emailed link fail with "One-time token not found" (confirmed via
+            // auth logs 2026-08-12: two user_recovery_requested in the same second ->
+            // 403 invalid/expired on click -> verify.html bounced the user to signup).
+            if (_resendInFlight) return;
+            // Cross-page single-send guard (mirrors login.html): block a repeat recovery
+            // email within 60s so a second token can't invalidate the first.
+            if (otpFlow === 'login') {
+                const _rrKey = 'rr_recovery_sent_' + (pendingEmail || '').toLowerCase();
+                if (Date.now() - Number(localStorage.getItem(_rrKey) || 0) < 60000) {
+                    const sm = document.getElementById('success-msg');
+                    sm.textContent = '📧 A reset link was just sent — check your inbox (and spam) and click the newest one.';
+                    sm.style.display = 'block';
+                    return;
+                }
+                localStorage.setItem(_rrKey, String(Date.now()));
+            }
+            _resendInFlight = true;
             const resendBtn = document.getElementById('resend-btn');
             resendBtn.disabled = true;
 
             try {
                 const { error } = otpFlow === 'login'
-                    ? await supabaseClient.auth.resetPasswordForEmail(pendingEmail, {})
+                    // Reset-password resend MUST carry the SAME redirectTo as login.html's
+                    // primary call. Omitting it sent the recovery link to the default Site
+                    // URL instead of verify.html, so the recovery token never reached the
+                    // set-password form -- the direct cause of the signup.html bounce.
+                    ? await supabaseClient.auth.resetPasswordForEmail(pendingEmail, {
+                        redirectTo: 'https://myrolerover.com/verify.html',
+                      })
                     : await supabaseClient.auth.resend({
                         type: 'signup',
                         email: pendingEmail
@@ -512,6 +597,8 @@
             } catch (err) {
                 showError(err.message || 'Failed to resend code. Try again later.');
                 resendBtn.disabled = false;
+            } finally {
+                _resendInFlight = false;
             }
         }
 

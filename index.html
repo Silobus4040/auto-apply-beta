@@ -98,21 +98,16 @@
             padding-left: 1.2rem; text-indent: -1.2rem;
             opacity: 0;
             animation-name: problem-cycle;
-            animation-duration: 3.6s;
+            animation-duration: 14.4s;
             animation-timing-function: ease-in-out;
-            animation-fill-mode: both;
+            animation-iteration-count: infinite;
         }
-        .problem-rotator li.problem-rotator-last { animation-name: problem-cycle-in; animation-fill-mode: forwards; }
         @keyframes problem-cycle {
             0%   { opacity: 0; transform: translateY(6px); }
-            8%   { opacity: 1; transform: translateY(0); }
-            86%  { opacity: 1; transform: translateY(0); }
+            2%   { opacity: 1; transform: translateY(0); }
+            21%  { opacity: 1; transform: translateY(0); }
+            25%  { opacity: 0; transform: translateY(-6px); }
             100% { opacity: 0; transform: translateY(-6px); }
-        }
-        @keyframes problem-cycle-in {
-            0%   { opacity: 0; transform: translateY(6px); }
-            15%  { opacity: 1; transform: translateY(0); }
-            100% { opacity: 1; transform: translateY(0); }
         }
         @media (prefers-reduced-motion: reduce) {
             .problem-rotator { min-height: 0; }
@@ -1099,9 +1094,9 @@
                 <div class="price-sub">Experience the Automation</div>
                 <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
                     <li>24/7 active scanning for matching roles</li>
-                    <li>Swipe-to-Apply or Auto-apply to 10 remote jobs (no form filling + credits never expire)</li>
                     <li>ATS-optimized resume for every role</li>
                     <li>Custom cover letters for every role</li>
+                    <li>Swipe-to-Apply or Auto-apply to 10 remote jobs (no form filling + credits never expire)</li>
                 </ul>
                 <a href="signup.html" class="btn btn-primary" style="background: #ffffff; color: #000000; border: 1px solid rgba(0,0,0,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 1.5rem;">Automate Your Job Hunt for Free &rarr;</a>
             </div>
@@ -1117,9 +1112,9 @@
                 <div class="price-sub">100 Applications in 1-30 days</div>
                 <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
                     <li>24/7 active scanning for matching roles</li>
-                    <li>Swipe-to-Apply or Auto-apply to 100 remote jobs (no form filling + credits never expire)</li>
                     <li>ATS-optimized resume for every role</li>
                     <li>Custom cover letters for every role</li>
+                    <li>Swipe-to-Apply or Auto-apply to 100 remote jobs (no form filling + credits never expire)</li>
                 </ul>
                 <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Automate Your Job Hunt for Free &rarr;</a>
             </div>
