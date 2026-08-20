@@ -791,7 +791,10 @@
 
         <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Dashboard</h1>
+            <div>
+                <p id="welcome-greeting" style="font-size: 14px; color: #71717A; margin: 0 0 2px; display: none;"></p>
+                <h1 class="page-title">Dashboard</h1>
+            </div>
             <div style="display: flex; align-items: center; gap: 0.85rem;">
                 <div id="credit-balance-block" style="display: none; align-items: center; text-align: right;">
                     <div>
@@ -1407,13 +1410,31 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_completed_first_login')
                 .eq('id', user.id)
                 .single();
 
             if (!profile || !profile.onboarding_complete) {
                 window.location.href = 'onboarding.html';
                 return;
+            }
+
+            // Welcome / Welcome back greeting -- has_completed_first_login is a
+            // dedicated flag, independent of the invite-code system (which may
+            // be removed later), so "is this genuinely their first time" keeps
+            // working regardless of how activation evolves. Flip it true right
+            // after showing "Welcome" so every subsequent load says "Welcome
+            // back", forever.
+            const greetingEl = document.getElementById('welcome-greeting');
+            if (greetingEl && profile.first_name) {
+                greetingEl.textContent = profile.has_completed_first_login
+                    ? 'Welcome back, ' + profile.first_name
+                    : 'Welcome, ' + profile.first_name;
+                greetingEl.style.display = 'block';
+            }
+            if (!profile.has_completed_first_login) {
+                supabaseClient.from('profiles').update({ has_completed_first_login: true }).eq('id', user.id)
+                    .then(() => {}, () => {});
             }
 
             // Real credit balance -- application_credit_used increments by 1
