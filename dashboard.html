@@ -1375,14 +1375,6 @@
             currentUserEmail = user.email;
             cachedUserId = user.id;
             renderAccountBadge(user.email);
-            // Demo-only display, mosco's account only -- no real credit_balance
-            // field exists yet, so this stays hardcoded rather than hidden.
-            if (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
-                const creditBlock = document.getElementById('credit-balance-block');
-                const creditValue = document.getElementById('credit-balance-value');
-                if (creditBlock) creditBlock.style.display = 'flex';
-                if (creditValue) creditValue.textContent = '68';
-            }
 
             if (!user.email_confirmed_at) {
                 sessionStorage.setItem('pending_verification_email', user.email);
@@ -1393,7 +1385,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used')
                 .eq('id', user.id)
                 .single();
 
@@ -1401,6 +1393,16 @@
                 window.location.href = 'onboarding.html';
                 return;
             }
+
+            // Real credit balance -- application_credit_used increments by 1
+            // on every real application (n8n apply workflow), applications_limit
+            // is the plan's total allotment. Shown for every account now, not
+            // just the mosco demo override this used to be hardcoded to.
+            const creditBalance = Math.max(0, (profile.applications_limit || 0) - (profile.application_credit_used || 0));
+            const creditBlock = document.getElementById('credit-balance-block');
+            const creditValue = document.getElementById('credit-balance-value');
+            if (creditBlock) creditBlock.style.display = 'flex';
+            if (creditValue) creditValue.textContent = String(creditBalance);
 
             // Demo-only override for mosco's account (per explicit request):
             // shows this exact 3-role set instead of whatever the profile's
@@ -2162,13 +2164,9 @@
                         <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
                             <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
                             <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">No New Roles Matching Your Exact Criteria Found Yet</h3>
-                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto 1.5rem; line-height: 1.65; font-weight: 500;">
+                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto; line-height: 1.65; font-weight: 500;">
                                 Rover keeps scanning in the background — new matches will appear here the moment they're found.
                             </p>
-                            <p style="font-size: 0.85rem; color: #71717A; max-width: 480px; margin: 0 auto 1.5rem; line-height: 1.6;">
-                                Try widening your search: add a few more job titles (including close variations of your role), add more countries, or uncheck a workplace-type filter if you've only selected Remote.
-                            </p>
-                            <a href="onboarding.html?edit=true" class="table-btn" style="font-weight: 800; padding: 0.75rem 1.5rem; font-size: 0.85rem; text-decoration: none; display: inline-block; box-shadow: 3px 3px 0px var(--border); border-radius: 50px;">⚙ Adjust Target Settings</a>
                         </div>`;
                 }
                 return;
