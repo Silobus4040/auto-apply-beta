@@ -797,17 +797,20 @@
             </div>
             <div style="display: flex; align-items: center; gap: 0.85rem;">
                 <div id="credit-balance-block" style="display: none; align-items: center; text-align: right;">
-                    <div>
+                    <div style="min-width: 140px;">
                         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #A1A1AA; text-transform: uppercase; margin-bottom: 3px;">Credit balance</div>
-                        <span style="display: inline-flex; align-items: center; gap: 0.5rem; background: #f4f4f5; border: 1px solid var(--border); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.9rem; font-weight: 800; color: #000000;">
-                            <span id="credit-balance-value" data-real-value="0">••</span>
+                        <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-bottom: 5px;">
+                            <span style="font-size: 1.05rem; font-weight: 800; color: #000000;"><span id="credit-balance-value" data-real-value="0">••</span><span id="credit-balance-limit" style="font-size: 0.8rem; font-weight: 700; color: #A1A1AA;"></span></span>
                             <button type="button" onclick="toggleCreditBalanceVisibility()" aria-label="Show balance" style="background:none; border:none; padding:0; margin:0; cursor:pointer; color:#71717A; display:flex; align-items:center;">
-                                <svg id="credit-balance-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <svg id="credit-balance-eye" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
                             </button>
-                        </span>
+                        </div>
+                        <div style="height: 5px; width: 100%; background: #f4f4f5; border-radius: 4px; overflow: hidden;">
+                            <div id="credit-balance-bar" data-real-pct="0" style="height: 100%; width: 0%; background: #000000; border-radius: 4px; transition: width 0.3s;"></div>
+                        </div>
                     </div>
                 </div>
                 <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
@@ -1328,14 +1331,20 @@
 
         function toggleCreditBalanceVisibility() {
             const valueEl = document.getElementById('credit-balance-value');
+            const limitEl = document.getElementById('credit-balance-limit');
+            const barEl = document.getElementById('credit-balance-bar');
             const eyeEl = document.getElementById('credit-balance-eye');
             if (!valueEl || !eyeEl) return;
             const isHidden = valueEl.textContent === '••';
             if (isHidden) {
                 valueEl.textContent = valueEl.dataset.realValue || '0';
+                if (limitEl) limitEl.textContent = limitEl.dataset.realLimit || '';
+                if (barEl) barEl.style.width = (barEl.dataset.realPct || '0') + '%';
                 eyeEl.innerHTML = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.6M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
             } else {
                 valueEl.textContent = '••';
+                if (limitEl) limitEl.textContent = '';
+                if (barEl) barEl.style.width = '0%';
                 eyeEl.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle>';
             }
         }
@@ -1442,10 +1451,16 @@
             // is the plan's total allotment. Shown for every account now, not
             // just the mosco demo override this used to be hardcoded to.
             const creditBalance = Math.max(0, (profile.applications_limit || 0) - (profile.application_credit_used || 0));
+            const creditLimit = profile.applications_limit || 0;
+            const creditPct = creditLimit > 0 ? Math.round((creditBalance / creditLimit) * 100) : 0;
             const creditBlock = document.getElementById('credit-balance-block');
             const creditValue = document.getElementById('credit-balance-value');
+            const creditLimitEl = document.getElementById('credit-balance-limit');
+            const creditBar = document.getElementById('credit-balance-bar');
             if (creditBlock) creditBlock.style.display = 'flex';
             if (creditValue) creditValue.dataset.realValue = String(creditBalance);
+            if (creditLimitEl) creditLimitEl.dataset.realLimit = ' / ' + creditLimit;
+            if (creditBar) creditBar.dataset.realPct = String(creditPct);
 
             // Demo-only override for mosco's account (per explicit request):
             // shows this exact 3-role set instead of whatever the profile's
