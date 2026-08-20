@@ -796,7 +796,15 @@
                 <div id="credit-balance-block" style="display: none; align-items: center; text-align: right;">
                     <div>
                         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #A1A1AA; text-transform: uppercase; margin-bottom: 3px;">Credit balance</div>
-                        <span style="display: inline-flex; align-items: center; background: #f4f4f5; border: 1px solid var(--border); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.9rem; font-weight: 800; color: #000000;" id="credit-balance-value">0</span>
+                        <span style="display: inline-flex; align-items: center; gap: 0.5rem; background: #f4f4f5; border: 1px solid var(--border); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.9rem; font-weight: 800; color: #000000;">
+                            <span id="credit-balance-value" data-real-value="0">••</span>
+                            <button type="button" onclick="toggleCreditBalanceVisibility()" aria-label="Show balance" style="background:none; border:none; padding:0; margin:0; cursor:pointer; color:#71717A; display:flex; align-items:center;">
+                                <svg id="credit-balance-eye" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                            </button>
+                        </span>
                     </div>
                 </div>
                 <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
@@ -1315,6 +1323,20 @@
             document.getElementById('sidebar-overlay').classList.toggle('open');
         }
 
+        function toggleCreditBalanceVisibility() {
+            const valueEl = document.getElementById('credit-balance-value');
+            const eyeEl = document.getElementById('credit-balance-eye');
+            if (!valueEl || !eyeEl) return;
+            const isHidden = valueEl.textContent === '••';
+            if (isHidden) {
+                valueEl.textContent = valueEl.dataset.realValue || '0';
+                eyeEl.innerHTML = '<path d="M17.94 17.94A10.94 10.94 0 0 1 12 20c-7 0-11-8-11-8a21.6 21.6 0 0 1 5.06-6.06M9.9 4.24A10.4 10.4 0 0 1 12 4c7 0 11 8 11 8a21.6 21.6 0 0 1-3.22 4.6M14.12 14.12a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>';
+            } else {
+                valueEl.textContent = '••';
+                eyeEl.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path><circle cx="12" cy="12" r="3"></circle>';
+            }
+        }
+
         function renderPrefChips(elId, csv) {
             const el = document.getElementById(elId);
             if (!el) return;
@@ -1402,7 +1424,7 @@
             const creditBlock = document.getElementById('credit-balance-block');
             const creditValue = document.getElementById('credit-balance-value');
             if (creditBlock) creditBlock.style.display = 'flex';
-            if (creditValue) creditValue.textContent = String(creditBalance);
+            if (creditValue) creditValue.dataset.realValue = String(creditBalance);
 
             // Demo-only override for mosco's account (per explicit request):
             // shows this exact 3-role set instead of whatever the profile's
