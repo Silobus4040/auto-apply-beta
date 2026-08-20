@@ -2010,6 +2010,7 @@
                 const newOnes = jobs.filter(j => !existingIds.has(j.id));
                 if (newOnes.length) {
                     pooledJobs.push(...newOnes);
+                    if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
                     if (userProfile && userProfile.auto_apply_enabled && cachedUserId) {
                         await autoApplySweepAndFilter(cachedUserId);
                     }
@@ -2285,6 +2286,13 @@
             card.style.opacity = '0';
 
             pooledJobIndex++;
+            // Run 94 built this cache so returning users see their deck
+            // instantly instead of a spinner, but never wired an update here --
+            // the cached index stayed frozen at 0 forever, so a reload showed
+            // every already-swiped job again even though the server (
+            // user_job_swipes) correctly had them recorded. Keep the cache in
+            // sync with the real position on every swipe.
+            if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
             setTimeout(renderSwipeStack, 280); // optimistic advance, no wait on the network calls below
 
             const { data: { user } } = await supabaseClient.auth.getUser();
