@@ -1860,14 +1860,24 @@
         let autoApplySweepRunning = false;
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
+        // Bump this whenever the cached shape/semantics of deckJobs_/deckIndex_
+        // change in a way that makes an old cache wrong to trust blindly -- e.g.
+        // this version (2) fixes a bug where the cached index never advanced
+        // past 0 after a swipe, so any cache written by the pre-fix code is
+        // stale and must be discarded rather than rendered as-is.
+        const DECK_CACHE_VERSION = 2;
+
         function cacheDeckJobs(userId, jobs, index) {
             try {
                 localStorage.setItem(`deckJobs_${userId}`, JSON.stringify(jobs));
                 localStorage.setItem(`deckIndex_${userId}`, String(index));
+                localStorage.setItem(`deckCacheVersion_${userId}`, String(DECK_CACHE_VERSION));
             } catch (e) {}
         }
         function loadCachedDeckJobs(userId) {
             try {
+                const versionRaw = localStorage.getItem(`deckCacheVersion_${userId}`);
+                if (parseInt(versionRaw, 10) !== DECK_CACHE_VERSION) return null;
                 const raw = localStorage.getItem(`deckJobs_${userId}`);
                 const indexRaw = localStorage.getItem(`deckIndex_${userId}`);
                 if (raw) {
@@ -2573,7 +2583,7 @@
             await supabaseClient.auth.signOut();
             // Preserve user caches (pool count, deck jobs) across logout
             // so returning users don't see the loading spinner again.
-            const keep = ['poolCount_', 'deckJobs_', 'deckIndex_'];
+            const keep = ['poolCount_', 'deckJobs_', 'deckIndex_', 'deckCacheVersion_'];
             Object.keys(localStorage).forEach(key => {
                 if (!keep.some(p => key.startsWith(p))) localStorage.removeItem(key);
             });
