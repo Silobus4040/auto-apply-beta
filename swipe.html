@@ -1890,17 +1890,21 @@
         }
 
         // match-pool-jobs used to return a bare array; it now returns
-        // { jobs, total_available }. Accept BOTH shapes so the frontend and the
-        // edge function can be deployed in either order without a broken window.
+        // { jobs, total_available, pending_assigned_count }. Accept all shapes
+        // so the frontend and the edge function can be deployed in either
+        // order without a broken window. pending_assigned_count is null on an
+        // older/undeployed edge function -- callers must treat null as
+        // "unknown" (fall back to old behavior), not as "definitely zero".
         function unwrapPoolResponse(data) {
-            if (Array.isArray(data)) return { jobs: data, totalAvailable: null };
+            if (Array.isArray(data)) return { jobs: data, totalAvailable: null, pendingAssignedCount: null };
             if (data && Array.isArray(data.jobs)) {
                 return {
                     jobs: data.jobs,
                     totalAvailable: typeof data.total_available === 'number' ? data.total_available : null,
+                    pendingAssignedCount: typeof data.pending_assigned_count === 'number' ? data.pending_assigned_count : null,
                 };
             }
-            return { jobs: [], totalAvailable: null };
+            return { jobs: [], totalAvailable: null, pendingAssignedCount: null };
         }
 
         // The skeleton is visible from page load; hide it the moment we know the
@@ -1937,7 +1941,7 @@
             for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
                 try {
                     const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
-                    const { jobs, totalAvailable } = unwrapPoolResponse(data);
+                    const { jobs, totalAvailable, pendingAssignedCount } = unwrapPoolResponse(data);
                     if (totalAvailable !== null) {
                         poolAvailableCount = totalAvailable;
                         applyPoolAvailableToStats();
@@ -1956,6 +1960,29 @@
                         if (emptyState) emptyState.style.display = 'none';
                         renderSwipeStack();
                         if (userProfile && userProfile.auto_apply_enabled) await autoApplySweepAndFilter(userId);
+                        return;
+                    }
+                    // totalAvailable > 0 only means "the matching pool for this
+                    // profile is nonzero" -- it stays true even when every job in
+                    // that pool has already been assigned AND decided (swiped),
+                    // which used to make this show "Preparing your matches..."
+                    // forever for a profile with nothing new left to find (e.g. a
+                    // narrow title + strict geo eligibility with zero fresh
+                    // candidates). pendingAssignedCount (from a newer edge function)
+                    // says how many assigned jobs are ACTUALLY still awaiting a
+                    // decision -- 0 means definitively nothing is being scored, so
+                    // stop and show the honest "nothing new" state instead of
+                    // waiting out the full 3-minute retry loop for no reason.
+                    if (!error && pendingAssignedCount === 0 && !alreadyHasJobs) {
+                        hideDeckLoading();
+                        if (section) section.style.display = 'none';
+                        if (emptyState) {
+                            emptyState.style.display = '';
+                            const h3 = emptyState.querySelector('h3');
+                            const p = emptyState.querySelector('p');
+                            if (h3) h3.textContent = 'No Matching Jobs Found Yet';
+                            if (p) p.innerHTML = `Rover completed its first scan but didn't find any active listings matching your criteria. It keeps scanning in the background — new matches will appear here the moment they're found.<br><br>Try widening your search: add a few more job titles (including close variations of your role), add more countries, or uncheck a workplace-type filter if you've only selected Remote. <a href="onboarding.html?edit=true" style="color: var(--secondary); font-weight: 700;">Adjust your target settings →</a>`;
+                        }
                         return;
                     }
                     // If matches are found but not yet scored, show the waiting
