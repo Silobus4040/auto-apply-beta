@@ -763,7 +763,7 @@
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
                 <button class="sidebar-nav-item" onclick="goToMarketIntel(); if(window.innerWidth<=768) toggleSidebar();">
-                    <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Market intel
+                    <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Skill gap
                 </button>
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
@@ -786,6 +786,21 @@
                 <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 1.5rem;">Help us improve! Let us know what broke or what feature you'd like to see.</p>
                 <textarea id="feedback-text" rows="5" style="width: 100%; border: 1px solid #e4e4e7; border-radius: 12px; padding: 1rem; font-family: inherit; font-size: 0.95rem; resize: vertical; margin-bottom: 1.5rem; outline: none; transition: border-color 0.2s;" placeholder="Describe the bug or request a feature..."></textarea>
                 <button id="submit-feedback-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000;" onclick="submitFeedback()">Send Feedback</button>
+            </div>
+        </div>
+
+        <!-- Skill Gap info modal (feature not built yet) -->
+        <div class="modal-overlay" id="skill-gap-info-modal">
+            <div class="desc-modal" style="max-width: 480px; text-align: left; padding: 2.5rem;">
+                <button class="close-modal" onclick="closeModal('skill-gap-info-modal')">&times;</button>
+                <span style="display: inline-block; background: rgba(0,0,0,0.06); color: #52525B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.3rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;">Coming soon</span>
+                <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -0.5px;">📊 Skill Gap</h2>
+                <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6;">
+                    Skill Gap will show you exactly what skills the market is asking for in your target roles — pulled from every live job posting we track — and which ones your resume is currently missing. No more guessing why you're not matching; just a clear list of what to learn next.
+                </p>
+                <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6; margin-top: 0.75rem;">
+                    We're building this now. Check back soon.
+                </p>
             </div>
         </div>
 
@@ -1437,8 +1452,8 @@
             const greetingEl = document.getElementById('welcome-greeting');
             if (greetingEl && profile.first_name) {
                 greetingEl.textContent = profile.has_completed_first_login
-                    ? 'Welcome back, ' + profile.first_name
-                    : 'Welcome, ' + profile.first_name;
+                    ? `Welcome back, ${profile.first_name}`
+                    : `Welcome, ${profile.first_name}`;
                 greetingEl.style.display = 'block';
             }
             if (!profile.has_completed_first_login) {
@@ -1989,7 +2004,10 @@
                 document.getElementById('stat-rejected').textContent = displayRejected;
             }
 
-            fetchMarketIntelligence(userId);
+            // Old rejected_jobs-driven inline section retired for now -- nav
+            // click opens the "Skill Gap - coming soon" modal instead. Re-enable
+            // once the market-wide Skill Gap rebuild (see market intel.txt) ships.
+            // fetchMarketIntelligence(userId);
         }
 
         async function fetchMarketIntelligence(userId) {
@@ -2078,13 +2096,9 @@
         let currentResumeObjectUrl = null;
 
         function goToMarketIntel() {
-            const mi = document.getElementById('market-intel-section');
-            if (mi && mi.style.display !== 'none') {
-                mi.scrollIntoView({ behavior: 'smooth' });
-            } else {
-                alert("📊 Market intel builds up as Rover reviews jobs that don't match your resume. Nothing to show yet — check back after your next scan.");
-            }
+            document.getElementById('skill-gap-info-modal').classList.add('active');
         }
+        if (location.hash === '#skill-gap') goToMarketIntel();
 
         const STATUS_FILTER_DEFS = [
             { key: 'all', label: 'All' },
@@ -2163,6 +2177,14 @@
                             ${deckCta}
                         </div>`;
                 } else if (isScanning) {
+                    // The rotator plays once via CSS animation-delay (msg 1 -> msg 2
+                    // -> "Almost there", which then holds). Polling calls renderJobs()
+                    // every 15s regardless of state; rebuilding this innerHTML each
+                    // time restarts the animation from 0s, so it looked like it kept
+                    // looping back to "just started roving" forever. Skip the rebuild
+                    // if the rotator is already showing -- nothing else in this branch
+                    // is dynamic, so there's nothing to refresh.
+                    if (container.querySelector('.scan-rotator')) return;
                     container.innerHTML = `
                         <div class="rover-loading">
                             <svg class="rover-loading-svg" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">

@@ -739,6 +739,7 @@
         }
         .swipe-btn:hover { transform: translateY(-2px) scale(1.05); }
         .swipe-btn.pass:hover { border-color: #DC2626; }
+        .swipe-btn.later:hover { border-color: #475569; }
         .swipe-btn.apply:hover { border-color: #10B981; }
         .swipe-empty { text-align: center; padding: 3rem 1.5rem; }
 
@@ -793,7 +794,7 @@
 
         /* ===== Action bar — fused to the bottom of the top card, no gap/seam ===== */
         .swipe-actions{
-            gap: 1rem !important; margin-top: 0 !important;
+            gap: 1rem !important; margin-top: 0 !important; flex-wrap: wrap !important;
             background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important;
             -webkit-backdrop-filter: blur(26px) saturate(185%);
             backdrop-filter: blur(26px) saturate(185%);
@@ -815,12 +816,14 @@
         }
         .swipe-btn .swipe-btn-ico{ font-size: 1.1rem; line-height:1; }
         .swipe-btn.pass{ color:#b91c1c; }
+        .swipe-btn.later{ color:#475569; }
         .swipe-btn.apply{
             background: linear-gradient(135deg, rgba(212,255,51,.9), rgba(0,255,204,.75)) !important;
             color:#053b2e;
         }
         .swipe-btn:hover{ transform: translateY(-3px) scale(1.03) !important; }
         .swipe-btn.pass:hover{ border-color: rgba(220,38,38,.5) !important; }
+        .swipe-btn.later:hover{ border-color: rgba(71,85,105,.5) !important; }
         .swipe-btn.apply:hover{ box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 18px 34px -14px rgba(0,200,150,.6) !important; }
 
         /* ===== Short screens (~600-720px viewport) =====
@@ -841,8 +844,8 @@
             .swipe-card-geo-badge { margin-top: 0.4rem; margin-bottom: 0.5rem; }
             .swipe-card-fit-badge { padding: 0.45rem 0.6rem; margin-bottom: 0.5rem; }
             .swipe-card-readmore { padding-top: 0.5rem; }
-            .swipe-actions { padding: 0.6rem 0 0.75rem !important; gap: 0.75rem !important; }
-            .swipe-btn { height: 44px !important; min-width: 112px; font-size: 0.85rem !important; }
+            .swipe-actions { padding: 0.6rem 0 0.75rem !important; gap: 0.5rem !important; }
+            .swipe-btn { height: 44px !important; min-width: 92px; padding: 0 0.9rem !important; font-size: 0.78rem !important; }
         }
     </style>
 
@@ -904,7 +907,7 @@
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
                 <button class="sidebar-nav-item" onclick="goToMarketIntel(); if(window.innerWidth<=768) toggleSidebar();">
-                    <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Market intel
+                    <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Skill gap
                 </button>
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
@@ -1020,7 +1023,8 @@
         <div id="swipe-deck-section" style="display: none;">
             <div class="swipe-stack" id="swipe-stack"></div>
             <div class="swipe-actions">
-                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Skip"><span class="swipe-btn-ico">✕</span> Skip</button>
+                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Decline"><span class="swipe-btn-ico">✕</span> Decline</button>
+                <button class="swipe-btn later" onclick="skipJobForNow()" title="Skip for now"><span class="swipe-btn-ico">⏭</span> Skip for now</button>
                 <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply"><span class="swipe-btn-ico">✓</span> Apply</button>
             </div>
         </div>
@@ -2170,7 +2174,7 @@
                 const locationLine = [placeText, job.workplace_type].filter(Boolean).join(' · ');
                 const jobIndexInPool = pooledJobIndex + (visible.length - 1 - i);
                 card.innerHTML = `
-                    <div class="swipe-card-stamp pass">Skip</div>
+                    <div class="swipe-card-stamp pass">Decline</div>
                     <div class="swipe-card-stamp apply">Apply</div>
                     <div class="swipe-card-header">
                         ${job.company_domain ? `<img class="swipe-card-logo" src="https://www.google.com/s2/favicons?domain=${escapeHtml(job.company_domain)}&sz=128" onerror="this.remove()" alt="">` : ''}
@@ -2293,6 +2297,30 @@
             const job = pooledJobs[pooledJobIndex];
             if (!job) return;
             finishSwipe(topCard, job, decision);
+        }
+
+        // "Skip for now" is deliberately NOT a decision -- no user_job_swipes
+        // row is written, so the job is never excluded from match-pool-jobs.
+        // It's just moved to the back of the current in-memory queue so the
+        // user can come back to it later in this same session (a fresh
+        // fetch/top-up will also keep returning it, same as any other
+        // not-yet-decided job).
+        function skipJobForNow() {
+            const stack = document.getElementById('swipe-stack');
+            if (!stack) return;
+            const topCard = stack.lastElementChild;
+            if (!topCard || topCard.classList.contains('swipe-empty')) return;
+            const job = pooledJobs[pooledJobIndex];
+            if (!job) return;
+
+            pooledJobs.splice(pooledJobIndex, 1);
+            pooledJobs.push(job);
+            if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
+
+            topCard.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+            topCard.style.transform = 'translateY(-500px)';
+            topCard.style.opacity = '0';
+            setTimeout(renderSwipeStack, 280);
         }
 
         function wait(ms) {
@@ -2555,9 +2583,9 @@
 
         let currentResumeObjectUrl = null;
 
-        // Market intel lives on the dashboard now; this page only swipes.
+        // Skill Gap lives on the dashboard now; this page only swipes.
         function goToMarketIntel() {
-            window.location.href = 'dashboard.html#market-intel-section';
+            window.location.href = 'dashboard.html#skill-gap';
         }
 
 
