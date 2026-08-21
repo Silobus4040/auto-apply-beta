@@ -264,6 +264,26 @@
             100% { opacity: 0; }
         }
 
+        /* Notable companies marquee */
+        .logo-marquee-wrap { max-width: 1400px; margin: 3rem auto 0; padding: 0 5%; }
+        .logo-marquee-eyebrow { text-align: center; font-size: 0.85rem; color: #52525B; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 1.5rem; }
+        .logo-marquee-section { overflow: hidden; -webkit-mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(to right, transparent, #000 8%, #000 92%, transparent); }
+        .logo-marquee-track { display: flex; align-items: center; width: max-content; gap: 4rem; animation: logo-marquee-scroll 32s linear infinite; }
+        .logo-marquee-section:hover .logo-marquee-track { animation-play-state: paused; }
+        .logo-marquee-item { font-size: 1.35rem; font-weight: 900; letter-spacing: -0.5px; color: #a1a1aa; text-transform: uppercase; white-space: nowrap; transition: color 0.3s ease; cursor: default; }
+        .logo-marquee-item:hover { color: #000000; }
+        @keyframes logo-marquee-scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .logo-marquee-track { animation: none; flex-wrap: wrap; justify-content: center; gap: 2rem; }
+        }
+        @media (max-width: 768px) {
+            .logo-marquee-item { font-size: 1.05rem; }
+            .logo-marquee-track { gap: 2.5rem; }
+        }
+
         /* Proof stats strip */
         .proof-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; max-width: 1400px; margin: 3rem auto 0; padding: 0 5%; }
         .proof-cell { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.03); }
@@ -507,6 +527,41 @@
             </div>
         </div>
     </section>
+
+    <!-- Notable companies marquee -->
+    <div class="logo-marquee-wrap reveal">
+        <p class="logo-marquee-eyebrow">Among the companies Rover watches, 24/7</p>
+        <div class="logo-marquee-section">
+            <div class="logo-marquee-track">
+                <span class="logo-marquee-item">OpenAI</span>
+                <span class="logo-marquee-item">Stripe</span>
+                <span class="logo-marquee-item">Anthropic</span>
+                <span class="logo-marquee-item">SpaceX</span>
+                <span class="logo-marquee-item">Airbnb</span>
+                <span class="logo-marquee-item">Notion</span>
+                <span class="logo-marquee-item">Reddit</span>
+                <span class="logo-marquee-item">Pinterest</span>
+                <span class="logo-marquee-item">Coinbase</span>
+                <span class="logo-marquee-item">Discord</span>
+                <span class="logo-marquee-item">Figma</span>
+                <span class="logo-marquee-item">MongoDB</span>
+                <span class="logo-marquee-item">Plaid</span>
+                <span class="logo-marquee-item" aria-hidden="true">OpenAI</span>
+                <span class="logo-marquee-item" aria-hidden="true">Stripe</span>
+                <span class="logo-marquee-item" aria-hidden="true">Anthropic</span>
+                <span class="logo-marquee-item" aria-hidden="true">SpaceX</span>
+                <span class="logo-marquee-item" aria-hidden="true">Airbnb</span>
+                <span class="logo-marquee-item" aria-hidden="true">Notion</span>
+                <span class="logo-marquee-item" aria-hidden="true">Reddit</span>
+                <span class="logo-marquee-item" aria-hidden="true">Pinterest</span>
+                <span class="logo-marquee-item" aria-hidden="true">Coinbase</span>
+                <span class="logo-marquee-item" aria-hidden="true">Discord</span>
+                <span class="logo-marquee-item" aria-hidden="true">Figma</span>
+                <span class="logo-marquee-item" aria-hidden="true">MongoDB</span>
+                <span class="logo-marquee-item" aria-hidden="true">Plaid</span>
+            </div>
+        </div>
+    </div>
 
     <!-- Proof stats strip -->
     <section class="proof-strip reveal">
