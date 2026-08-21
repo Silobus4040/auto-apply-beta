@@ -1,0 +1,29 @@
+# One-off n8n/Supabase admin & debug scripts — these hardcode live API
+# keys (n8n admin key, Supabase service_role key) and must never be
+# committed. GitHub Pages serves every tracked file in this repo publicly,
+# so an untracked file here is the only thing keeping its secrets private.
+add-filter-node.js
+append-ai-nodes.js
+fix-apify-node.js
+fix-n8n-resume.js
+inspect-workflow.js
+recreate-workflow.js
+setup-n8n.js
+setup-n8n-v2.js
+setup-n8n-v3.js
+create-validation-workflow.js
+get-workflow.js
+search-respond-workflows.js
+update-resume-processor.js
+update-validation-workflow.js
+setup-apply-workflow.js
+check-n8n-executions.js
+check-job-applications.js
+check-supabase-profile.js
+check-saved-jobs.js
+workflow.json
+
+# Local env / scratch
+.env
+.env.local
+scratch/
