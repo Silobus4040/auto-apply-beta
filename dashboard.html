@@ -796,7 +796,7 @@
                 <span style="display: inline-block; background: rgba(0,0,0,0.06); color: #52525B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.3rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;">Coming soon</span>
                 <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -0.5px;">📊 Skill Gap</h2>
                 <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6;">
-                    Skill Gap will show you exactly what skills the market is asking for in your target roles — pulled from every live job posting we track — and which ones your resume is currently missing. No more guessing why you're not matching; just a clear list of what to learn next.
+                    Skill Gap will accumulate the exact skills the market is asking for in your target roles pulled from every live job posting we track — and which ones your resume is currently missing. No more guessing why you're not matching; just a clear list of what to learn next.
                 </p>
                 <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6; margin-top: 0.75rem;">
                     We're building this now. Check back soon.
@@ -1728,7 +1728,7 @@
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 const jwt = session ? session.access_token : '';
 
-                fetch('https://n8n.leadscompass.ai/webhook/user-jobscrape', {
+                fetch('https://n8n.leadscompass.ai/webhook/onboarding-resume', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
