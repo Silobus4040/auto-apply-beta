@@ -2,6 +2,14 @@
 <html lang="en">
 <head>
     <script>if (window.location.hostname === 'jobs.leadscompass.ai') window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search);</script>
+    <script>
+        // Apply saved theme before first paint, so there's no flash of the wrong theme.
+        (function() {
+            const saved = localStorage.getItem('theme_preference') || 'system';
+            const resolved = saved === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
+            if (resolved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AutoApply AI | Dashboard</title>
@@ -29,6 +37,13 @@
             --text-heading: #000000;
             --text-body: #27272A;
             --border: #e4e4e7;
+        }
+        [data-theme="dark"] {
+            --bg-color: #18181b;
+            --surface-color: #232326;
+            --text-heading: #fafafa;
+            --text-body: #d4d4d8;
+            --border: #3f3f46;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; position: relative; min-height: 100vh; }
@@ -499,6 +514,26 @@
            as just another item after Settings. */
         .sidebar-nav-item.sidebar-nav-logout { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); }
         .sidebar-account-avatar { width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.65rem; flex-shrink: 0; background: #e4e4e7; color: #71717a; }
+        .sidebar-account-menu-wrapper { margin-top: auto; padding-top: 1rem; border-top: 1px solid var(--border); position: relative; }
+        .sidebar-account-popover {
+            display: none; position: absolute; bottom: calc(100% + 0.5rem); left: 0; right: 0;
+            background: var(--surface-color); border: 1px solid var(--border); border-radius: 10px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12); padding: 0.75rem; z-index: 50;
+        }
+        .sidebar-account-popover.active { display: block; }
+        .account-popover-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: #71717a; margin-bottom: 0.5rem; padding: 0 0.25rem; }
+        .theme-toggle-group { display: flex; background: rgba(0,0,0,0.04); border-radius: 8px; padding: 0.2rem; gap: 0.2rem; margin-bottom: 0.6rem; }
+        .theme-option {
+            flex: 1; border: none; background: transparent; padding: 0.45rem 0; border-radius: 6px;
+            font-size: 0.78rem; font-weight: 600; color: var(--text-body); cursor: pointer; transition: all 0.15s;
+        }
+        .theme-option.active { background: var(--surface-color); color: var(--text-heading); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .account-popover-divider { height: 1px; background: var(--border); margin: 0.5rem 0; }
+        .account-popover-logout {
+            width: 100%; text-align: left; border: none; background: transparent; padding: 0.5rem 0.25rem;
+            font-size: 0.85rem; font-weight: 600; color: #ef4444; cursor: pointer; border-radius: 6px;
+        }
+        .account-popover-logout:hover { background: rgba(239, 68, 68, 0.08); }
         .sidebar-badge {
             margin-left: auto; background: var(--secondary); color: #fff; font-size: 0.65rem;
             padding: 0.1rem 0.5rem; border-radius: 10px; font-weight: 700; min-width: 20px; text-align: center;
@@ -768,10 +803,22 @@
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
                 </button>
-                <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
-                    <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
-                    Log Out
-                </button>
+                <div class="sidebar-account-menu-wrapper">
+                    <button class="sidebar-nav-item" onclick="toggleAccountMenu(event)" id="sidebar-account-trigger">
+                        <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
+                        Account
+                    </button>
+                    <div class="sidebar-account-popover" id="sidebar-account-popover">
+                        <div class="account-popover-label">Appearance</div>
+                        <div class="theme-toggle-group">
+                            <button class="theme-option" data-theme-choice="light" onclick="setTheme('light')">Light</button>
+                            <button class="theme-option" data-theme-choice="dark" onclick="setTheme('dark')">Dark</button>
+                            <button class="theme-option" data-theme-choice="system" onclick="setTheme('system')">System</button>
+                        </div>
+                        <div class="account-popover-divider"></div>
+                        <button class="account-popover-logout" onclick="logout()">Log Out</button>
+                    </div>
+                </div>
             </div>
         </aside>
 
@@ -1099,11 +1146,6 @@
                     </label>
                 </div>
             </div>
-            <div class="form-group" style="margin-bottom: 2rem; text-align: left;">
-                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Master Resume (PDF only)</label>
-                <input type="file" id="set-resume" accept=".pdf" style="width: 100%; font-family: inherit; font-size: 0.85rem;">
-                <p style="font-size: 0.75rem; color: #EF4444; margin-top: 0.5rem;">Leave empty to keep your current resume.</p>
-            </div>
             <button id="save-settings-btn" class="btn" style="width: 100%;" onclick="saveSettings()">Update Profile</button>
         </div>
     </div>
@@ -1313,7 +1355,7 @@
         }
 
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFocHZkY2Rwd3RkZW9pYXRqdm5xIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY3NzkzOTgsImV4cCI6MjA5MjM1NTM5OH0.CtrIL_U2y4Ffu8BBENNzloAkWBkvcq3WAhEeROH1LC0';
+        const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentJobs = [];
@@ -2431,14 +2473,6 @@
                 
                 let updateData = { target_job_titles: roles, target_location: countries, workplace_type: wps };
 
-                const fileInput = document.getElementById('set-resume');
-                if (fileInput.files.length > 0) {
-                    const fileName = `${user.id}_${Date.now()}.pdf`;
-                    await supabaseClient.storage.from('resumes').upload(fileName, fileInput.files[0]);
-                    const { data: { publicUrl } } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
-                    updateData.resume_url = publicUrl;
-                }
-
                 await supabaseClient.from('profiles').update(updateData).eq('id', user.id);
                 closeModal('settings-modal');
                 alert('Profile updated successfully!');
@@ -2450,6 +2484,36 @@
         }
 
         function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        function toggleAccountMenu(event) {
+            if (event) event.stopPropagation();
+            document.getElementById('sidebar-account-popover').classList.toggle('active');
+        }
+        document.addEventListener('click', (e) => {
+            const popover = document.getElementById('sidebar-account-popover');
+            const trigger = document.getElementById('sidebar-account-trigger');
+            if (popover && popover.classList.contains('active') && !popover.contains(e.target) && e.target !== trigger && !trigger.contains(e.target)) {
+                popover.classList.remove('active');
+            }
+        });
+
+        function setTheme(choice) {
+            localStorage.setItem('theme_preference', choice);
+            const resolved = choice === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : choice;
+            if (resolved === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+            }
+            syncThemeButtons();
+        }
+        function syncThemeButtons() {
+            const saved = localStorage.getItem('theme_preference') || 'system';
+            document.querySelectorAll('.theme-option').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.themeChoice === saved);
+            });
+        }
+        syncThemeButtons();
 
         async function logout() {
             await supabaseClient.auth.signOut();
