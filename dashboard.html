@@ -880,6 +880,12 @@
         </div>
 
         <!-- Activation Gate: shown until a valid invite code is redeemed. No scraping/applying happens before this. -->
+        <div id="resume-invalid-banner" style="display: none; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.25); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.75rem;">
+            <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; color: #B91C1C;">We couldn't find a résumé in your upload</h2>
+            <p style="color: #71717A; font-size: 0.95rem; margin-bottom: 0.5rem; max-width: 640px;">The file you uploaded doesn't look like a résumé, so Rover hasn't been able to tailor anything for you yet. Reach out to support and we'll get it sorted.</p>
+            <p id="resume-invalid-reason" style="color: #B91C1C; font-size: 0.85rem; font-weight: 700;"></p>
+        </div>
+
         <div id="activation-gate-banner" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.75rem;">
             <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">Activate Rover</h2>
             <p style="color: #71717A; font-size: 0.95rem; margin-bottom: 1.25rem; max-width: 640px;">You're all set up — Rover just needs an invite code to start scanning and applying for you. Don't have one yet? You're on the list; we'll email you when it's your turn.</p>
@@ -1476,7 +1482,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_completed_first_login')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, resume_invalid, resume_invalid_reason, target_job_titles, target_location, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_completed_first_login')
                 .eq('id', user.id)
                 .single();
 
@@ -1630,6 +1636,11 @@
             // The invite code is what actually starts automation - not
             // signup, not onboarding. If this account hasn't redeemed one
             // yet, hold the scrape and show the activation gate instead.
+            if (profile.resume_invalid) {
+                document.getElementById('resume-invalid-reason').textContent = profile.resume_invalid_reason || '';
+                document.getElementById('resume-invalid-banner').style.display = 'block';
+            }
+
             if (!profile.is_activated) {
                 document.getElementById('activation-gate-banner').style.display = 'block';
             } else if (localStorage.getItem('trigger_initial_scrape') === 'true') {
