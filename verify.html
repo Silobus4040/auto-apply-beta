@@ -246,7 +246,7 @@
             <div style="margin-bottom: 1rem; text-align: left;">
                 <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">NEW PASSWORD</label>
                 <div style="position:relative;">
-                    <input type="password" id="new-password" placeholder="At least 8 characters" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                    <input type="password" id="new-password" autocomplete="new-password" placeholder="At least 8 characters" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
                     <button type="button" onclick="togglePasswordVisibility('new-password', 'new-password-eye')" aria-label="Show password" style="position:absolute; top:50%; right:0.9rem; transform:translateY(-50%); background:none; border:none; padding:0.2rem; cursor:pointer; color:#71717A; display:flex; align-items:center;">
                         <svg id="new-password-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
@@ -258,7 +258,7 @@
             <div style="margin-bottom: 1.25rem; text-align: left;">
                 <label style="display:block; font-size:0.8rem; font-weight:700; color:#52525B; margin-bottom:0.35rem;">CONFIRM NEW PASSWORD</label>
                 <div style="position:relative;">
-                    <input type="password" id="confirm-password" placeholder="Re-enter password" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
+                    <input type="password" id="confirm-password" autocomplete="new-password" placeholder="Re-enter password" style="width:100%; padding:0.85rem 2.75rem 0.85rem 1rem; border:1px solid var(--border); border-radius:12px; font-size:1rem;">
                     <button type="button" onclick="togglePasswordVisibility('confirm-password', 'confirm-password-eye')" aria-label="Show password" style="position:absolute; top:50%; right:0.9rem; transform:translateY(-50%); background:none; border:none; padding:0.2rem; cursor:pointer; color:#71717A; display:flex; align-items:center;">
                         <svg id="confirm-password-eye" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
@@ -479,6 +479,12 @@
 
             const newPassword = document.getElementById('new-password').value;
             const confirmPassword = document.getElementById('confirm-password').value;
+
+            if (newPassword !== newPassword.trim() || confirmPassword !== confirmPassword.trim()) {
+                pwErrorMsg.textContent = 'Password cannot start or end with a space. Remove the extra space and try again.';
+                pwErrorMsg.style.display = 'block';
+                return;
+            }
 
             if (newPassword.length < 8) {
                 pwErrorMsg.textContent = 'Password must be at least 8 characters.';
