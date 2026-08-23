@@ -1714,7 +1714,7 @@
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 const jwt = session ? session.access_token : '';
 
-                fetch('https://n8n.leadscompass.ai/webhook/user-jobscrape', {
+                fetch('https://n8n.leadscompass.ai/webhook/onboarding-resume', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
