@@ -707,6 +707,35 @@
             white-space: normal; border-radius: 8px;
         }
         .swipe-card-tag.fit-gap { background: #FEF2F2; color: #DC2626; }
+        .swipe-card-tag.fit-gap-action {
+            border: 1px solid #FECACA;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+        .swipe-card-tag.fit-gap-action:hover {
+            background: #FEE2E2;
+            border-color: #FCA5A5;
+        }
+        .swipe-card-tag.fit-gap-action.is-saving {
+            background: #F4F4F5;
+            border-color: var(--border);
+            color: #71717A;
+            cursor: wait;
+        }
+        .swipe-card-tag.fit-gap-action.is-added {
+            background: #ECFDF5;
+            border-color: #A7F3D0;
+            color: #047857;
+            cursor: default;
+        }
+        .swipe-card-tag.fit-gap-action.is-error {
+            background: #FEF2F2;
+            border-color: #EF4444;
+            color: #B91C1C;
+        }
         .swipe-card-tags-more { display: none; margin-top: 0.4rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags.is-clamped ~ .swipe-card-tags-more { display: inline-block; }
         /* margin-top:auto anchors this to the card's bottom edge so leftover
@@ -1495,6 +1524,7 @@
             }
 
             await fetchUserJobs();
+            await loadConfirmedSkills(user.id);
             setupRealtime(user.id);
 
             // The invite code is what actually starts automation - not
@@ -1862,6 +1892,8 @@
         let pooledJobs = [];
         let pooledJobIndex = 0;
         let autoApplySweepRunning = false;
+        let confirmedSkillNames = new Set();
+        const pendingSkillWrites = new Map();
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
         // Bump this whenever the cached shape/semantics of deckJobs_/deckIndex_
@@ -2070,6 +2102,89 @@
             return div.innerHTML;
         }
 
+        function normalizeSkillName(skill) {
+            return String(skill || '').trim().toLowerCase().replace(/\s+/g, ' ');
+        }
+
+        async function loadConfirmedSkills(userId) {
+            if (!userId) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profile_confirmed_skills')
+                    .select('skill_name, normalized_skill_name')
+                    .eq('user_id', userId);
+                if (error) throw error;
+                confirmedSkillNames = new Set((data || []).map(row => row.normalized_skill_name || normalizeSkillName(row.skill_name)).filter(Boolean));
+            } catch (err) {
+                console.error('Failed to load confirmed skills', err);
+            }
+        }
+
+        async function addConfirmedSkill(jobIndex, skill) {
+            const normalized = normalizeSkillName(skill);
+            if (!normalized || confirmedSkillNames.has(normalized)) return;
+            if (pendingSkillWrites.has(normalized)) return pendingSkillWrites.get(normalized);
+
+            const writePromise = (async () => {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (!user) throw new Error('No signed-in user');
+                const job = pooledJobs[jobIndex] || {};
+                const { error } = await supabaseClient
+                    .from('profile_confirmed_skills')
+                    .upsert({
+                        user_id: user.id,
+                        skill_name: String(skill || '').trim(),
+                        normalized_skill_name: normalized,
+                        source: 'swipe_gap_chip',
+                        job_pool_id: job.id || null
+                    }, { onConflict: 'user_id,normalized_skill_name' });
+                if (error) throw error;
+                confirmedSkillNames.add(normalized);
+            })();
+
+            pendingSkillWrites.set(normalized, writePromise);
+            updateGapChipState(normalized, 'saving');
+            try {
+                await writePromise;
+                updateGapChipState(normalized, 'added');
+            } catch (err) {
+                console.error('Failed to add confirmed skill', err);
+                updateGapChipState(normalized, 'error');
+                throw err;
+            } finally {
+                pendingSkillWrites.delete(normalized);
+            }
+        }
+
+        function addConfirmedSkillFromChip(btn, jobIndex) {
+            if (!btn || btn.disabled) return;
+            addConfirmedSkill(jobIndex, btn.dataset.skillLabel || '').catch(() => {});
+        }
+
+        function updateGapChipState(normalized, state) {
+            document.querySelectorAll(`[data-gap-skill="${CSS.escape(normalized)}"]`).forEach(btn => {
+                btn.classList.toggle('is-saving', state === 'saving');
+                btn.classList.toggle('is-added', state === 'added');
+                btn.classList.toggle('is-error', state === 'error');
+                if (state === 'saving') {
+                    btn.disabled = true;
+                    btn.textContent = `${btn.dataset.skillLabel} ...`;
+                } else if (state === 'added') {
+                    btn.disabled = true;
+                    btn.textContent = `${btn.dataset.skillLabel} added`;
+                } else if (state === 'error') {
+                    btn.disabled = false;
+                    btn.textContent = `${btn.dataset.skillLabel} retry`;
+                }
+            });
+        }
+
+        async function waitForPendingSkillWrites() {
+            const writes = Array.from(pendingSkillWrites.values());
+            if (!writes.length) return;
+            await Promise.all(writes);
+        }
+
         function buildGeoBadge(job) {
             const scope = job.remote_geo_scope;
             if (!scope || scope === 'not_remote') return '';
@@ -2108,7 +2223,17 @@
             // a lower score shouldn't also read as a red-flag warning color.
             const colorClass = 'fit-high';
             const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
-            const tags = missing.map(s => `<span class="swipe-card-tag fit-gap">${escapeHtml(s)}</span>`).join('');
+            const tags = missing.map(s => {
+                const label = String(s || '').trim();
+                const normalized = normalizeSkillName(label);
+                if (!label || !normalized) return '';
+                const isAdded = confirmedSkillNames.has(normalized);
+                const isSaving = pendingSkillWrites.has(normalized);
+                const stateClass = isAdded ? ' is-added' : (isSaving ? ' is-saving' : '');
+                const stateText = isAdded ? ' added' : (isSaving ? ' ...' : ' +');
+                const disabled = isAdded || isSaving ? ' disabled' : '';
+                return `<button type="button" class="swipe-card-tag fit-gap fit-gap-action${stateClass}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(label)}" onclick="event.stopPropagation(); addConfirmedSkillFromChip(this, ${jobIndex})"${disabled} aria-label="Add ${escapeHtml(label)} to your profile">${escapeHtml(label)}${stateText}</button>`;
+            }).join('');
             const tagsLikelyClamped = missing.length > 1 || (missing[0] && missing[0].length > 20);
 
             const rawReason = job.fit_reason || '';
@@ -2344,6 +2469,15 @@
         }
 
         async function finishSwipe(card, job, decision) {
+            if (decision === 'apply') {
+                try {
+                    await waitForPendingSkillWrites();
+                } catch (err) {
+                    alert('One skill could not be added yet. Please retry it or apply without adding it.');
+                    return;
+                }
+            }
+
             card.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
             card.style.transform = decision === 'apply'
                 ? 'translateX(600px) rotate(20deg)'
@@ -2396,12 +2530,6 @@
         // backend veto this used to lean on was deliberately removed
         // entirely for every swipe-initiated call, automatic or manual.
         async function submitApplyForJob(userId, job) {
-            fetch(SWIPE_WEBHOOK_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, job_pool_id: job.id })
-            }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
-
             try {
                 await supabaseClient.from('user_job_swipes').upsert(
                     { user_id: userId, job_pool_id: job.id, decision: 'apply' },
@@ -2410,6 +2538,12 @@
             } catch (err) {
                 console.error('Failed to record swipe', err);
             }
+
+            await fetch(SWIPE_WEBHOOK_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: userId, job_pool_id: job.id })
+            }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
         }
 
         function initAutoApplyToggle(profile) {
