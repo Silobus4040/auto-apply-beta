@@ -2339,8 +2339,8 @@
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
-                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="window.open('${job.resumeUrl}', '_blank', 'noopener')">Custom Resume</button>` : '';
-                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="window.open('${job.coverLetterUrl}', '_blank', 'noopener')">Custom Cover Letter</button>` : '';
+                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">Custom Resume</button>` : '';
+                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" style="margin-top: 0.35rem;" onclick="openDocument(${index}, 'coverLetter')">Custom Cover Letter</button>` : '';
                 const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
                 // Reassure the user Rover is handling this, not asking them to -- see
                 // memory: "Needs Review" implied a human reviewer that doesn't exist.
