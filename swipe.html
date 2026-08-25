@@ -686,42 +686,30 @@
            display:inline (not inline-block) so it wraps as part of the same
            line as the text rather than needing a row of its own. */
         .swipe-card-fit-more { display: inline; margin-left: 0.35rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
-        /* Hard cap, independent of how many gap categories/items a job has.
-           is-categorized mode is a plain block stack (see below) with no
-           natural clip -- 0 gaps renders no wrap at all (fine), but any
-           real gap list could otherwise grow past the fixed-height card
-           and silently push "Read full description" off the bottom
-           (.swipe-card clips at its own edge, so anything past it just
-           vanishes, not scrolls). Capping + scrolling here instead of
-           letting flexbox squeeze it keeps every other row's size
-           predictable regardless of gap count. */
-        .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; flex-shrink: 0; max-height: 7rem; overflow-y: auto; overflow-x: hidden; }
+        /* Hard cap, independent of how many gap categories/items a job has --
+           a plain overflow:hidden clip, no scrollbar. is-categorized mode is
+           a block stack with no natural clip of its own, and .swipe-card
+           silently drops anything past its own fixed-height edge (not a
+           scroll), so this box must never grow past what "Read full
+           description" needs below it. "more" opens the full list in the
+           existing full-screen modal instead (see showFitGapsModal) --
+           same fix already proven for the fit-reason text: the modal isn't
+           inside the clipped card, so there's no ancestor overflow to fight. */
+        .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; flex-shrink: 0; max-height: 5rem; overflow: hidden; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
         .swipe-card-fit-tags.is-categorized { display: block; }
         .swipe-card-gap-group { margin-bottom: 0.45rem; }
         .swipe-card-gap-group:last-child { margin-bottom: 0; }
         .swipe-card-gap-items { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
-        .swipe-card-fit-tags.expanded .swipe-card-gap-items {
-            flex-direction: column; align-items: stretch; overflow: visible;
-        }
-        /* A child's overflow:visible can't escape an ancestor's overflow:
-           hidden -- .swipe-card clips at its own edge regardless, so a long
-           gap tag expanding inline still got cut off mid-word (confirmed
-           live 2026-07-28, a real Coinbase posting). Same fix already proven
-           on .swipe-card-fit-reason-full: stack vertically, cap height, and
-           scroll internally instead of trying to grow past the fixed-height
-           card. Also switches the pill shape to a softer rounded rect --
-           border-radius:50px (a true pill) reads fine for one short line,
-           but looks wrong once wrapped across four lines. */
-        .swipe-card-fit-tags.expanded {
-            flex-direction: column; flex-wrap: nowrap; align-items: stretch;
-            max-height: 8rem; overflow-y: auto; overflow-x: hidden;
-        }
+        /* Inline expansion (stack + scroll inside the card) was replaced by
+           showFitGapsModal -- a long gap tag expanding in place still got cut
+           off mid-word by .swipe-card's own edge clip regardless of how the
+           expansion was tuned (confirmed live 2026-07-28, a real Coinbase
+           posting; recurred as the vanished "Read full description" bug,
+           2026-08-25). The modal isn't inside that clipped box, so there's
+           no ancestor overflow left to fight. */
         .swipe-card-tag { flex-shrink: 0; white-space: nowrap; }
-        .swipe-card-fit-tags.expanded .swipe-card-tag {
-            white-space: normal; border-radius: 8px;
-        }
         .swipe-card-tag.fit-gap { background: #FEF2F2; color: #DC2626; }
         .swipe-card-tag.fit-gap-action {
             border: 1px solid #FECACA;
@@ -2348,7 +2336,7 @@
                 ${tags ? `
                 <div class="swipe-card-fit-tags-wrap">
                     <div class="swipe-card-fit-tags is-categorized${tagsLikelyClamped ? ' is-clamped' : ''}">${tags}</div>
-                    <button type="button" class="swipe-card-tags-more" onclick="event.stopPropagation(); toggleFitTags(this)">more</button>
+                    <button type="button" class="swipe-card-tags-more" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">more</button>
                 </div>` : ''}
             `;
         }
@@ -2400,7 +2388,7 @@
                     </div>
                     ${buildGeoBadge(job)}
                     ${buildFitScoreBadge(job, jobIndexInPool)}
-                    <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Read full description →</button>
+                    <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Read Job description →</button>
                 `;
 
                 if (depthFromTop === 0) {
@@ -2437,12 +2425,30 @@
             document.getElementById('desc-modal').classList.add('active');
         }
 
-        function toggleFitTags(btn) {
-            const wrap = btn.closest('.swipe-card-fit-tags-wrap');
-            const tags = wrap && wrap.querySelector('.swipe-card-fit-tags');
-            if (!tags) return;
-            const expanded = tags.classList.toggle('expanded');
-            btn.textContent = expanded ? 'less' : 'more';
+        // Full gap list, grouped by category, opened via "more" -- same
+        // full-screen modal used for the job description and fit reason,
+        // deliberately reused instead of expanding inline (see the
+        // .swipe-card-fit-tags-wrap comment for why inline expansion inside
+        // the fixed-height card kept losing content).
+        function showFitGapsModal(jobIndex) {
+            const job = pooledJobs[jobIndex];
+            if (!job) return;
+            const missing = normalizeFitGaps(job.fit_missing_skills);
+            const grouped = Object.keys(GAP_CATEGORY_LABELS)
+                .map(category => ({ category, gaps: missing.filter(gap => gap.category === category) }))
+                .filter(group => group.gaps.length);
+            const html = grouped.map(group => `
+                <div style="margin-bottom: 1.5rem;">
+                    <div style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.6rem;">${escapeHtml(GAP_CATEGORY_LABELS[group.category])}</div>
+                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                        ${group.gaps.map(gap => `<span class="swipe-card-tag fit-gap fit-gap-static" style="white-space: normal; padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+            document.getElementById('modal-title').innerText = job.title || 'Role';
+            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-text').innerHTML = html || 'No gaps found.';
+            document.getElementById('desc-modal').classList.add('active');
         }
 
         function openSwipeJobDescription(index) {
