@@ -689,6 +689,13 @@
         .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
+        .swipe-card-fit-tags.is-categorized { display: block; }
+        .swipe-card-gap-group { margin-bottom: 0.45rem; }
+        .swipe-card-gap-group:last-child { margin-bottom: 0; }
+        .swipe-card-gap-items { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
+        .swipe-card-fit-tags.expanded .swipe-card-gap-items {
+            flex-direction: column; align-items: stretch; overflow: visible;
+        }
         /* A child's overflow:visible can't escape an ancestor's overflow:
            hidden -- .swipe-card clips at its own edge regardless, so a long
            gap tag expanding inline still got cut off mid-word (confirmed
@@ -735,6 +742,9 @@
             background: #FEF2F2;
             border-color: #EF4444;
             color: #B91C1C;
+        }
+        .swipe-card-tag.fit-gap-static {
+            display: inline-flex; align-items: center; border: 1px solid #FECACA;
         }
         .swipe-card-tags-more { display: none; margin-top: 0.4rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
         .swipe-card-fit-tags.is-clamped ~ .swipe-card-tags-more { display: inline-block; }
@@ -2105,6 +2115,46 @@
             return String(skill || '').trim().toLowerCase().replace(/\s+/g, ' ');
         }
 
+        const GAP_CATEGORY_LABELS = {
+            skill: 'Missing skills',
+            tool: 'Missing tools',
+            experience: 'Missing experience',
+            requirement: 'Missing requirements',
+            other: 'Other gaps'
+        };
+
+        function normalizeGapCategory(category) {
+            const value = String(category || '').trim().toLowerCase();
+            return Object.prototype.hasOwnProperty.call(GAP_CATEGORY_LABELS, value) ? value : 'other';
+        }
+
+        function inferLegacyGapCategory(label) {
+            const value = String(label || '');
+            if (/\b(degree|certification|certificate|licen[cs]e|clearance|citizenship|work authorization|visa|eligibility)\b/i.test(value)) {
+                return 'requirement';
+            }
+            if (/\b(tool|technology|technologies|software|platform|framework|programming language|cloud provider|sdk|api|aws|azure|gcp|kubernetes|salesforce|hubspot|marketo|react|vue|java|kotlin|spring|prometheus|grafana|okta|cassandra|etcd|clickhouse|elasticsearch|ci\/cd)\b/i.test(value)) {
+                return 'tool';
+            }
+            if (/\b(years? of experience|experience|industry|vertical|domain|seniority|leadership|management|managed|operating|scale|prior contributions|background)\b/i.test(value)) {
+                return 'experience';
+            }
+            return 'skill';
+        }
+
+        function normalizeFitGaps(gaps) {
+            return (Array.isArray(gaps) ? gaps : [])
+                .map(gap => {
+                    if (typeof gap === 'string') {
+                        const label = gap.trim();
+                        return label ? { label, category: inferLegacyGapCategory(label), inferred: true } : null;
+                    }
+                    const label = String(gap?.label || gap?.text || gap?.skill || '').trim();
+                    return label ? { label, category: normalizeGapCategory(gap?.category || gap?.type), inferred: false } : null;
+                })
+                .filter(Boolean);
+        }
+
         async function loadConfirmedSkills(userId) {
             return;
         }
@@ -2113,7 +2163,8 @@
             return (job && Array.isArray(job.confirmed_claims) ? job.confirmed_claims : [])
                 .map(claim => ({
                     skill_name: String(claim.skill_name || claim || '').trim(),
-                    normalized_skill_name: claim.normalized_skill_name || normalizeSkillName(claim.skill_name || claim)
+                    normalized_skill_name: claim.normalized_skill_name || normalizeSkillName(claim.skill_name || claim),
+                    gap_category: normalizeGapCategory(claim.gap_category || 'skill')
                 }))
                 .filter(claim => claim.skill_name && claim.normalized_skill_name);
         }
@@ -2122,8 +2173,9 @@
             return new Set(getJobConfirmedClaims(job).map(claim => claim.normalized_skill_name));
         }
 
-        async function addConfirmedSkill(jobIndex, skill) {
+        async function addConfirmedSkill(jobIndex, skill, category = 'skill') {
             const normalized = normalizeSkillName(skill);
+            const gapCategory = normalizeGapCategory(category);
             const job = pooledJobs[jobIndex] || {};
             if (!job.id) throw new Error('No job selected for this claim');
             if (!normalized || getJobConfirmedClaimNames(job).has(normalized)) return;
@@ -2140,13 +2192,15 @@
                         skill_name: String(skill || '').trim(),
                         normalized_skill_name: normalized,
                         source: 'swipe_gap_chip',
-                        job_pool_id: job.id
+                        job_pool_id: job.id,
+                        gap_category: gapCategory
                     }, { onConflict: 'user_id,job_pool_id,normalized_skill_name' });
                 if (error) throw error;
                 job.confirmed_claims = getJobConfirmedClaims(job).filter(claim => claim.normalized_skill_name !== normalized);
                 job.confirmed_claims.push({
                     skill_name: String(skill || '').trim(),
-                    normalized_skill_name: normalized
+                    normalized_skill_name: normalized,
+                    gap_category: gapCategory
                 });
             })();
 
@@ -2166,7 +2220,7 @@
 
         function addConfirmedSkillFromChip(btn, jobIndex) {
             if (!btn || btn.disabled) return;
-            addConfirmedSkill(jobIndex, btn.dataset.skillLabel || '').catch(() => {});
+            addConfirmedSkill(jobIndex, btn.dataset.skillLabel || '', btn.dataset.gapCategory || 'skill').catch(() => {});
         }
 
         function updateGapChipState(jobId, normalized, state) {
@@ -2230,20 +2284,31 @@
             // Always the same badge color: the % itself is the differentiator,
             // a lower score shouldn't also read as a red-flag warning color.
             const colorClass = 'fit-high';
-            const missing = Array.isArray(job.fit_missing_skills) ? job.fit_missing_skills.slice(0, 3) : [];
-            const tags = missing.map(s => {
-                const label = String(s || '').trim();
+            const missing = normalizeFitGaps(job.fit_missing_skills).slice(0, 4);
+            const grouped = Object.keys(GAP_CATEGORY_LABELS)
+                .map(category => ({ category, gaps: missing.filter(gap => gap.category === category) }))
+                .filter(group => group.gaps.length);
+            const tags = grouped.map(group => {
+              const items = group.gaps.map(gap => {
+                const label = gap.label;
                 const normalized = normalizeSkillName(label);
                 if (!label || !normalized) return '';
                 const jobId = job.id || '';
+                const category = group.category;
+                const isActionable = category === 'skill' || category === 'tool' || category === 'experience';
+                if (!isActionable) {
+                    return `<span class="swipe-card-tag fit-gap fit-gap-static" aria-label="${escapeHtml(label)}">${escapeHtml(label)}</span>`;
+                }
                 const isAdded = getJobConfirmedClaimNames(job).has(normalized);
                 const isSaving = pendingSkillWrites.has(`${jobId || jobIndex}:${normalized}`);
                 const stateClass = isAdded ? ' is-added' : (isSaving ? ' is-saving' : '');
                 const stateText = isAdded ? ' added' : (isSaving ? ' ...' : ' +');
                 const disabled = isAdded || isSaving ? ' disabled' : '';
-                return `<button type="button" class="swipe-card-tag fit-gap fit-gap-action${stateClass}" data-job-id="${escapeHtml(jobId)}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(label)}" onclick="event.stopPropagation(); addConfirmedSkillFromChip(this, ${jobIndex})"${disabled} aria-label="Add ${escapeHtml(label)} to this application">${escapeHtml(label)}${stateText}</button>`;
+                return `<button type="button" class="swipe-card-tag fit-gap fit-gap-action${stateClass}" data-job-id="${escapeHtml(jobId)}" data-gap-skill="${escapeHtml(normalized)}" data-gap-category="${escapeHtml(category)}" data-skill-label="${escapeHtml(label)}" onclick="event.stopPropagation(); addConfirmedSkillFromChip(this, ${jobIndex})"${disabled} aria-label="Add ${escapeHtml(label)} to this application">${escapeHtml(label)}${stateText}</button>`;
+              }).join('');
+              return `<div class="swipe-card-gap-group"><span class="swipe-card-fit-tags-label">${GAP_CATEGORY_LABELS[group.category]}</span><div class="swipe-card-gap-items">${items}</div></div>`;
             }).join('');
-            const tagsLikelyClamped = missing.length > 1 || (missing[0] && missing[0].length > 20);
+            const tagsLikelyClamped = missing.length > 2 || missing.some(gap => gap.label.length > 28);
 
             const rawReason = job.fit_reason || '';
             const { preview: reasonPreviewText, needsMore: reasonNeedsMore } = truncateReasonWords(rawReason);
@@ -2267,8 +2332,7 @@
                 </div>
                 ${tags ? `
                 <div class="swipe-card-fit-tags-wrap">
-                    <span class="swipe-card-fit-tags-label">Gaps</span>
-                    <div class="swipe-card-fit-tags${tagsLikelyClamped ? ' is-clamped' : ''}">${tags}</div>
+                    <div class="swipe-card-fit-tags is-categorized${tagsLikelyClamped ? ' is-clamped' : ''}">${tags}</div>
                     <button type="button" class="swipe-card-tags-more" onclick="event.stopPropagation(); toggleFitTags(this)">more</button>
                 </div>` : ''}
             `;
