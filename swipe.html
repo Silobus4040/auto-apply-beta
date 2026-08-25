@@ -2295,7 +2295,13 @@
                 if (!label || !normalized) return '';
                 const jobId = job.id || '';
                 const category = group.category;
-                const isActionable = category === 'skill' || category === 'tool' || category === 'experience';
+                // Click-to-add was removed: the canonicalizer could not
+                // reliably turn a raw gap sentence into a real skill/tool
+                // label (e.g. "Sugar CRM or similar platforms" -> "Sugar
+                // CRM Or Similar Platforms" landed straight on a real
+                // resume). All gap groups are display-only now, same as
+                // requirement gaps always were.
+                const isActionable = false;
                 if (!isActionable) {
                     return `<span class="swipe-card-tag fit-gap fit-gap-static" aria-label="${escapeHtml(label)}">${escapeHtml(label)}</span>`;
                 }
