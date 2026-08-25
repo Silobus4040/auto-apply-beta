@@ -82,9 +82,14 @@
             pointer-events: none;
         }
 
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid rgba(0,0,0,0.06); position: sticky; top: 0; background: #fff; z-index: 100; }
+        nav { display: flex; align-items: center; padding: 1.5rem clamp(2rem, 3.25vw, 4rem); max-width: 1680px; margin: 0 auto; border-bottom: 1px solid rgba(0,0,0,0.06); position: sticky; top: 0; background: #fff; z-index: 100; }
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; display: flex; align-items: center; gap: 0.5rem; text-transform: uppercase; }
         .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
+        .nav-links { display: flex; flex: 1; align-items: center; min-width: 0; margin-left: clamp(2.5rem, 4vw, 4.75rem); }
+        .nav-primary, .nav-actions { display: flex; align-items: center; }
+        .nav-primary { gap: clamp(1.5rem, 2vw, 2.5rem); }
+        .nav-actions { gap: 1.25rem; margin-left: auto; padding-left: clamp(3rem, 6vw, 7rem); }
+        .nav-link { color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; white-space: nowrap; }
 
         .hero { max-width: 1400px; margin: 6rem auto 4rem; padding: 0 5%; text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
         h1 { color: var(--text-heading); font-size: clamp(3.5rem, 7vw, 6rem); font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.5rem; max-width: 1100px; text-transform: uppercase; }
@@ -339,6 +344,12 @@
             .agent-visual { min-height: 0; }
         }
 
+        @media (max-width: 1100px) {
+            nav { justify-content: space-between; }
+            .nav-links { display: none !important; }
+            .mobile-nav-toggle { display: flex !important; }
+        }
+
         @media (max-width: 768px) {
             .hero { padding-top: 2rem; margin-top: 3rem; }
             h1 { font-size: 2.8rem; }
@@ -360,8 +371,6 @@
             .mockup-header { flex-direction: column; align-items: flex-start; }
             .mockup-stats { flex-direction: column; }
             .mockup-stat-card { width: 100%; }
-            .nav-links { display: none !important; }
-            .mobile-nav-toggle { display: flex !important; }
             .hero-sub { font-size: 1.05rem !important; }
         }
         .mobile-nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; flex-direction: column; gap: 4px; z-index: 100; }
@@ -453,13 +462,17 @@
   <a href="signup.html" onclick="toggleMobileNav()" class="mobile-nav-cta">Try for Free</a>
 </div>
 
-        <div class="nav-links" style="display: flex; gap: 2rem; align-items: center;">
-            <a href="#how-it-works" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; white-space: nowrap;">How it works</a>
-            <a href="#roles" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Supported Roles</a>
-            <a href="#countries" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Supported Countries</a>
-            <a href="#pricing" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Pricing</a>
-            <a href="login.html" style="color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem;">Log In</a>
-            <a href="signup.html" class="btn btn-primary btn-nav">Try for Free</a>
+        <div class="nav-links">
+            <div class="nav-primary">
+                <a href="#how-it-works" class="nav-link">How it works</a>
+                <a href="#roles" class="nav-link">Supported Roles</a>
+                <a href="#countries" class="nav-link">Supported Countries</a>
+                <a href="#pricing" class="nav-link">Pricing</a>
+            </div>
+            <div class="nav-actions">
+                <a href="login.html" class="nav-link">Log In</a>
+                <a href="signup.html" class="btn btn-primary btn-nav">Try for Free</a>
+            </div>
         </div>
     </nav>
 
