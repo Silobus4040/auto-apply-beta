@@ -1892,7 +1892,6 @@
         let pooledJobs = [];
         let pooledJobIndex = 0;
         let autoApplySweepRunning = false;
-        let confirmedSkillNames = new Set();
         const pendingSkillWrites = new Map();
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
@@ -1901,7 +1900,7 @@
         // this version (2) fixes a bug where the cached index never advanced
         // past 0 after a swipe, so any cache written by the pre-fix code is
         // stale and must be discarded rather than rendered as-is.
-        const DECK_CACHE_VERSION = 2;
+        const DECK_CACHE_VERSION = 3;
 
         function cacheDeckJobs(userId, jobs, index) {
             try {
@@ -1918,7 +1917,7 @@
                 const indexRaw = localStorage.getItem(`deckIndex_${userId}`);
                 if (raw) {
                     const jobs = JSON.parse(raw);
-                    const index = indexRaw ? parseInt(indexRaw, 10) : 0;
+                    const index = Math.min(indexRaw ? parseInt(indexRaw, 10) : 0, jobs.length);
                     return { jobs, index };
                 }
             } catch (e) {}
@@ -1986,7 +1985,7 @@
                     if (!error && jobs && jobs.length) {
                         pooledJobs = jobs;
                         pooledJobIndex = 0;
-                        cacheDeckJobs(userId, jobs, 0);
+                        cacheDeckJobs(userId, pooledJobs, 0);
                         if (userProfile && !userProfile.deck_ready) {
                             await supabaseClient.from('profiles').update({ deck_ready: true }).eq('id', userId);
                             userProfile.deck_ready = true;
@@ -2107,28 +2106,33 @@
         }
 
         async function loadConfirmedSkills(userId) {
-            if (!userId) return;
-            try {
-                const { data, error } = await supabaseClient
-                    .from('profile_confirmed_skills')
-                    .select('skill_name, normalized_skill_name')
-                    .eq('user_id', userId);
-                if (error) throw error;
-                confirmedSkillNames = new Set((data || []).map(row => row.normalized_skill_name || normalizeSkillName(row.skill_name)).filter(Boolean));
-            } catch (err) {
-                console.error('Failed to load confirmed skills', err);
-            }
+            return;
+        }
+
+        function getJobConfirmedClaims(job) {
+            return (job && Array.isArray(job.confirmed_claims) ? job.confirmed_claims : [])
+                .map(claim => ({
+                    skill_name: String(claim.skill_name || claim || '').trim(),
+                    normalized_skill_name: claim.normalized_skill_name || normalizeSkillName(claim.skill_name || claim)
+                }))
+                .filter(claim => claim.skill_name && claim.normalized_skill_name);
+        }
+
+        function getJobConfirmedClaimNames(job) {
+            return new Set(getJobConfirmedClaims(job).map(claim => claim.normalized_skill_name));
         }
 
         async function addConfirmedSkill(jobIndex, skill) {
             const normalized = normalizeSkillName(skill);
-            if (!normalized || confirmedSkillNames.has(normalized)) return;
-            if (pendingSkillWrites.has(normalized)) return pendingSkillWrites.get(normalized);
+            const job = pooledJobs[jobIndex] || {};
+            if (!job.id) throw new Error('No job selected for this claim');
+            if (!normalized || getJobConfirmedClaimNames(job).has(normalized)) return;
+            const pendingKey = `${job.id || jobIndex}:${normalized}`;
+            if (pendingSkillWrites.has(pendingKey)) return pendingSkillWrites.get(pendingKey);
 
             const writePromise = (async () => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) throw new Error('No signed-in user');
-                const job = pooledJobs[jobIndex] || {};
                 const { error } = await supabaseClient
                     .from('profile_confirmed_skills')
                     .upsert({
@@ -2136,23 +2140,27 @@
                         skill_name: String(skill || '').trim(),
                         normalized_skill_name: normalized,
                         source: 'swipe_gap_chip',
-                        job_pool_id: job.id || null
-                    }, { onConflict: 'user_id,normalized_skill_name' });
+                        job_pool_id: job.id
+                    }, { onConflict: 'user_id,job_pool_id,normalized_skill_name' });
                 if (error) throw error;
-                confirmedSkillNames.add(normalized);
+                job.confirmed_claims = getJobConfirmedClaims(job).filter(claim => claim.normalized_skill_name !== normalized);
+                job.confirmed_claims.push({
+                    skill_name: String(skill || '').trim(),
+                    normalized_skill_name: normalized
+                });
             })();
 
-            pendingSkillWrites.set(normalized, writePromise);
-            updateGapChipState(normalized, 'saving');
+            pendingSkillWrites.set(pendingKey, writePromise);
+            updateGapChipState(job.id, normalized, 'saving');
             try {
                 await writePromise;
-                updateGapChipState(normalized, 'added');
+                updateGapChipState(job.id, normalized, 'added');
             } catch (err) {
                 console.error('Failed to add confirmed skill', err);
-                updateGapChipState(normalized, 'error');
+                updateGapChipState(job.id, normalized, 'error');
                 throw err;
             } finally {
-                pendingSkillWrites.delete(normalized);
+                pendingSkillWrites.delete(pendingKey);
             }
         }
 
@@ -2161,8 +2169,8 @@
             addConfirmedSkill(jobIndex, btn.dataset.skillLabel || '').catch(() => {});
         }
 
-        function updateGapChipState(normalized, state) {
-            document.querySelectorAll(`[data-gap-skill="${CSS.escape(normalized)}"]`).forEach(btn => {
+        function updateGapChipState(jobId, normalized, state) {
+            document.querySelectorAll(`[data-job-id="${CSS.escape(jobId || '')}"][data-gap-skill="${CSS.escape(normalized)}"]`).forEach(btn => {
                 btn.classList.toggle('is-saving', state === 'saving');
                 btn.classList.toggle('is-added', state === 'added');
                 btn.classList.toggle('is-error', state === 'error');
@@ -2227,12 +2235,13 @@
                 const label = String(s || '').trim();
                 const normalized = normalizeSkillName(label);
                 if (!label || !normalized) return '';
-                const isAdded = confirmedSkillNames.has(normalized);
-                const isSaving = pendingSkillWrites.has(normalized);
+                const jobId = job.id || '';
+                const isAdded = getJobConfirmedClaimNames(job).has(normalized);
+                const isSaving = pendingSkillWrites.has(`${jobId || jobIndex}:${normalized}`);
                 const stateClass = isAdded ? ' is-added' : (isSaving ? ' is-saving' : '');
                 const stateText = isAdded ? ' added' : (isSaving ? ' ...' : ' +');
                 const disabled = isAdded || isSaving ? ' disabled' : '';
-                return `<button type="button" class="swipe-card-tag fit-gap fit-gap-action${stateClass}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(label)}" onclick="event.stopPropagation(); addConfirmedSkillFromChip(this, ${jobIndex})"${disabled} aria-label="Add ${escapeHtml(label)} to your profile">${escapeHtml(label)}${stateText}</button>`;
+                return `<button type="button" class="swipe-card-tag fit-gap fit-gap-action${stateClass}" data-job-id="${escapeHtml(jobId)}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(label)}" onclick="event.stopPropagation(); addConfirmedSkillFromChip(this, ${jobIndex})"${disabled} aria-label="Add ${escapeHtml(label)} to this application">${escapeHtml(label)}${stateText}</button>`;
             }).join('');
             const tagsLikelyClamped = missing.length > 1 || (missing[0] && missing[0].length > 20);
 
@@ -2542,7 +2551,11 @@
             await fetch(SWIPE_WEBHOOK_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ user_id: userId, job_pool_id: job.id })
+                body: JSON.stringify({
+                    user_id: userId,
+                    job_pool_id: job.id,
+                    confirmed_claims: getJobConfirmedClaims(job)
+                })
             }).catch(err => console.error('Failed to trigger swipe-apply webhook', err));
         }
 
