@@ -686,7 +686,16 @@
            display:inline (not inline-block) so it wraps as part of the same
            line as the text rather than needing a row of its own. */
         .swipe-card-fit-more { display: inline; margin-left: 0.35rem; background: none; border: none; padding: 0; color: var(--secondary); font-size: 0.78rem; font-weight: 800; cursor: pointer; }
-        .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; }
+        /* Hard cap, independent of how many gap categories/items a job has.
+           is-categorized mode is a plain block stack (see below) with no
+           natural clip -- 0 gaps renders no wrap at all (fine), but any
+           real gap list could otherwise grow past the fixed-height card
+           and silently push "Read full description" off the bottom
+           (.swipe-card clips at its own edge, so anything past it just
+           vanishes, not scrolls). Capping + scrolling here instead of
+           letting flexbox squeeze it keeps every other row's size
+           predictable regardless of gap count. */
+        .swipe-card-fit-tags-wrap { margin-bottom: 0.9rem; flex-shrink: 0; max-height: 7rem; overflow-y: auto; overflow-x: hidden; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
         .swipe-card-fit-tags.is-categorized { display: block; }
