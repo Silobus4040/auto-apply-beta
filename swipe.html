@@ -2687,15 +2687,34 @@
         // Auto-Apply visibly works through the deck in order: score 70+ swipes
         // right and queues the application, anything below the threshold swipes
         // left and is recorded as skipped.
+        //
+        // Hard stop at applications_limit (2026-08-25): real applies used to
+        // have no cap at all here, so a big scored batch could fire more real
+        // applications than the user's quota in one uninterrupted sweep.
+        // currentJobs.length (this user's full job_applications history,
+        // regardless of status) is the real "applies already committed"
+        // count, but the downstream row for a just-fired apply doesn't land
+        // for ~20-25s (Run 108) -- too slow to catch a fast in-loop sweep.
+        // optimisticAppliedThisSweep counts each 'apply' decision the instant
+        // it's made so a single sweep can never overshoot the limit even
+        // before the backend confirms any of them.
         async function autoApplySweepAndFilter(userId) {
             if (!userProfile || !userProfile.auto_apply_enabled) return;
             if (autoApplySweepRunning) return;
             autoApplySweepRunning = true;
             const minScore = 70;
+            let optimisticAppliedThisSweep = 0;
             try {
                 while (userProfile && userProfile.auto_apply_enabled && pooledJobIndex < pooledJobs.length) {
+                    const applicationsLimit = Number(userProfile.applications_limit) || 10;
+                    if (currentJobs.length + optimisticAppliedThisSweep >= applicationsLimit) {
+                        console.log(`Auto-Apply stopped: reached applications_limit (${applicationsLimit})`);
+                        await disableAutoApplyForLimitReached(userId);
+                        break;
+                    }
                     const job = pooledJobs[pooledJobIndex];
                     const decision = typeof job.fit_score === 'number' && job.fit_score >= minScore ? 'apply' : 'skip';
+                    if (decision === 'apply') optimisticAppliedThisSweep++;
                     const swiped = await autoSwipeCurrentCard(decision);
                     if (!swiped) break;
                 }
@@ -2703,6 +2722,17 @@
                 refreshDeckSilently();
             } finally {
                 autoApplySweepRunning = false;
+            }
+        }
+
+        async function disableAutoApplyForLimitReached(userId) {
+            if (userProfile) userProfile.auto_apply_enabled = false;
+            const toggle = document.getElementById('auto-apply-toggle');
+            if (toggle) toggle.checked = false;
+            try {
+                await supabaseClient.from('profiles').update({ auto_apply_enabled: false }).eq('id', userId);
+            } catch (err) {
+                console.error('Failed to turn off auto_apply_enabled after hitting applications_limit', err);
             }
         }
 
