@@ -2312,7 +2312,13 @@
             const grouped = Object.keys(GAP_CATEGORY_LABELS)
                 .map(category => ({ category, gaps: missing.filter(gap => gap.category === category) }))
                 .filter(group => group.gaps.length);
-            const tags = grouped.map(group => {
+            // Only the first category renders inline -- .swipe-card-fit-tags-wrap's
+            // 5rem hard cap was sized for one label+pill-row; a second category's
+            // label pushed its own pill row past that cap, so overflow:hidden sliced
+            // straight through the pills mid-height (visible as blank colored slivers
+            // under "MISSING TOOLS", live on Flex 2026-08-26). Anything past the
+            // first category is only ever reachable via "more" (showFitGapsModal).
+            const tags = grouped.slice(0, 1).map(group => {
               const items = group.gaps.map(gap => {
                 const label = gap.label;
                 const normalized = normalizeSkillName(label);
@@ -2338,7 +2344,7 @@
               }).join('');
               return `<div class="swipe-card-gap-group"><span class="swipe-card-fit-tags-label">${GAP_CATEGORY_LABELS[group.category]}</span><div class="swipe-card-gap-items">${items}</div></div>`;
             }).join('');
-            const tagsLikelyClamped = missing.length > 2 || missing.some(gap => gap.label.length > 28);
+            const tagsLikelyClamped = grouped.length > 1 || missing.length > 2 || missing.some(gap => gap.label.length > 28);
 
             const rawReason = job.fit_reason || '';
             const { preview: reasonPreviewText, needsMore: reasonNeedsMore } = truncateReasonWords(rawReason);
