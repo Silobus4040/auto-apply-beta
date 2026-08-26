@@ -1899,6 +1899,8 @@
         let pooledJobs = [];
         let pooledJobIndex = 0;
         let autoApplySweepRunning = false;
+        let lastPendingAssignedCount = null;
+        let emptyStatePollTimer = null;
         const pendingSkillWrites = new Map();
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
 
@@ -2079,14 +2081,16 @@
             try {
                 const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
                 if (error) return;
-                const { jobs, totalAvailable } = unwrapPoolResponse(data);
+                const { jobs, totalAvailable, pendingAssignedCount } = unwrapPoolResponse(data);
                 if (totalAvailable !== null) {
                     poolAvailableCount = totalAvailable;
                     applyPoolAvailableToStats();
                 }
+                lastPendingAssignedCount = pendingAssignedCount;
                 if (!Array.isArray(jobs)) return;
                 const existingIds = new Set(pooledJobs.map(j => j.id));
                 const newOnes = jobs.filter(j => !existingIds.has(j.id));
+                const wasShowingEmpty = pooledJobIndex >= pooledJobs.length;
                 if (newOnes.length) {
                     pooledJobs.push(...newOnes);
                     if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
@@ -2094,11 +2098,34 @@
                         await autoApplySweepAndFilter(cachedUserId);
                     }
                 }
+                // Newly-scored jobs used to sit unrendered in pooledJobs until
+                // the NEXT swipe (nothing re-rendered the stack here before) --
+                // a user staring at the empty state had no way to ever see them
+                // without manually reloading the page. Re-render whenever the
+                // empty state either needs to appear/refresh or can now clear.
+                if (wasShowingEmpty || pooledJobIndex >= pooledJobs.length) {
+                    renderSwipeStack();
+                }
             } catch (err) {
                 // Same throw-vs-graceful-error gap as fetchPooledJobs -- this
                 // is a background top-up, so a thrown error should just be a
                 // silent no-op, never break the swipe flow that called it.
                 console.error('refreshDeckSilently failed', err);
+            }
+        }
+
+        // Auto-recovery for the "assigned but not yet scored" empty state
+        // (see renderSwipeStack) -- polls refreshDeckSilently every 6s until
+        // real cards land, so the user is never stuck needing a manual reload.
+        function startEmptyStatePollIfNeeded(stillScoring) {
+            if (!stillScoring) { stopEmptyStatePoll(); return; }
+            if (emptyStatePollTimer) return;
+            emptyStatePollTimer = setInterval(() => { refreshDeckSilently(); }, 6000);
+        }
+        function stopEmptyStatePoll() {
+            if (emptyStatePollTimer) {
+                clearInterval(emptyStatePollTimer);
+                emptyStatePollTimer = null;
             }
         }
 
@@ -2347,7 +2374,23 @@
             stack.innerHTML = '';
 
             if (pooledJobIndex >= pooledJobs.length) {
-                stack.innerHTML = `
+                // Real jobs can already be assigned (job_queue_assignments) but
+                // not yet scored (Score Deck/Job Enrichment run one job at a
+                // time, not in parallel -- a real, measured ~30-45s lag, Run
+                // 116). Saying "all caught up" here is false when
+                // lastPendingAssignedCount > 0 -- there IS more, it's just not
+                // scored yet. Poll silently until it shows up instead of
+                // requiring a manual reload (there was previously no automatic
+                // recovery from this state at all).
+                const stillScoring = typeof lastPendingAssignedCount === 'number' && lastPendingAssignedCount > 0;
+                stack.innerHTML = stillScoring ? `
+                    <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center;">
+                        <div>
+                            <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">⏳</span>
+                            <h4 style="font-weight: 800; margin-bottom: 0.35rem;">Hang On, you still have more jobs</h4>
+                            <p style="color: #71717a; font-size: 0.85rem;">I am running from pillar to post to score these jobs -- they'll show up here any moment.</p>
+                        </div>
+                    </div>` : `
                     <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center;">
                         <div>
                             <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">✅</span>
@@ -2355,8 +2398,10 @@
                             <p style="color: #71717a; font-size: 0.85rem;">We'll show more as Rover finds them.</p>
                         </div>
                     </div>`;
+                startEmptyStatePollIfNeeded(stillScoring);
                 return;
             }
+            stopEmptyStatePoll();
 
             // Render up to 3 cards stacked, current one on top and interactive.
             const visible = pooledJobs.slice(pooledJobIndex, pooledJobIndex + 3).reverse();
