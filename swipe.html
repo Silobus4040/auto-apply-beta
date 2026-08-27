@@ -939,7 +939,7 @@
                     <i data-lucide="layers" class="sidebar-nav-icon"></i> Job deck
                 </div>
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
-                    <i data-lucide="mail" class="sidebar-nav-icon"></i> AI inbox
+                    <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
                 <button class="sidebar-nav-item" onclick="goToMarketIntel(); if(window.innerWidth<=768) toggleSidebar();">
@@ -1218,13 +1218,13 @@
             
             <div style="text-align: center; margin-bottom: 2rem;">
                 <span style="background: rgba(212, 255, 51, 0.15); color: #000000; padding: 0.35rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 1px;">AI Feature Configuration</span>
-                <h2 id="modal-wizard-title" style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Claim Your AI Inbox</h2>
+                <h2 id="modal-wizard-title" style="color: #000000; font-weight: 850; font-size: 1.75rem; margin-top: 0.5rem; margin-bottom: 0.5rem; letter-spacing: -0.5px;">Claim Your Dedicated Mailbox</h2>
             </div>
 
             <div id="wizard-slide-1">
                 <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: left; margin-bottom: 1.5rem;">
                     <h4 style="color: #000000; font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                        <span style="color: var(--secondary); font-size: 1.2rem;">✉</span> Dedicated Auto-Apply Inbox
+                        <span style="color: var(--secondary); font-size: 1.2rem;">✉</span> Dedicated Mailbox
                     </h4>
                     
                     <p style="color: var(--text-body); font-size: 0.88rem; line-height: 1.6; font-weight: 500; margin-bottom: 1rem;">
@@ -1247,11 +1247,11 @@
                     </div>
                     
                     <div id="generated-email-display" style="display: none; background: #ffffff; border: 2px dashed var(--primary); border-radius: 8px; padding: 1.25rem; text-align: center; margin-bottom: 1rem;">
-                        <span style="font-size: 0.75rem; font-weight: 700; color: #71717A; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Your Dedicated AI Inbox:</span>
+                        <span style="font-size: 0.75rem; font-weight: 700; color: #71717A; text-transform: uppercase; display: block; margin-bottom: 0.5rem;">Your Dedicated Mailbox:</span>
                         <strong id="final-ai-email" style="font-size: 1.25rem; color: #000000;">loading...</strong>
                     </div>
 
-                    <button id="save-inbox-btn" onclick="saveInbox()" style="background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 1rem; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Generate AI Inbox & Activate Engine &rarr;</button>
+                    <button id="save-inbox-btn" onclick="saveInbox()" style="background: var(--primary); color: #000000; border: none; font-size: 0.95rem; padding: 1rem; border-radius: 8px; font-weight: 800; width: 100%; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; transition: background 0.2s; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25);">Generate Dedicated Mailbox & Activate Engine &rarr;</button>
                 </div>
             </div>
         </div>
@@ -3015,7 +3015,7 @@
             } catch (err) {
                 alert("Failed to generate inbox: " + err.message);
                 btn.disabled = false;
-                btn.textContent = 'Generate AI Inbox & Activate Engine →';
+                btn.textContent = 'Generate Dedicated Mailbox & Activate Engine →';
             }
         }
 
