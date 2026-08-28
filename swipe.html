@@ -2681,9 +2681,18 @@
                 console.error('Failed to record swipe', err);
             }
 
+            const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+            if (sessionError || !session?.access_token) {
+                console.error('Cannot trigger swipe-apply without an authenticated session', sessionError);
+                return;
+            }
+
             await fetch(SWIPE_WEBHOOK_URL, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${session.access_token}`
+                },
                 body: JSON.stringify({
                     user_id: userId,
                     job_pool_id: job.id,
