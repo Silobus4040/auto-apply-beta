@@ -2145,7 +2145,7 @@
 
         const STATUS_FILTER_DEFS = [
             { key: 'all', label: 'All' },
-            { key: 'Needs Human Review', label: 'Retrying' },
+            { key: 'Needs Human Review', label: 'Position Closed' },
             { key: 'blocked', label: 'Needs You' },
             { key: 'in_queue', label: 'In Queue' },
             { key: 'applied', label: 'Applied' },
@@ -2325,7 +2325,7 @@
             filteredJobs.forEach((job) => {
                 const index = currentJobs.indexOf(job);
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
-                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Retrying' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
+                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Position Closed' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
@@ -2334,7 +2334,7 @@
                 const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm" style="margin-top: 0.5rem;" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
                 // Reassure the user Rover is handling this, not asking them to -- see
                 // memory: "Needs Review" implied a human reviewer that doesn't exist.
-                const retryingNote = job.status === 'Needs Human Review' ? `<div style="font-size: 0.78rem; color: #71717A; margin-top: 0.35rem; max-width: 220px;">Application didn't go through — Rover will retry automatically. You're not charged for it.</div>` : '';
+                const retryingNote = job.status === 'Needs Human Review' ? `<div style="font-size: 0.78rem; color: #71717A; margin-top: 0.35rem; max-width: 220px;">This role was taken down before Rover could finish — it's already lining up fresh matches for you. You weren't charged.</div>` : '';
 
                 html += `
                     <tr>
