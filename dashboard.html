@@ -2145,7 +2145,7 @@
 
         const STATUS_FILTER_DEFS = [
             { key: 'all', label: 'All' },
-            { key: 'Needs Human Review', label: 'Position Closed' },
+            { key: 'Needs Human Review', label: 'No Longer Available' },
             { key: 'blocked', label: 'Needs You' },
             { key: 'in_queue', label: 'In Queue' },
             { key: 'applied', label: 'Applied' },
@@ -2325,7 +2325,7 @@
             filteredJobs.forEach((job) => {
                 const index = currentJobs.indexOf(job);
                 const statusClass = job.status === 'applied' ? 'status-applied' : job.status === 'interview' ? 'status-interview' : job.status === 'hired' ? 'status-hired' : job.status === 'rejected' ? 'status-rejected' : job.status === 'Needs Human Review' ? 'status-failed' : job.status === 'blocked' ? 'status-blocked' : 'status-queued';
-                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'Position Closed' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
+                const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'No Longer Available' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
                 const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
