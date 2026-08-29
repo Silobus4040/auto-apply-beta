@@ -517,17 +517,23 @@
             .container { padding: 1.5rem 1rem; }
             .info-strip { grid-template-columns: 1fr; }
 
-            /* Job Deck on mobile should be just Auto-Apply + the deck itself
-               -- the Jobs Found/Applied/Interview/Offer/Rejected stats row
-               belongs to the Dashboard, not here; showing it above the deck
-               on a small screen just eats space before the actual cards.
-               !important overrides the inline style="display:flex/none" the
-               JS toggles this element with. --deck-chrome drops by the ~85px
-               the stats bar used to reserve (see the comment above
-               #swipe-deck-section's base rule for how that budget adds up),
-               handing that space back to the card. */
+            /* Job Deck on mobile should be just Auto-Apply + the deck itself.
+               The stats row belongs to the Dashboard, not here. The
+               .page-header row (the "Job Deck" title, credit balance, and
+               Upgrade button) is also redundant on mobile specifically --
+               #mobile-topbar already shows the page name plus the hamburger
+               menu, so this whole row is just repeating that. !important
+               overrides the inline style="display:flex/none" the JS toggles
+               #stats-bar with. --deck-chrome drops accordingly to hand the
+               freed vertical space back to the card (see the comment above
+               #swipe-deck-section's base rule for how that budget adds up) --
+               left with some headroom rather than tuned exactly, since the
+               Skip/Apply row getting cut off at the bottom is a worse failure
+               than a little extra breathing room; tighten further if real
+               phones show it's too generous. */
             #stats-bar { display: none !important; }
-            #swipe-deck-section { --deck-chrome: 200px; }
+            .page-header { display: none; }
+            #swipe-deck-section { --deck-chrome: 160px; }
 
             /* Email client had NO mobile handling at all here (unlike the
                identical UI on dashboard.html, which already stacks these
