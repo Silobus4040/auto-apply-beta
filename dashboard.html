@@ -307,7 +307,13 @@
         .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
 
         /* Description Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: transparent; z-index: 1000; justify-content: center; align-items: center; padding: 1rem; }
+        /* Was background:transparent -- modals (Skill Gap, Settings, etc.) sat
+           directly on top of the fully-visible dashboard with nothing dimming
+           it, which reads as the modal being "stacked against" the page
+           rather than a separate, isolated view. swipe.html already uses a
+           real dim+blur backdrop for the identical .modal-overlay class --
+           matching that here instead of inventing a new value. */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; }
         .modal-overlay.active { display: flex; }
         .desc-modal { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.08); }
         /* Title was text-transform:uppercase, which turns a long role name into a
@@ -457,7 +463,13 @@
             .email-list { min-height: 0; }
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
-            .email-client-container.mobile-show-content .email-content { display: flex; }
+            /* Missing the same flex+min-height:0 fix already applied to
+               .email-sidebar above -- without it, this column-axis flex child
+               sizes to its content instead of the bounded container height,
+               so the iframe inside (height:100%) can collapse to 0 and the
+               opened email silently fails to render on mobile only (desktop
+               uses flex-direction:row, unaffected by this column-axis quirk). */
+            .email-client-container.mobile-show-content .email-content { display: flex; flex: 1; min-height: 0; }
             .email-mobile-intro { display: block; padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; max-height: 45vh; overflow-y: auto; flex-shrink: 0; }
             .email-mobile-intro .email-empty-state { color: #71717A; }
             .email-intro-dismiss-btn {

@@ -407,6 +407,7 @@
         .email-content-date { font-size: 0.8rem; color: #71717a; }
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
         .email-iframe { width: 100%; height: 100%; border: none; }
+        .email-content-back-btn { display: none; }
         .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
         
         .nav-inbox-btn { background: #000; color: #fff; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.4rem; }
@@ -512,6 +513,27 @@
             .stat { min-width: 100%; }
             .info-strip { grid-template-columns: 1fr; }
 
+            /* Email client had NO mobile handling at all here (unlike the
+               identical UI on dashboard.html, which already stacks these
+               panes on mobile) -- .email-sidebar's fixed 350px width alone
+               is wider than most phones, pushing .email-content completely
+               off-screen. Tapping an email looked like nothing happened.
+               Same list-then-full-screen-detail pattern as dashboard.html,
+               including the flex+min-height:0 fix that page needed for the
+               opened email's iframe to actually get a real height on mobile. */
+            #email-client-modal { padding: 0.75rem; }
+            .email-client-container { flex-direction: column; height: 92vh; }
+            .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex: 1; min-height: 0; }
+            .email-list { min-height: 0; }
+            .email-content { display: none; }
+            .email-client-container.mobile-show-content .email-sidebar { display: none; }
+            .email-client-container.mobile-show-content .email-content { display: flex; flex: 1; min-height: 0; }
+            .email-content-back-btn {
+                display: inline-flex; align-items: center; gap: 0.3rem;
+                background: none; border: none; color: #000; font-weight: 700;
+                font-size: 0.85rem; cursor: pointer; padding: 0 0 0.75rem; margin: 0;
+            }
+
             /* Card layout for the jobs table below 768px so users don't have to scroll both axes */
             .jobs-table-container { overflow-x: visible; border: none; box-shadow: none; background: transparent; }
             .jobs-table, .jobs-table thead, .jobs-table tbody, .jobs-table tr, .jobs-table td { display: block; width: 100%; }
@@ -560,7 +582,7 @@
 
     <nav id="mobile-topbar" style="display: none;">
         <button class="hamburger-btn" style="display:block;" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
-        <span style="font-weight: 800; font-size: 1rem; color: #000;">Dashboard</span>
+        <span style="font-weight: 800; font-size: 1rem; color: #000;">Job Deck</span>
         <div class="nav-avatar" id="nav-avatar" style="margin: 0;">??</div>
     </nav>
     <span id="nav-badge" style="display:none;">⏳ Free Trial</span>
@@ -625,7 +647,12 @@
            bottom edge; lower it to give the card more height, raise it if the
            Skip/Apply row is still getting cut off. */
         #swipe-deck-section { --deck-chrome: 285px; }
-        .swipe-stack { position: relative; height: clamp(320px, calc(100dvh - var(--deck-chrome)), 600px); }
+        /* overflow:hidden clips the swiped card's fixed 600px fly-out
+           translateX -- without it, that transform pushes the page's actual
+           scrollable width wider than the viewport on narrow mobile screens,
+           showing real blank/empty space (and a horizontal scrollbar) to the
+           right of the deck during and after every right-swipe. */
+        .swipe-stack { position: relative; height: clamp(320px, calc(100dvh - var(--deck-chrome)), 600px); overflow: hidden; }
         /* NOTE: the short-screen @media block that tunes this lives at the END
            of the swipe-deck CSS (search "max-height: 720px") -- it has to come
            after these base rules to actually override them. */
@@ -3091,11 +3118,18 @@
         
         async function openEmailClient() {
             document.getElementById('email-client-modal').classList.add('active');
+            // Always start on the list view, not wherever mobile detail view
+            // was left open from a previous visit.
+            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
             await fetchEmails();
         }
-        
+
         function closeEmailClient() {
             document.getElementById('email-client-modal').classList.remove('active');
+        }
+
+        function closeMobileEmailDetail() {
+            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
         }
         
         async function fetchEmails() {
@@ -3261,10 +3295,12 @@
                 supabaseClient.from('emails').update({ is_read: true }).eq('id', email.id).then();
             }
             
+            document.querySelector('.email-client-container').classList.add('mobile-show-content');
+
             const pane = document.getElementById('email-content-pane');
             const d = new Date(email.created_at);
             const fullDate = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            
+
             let isOutbound = false;
             if (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email) {
                 isOutbound = true;
@@ -3288,6 +3324,7 @@
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%;">
                     <div class="email-content-header">
+                        <button class="email-content-back-btn" onclick="closeMobileEmailDetail()">&larr; Back to Inbox</button>
                         <div class="email-content-subject">${escapeHtml(email.subject || '(No Subject)')}</div>
                         <div class="email-content-meta">
                             <div class="email-content-sender">${escapeHtml(icon + directionLabel)} <span style="font-weight:700;">${escapeHtml(displayAddress)}</span></div>
