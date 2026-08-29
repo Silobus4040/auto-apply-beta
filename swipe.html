@@ -1369,7 +1369,8 @@
                 const res = await fetch('https://n8n.leadscompass.ai/webhook/bachs-create-checkout', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${session.access_token}`
                     },
                     body: JSON.stringify({
                         user_id: session.user.id,
@@ -3338,9 +3339,13 @@
             body = body.replace(/\\n/g, '<br>');
             
             try {
+                const { data: { session: replySession } } = await supabaseClient.auth.getSession();
                 const response = await fetch('https://n8n.leadscompass.ai/webhook/dashboard-reply', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${replySession ? replySession.access_token : ''}`
+                    },
                     body: JSON.stringify({
                         user_id: userProfile.id,
                         sender: userProfile.Application_email,
