@@ -74,7 +74,13 @@
             --border: #e4e4e7;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; position: relative; min-height: 100vh; }
+        /* overflow-x:hidden -- the decorative .background-blob glows (500px,
+           positioned to bleed past the edge on purpose) had nothing containing
+           them, so the whole page became horizontally draggable on mobile,
+           revealing empty space past the right edge. The blobs still glow
+           right up to the edge; this just stops them from making the page
+           itself scroll sideways. */
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; position: relative; min-height: 100vh; overflow-x: hidden; }
         
         body::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
@@ -509,9 +515,19 @@
             .sidebar-overlay.open { display: block; }
             .app-main { width: 100%; }
             .container { padding: 1.5rem 1rem; }
-            .stats-bar { flex-direction: column; }
-            .stat { min-width: 100%; }
             .info-strip { grid-template-columns: 1fr; }
+
+            /* Job Deck on mobile should be just Auto-Apply + the deck itself
+               -- the Jobs Found/Applied/Interview/Offer/Rejected stats row
+               belongs to the Dashboard, not here; showing it above the deck
+               on a small screen just eats space before the actual cards.
+               !important overrides the inline style="display:flex/none" the
+               JS toggles this element with. --deck-chrome drops by the ~85px
+               the stats bar used to reserve (see the comment above
+               #swipe-deck-section's base rule for how that budget adds up),
+               handing that space back to the card. */
+            #stats-bar { display: none !important; }
+            #swipe-deck-section { --deck-chrome: 200px; }
 
             /* Email client had NO mobile handling at all here (unlike the
                identical UI on dashboard.html, which already stacks these
