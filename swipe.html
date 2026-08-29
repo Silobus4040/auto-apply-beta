@@ -2134,6 +2134,18 @@
             return div.innerHTML;
         }
 
+        // Safe for interpolating into an HTML attribute value (e.g. href="...",
+        // value="..."), unlike escapeHtml() above which only escapes what's needed
+        // for text-node content and leaves quote characters alone.
+        function escapeAttr(str) {
+            return String(str || '')
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
         function normalizeSkillName(skill) {
             return String(skill || '').trim().toLowerCase().replace(/\s+/g, ' ');
         }
@@ -3167,25 +3179,35 @@
                 
                 let preview = email.body_preview || 'No preview available...';
                 if (!email.body_preview && email.full_html) {
-                    // Try to strip html for a quick preview
+                    // Try to strip html for a quick preview. This parses attacker-
+                    // controlled inbound HTML into a detached <div> purely to read
+                    // .textContent -- it is never attached to the document, so any
+                    // <script>/onerror etc. inside it does not execute here.
                     const temp = document.createElement('div');
                     temp.innerHTML = email.full_html;
                     preview = (temp.textContent || temp.innerText || '').substring(0, 50) + '...';
                 }
-                
+
                 // Outbound emails shouldn't trigger the "unread" dot since you sent them
                 if (isOutbound) el.classList.remove('unread');
-                
+
+                // email.sender/subject/body_preview/full_html all come from inbound
+                // mail delivered to the user's monitored address -- i.e. from an
+                // arbitrary outside sender, not the logged-in user. Escape before
+                // using innerHTML (preview in particular: it was extracted via
+                // .textContent above, so any literal "<script>"-looking text that
+                // was HTML-entity-encoded in the source email must be re-escaped
+                // here or it would parse as real markup on this second insertion).
                 el.innerHTML = `
-                    <div class="email-sender">${icon}${prefix}${displayName}</div>
-                    <div class="email-subject">${email.subject || '(No Subject)'}</div>
-                    <div class="email-preview">${preview}</div>
+                    <div class="email-sender">${escapeHtml(icon + prefix + displayName)}</div>
+                    <div class="email-subject">${escapeHtml(email.subject || '(No Subject)')}</div>
+                    <div class="email-preview">${escapeHtml(preview)}</div>
                     <div class="email-time">${formatEmailDate(email.created_at)}</div>
                 `;
                 listEl.appendChild(el);
             });
         }
-        
+
         async function showEmailContent(index) {
             // Update active state in list
             document.querySelectorAll('.email-item').forEach((el, i) => {
@@ -3241,25 +3263,35 @@
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%;">
                     <div class="email-content-header">
-                        <div class="email-content-subject">${email.subject || '(No Subject)'}</div>
+                        <div class="email-content-subject">${escapeHtml(email.subject || '(No Subject)')}</div>
                         <div class="email-content-meta">
-                            <div class="email-content-sender">${icon}${directionLabel} <span style="font-weight:700;">${displayAddress.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</span></div>
+                            <div class="email-content-sender">${escapeHtml(icon + directionLabel)} <span style="font-weight:700;">${escapeHtml(displayAddress)}</span></div>
                             <div class="email-content-date">${fullDate}</div>
                         </div>
                     </div>
                     <div class="email-iframe-container" style="flex: 1;">
-                        <iframe id="email-body-iframe" class="email-iframe"></iframe>
+                        <iframe id="email-body-iframe" class="email-iframe" sandbox=""></iframe>
                     </div>
                     ${replyBtnHtml}
                 </div>
             `;
-            
-            // Inject HTML into iframe safely
+
+            // Render the email body in a fully sandboxed iframe: sandbox="" (no
+            // allow-scripts, no allow-same-origin) means anything in email.full_html
+            // -- which is attacker-controlled inbound mail content, not something the
+            // logged-in user authored -- cannot execute script (inline <script>,
+            // onerror=, javascript: hrefs all become inert) and cannot reach this
+            // page's DOM, cookies, or localStorage even if it tried. Never add
+            // allow-scripts and allow-same-origin together here -- that combination
+            // lets sandboxed content remove its own sandbox.
+            //
+            // A sandboxed iframe with no allow-same-origin is treated as a distinct
+            // origin, so the parent can no longer reach into it via
+            // iframe.contentWindow.document (that would throw). Use the srcdoc
+            // attribute instead, which sets the iframe's content without requiring
+            // cross-origin document access.
             const iframe = document.getElementById('email-body-iframe');
-            const iframeDoc = iframe.contentWindow.document;
-            iframeDoc.open();
-            // Wrap in basic styling so it looks good if it's just raw text
-            iframeDoc.write(`
+            iframe.srcdoc = `
                 <html>
                 <head>
                     <style>
@@ -3272,10 +3304,9 @@
                     ${email.full_html || '<p>No content</p>'}
                 </body>
                 </html>
-            `);
-            iframeDoc.close();
+            `;
         }
-        
+
         async function openReplyComposer(index) {
             const email = currentEmails[index];
             const pane = document.getElementById('email-content-pane');
@@ -3291,12 +3322,12 @@
                     <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
                         <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">To:</span>
-                            <input type="text" value="${email.sender}" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
+                            <input type="text" id="reply-to" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
                             <span style="font-size: 0.8rem; color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">🔒 Locked</span>
                         </div>
                         <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">Subject:</span>
-                            <input type="text" id="reply-subject" value="${replySubject}" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
+                            <input type="text" id="reply-subject" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
                         </div>
                         <div style="flex: 1; display: flex; flex-direction: column; margin-top: 1rem;">
                             <textarea id="reply-body" placeholder="Write your reply here..." style="flex: 1; border: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: none; color: #27272a; min-height: 300px;"></textarea>
@@ -3309,8 +3340,14 @@
                     </div>
                 </div>
             `;
+            // Set via .value (a DOM property, not an HTML attribute) rather than
+            // interpolating email.sender/replySubject into value="..." above --
+            // email.sender is inbound-mail-controlled and could otherwise contain a
+            // `"` that breaks out of the attribute and injects new attributes/markup.
+            document.getElementById('reply-to').value = email.sender;
+            document.getElementById('reply-subject').value = replySubject;
         }
-        
+
         async function sendReply(index) {
             const email = currentEmails[index];
             const subject = document.getElementById('reply-subject').value;
