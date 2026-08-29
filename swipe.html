@@ -1443,14 +1443,6 @@
             currentUserEmail = user.email;
             cachedUserId = user.id;
             renderAccountBadge(user.email);
-            // Demo-only display, mosco's account only -- no real credit_balance
-            // field exists yet, so this stays hardcoded rather than hidden.
-            if (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') {
-                const creditBlock = document.getElementById('credit-balance-block');
-                const creditValue = document.getElementById('credit-balance-value');
-                if (creditBlock) creditBlock.style.display = 'flex';
-                if (creditValue) creditValue.textContent = '68';
-            }
 
             if (!user.email_confirmed_at) {
                 sessionStorage.setItem('pending_verification_email', user.email);
@@ -1461,7 +1453,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score')
                 .eq('id', user.id)
                 .single();
 
@@ -1482,6 +1474,17 @@
             }
 
             userProfile = profile;
+
+            // Real credit balance, matching dashboard.html's display -- this
+            // used to be hardcoded to '68' for mosco's account only and stayed
+            // hidden (display:none) for every real user. Shown for every
+            // account now, same computation dashboard.html already uses.
+            const creditBalance = Math.max(0, (profile.applications_limit || 0) - (profile.application_credit_used || 0));
+            const creditBlock = document.getElementById('credit-balance-block');
+            const creditValue = document.getElementById('credit-balance-value');
+            if (creditBlock) creditBlock.style.display = 'flex';
+            if (creditValue) creditValue.textContent = String(creditBalance);
+
             initAutoApplyToggle(profile);
 
             const firstName = profile.first_name || '';
@@ -2418,6 +2421,18 @@
                 return;
             }
             stopEmptyStatePoll();
+
+            // A real card is about to render -- clear any leftover "Loading
+            // your deck" / "Preparing your matches" placeholder regardless of
+            // which caller reached this point. fetchPooledJobs's own success
+            // path already did this for its own call site, but
+            // refreshDeckSilently's background poll (every 6s) never did,
+            // leaving that placeholder visible underneath a fully-rendered
+            // real card whenever the poller was the one that found new jobs.
+            const emptyStateEl = document.getElementById('deck-empty-state');
+            if (emptyStateEl) emptyStateEl.style.display = 'none';
+            const deckSection = document.getElementById('swipe-deck-section');
+            if (deckSection) deckSection.style.display = 'block';
 
             // Render up to 3 cards stacked, current one on top and interactive.
             const visible = pooledJobs.slice(pooledJobIndex, pooledJobIndex + 3).reverse();
