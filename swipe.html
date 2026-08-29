@@ -996,6 +996,14 @@
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="settings" class="sidebar-nav-icon"></i> Settings
                 </button>
+                <!-- Restored 2026-08-29: the modal + submitFeedback()'s real
+                     Supabase write both still existed and worked, but nothing
+                     anywhere opened this modal -- whatever used to trigger it
+                     was removed at some point, leaving it orphaned (last real
+                     submission: 2026-06-17, over two months ago). -->
+                <button class="sidebar-nav-item" onclick="document.getElementById('feedback-modal').classList.add('active'); if(window.innerWidth<=768) toggleSidebar();">
+                    <i data-lucide="message-circle" class="sidebar-nav-icon"></i> Feedback
+                </button>
                 <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
                     <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
                     Log Out
