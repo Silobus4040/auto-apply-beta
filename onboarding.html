@@ -51,7 +51,7 @@
         .container { max-width: 700px; margin: 3rem auto 5rem; padding: 0 5%; overflow: hidden; position: relative; z-index: 1; }
 
         .header-section { text-align: center; margin-bottom: 2.5rem; }
-        .step-badge { display: inline-block; background: rgba(212,255,51,0.15); color: #7A8C00; border: 1px solid rgba(212,255,51,0.4); padding: 0.4rem 1.2rem; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; border-radius: 20px; }
+        .step-badge { display: inline-block; background: rgba(0,255,204,0.15); color: #00695C; border: 1px solid rgba(0,255,204,0.4); padding: 0.4rem 1.2rem; font-size: 0.8rem; font-weight: 800; margin-bottom: 1rem; text-transform: uppercase; letter-spacing: 1px; border-radius: 20px; }
         h1 { color: var(--text-heading); font-size: clamp(2rem, 4vw, 2.5rem); font-weight: 900; line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 1rem; text-transform: uppercase; }
         .header-sub { color: #52525B; font-size: 1.05rem; max-width: 560px; margin: 0 auto; font-weight: 500; }
 
@@ -214,7 +214,7 @@
     <div class="container">
         <div class="header-section">
             <div class="step-badge" id="step-indicator">Step 1 of 2</div>
-            <h1>Initialize Your Profile</h1>
+            <h1>Setup Your Profile</h1>
         </div>
 
         <div class="error-msg" id="error-msg"></div>
@@ -234,7 +234,6 @@
                                     <!-- Injected via JS -->
                                 </div>
                                 <button type="button" class="btn btn-secondary" onclick="addJobTitleField()" style="padding: 0.6rem 1rem; font-size: 0.8rem; margin-top: 0.5rem; margin-bottom: 0;">+ Add Another Role</button>
-                                <p class="form-hint" style="margin-top: 0.5rem;">The specific roles and seniority levels you want the AI to target.</p>
                             </div>
 
                             <div class="form-group">
@@ -242,20 +241,12 @@
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Local):</strong> Best for US, Canada, UK, and EU Users. Local jobs from almost every other country are available but limited. Add Remote Global if you're outside the listed countries to see more roles.</p>
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Global):</strong> Global remote roles are open to anyone, anywhere in the world, including companies based in other countries.</p>
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Pick both if you're open to either.</p>
-                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="Remote Local" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; Local
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="Remote Global" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Remote &mdash; Global
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="Hybrid" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Hybrid
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="workplace" value="On-site" style="width: 16px; height: 16px; margin: 0; padding: 0;"> On-site
-                                    </label>
-                                </div>
+                                <select id="workplace-select" name="workplace" multiple>
+                                    <option value="Remote Local">Remote &mdash; Local</option>
+                                    <option value="Remote Global">Remote &mdash; Global</option>
+                                    <option value="Hybrid">Hybrid</option>
+                                    <option value="On-site">On-site</option>
+                                </select>
                             </div>
 
                             <div class="form-group">
@@ -317,23 +308,13 @@
 
                             <div class="form-group">
                                 <label style="margin-bottom: 0.8rem;">Commitment Types (Optional) <span style="color: #6B7280; font-weight: 500; font-size: 0.8rem; text-transform: none;">Leave blank to search all</span></label>
-                                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="commitment" value="Full Time" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Full Time
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="commitment" value="Part Time" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Part Time
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="commitment" value="Contract" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Contract
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="commitment" value="Internship" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Internship
-                                    </label>
-                                    <label style="text-transform: none; font-weight: 500; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
-                                        <input type="checkbox" name="commitment" value="Temporary" style="width: 16px; height: 16px; margin: 0; padding: 0;"> Temporary
-                                    </label>
-                                </div>
+                                <select id="commitment-select" name="commitment" multiple>
+                                    <option value="Full Time">Full Time</option>
+                                    <option value="Part Time">Part Time</option>
+                                    <option value="Contract">Contract</option>
+                                    <option value="Internship">Internship</option>
+                                    <option value="Temporary">Temporary</option>
+                                </select>
                             </div>
                         <div class="form-group">
                             <label>Upload Current Resume (PDF) <span style="color: #FF6B4A;">*</span></label>
@@ -831,6 +812,38 @@
             updateEeoVisibility();
         });
 
+        const workplaceSelectEl = document.getElementById('workplace-select');
+        const workplaceChoices = new Choices(workplaceSelectEl, {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select workplace type(s)',
+            searchEnabled: false
+        });
+        const savedWorkplace = localStorage.getItem('onb_workplace');
+        if (savedWorkplace) {
+            try { workplaceChoices.setChoiceByValue(JSON.parse(savedWorkplace)); } catch(e) {}
+        }
+        workplaceSelectEl.addEventListener('change', () => {
+            const selected = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
+            localStorage.setItem('onb_workplace', JSON.stringify(selected));
+        });
+
+        const commitmentSelectEl = document.getElementById('commitment-select');
+        const commitmentChoices = new Choices(commitmentSelectEl, {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select commitment type(s)',
+            searchEnabled: false
+        });
+        const savedCommitment = localStorage.getItem('onb_commitment');
+        if (savedCommitment) {
+            try { commitmentChoices.setChoiceByValue(JSON.parse(savedCommitment)); } catch(e) {}
+        }
+        commitmentSelectEl.addEventListener('change', () => {
+            const selected = Array.from(commitmentSelectEl.selectedOptions).map(opt => opt.value);
+            localStorage.setItem('onb_commitment', JSON.stringify(selected));
+        });
+
         const currencySelectEl = document.getElementById('target-currency');
         const currencyCustomInput = document.getElementById('target-currency-custom');
         const currencyCustomHint = document.getElementById('currency-custom-hint');
@@ -1021,31 +1034,29 @@
                 // using remote_scope. Rows saved before the split have no scope, so
                 // they're treated as "open to both" rather than silently unticking
                 // the remote preference the user actually set.
-                if (profile.workplace_type) {
+                if (profile.workplace_type && !localStorage.getItem('onb_workplace')) {
                     const types = profile.workplace_type.split(', ');
-                    const tick = (value) => {
-                        const cb = document.querySelector(`input[name="workplace"][value="${value}"]`);
-                        if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
-                    };
+                    const selected = [];
+                    const add = (value) => { if (!selected.includes(value)) selected.push(value); };
                     types.forEach(t => {
                         if (t === 'Remote') {
                             const scope = profile.remote_scope;
-                            if (scope === 'local') tick('Remote Local');
-                            else if (scope === 'global') tick('Remote Global');
-                            else { tick('Remote Local'); tick('Remote Global'); }
+                            if (scope === 'local') add('Remote Local');
+                            else if (scope === 'global') add('Remote Global');
+                            else { add('Remote Local'); add('Remote Global'); }
                         } else {
-                            tick(t);
+                            add(t);
                         }
                     });
+                    localStorage.setItem('onb_workplace', JSON.stringify(selected));
+                    workplaceChoices.setChoiceByValue(selected);
                 }
-                
+
                 // Prepopulate commitment types
-                if (profile.commitment_type) {
+                if (profile.commitment_type && !localStorage.getItem('onb_commitment')) {
                     const types = profile.commitment_type.split(', ');
-                    types.forEach(t => {
-                        const cb = document.querySelector(`input[name="commitment"][value="${t}"]`);
-                        if (cb && !localStorage.getItem('onb_cb_' + cb.value)) cb.checked = true;
-                    });
+                    localStorage.setItem('onb_commitment', JSON.stringify(types));
+                    commitmentChoices.setChoiceByValue(types);
                 }
             }
 
@@ -1149,7 +1160,7 @@
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
             const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
             const countries = Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value);
-            const workplaces = Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value);
+            const workplaces = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
             const file = document.getElementById('resume-file').files[0];
             const savedResumeUrl = localStorage.getItem('onb_resume_url');
 
@@ -1210,13 +1221,6 @@
             }
         });
         
-        const checkboxes = document.querySelectorAll('#onboarding-form input[type="checkbox"]');
-        checkboxes.forEach(cb => {
-            const saved = localStorage.getItem('onb_cb_' + cb.value);
-            if (saved) cb.checked = (saved === 'true');
-            cb.addEventListener('change', () => localStorage.setItem('onb_cb_' + cb.value, cb.checked));
-        });
-
         // Resume Step State
         if (localStorage.getItem('onb_step') === '2') {
             slider.style.transform = 'translateX(-50%)';
@@ -1297,7 +1301,7 @@
                 // local-vs-global distinction is carried separately in remote_scope.
                 // Keeping workplace_type in the job_pool vocabulary is what lets the
                 // matching query keep comparing the two directly.
-                const workplaceChecked = Array.from(document.querySelectorAll('input[name="workplace"]:checked')).map(cb => cb.value);
+                const workplaceChecked = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
                 const wantsRemoteLocal = workplaceChecked.includes('Remote Local');
                 const wantsRemoteGlobal = workplaceChecked.includes('Remote Global');
                 const workplaceTypes = [];
@@ -1318,7 +1322,7 @@
                     experience_level_bucket: localStorage.getItem('onb_job-levels') || Array.from(document.querySelectorAll('.job-level-select')).map(s => s.value).join(', '),
                     target_location: Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value).join(', '),
                     workplace_type: workplaceTypes.join(', '),
-                    commitment_type: Array.from(document.querySelectorAll('input[name="commitment"]:checked')).map(cb => cb.value).join(', '),
+                    commitment_type: Array.from(commitmentSelectEl.selectedOptions).map(opt => opt.value).join(', '),
                     first_name: firstName,
                     last_name: lastName,
                     city: city,
