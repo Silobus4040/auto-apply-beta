@@ -82,7 +82,8 @@
         }
         [data-theme="dark"] .app-main { background: var(--bg-color) !important; }
         [data-theme="dark"] .glass-panel { background: rgba(35, 35, 38, 0.85) !important; border-color: rgba(255, 255, 255, 0.1) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important; }
-        [data-theme="dark"] .sidebar-logo-area { background: #ffffff; }
+        [data-theme="dark"] .sidebar-logo-area svg { background: #ffffff; padding: 0.3rem 0.6rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); margin-left: -0.2rem; }
+        [data-theme="dark"] .app-sidebar { background: var(--bg-color); }
         
         
         [data-theme="dark"] .sidebar-nav-item { color: var(--text-body); }
@@ -177,8 +178,8 @@
            register instead, same as dashboard.html. */
         .stat-view-btn {
             background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-body);
+            border: 1px solid rgba(0,0,0,0.2);
+            color: #000000;
             padding: 0.3rem 0.65rem;
             font-size: 0.78rem;
             font-weight: 600;
@@ -3527,6 +3528,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 

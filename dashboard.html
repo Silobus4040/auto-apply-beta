@@ -515,7 +515,7 @@
         .sidebar-logo-area {
             display: flex; align-items: center; gap: 0.5rem; padding: 1.25rem 1.25rem;
             border-bottom: 1px solid var(--border);
-            background: #ffffff; /* Exempt logo from dark mode */
+            
         }
         .sidebar-logo-icon {
             width: 32px; height: 32px; background: linear-gradient(135deg, #D4FF33, #00FFCC);
@@ -533,6 +533,8 @@
         }
         .sidebar-nav-item:hover { background: rgba(0,0,0,0.05); color: var(--text-heading); }
         [data-theme="dark"] .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); }
+        [data-theme="dark"] .sidebar-logo-area svg { background: #ffffff; padding: 0.3rem 0.6rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); margin-left: -0.2rem; }
+        [data-theme="dark"] .app-sidebar { background: var(--bg-color); }
         .sidebar-nav-item.active {
             background: rgba(16, 185, 129, 0.08); color: var(--text-heading); font-weight: 700;
             border-left: 3px solid var(--secondary);
@@ -3103,6 +3105,7 @@
     </script>
 </body>
 </html>
+
 
 
 
