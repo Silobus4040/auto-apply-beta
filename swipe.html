@@ -83,6 +83,7 @@
         [data-theme="dark"] .app-main { background: var(--bg-color) !important; }
         [data-theme="dark"] .glass-panel { background: rgba(35, 35, 38, 0.85) !important; border-color: rgba(255, 255, 255, 0.1) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important; }
         [data-theme="dark"] .swipe-card { background: var(--surface-color) !important; }
+        [data-theme="dark"] .stat-label { color: #a1a1aa; }
         [data-theme="dark"] .sidebar-nav-item { color: var(--text-body); }
         [data-theme="dark"] .sidebar-nav-item:hover, [data-theme="dark"] .sidebar-nav-item.active { color: var(--secondary); }
 
@@ -439,7 +440,7 @@
 
         /* Left Sidebar */
         .app-sidebar {
-            width: 240px; min-width: 240px; background: #fff; border-right: 1px solid var(--border);
+            width: 240px; min-width: 240px; background: var(--surface-color); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 0; gap: 0;
             overflow-y: auto; position: sticky; top: 65px; height: calc(100vh - 65px);
         }
@@ -712,14 +713,14 @@
         .swipe-card-header { display: flex; align-items: center; gap: 0.7rem; margin-bottom: 0.5rem; }
         .swipe-card-logo { width: 42px; height: 42px; border-radius: 10px; object-fit: contain; background: #f4f4f5; border: 1px solid var(--border); padding: 5px; flex-shrink: 0; }
         .swipe-card-company { font-size: 0.85rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; }
-        .swipe-card-title { font-size: 1.55rem; font-weight: 900; color: #000; line-height: 1.3; margin-bottom: 0.85rem; }
+        .swipe-card-title { font-size: 1.55rem; font-weight: 900; color: var(--text-heading); line-height: 1.3; margin-bottom: 0.85rem; }
         /* No flex-grow: this block holds only the location/salary lines, and
            letting it grow made it swallow every spare pixel of the fixed-height
            card -- a single 25px text row sat in a 118px box, i.e. ~93px of dead
            space above the fit badge on any job without a salary. Content now
            stacks tight; the read-more button (margin-top:auto) takes the slack. */
         .swipe-card-info { display: flex; flex-direction: column; gap: 0.65rem; }
-        .swipe-card-info-row { display: flex; align-items: center; gap: 0.65rem; font-size: 1rem; color: var(--text-body); font-weight: 600; line-height: 1.4; }
+        .swipe-card-info-row { display: flex; align-items: center; gap: 0.65rem; font-size: 1rem; color: var(--text-heading); font-weight: 600; line-height: 1.4; }
         /* lucide SVGs, not emoji -- sized/stroked to match the sidebar's own
            icon treatment (.sidebar-nav-icon) instead of emoji's font-size. */
         .swipe-card-info-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
@@ -3525,6 +3526,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
