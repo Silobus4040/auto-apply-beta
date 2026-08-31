@@ -83,7 +83,7 @@
         [data-theme="dark"] .app-main { background: var(--bg-color) !important; }
         [data-theme="dark"] .glass-panel { background: rgba(35, 35, 38, 0.85) !important; border-color: rgba(255, 255, 255, 0.1) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important; }
         
-        [data-theme="dark"] .stat-label { color: #a1a1aa; }
+        
         [data-theme="dark"] .sidebar-nav-item { color: var(--text-body); }
         [data-theme="dark"] .sidebar-nav-item:hover, [data-theme="dark"] .sidebar-nav-item.active { color: var(--secondary); }
 
@@ -167,7 +167,7 @@
         /* Stats Bar */
         .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .stat { display: flex; align-items: baseline; gap: 0.6rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
-        .stat-number { color: var(--text-heading); font-size: 2rem; font-weight: 900; line-height: 1; }
+        .stat-number { color: #000000; font-size: 2rem; font-weight: 900; line-height: 1; }
         .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
         /* Navigating to the applications table is a TERTIARY action here --
            it must not outweigh the deck's own Skip/Apply, which are the whole
@@ -886,7 +886,7 @@
             box-shadow: var(--glass-hi), var(--glass-shadow) !important;
             transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s;
         }
-        .stat{ border-radius: 18px !important; }
+        .stat{ border-radius: 18px !important; background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important; }
         .info-strip{ border-radius: 22px !important; }
         .search-section{ border-radius: 24px !important; }
         .stat:hover{ transform: translateY(-3px); box-shadow: var(--glass-hi), 0 30px 55px -20px rgba(18,28,58,.5) !important; }
@@ -3526,6 +3526,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
