@@ -73,6 +73,20 @@
             --text-body: #27272A;
             --border: #e4e4e7;
         }
+        [data-theme="dark"] {
+            --bg-color: #18181b;
+            --surface-color: #232326;
+            --text-heading: #fafafa;
+            --text-body: #d4d4d8;
+            --border: #3f3f46;
+        }
+        [data-theme="dark"] .app-main { background: var(--bg-color) !important; }
+        [data-theme="dark"] .glass-panel { background: rgba(35, 35, 38, 0.85) !important; border-color: rgba(255, 255, 255, 0.1) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important; }
+        [data-theme="dark"] .swipe-card { background: var(--surface-color) !important; }
+        [data-theme="dark"] .sidebar-nav-item { color: var(--text-body); }
+        [data-theme="dark"] .sidebar-nav-item:hover, [data-theme="dark"] .sidebar-nav-item.active { color: var(--secondary); }
+
+
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         /* overflow-x:hidden -- the decorative .background-blob glows (500px,
            positioned to bleed past the edge on purpose) had nothing containing
@@ -597,6 +611,14 @@
       posthog.init('phc_y8V9oWKixnvrna8PEWUFYkWrkVoeJBSWuKdj74iq7956',{api_host:'https://eu.i.posthog.com',person_profiles:'identified_only'})
     </script>
     <!-- End PostHog -->
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme_preference') || 'system';
+            const resolved = saved === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
+            if (resolved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
 </head>
 <body>
     <div class="background-blob blob-1"></div>
@@ -3502,3 +3524,5 @@
     </script>
 </body>
 </html>
+
+

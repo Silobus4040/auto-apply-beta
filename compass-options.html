@@ -59,6 +59,14 @@
             margin-top: 1rem;
         }
     </style>
+
+    <script>
+        (function() {
+            const saved = localStorage.getItem('theme_preference') || 'system';
+            const resolved = saved === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
+            if (resolved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+        })();
+    </script>
 </head>
 <body>
 
@@ -196,3 +204,4 @@
     </div>
 </body>
 </html>
+
