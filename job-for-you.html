@@ -94,8 +94,10 @@
     .empty strong { display: block; color: #000000; font-size: 1rem; margin-bottom: 0.35rem; }
     .secondary { margin-top: 4rem; }
     .company-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.85rem; }
-    .company-card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; font-weight: 900; font-size: 0.95rem; color: #000000; }
-    .company-card small { display: block; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; margin-top: 0.25rem; }
+    .company-card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; color: #000000; display: flex; align-items: center; gap: 0.85rem; min-height: 92px; }
+    .company-logo { width: 40px; height: 40px; border-radius: 10px; border: 1px solid var(--border); background: #ffffff; object-fit: contain; padding: 0.35rem; flex: 0 0 auto; }
+    .company-name { display: block; font-weight: 900; font-size: 0.95rem; line-height: 1.2; }
+    .company-card small { display: block; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; margin-top: 0.25rem; line-height: 1.35; }
     .gate { margin-top: 4rem; background: #09090b; color: #ffffff; border-radius: 16px; padding: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; }
     .gate h2 { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 0.35rem; }
     .gate p { color: #d4d4d8; font-size: 0.95rem; max-width: 760px; }
@@ -123,7 +125,7 @@
       .job-card { grid-template-columns: 1fr; }
       .job-actions { justify-content: flex-end; }
       .section-head { align-items: flex-start; flex-direction: column; }
-      .company-list { grid-template-columns: 1fr 1fr; }
+      .company-list { grid-template-columns: 1fr; }
       .gate { display: block; }
       .gate a { display: inline-block; margin-top: 1.1rem; }
     }
@@ -192,8 +194,8 @@
 
   <main>
     <p class="page-kicker">Global job discovery / public preview</p>
-    <h1>Jobs for you</h1>
-    <p class="lead">Search global roles by title, company, country, and work style. You can preview up to 10 matching jobs without signing in.</p>
+    <h1>Find global jobs</h1>
+    <p class="lead">RoleRover helps you discover and apply. Search global roles by title, company, country, and work style, then preview up to 10 matching jobs without signing in.</p>
 
     <form class="search-panel" id="search-form">
       <div class="search-row">
@@ -253,11 +255,16 @@
         <a class="see" href="signup.html">Browse all &rarr;</a>
       </div>
       <div class="company-list">
-        <div class="company-card">GitLab<small>Remote &middot; Technology</small></div>
-        <div class="company-card">Deel<small>Remote &middot; Fintech</small></div>
-        <div class="company-card">Canva<small>Remote &middot; Design</small></div>
-        <div class="company-card">Flutterwave<small>Nigeria &middot; Fintech</small></div>
-        <div class="company-card">Microsoft<small>Global &middot; Technology</small></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=gitlab.com&sz=64" alt="GitLab logo"><span><span class="company-name">GitLab</span><small>Remote &middot; Technology</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=deel.com&sz=64" alt="Deel logo"><span><span class="company-name">Deel</span><small>Remote &middot; Fintech</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=canva.com&sz=64" alt="Canva logo"><span><span class="company-name">Canva</span><small>Remote &middot; Design</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=flutterwave.com&sz=64" alt="Flutterwave logo"><span><span class="company-name">Flutterwave</span><small>Africa &middot; Fintech</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=microsoft.com&sz=64" alt="Microsoft logo"><span><span class="company-name">Microsoft</span><small>Global &middot; Technology</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=stripe.com&sz=64" alt="Stripe logo"><span><span class="company-name">Stripe</span><small>Global &middot; Finance</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=notion.so&sz=64" alt="Notion logo"><span><span class="company-name">Notion</span><small>Global &middot; Productivity</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=figma.com&sz=64" alt="Figma logo"><span><span class="company-name">Figma</span><small>Global &middot; Design</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=airbnb.com&sz=64" alt="Airbnb logo"><span><span class="company-name">Airbnb</span><small>Global &middot; Operations</small></span></div>
+        <div class="company-card"><img class="company-logo" src="https://www.google.com/s2/favicons?domain=openai.com&sz=64" alt="OpenAI logo"><span><span class="company-name">OpenAI</span><small>Global &middot; AI</small></span></div>
       </div>
     </section>
 
