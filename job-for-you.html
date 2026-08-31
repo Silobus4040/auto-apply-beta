@@ -56,7 +56,8 @@
     main { max-width: 1400px; margin: 0 auto; padding: 3.75rem 5% 6rem; }
     .page-kicker { color: #71717A; font-size: 0.78rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 0.9rem; }
     h1 { color: var(--text-heading); font-size: 4rem; font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.15rem; max-width: 860px; text-transform: uppercase; }
-    .lead { color: var(--text-muted); font-size: 1.08rem; font-weight: 500; line-height: 1.6; max-width: 780px; margin-bottom: 2rem; }
+    .lead { color: var(--text-muted); font-size: 1.08rem; font-weight: 500; line-height: 1.6; max-width: 780px; margin-bottom: 0.65rem; }
+    .free-note { color: #000000; font-size: 0.98rem; font-weight: 800; margin-bottom: 2rem; }
 
     .search-panel { border: 1px solid var(--border); background: #ffffff; border-radius: 14px; padding: 1rem; box-shadow: 0 14px 34px rgba(0,0,0,0.04); margin-bottom: 2.5rem; }
     .search-row { display: grid; grid-template-columns: minmax(260px, 1.4fr) minmax(180px, 0.85fr) minmax(180px, 0.85fr) auto; gap: 0.85rem; align-items: stretch; }
@@ -81,7 +82,7 @@
     .job-main { min-width: 0; display: grid; grid-template-columns: 42px minmax(0, 1fr); gap: 0.85rem; align-items: start; }
     .job-copy { min-width: 0; }
     .job-card h3 { color: #000000; margin: 0 0 0.2rem; font-size: 1.22rem; font-weight: 900; letter-spacing: -0.35px; line-height: 1.2; overflow-wrap: anywhere; }
-    .company { font-size: 0.92rem; color: var(--text-muted); font-weight: 650; overflow-wrap: anywhere; }
+    .company { font-size: 0.92rem; color: var(--text-muted); font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
     .mark { width: 42px; height: 42px; background: linear-gradient(135deg, rgba(184,242,74,0.18), rgba(34,214,174,0.16)); border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; display: grid; place-items: center; font-weight: 900; color: #000000; flex: 0 0 auto; }
     .meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
     .tag { color: #3f3f46; background: #f4f4f5; border: 1px solid #eeeeef; border-radius: 999px; padding: 0.32rem 0.65rem; font-size: 0.76rem; font-weight: 700; }
@@ -210,8 +211,9 @@
 
   <main>
     <p class="page-kicker">Global job discovery / public preview</p>
-    <h1>Find global jobs</h1>
-    <p class="lead">RoleRover helps you discover and apply. Search global roles by title, company, country, and work style, then preview up to 10 matching jobs without signing in.</p>
+    <h1>Find local and global jobs</h1>
+    <p class="lead">Discover opportunities worldwide and apply manually or use RoleRover to apply automatically.</p>
+    <p class="free-note">Get your first 10 automatic applications free. No payment required.</p>
 
     <form class="search-panel" id="search-form">
       <div class="search-row">
@@ -339,9 +341,6 @@
         company: text(job, 'companyName', 'company_name', 'company') || 'Company',
         location: text(job, 'location', 'job_location') || 'Worldwide',
         work: text(job, 'workplaceType', 'workplace_type', 'work_type') || 'Remote',
-        seniority: text(job, 'seniorityLevel', 'seniority_level') || 'Experience not listed',
-        employment: text(job, 'employmentType', 'employment_type') || 'Full-time',
-        eligibility: text(job, 'eligibility', 'geo_eligibility') || 'Eligibility not listed',
         visa: text(job, 'visa_status', 'visaStatus'),
         dateValue: text(job, 'postedAt', 'posted_at') || text(job, 'created_at') || text(job, 'last_seen_at'),
         dateKind: text(job, 'postedAt', 'posted_at') ? 'posted' : (text(job, 'created_at') ? 'added' : 'seen'),
@@ -362,10 +361,7 @@
 
     function metaTags(job) {
       const tags = [
-        `<span class="tag primary">${esc(job.work)} &middot; ${esc(job.location)}</span>`,
-        `<span class="tag">${esc(job.seniority)}</span>`,
-        `<span class="tag">${esc(job.employment)}</span>`,
-        `<span class="tag">${esc(job.eligibility)}</span>`
+        `<span class="tag primary">${esc(job.work)} &middot; ${esc(job.location)}</span>`
       ];
       if (job.visa && !/unknown|not listed/i.test(job.visa)) {
         tags.push(`<span class="tag dark">${esc(job.visa)}</span>`);
@@ -389,8 +385,8 @@
           <div class="job-main">
             <span class="mark">${esc(job.company.slice(0, 1).toUpperCase())}</span>
             <div class="job-copy">
-              <h3>${esc(job.title)}</h3>
-              <div class="company">${esc(job.company)}</div>
+              <h3>${esc(job.company)}</h3>
+              <div class="company">${esc(job.title)}</div>
               <div class="meta">
                 ${metaTags(job)}
               </div>
