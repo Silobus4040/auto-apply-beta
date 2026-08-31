@@ -97,9 +97,9 @@
 
         .field { display: flex; flex-direction: column; gap: 0.5rem; }
         .field label { color: #52525B; font-weight: 750; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .field input, .field select { padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 8px; color: #000000; font-size: 0.95rem; transition: all 0.2s; }
+        .field input, .field select { padding: 0.85rem 1rem; background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; color: var(--text-body); font-size: 0.95rem; transition: all 0.2s; }
         .field input:focus, .field select:focus { outline: none; border-color: #00FFCC; box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
-        .field select option { background: #ffffff; color: #000000; }
+        .field select option { background: var(--bg-color); color: var(--text-body); }
 
         /* Prevent browser autofill from overriding dark styles */
         input:-webkit-autofill,
@@ -115,7 +115,7 @@
         .filter-row { display: flex; gap: 1rem; margin-top: 1.25rem; align-items: center; flex-wrap: wrap; }
         .filter-label { color: #52525B; font-weight: 750; font-size: 0.8rem; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
         .filter-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .chip { padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: #ffffff; color: var(--text-body); transition: all 0.2s; user-select: none; text-transform: uppercase; }
+        .chip { padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface-color); color: var(--text-body); transition: all 0.2s; user-select: none; text-transform: uppercase; }
         .chip:hover { border-color: #a1a1aa; color: #000000; }
         .chip.active { background: var(--primary); border-color: var(--primary); color: #000000; font-weight: 700; }
         .chip .chip-count { color: inherit; font-size: 0.75rem; font-weight: 700; margin-left: 0.3rem; opacity: 0.8; }
@@ -126,8 +126,8 @@
 
         /* Stats Bar */
         .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
-        .stat-number { color: #000000; font-size: 2rem; font-weight: 900; line-height: 1; }
+        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
+        .stat-number { color: var(--text-heading); font-size: 2rem; font-weight: 900; line-height: 1; }
         .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
         /* Jumping to the table below is a TERTIARY action -- the least
            important thing on the page, and near-redundant now that the table
@@ -209,6 +209,9 @@
             border-bottom: 2px solid rgba(0, 255, 204, 0.2);
             white-space: nowrap;
         }
+        [data-theme="dark"] .jobs-table th {
+            color: var(--secondary);
+        }
         .jobs-table th:nth-child(1) { width: 30%; }
         .jobs-table th:nth-child(2) { width: 16%; }
         .jobs-table th:nth-child(3) { width: 28%; }
@@ -223,6 +226,9 @@
         .jobs-table tbody tr:nth-child(even) td {
             background: #fafafa;
         }
+        [data-theme="dark"] .jobs-table tbody tr:nth-child(even) td {
+            background: rgba(255, 255, 255, 0.03);
+        }
         .jobs-table tr:hover td {
             background: rgba(0, 255, 204, 0.06);
         }
@@ -230,12 +236,12 @@
             border-bottom: none;
         }
         .table-role-title {
-            color: #000000;
+            color: var(--text-heading);
             font-weight: 600;
             font-size: 0.875rem;
         }
         .table-company-name {
-            color: #52525B;
+            color: var(--text-body);
             font-size: 0.875rem;
             font-weight: 600;
             margin-top: 0.2rem;
@@ -307,6 +313,9 @@
            applied to the fit-score badge). */
         .status-queued, .status-applied, .status-interview, .status-failed, .status-blocked, .status-hired, .status-rejected {
             background: rgba(0, 0, 0, 0.05); color: #000000; border-color: rgba(0, 0, 0, 0.1);
+        }
+        [data-theme="dark"] .status-queued, [data-theme="dark"] .status-applied, [data-theme="dark"] .status-interview, [data-theme="dark"] .status-failed, [data-theme="dark"] .status-blocked, [data-theme="dark"] .status-hired, [data-theme="dark"] .status-rejected {
+            background: rgba(255, 255, 255, 0.1); color: var(--text-heading); border-color: rgba(255, 255, 255, 0.2);
         }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
@@ -499,13 +508,14 @@
 
         /* Left Sidebar */
         .app-sidebar {
-            width: 240px; min-width: 240px; background: #fff; border-right: 1px solid var(--border);
+            width: 240px; min-width: 240px; background: var(--surface-color); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 0; gap: 0;
             overflow-y: auto; position: sticky; top: 65px; height: calc(100vh - 65px);
         }
         .sidebar-logo-area {
             display: flex; align-items: center; gap: 0.5rem; padding: 1.25rem 1.25rem;
             border-bottom: 1px solid var(--border);
+            background: #ffffff; /* Exempt logo from dark mode */
         }
         .sidebar-logo-icon {
             width: 32px; height: 32px; background: linear-gradient(135deg, #D4FF33, #00FFCC);
@@ -559,18 +569,18 @@
         }
 
         /* Main content area */
-        .app-main { flex: 1; overflow-y: auto; background: #F8FAFC; }
+        .app-main { flex: 1; overflow-y: auto; background: var(--bg-color); }
 
         /* Page header inside main */
         .page-header {
             display: flex; justify-content: space-between; align-items: center;
             padding: 0; margin-bottom: 0.85rem;
         }
-        .page-title { font-size: 1.35rem; font-weight: 800; color: #000; letter-spacing: -0.5px; }
+        .page-title { font-size: 1.35rem; font-weight: 800; color: var(--text-heading); letter-spacing: -0.5px; }
 
         /* Info strip (status + criteria) */
         .info-strip {
-            background: #fff; border: 1px solid var(--border); border-radius: 16px;
+            background: var(--surface-color); border: 1px solid var(--border); border-radius: 16px;
             padding: 0.85rem 1.25rem; margin-bottom: 1rem;
             display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr) minmax(0, 1fr); justify-content: start; gap: 0.5rem 2.5rem;
             align-items: start; position: relative;
@@ -582,7 +592,7 @@
             font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
             color: #A1A1AA; letter-spacing: 0.5px;
         }
-        .info-strip-value { font-size: 0.85rem; font-weight: 600; color: #000; }
+        .info-strip-value { font-size: 0.85rem; font-weight: 600; color: var(--text-heading); }
         /* Roles/Countries/Type as individual chips instead of one run-on comma
            sentence. Chips stay on one line (nowrap) and overflow is measured
            in JS -- whatever doesn't fit collapses into a "+N" chip that
@@ -603,6 +613,16 @@
         #pref-workplaces .pref-chip {
             background: rgba(16, 185, 129, 0.08); color: #047857;
             border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        [data-theme="dark"] .pref-chip {
+            background: rgba(255, 255, 255, 0.1); color: var(--text-heading);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
+        [data-theme="dark"] #pref-roles .pref-chip,
+        [data-theme="dark"] #pref-countries .pref-chip,
+        [data-theme="dark"] #pref-workplaces .pref-chip {
+            background: rgba(16, 185, 129, 0.15); color: var(--secondary);
+            border: 1px solid rgba(16, 185, 129, 0.3);
         }
         .info-strip-edit {
             position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
@@ -672,12 +692,12 @@
                the transform quietly normalises that. */
             .jobs-table td[data-label="Company / Role"] div:first-child {
                 font-size: 0.78rem !important; font-weight: 700 !important;
-                color: #52525B !important; text-transform: uppercase; letter-spacing: 0.4px;
+                color: var(--text-body) !important; text-transform: uppercase; letter-spacing: 0.4px;
                 margin-top: 0 !important;
             }
             .jobs-table td[data-label="Company / Role"] div:last-child {
                 font-size: 1.05rem !important; font-weight: 700 !important;
-                color: #000 !important; margin-top: 0.15rem !important; line-height: 1.3;
+                color: var(--text-heading) !important; margin-top: 0.15rem !important; line-height: 1.3;
             }
 
             /* Status pill on its own line under the title */
@@ -878,7 +898,7 @@
                     <div style="min-width: 140px;">
                         <div style="font-size: 10px; font-weight: 700; letter-spacing: 0.5px; color: #A1A1AA; text-transform: uppercase; margin-bottom: 3px;">Credit balance</div>
                         <div style="display: flex; align-items: center; justify-content: flex-end; gap: 6px; margin-bottom: 5px;">
-                            <span style="font-size: 1.05rem; font-weight: 800; color: #000000;"><span id="credit-balance-value" data-real-value="0">••</span><span id="credit-balance-limit" style="font-size: 0.8rem; font-weight: 700; color: #A1A1AA;"></span></span>
+                            <span style="font-size: 1.05rem; font-weight: 800; color: var(--text-heading);"><span id="credit-balance-value" data-real-value="0">••</span><span id="credit-balance-limit" style="font-size: 0.8rem; font-weight: 700; color: #A1A1AA;"></span></span>
                             <button type="button" onclick="toggleCreditBalanceVisibility()" aria-label="Show balance" style="background:none; border:none; padding:0; margin:0; cursor:pointer; color:#71717A; display:flex; align-items:center;">
                                 <svg id="credit-balance-eye" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8Z"></path>
@@ -886,12 +906,12 @@
                                 </svg>
                             </button>
                         </div>
-                        <div style="height: 5px; width: 100%; background: #f4f4f5; border-radius: 4px; overflow: hidden;">
-                            <div id="credit-balance-bar" data-real-pct="0" style="height: 100%; width: 0%; background: #000000; border-radius: 4px; transition: width 0.3s;"></div>
+                        <div style="height: 5px; width: 100%; background: var(--border); border-radius: 4px; overflow: hidden;">
+                            <div id="credit-balance-bar" data-real-pct="0" style="height: 100%; width: 0%; background: var(--text-heading); border-radius: 4px; transition: width 0.3s;"></div>
                         </div>
                     </div>
                 </div>
-                <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
+                <a href="index.html#pricing" id="nav-upgrade-btn" style="background: var(--surface-color); color: var(--text-heading); padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
             </div>
         </div>
 
