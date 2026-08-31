@@ -15,15 +15,15 @@
     :root {
       --bg-color: #ffffff;
       --surface-color: #ffffff;
-      --primary: #D4FF33;
-      --primary-hover: #bde62b;
+      --primary: #B8F24A;
+      --primary-hover: #A9E63E;
       --secondary: #FF6B4A;
       --text-heading: #000000;
       --text-body: #27272A;
       --text-muted: #52525B;
       --border: #e4e4e7;
       --soft: #fafafa;
-      --teal: #00FFCC;
+      --teal: #22D6AE;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
@@ -39,9 +39,9 @@
     .nav-actions { gap: 1.25rem; margin-left: auto; padding-left: clamp(3rem, 6vw, 7rem); }
     .nav-link { color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; white-space: nowrap; }
     .btn { padding: 0.8rem 1.85rem; border-radius: 50px; font-size: 0.95rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.25s ease; display: inline-block; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; border: 0; }
-    .btn-nav { padding: 0.55rem 1.25rem; font-size: 0.8rem; box-shadow: 0 4px 14px rgba(212, 255, 51, 0.3); }
-    .btn-primary { background: linear-gradient(135deg, #D4FF33, #00FFCC, #D4FF33); background-size: 200% auto; color: #000000; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(212, 255, 51, 0.35); }
-    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.5); }
+    .btn-nav { padding: 0.55rem 1.25rem; font-size: 0.8rem; box-shadow: 0 4px 12px rgba(34, 214, 174, 0.16); }
+    .btn-primary { background: linear-gradient(135deg, #B8F24A, #22D6AE); color: #000000; border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 8px 22px rgba(34, 214, 174, 0.18); }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 12px 28px rgba(34, 214, 174, 0.24); }
 
     .mobile-nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; flex-direction: column; gap: 4px; z-index: 100; }
     .mobile-nav-toggle span { display: block; width: 22px; height: 2.5px; background: #000; border-radius: 2px; transition: 0.2s; }
@@ -51,7 +51,7 @@
     .mobile-nav-panel.active { right: 0; }
     .mobile-nav-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; align-self: flex-end; color: #000; padding: 0; line-height: 1; }
     .mobile-nav-panel a { color: #000; text-decoration: none; font-weight: 700; font-size: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0; }
-    .mobile-nav-panel .mobile-nav-cta { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000; text-align: center; border: none; border-radius: 8px; padding: 0.75rem; font-weight: 800; margin-top: 0.5rem; }
+    .mobile-nav-panel .mobile-nav-cta { background: linear-gradient(135deg, #B8F24A, #22D6AE); color: #000; text-align: center; border: none; border-radius: 8px; padding: 0.75rem; font-weight: 800; margin-top: 0.5rem; }
 
     main { max-width: 1400px; margin: 0 auto; padding: 3.75rem 5% 6rem; }
     .page-kicker { color: #71717A; font-size: 0.78rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 0.9rem; }
@@ -69,7 +69,7 @@
     .quick { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; margin-top: 1rem; }
     .quick-label { color: #71717A; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; }
     .quick button { background: #ffffff; border: 1px solid var(--border); border-radius: 999px; color: #3f3f46; font-size: 0.85rem; font-weight: 700; padding: 0.45rem 0.85rem; cursor: pointer; }
-    .quick button.active, .quick button:hover { border-color: #000000; color: #000000; background: rgba(212,255,51,0.18); }
+    .quick button.active, .quick button:hover { border-color: #000000; color: #000000; background: rgba(184,242,74,0.16); }
 
     .section-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin: 0 0 1.1rem; }
     .section-head h2 { color: #000000; font-size: 1.85rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 0.25rem; }
@@ -82,18 +82,18 @@
     .job-copy { min-width: 0; }
     .job-card h3 { color: #000000; margin: 0 0 0.2rem; font-size: 1.22rem; font-weight: 900; letter-spacing: -0.35px; line-height: 1.2; overflow-wrap: anywhere; }
     .company { font-size: 0.92rem; color: var(--text-muted); font-weight: 650; overflow-wrap: anywhere; }
-    .mark { width: 42px; height: 42px; background: linear-gradient(135deg, rgba(212,255,51,0.24), rgba(0,255,204,0.2)); border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; display: grid; place-items: center; font-weight: 900; color: #000000; flex: 0 0 auto; }
+    .mark { width: 42px; height: 42px; background: linear-gradient(135deg, rgba(184,242,74,0.18), rgba(34,214,174,0.16)); border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; display: grid; place-items: center; font-weight: 900; color: #000000; flex: 0 0 auto; }
     .meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
     .tag { color: #3f3f46; background: #f4f4f5; border: 1px solid #eeeeef; border-radius: 999px; padding: 0.32rem 0.65rem; font-size: 0.76rem; font-weight: 700; }
-    .tag.primary { background: rgba(212,255,51,0.25); color: #253000; border-color: rgba(212,255,51,0.6); }
+    .tag.primary { background: rgba(184,242,74,0.18); color: #253000; border-color: rgba(184,242,74,0.45); }
     .tag.dark { background: #18181b; color: #ffffff; border-color: #18181b; }
     .job-actions { display: grid; gap: 0.65rem; align-self: stretch; align-content: center; }
     .action-item { display: grid; gap: 0.28rem; }
     .job-action-btn { width: 100%; min-height: 42px; border-radius: 999px; padding: 0.72rem 1rem; font-size: 0.8rem; font-weight: 900; white-space: nowrap; text-transform: uppercase; text-align: center; cursor: pointer; border: 1px solid transparent; line-height: 1.1; display: inline-flex; align-items: center; justify-content: center; }
     .manual-btn { background: #ffffff; color: #000000; border-color: #d4d4d8; }
     .manual-btn:hover { border-color: #000000; background: #fafafa; }
-    .auto-btn { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; box-shadow: 0 10px 24px rgba(0,255,204,0.18); }
-    .auto-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 30px rgba(0,255,204,0.26); }
+    .auto-btn { background: linear-gradient(135deg, #B8F24A, #22D6AE); color: #000000; box-shadow: 0 8px 20px rgba(34,214,174,0.18); }
+    .auto-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(34,214,174,0.24); }
     .action-copy { color: #71717A; font-size: 0.75rem; line-height: 1.35; text-align: center; }
     .date { display: block; color: #047857; font-size: 0.76rem; font-weight: 850; margin-top: 0.65rem; text-transform: uppercase; letter-spacing: 0.3px; }
     .empty, .loading { background: #ffffff; border: 1px dashed #d4d4d8; border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted); font-weight: 500; }
@@ -105,14 +105,14 @@
     .gate { margin-top: 4rem; background: #09090b; color: #ffffff; border-radius: 16px; padding: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; }
     .gate h2 { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 0.35rem; }
     .gate p { color: #d4d4d8; font-size: 0.95rem; max-width: 760px; }
-    .gate a { background: var(--primary); color: #000000; border-radius: 999px; padding: 0.75rem 1.05rem; font-size: 0.82rem; font-weight: 900; text-transform: uppercase; white-space: nowrap; }
+    .gate a { background: linear-gradient(135deg, #B8F24A, #22D6AE); color: #000000; border-radius: 999px; padding: 0.75rem 1.05rem; font-size: 0.82rem; font-weight: 900; text-transform: uppercase; white-space: nowrap; }
     .modal-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,0.42); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 1.25rem; }
     .modal-backdrop.active { display: flex; }
     .modal { width: min(100%, 460px); background: #ffffff; border-radius: 16px; border: 1px solid var(--border); box-shadow: 0 28px 70px rgba(0,0,0,0.18); padding: 1.5rem; }
     .modal h2 { color: #000000; font-size: 1.45rem; font-weight: 900; line-height: 1.15; letter-spacing: -0.4px; margin-bottom: 0.65rem; }
     .modal p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.55; margin-bottom: 1rem; }
     .modal-checks { list-style: none; display: grid; gap: 0.5rem; color: #27272A; font-size: 0.92rem; font-weight: 650; margin-bottom: 1.25rem; }
-    .modal-checks li::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: linear-gradient(135deg, #D4FF33, #00FFCC); margin-right: 0.55rem; vertical-align: 1px; }
+    .modal-checks li::before { content: ""; display: inline-block; width: 8px; height: 8px; border-radius: 999px; background: linear-gradient(135deg, #B8F24A, #22D6AE); margin-right: 0.55rem; vertical-align: 1px; }
     .modal-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
     .modal-actions .job-action-btn { display: inline-flex; align-items: center; justify-content: center; }
     .modal-close { background: #ffffff; color: #000000; border-color: #d4d4d8; }
@@ -293,12 +293,12 @@
       <h2 id="auto-apply-title">Set up automatic applications</h2>
       <p>RoleRover can only apply after you provide your resume, complete your application profile, and approve the role.</p>
       <ul class="modal-checks">
-        <li>Upload or confirm your resume</li>
-        <li>Review the application profile RoleRover will use</li>
-        <li>Approve automatic application before submission</li>
+        <li>Signup</li>
+        <li>Upload your resume</li>
+        <li>Swipe to Apply or set up Auto-Apply</li>
       </ul>
       <div class="modal-actions">
-        <button class="job-action-btn modal-close" type="button" onclick="closeAutoApplyModal()">Not now</button>
+        <a class="job-action-btn modal-close" href="index.html#how-it-works">Watch demo</a>
         <a class="job-action-btn auto-btn" href="signup.html">Continue setup</a>
       </div>
     </div>
