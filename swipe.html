@@ -165,8 +165,8 @@
 
         /* Stats Bar */
         .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
-        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
-        .stat-number { color: #000000; font-size: 2rem; font-weight: 900; line-height: 1; }
+        .stat { display: flex; align-items: baseline; gap: 0.6rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
+        .stat-number { color: var(--text-heading); font-size: 2rem; font-weight: 900; line-height: 1; }
         .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
         /* Navigating to the applications table is a TERTIARY action here --
            it must not outweigh the deck's own Skip/Apply, which are the whole
@@ -461,9 +461,10 @@
             background: transparent; width: 100%; text-align: left; font-family: inherit;
             position: relative;
         }
-        .sidebar-nav-item:hover { background: #f4f4f5; color: #000; }
+        .sidebar-nav-item:hover { background: rgba(0,0,0,0.05); color: var(--text-heading); }
+        [data-theme="dark"] .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); }
         .sidebar-nav-item.active {
-            background: rgba(16, 185, 129, 0.08); color: #000; font-weight: 700;
+            background: rgba(16, 185, 129, 0.08); color: var(--text-heading); font-weight: 700;
             border-left: 3px solid var(--secondary);
         }
         .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
@@ -486,7 +487,7 @@
             display: flex; justify-content: space-between; align-items: center;
             padding: 0; margin-bottom: 0.85rem;
         }
-        .page-title { font-size: 1.35rem; font-weight: 800; color: #000; letter-spacing: -0.5px; }
+        .page-title { font-size: 1.35rem; font-weight: 800; color: var(--text-heading); letter-spacing: -0.5px; }
 
         /* Info strip (status + criteria) */
         .info-strip {
@@ -626,7 +627,7 @@
 
     <nav id="mobile-topbar" style="display: none;">
         <button class="hamburger-btn" style="display:block;" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
-        <span style="font-weight: 800; font-size: 1rem; color: #000;">Job Deck</span>
+        <span style="font-weight: 800; font-size: 1rem; color: var(--text-heading);">Job Deck</span>
         <div class="nav-avatar" id="nav-avatar" style="margin: 0;">??</div>
     </nav>
     <span id="nav-badge" style="display:none;">⏳ Free Trial</span>
@@ -1070,7 +1071,7 @@
                         <span style="display: inline-flex; align-items: center; background: #f4f4f5; border: 1px solid var(--border); padding: 0.3rem 0.85rem; border-radius: 999px; font-size: 0.9rem; font-weight: 800; color: #000000;" id="credit-balance-value">0</span>
                     </div>
                 </div>
-                <a href="index.html#pricing" id="nav-upgrade-btn" style="background: #fff; color: #000; padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
+                <a href="index.html#pricing" id="nav-upgrade-btn" style="background: var(--surface-color); color: var(--text-heading); padding: 0.5rem 1.25rem; border-radius: 8px; font-size: 0.85rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border); display: inline-flex; align-items: center; gap: 0.4rem; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.04);">Upgrade</a>
             </div>
         </div>
 
@@ -3524,5 +3525,7 @@
     </script>
 </body>
 </html>
+
+
 
 

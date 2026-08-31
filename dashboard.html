@@ -224,7 +224,7 @@
             font-size: 0.875rem;
         }
         .jobs-table tbody tr:nth-child(even) td {
-            background: #fafafa;
+            background: var(--surface-color);
         }
         [data-theme="dark"] .jobs-table tbody tr:nth-child(even) td {
             background: rgba(255, 255, 255, 0.03);
@@ -426,9 +426,9 @@
         
         /* Email Client UI */
         .email-client-container { display: flex; width: 100%; height: 85vh; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
-        .email-sidebar { width: 350px; border-right: 1px solid var(--border); background: #fafafa; display: flex; flex-direction: column; }
-        .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
-        .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
+        .email-sidebar { width: 350px; border-right: 1px solid var(--border); background: var(--surface-color); display: flex; flex-direction: column; }
+        .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-color); display: flex; justify-content: space-between; align-items: center; }
+        .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
         .email-list { flex: 1; overflow-y: auto; }
         .email-item { padding: 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; position: relative; }
         .email-item:hover { background: #f4f4f5; }
@@ -485,7 +485,7 @@
                opened email silently fails to render on mobile only (desktop
                uses flex-direction:row, unaffected by this column-axis quirk). */
             .email-client-container.mobile-show-content .email-content { display: flex; flex: 1; min-height: 0; }
-            .email-mobile-intro { display: block; padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; max-height: 45vh; overflow-y: auto; flex-shrink: 0; }
+            .email-mobile-intro { display: block; padding: 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-color); max-height: 45vh; overflow-y: auto; flex-shrink: 0; }
             .email-mobile-intro .email-empty-state { color: #71717A; }
             .email-intro-dismiss-btn {
                 display: inline-flex; margin-top: 1rem; background: #000; color: #fff;
@@ -531,9 +531,10 @@
             background: transparent; width: 100%; text-align: left; font-family: inherit;
             position: relative;
         }
-        .sidebar-nav-item:hover { background: #f4f4f5; color: #000; }
+        .sidebar-nav-item:hover { background: rgba(0,0,0,0.05); color: var(--text-heading); }
+        [data-theme="dark"] .sidebar-nav-item:hover { background: rgba(255,255,255,0.05); }
         .sidebar-nav-item.active {
-            background: rgba(16, 185, 129, 0.08); color: #000; font-weight: 700;
+            background: rgba(16, 185, 129, 0.08); color: var(--text-heading); font-weight: 700;
             border-left: 3px solid var(--secondary);
         }
         .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
@@ -922,7 +923,7 @@
             <p id="resume-invalid-reason" style="color: #B91C1C; font-size: 0.85rem; font-weight: 700;"></p>
         </div>
 
-        <div id="activation-gate-banner" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.75rem;">
+        <div id="activation-gate-banner" style="display: none; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.75rem;">
             <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">Activate Rover</h2>
             <p style="color: #71717A; font-size: 0.95rem; margin-bottom: 1.25rem; max-width: 640px;">You're all set up — Rover just needs an invite code to start scanning and applying for you. Don't have one yet? You're on the list; we'll email you when it's your turn.</p>
             <div id="activation-error-msg" style="display:none; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.65rem 1rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 1rem; border-radius: 10px;"></div>
@@ -961,7 +962,7 @@
 
 
         <!-- Market Intelligence / Skill Gap Analyzer -->
-        <div id="market-intel-section" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
+        <div id="market-intel-section" style="display: none; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
             <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
             <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
             <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
@@ -1109,8 +1110,8 @@
                     <h3 style="display: flex; align-items: center; gap: 0.4rem;"><i data-lucide="inbox" style="width: 16px; height: 16px;"></i> Rover Inbox</h3>
                     <button onclick="fetchEmails()" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000000; transition: background 0.15s;" title="Refresh" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i></button>
                 </div>
-                <div style="display: flex; border-bottom: 1px solid var(--border); background: #fafafa;">
-                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="inbox" style="width: 14px; height: 14px;"></i>Inbox</button>
+                <div style="display: flex; border-bottom: 1px solid var(--border); background: var(--surface-color);">
+                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: var(--text-heading); transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="inbox" style="width: 14px; height: 14px;"></i>Inbox</button>
                     <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="send" style="width: 14px; height: 14px;"></i>Sent</button>
                 </div>
                 <div class="email-mobile-intro" id="email-mobile-intro"></div>
@@ -1201,7 +1202,7 @@
             </div>
 
             <div id="wizard-slide-1">
-                <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: left; margin-bottom: 1.5rem;">
+                <div style="background: var(--surface-color); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: left; margin-bottom: 1.5rem;">
                     <h4 style="color: #000000; font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                         <span style="color: var(--secondary); font-size: 1.2rem;">✉</span> Dedicated Mailbox
                     </h4>
@@ -1243,7 +1244,7 @@
             <h2 id="upgrade-modal-title" style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Upgrade Your Account</h2>
             <p style="color: #71717A; font-size: 0.9rem; margin-bottom: 2rem;">Choose the number of job applications you want.</p>
             
-            <div style="background: #fafafa; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
+            <div style="background: var(--surface-color); border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; margin-bottom: 2rem;">
                 <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1rem;">
                     <span style="font-size: 0.75rem; font-weight: 750; color: #71717A; text-transform: uppercase; letter-spacing: 0.5px;">Volume</span>
                     <strong id="slider-jobs-display" style="font-size: 1.5rem; color: #000;">100 Jobs</strong>
@@ -2335,7 +2336,7 @@
                         </div>`;
                 } else if (userProfile && !userProfile.is_activated) {
                     container.innerHTML = `
-                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: var(--surface-color); border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
                             <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">Nothing Here Yet</h3>
                             <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto; line-height: 1.65; font-weight: 500;">
                                 Enter your invite code above to activate Rover and run your first search.
@@ -2350,7 +2351,7 @@
                     // found" message before it corrected itself a moment later.
                     // Show a neutral checking state instead of a definitive claim.
                     container.innerHTML = `
-                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: var(--surface-color); border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
                             <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
                             <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">Checking Your Matches...</h3>
                             <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto; line-height: 1.65; font-weight: 500;">
@@ -2359,7 +2360,7 @@
                         </div>`;
                 } else {
                     container.innerHTML = `
-                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: var(--surface-color); border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
                             <span style="font-size: 2.5rem; display: block; margin-bottom: 1.25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,0.05));">🔍</span>
                             <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">No New Roles Matching Your Exact Criteria Found Yet</h3>
                             <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto; line-height: 1.65; font-weight: 500;">
@@ -2374,7 +2375,7 @@
 
             if (!filteredJobs.length) {
                 container.innerHTML = `
-                    <div class="empty-state" style="padding: 2.5rem 1.5rem; text-align: center; background: #fafafa; border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
+                    <div class="empty-state" style="padding: 2.5rem 1.5rem; text-align: center; background: var(--surface-color); border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
                         <span style="font-size: 2rem; display: block; margin-bottom: 1rem;">🔍</span>
                         <h3 style="font-size: 1.05rem; font-weight: 800; margin-bottom: 0.5rem; color: #000000;">No applications match this filter</h3>
                         <p style="font-size: 0.88rem; color: var(--text-body); margin-bottom: 1.25rem;">Try a different status or clear your search.</p>
@@ -2943,7 +2944,7 @@
             let replyBtnHtml = '';
             if (!isOutbound) {
                 replyBtnHtml = `
-                    <div style="padding: 1.5rem; border-top: 1px solid var(--border); background: #fafafa; display: flex; justify-content: flex-end;">
+                    <div style="padding: 1.5rem; border-top: 1px solid var(--border); background: var(--surface-color); display: flex; justify-content: flex-end;">
                         <button onclick="openReplyComposer(${index})" style="background: #000; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.9rem; transition: background 0.2s;">
                             <span style="font-size: 1.1rem;">↩️</span> Reply to Recruiter
                         </button>
@@ -3102,4 +3103,8 @@
     </script>
 </body>
 </html>
+
+
+
+
 
