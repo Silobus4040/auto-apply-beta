@@ -82,6 +82,7 @@
         }
         [data-theme="dark"] .app-main { background: var(--bg-color) !important; }
         [data-theme="dark"] .glass-panel { background: rgba(35, 35, 38, 0.85) !important; border-color: rgba(255, 255, 255, 0.1) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important; }
+        [data-theme="dark"] .sidebar-logo-area { background: #ffffff; }
         
         
         [data-theme="dark"] .sidebar-nav-item { color: var(--text-body); }
@@ -156,7 +157,7 @@
            treatment as credit-balance-block: no card, no border, no extra
            lines, just label + switch ending the row. */
         .auto-apply-bar { display: none; align-items: center; gap: 0.5rem; }
-        .auto-apply-title { font-weight: 700; font-size: 0.85rem; color: #000000; white-space: nowrap; }
+        .auto-apply-title { font-weight: 700; font-size: 0.85rem; color: var(--text-heading); white-space: nowrap; }
         .auto-apply-switch { position: relative; display: inline-block; width: 38px; height: 22px; flex-shrink: 0; }
         .auto-apply-switch input { opacity: 0; width: 0; height: 0; }
         .auto-apply-switch-track { position: absolute; cursor: pointer; inset: 0; background: #d4d4d8; border-radius: 999px; transition: background 0.2s; }
@@ -886,7 +887,7 @@
             box-shadow: var(--glass-hi), var(--glass-shadow) !important;
             transition: transform .25s cubic-bezier(.4,0,.2,1), box-shadow .25s;
         }
-        .stat{ border-radius: 18px !important; background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important; }
+        .stat{ border-radius: 18px !important; background: #ffffff !important; }
         .info-strip{ border-radius: 22px !important; }
         .search-section{ border-radius: 24px !important; }
         .stat:hover{ transform: translateY(-3px); box-shadow: var(--glass-hi), 0 30px 55px -20px rgba(18,28,58,.5) !important; }
@@ -3526,6 +3527,8 @@
     </script>
 </body>
 </html>
+
+
 
 
 
