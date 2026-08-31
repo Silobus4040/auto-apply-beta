@@ -300,20 +300,35 @@
         seniority: text(job, 'seniorityLevel', 'seniority_level') || 'Experience not listed',
         employment: text(job, 'employmentType', 'employment_type') || 'Full-time',
         eligibility: text(job, 'eligibility', 'geo_eligibility') || 'Eligibility not listed',
-        visa: text(job, 'visa_status', 'visaStatus') || 'Visa status unknown',
-        posted: text(job, 'postedAt', 'posted_at', 'created_at'),
+        visa: text(job, 'visa_status', 'visaStatus'),
+        dateValue: text(job, 'postedAt', 'posted_at') || text(job, 'created_at') || text(job, 'last_seen_at'),
+        dateKind: text(job, 'postedAt', 'posted_at') ? 'posted' : (text(job, 'created_at') ? 'added' : 'seen'),
         link: text(job, 'applyUrl', 'apply_url', 'link') || '#'
       };
     }
 
-    function formatDate(value) {
+    function formatDate(value, kind) {
       if (!value) return 'Recently added';
       const date = new Date(value);
       if (Number.isNaN(date.getTime())) return 'Recently added';
       const days = Math.floor((Date.now() - date.getTime()) / 86400000);
-      if (days <= 0) return 'Posted today';
-      if (days === 1) return 'Posted yesterday';
-      return `Posted ${days} days ago`;
+      const label = kind === 'posted' ? 'Posted' : (kind === 'seen' ? 'Checked' : 'Added');
+      if (days <= 0) return `${label} today`;
+      if (days === 1) return `${label} yesterday`;
+      return `${label} ${days} days ago`;
+    }
+
+    function metaTags(job) {
+      const tags = [
+        `<span class="tag primary">${esc(job.work)} &middot; ${esc(job.location)}</span>`,
+        `<span class="tag">${esc(job.seniority)}</span>`,
+        `<span class="tag">${esc(job.employment)}</span>`,
+        `<span class="tag">${esc(job.eligibility)}</span>`
+      ];
+      if (job.visa && !/unknown|not listed/i.test(job.visa)) {
+        tags.push(`<span class="tag dark">${esc(job.visa)}</span>`);
+      }
+      return tags.join('');
     }
 
     function render() {
@@ -334,13 +349,9 @@
             <h3>${esc(job.title)}</h3>
             <div class="company">${esc(job.company)}</div>
             <div class="meta">
-              <span class="tag primary">${esc(job.work)} &middot; ${esc(job.location)}</span>
-              <span class="tag">${esc(job.seniority)}</span>
-              <span class="tag">${esc(job.employment)}</span>
-              <span class="tag">${esc(job.eligibility)}</span>
-              <span class="tag dark">${esc(job.visa)}</span>
+              ${metaTags(job)}
             </div>
-            <span class="date">${esc(formatDate(job.posted))}</span>
+            <span class="date">${esc(formatDate(job.dateValue, job.dateKind))}</span>
           </div>
           <div class="job-actions">
             <button class="save" data-index="${index}" aria-label="Save job">Save</button>
