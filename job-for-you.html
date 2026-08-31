@@ -1,45 +1,397 @@
 <!doctype html>
 <html lang="en">
 <head>
+  <script>if (window.location.hostname === 'jobs.leadscompass.ai') window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search);</script>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Jobs for you | Rooover</title>
+  <title>Jobs for you | RoleRover</title>
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <meta name="description" content="Search public RoleRover job matches by role, company, location, and work type. Preview up to 10 matching jobs before creating a profile.">
+  <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
+  <link rel="canonical" href="https://myrolerover.com/job-for-you.html">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root{--ink:#151515;--muted:#666760;--soft:#f6f6f1;--line:#dfdfd7;--lime:#d4ff33;--teal:#00d7ad;--green:#19785f;--orange:#ef7356}
-    *{box-sizing:border-box}body{margin:0;background:var(--soft);color:var(--ink);font-family:Manrope,Arial,sans-serif;font-size:15px;line-height:1.5}a{color:inherit;text-decoration:none}button,input,select{font:inherit}
-    .layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}.sidebar{background:#fff;border-right:1px solid var(--line);padding:28px 16px;display:flex;flex-direction:column}.brand{font-size:23px;font-weight:800;letter-spacing:-1.6px;padding:0 12px 42px}.brand span{background:linear-gradient(135deg,var(--lime),var(--teal));padding:2px 7px;border-radius:6px;margin-left:3px}.label{color:#999a93;font:11px 'DM Mono',monospace;letter-spacing:1.2px;text-transform:uppercase;padding:0 12px 10px}.nav{display:grid;gap:5px}.nav a{padding:12px;border-radius:9px;color:#5f605b;font-size:14px;display:flex;gap:11px;align-items:center}.nav a:hover{background:#f1f1ec;color:var(--ink)}.nav a.active{background:var(--lime);color:var(--ink);font-weight:800}.nav-icon{width:18px;text-align:center}.side-cta{margin-top:auto;background:var(--ink);color:#fff;border-radius:12px;padding:17px;font-size:13px;line-height:1.5}.side-cta strong{display:block;color:var(--lime);margin-bottom:5px}
-    main{width:100%;max-width:1180px;margin:0 auto;padding:46px clamp(22px,5vw,70px) 80px}.header{display:flex;justify-content:space-between;align-items:flex-start;gap:25px;margin-bottom:32px}.eyebrow{font:11px 'DM Mono',monospace;color:#8b8c84;letter-spacing:1.5px;text-transform:uppercase;margin:0 0 12px}.header h1{font-size:clamp(36px,5vw,58px);line-height:1.02;letter-spacing:-3px;margin:0 0 14px}.lede{max-width:665px;margin:0;color:var(--muted);font-size:16px;line-height:1.65}.profile{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;white-space:nowrap}.avatar{background:var(--ink);color:#fff;width:38px;height:38px;border-radius:50%;display:grid;place-items:center;font-weight:800}
-    .toolbar{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:34px;box-shadow:0 5px 18px #17171709}.search-row{display:grid;grid-template-columns:1.35fr 1fr 1fr auto;gap:10px}.field{display:flex;align-items:center;gap:10px;background:var(--soft);border:1px solid var(--line);border-radius:8px;padding:0 13px}.field span{color:#85867e}.field input,.field select{width:100%;border:0;outline:0;background:transparent;color:var(--ink);padding:12px 0;font-size:14px}.find{background:var(--ink);color:#fff;border:0;border-radius:8px;padding:0 20px;cursor:pointer;font-weight:800}.find:hover{background:#333}.quick{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px}.quick-label{color:#8b8c84;font:11px 'DM Mono',monospace;text-transform:uppercase}.quick button{background:#fff;border:1px solid var(--line);border-radius:6px;color:#55564f;font:12px 'DM Mono',monospace;padding:7px 10px;cursor:pointer}.quick button.active,.quick button:hover{border-color:var(--ink);color:var(--ink)}
-    .section-head{display:flex;justify-content:space-between;align-items:end;margin:0 0 14px}.section-head h2{font-size:24px;letter-spacing:-1px;margin:0 0 3px}.section-head p{color:var(--muted);font-size:13px;margin:0}.see{font-weight:800;font-size:13px;border-bottom:1px solid var(--ink);padding-bottom:3px;white-space:nowrap}.job-list{display:grid;gap:12px}.job-card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:22px 24px;display:grid;grid-template-columns:1fr auto;gap:18px;transition:.2s ease}.job-card:hover{border-color:#b8b9b0;box-shadow:0 9px 25px #1717170c;transform:translateY(-1px)}.job-card h3{margin:0 0 4px;font-size:19px;letter-spacing:-.7px}.company{font-size:13px;color:var(--muted)}.mark{float:left;width:42px;height:42px;background:#f1f1eb;border:1px solid var(--line);border-radius:9px;display:grid;place-items:center;font-weight:800;margin-right:13px}.meta{display:flex;flex-wrap:wrap;gap:7px;margin-top:17px}.tag{font:11px 'DM Mono',monospace;color:#55564f;background:#f1f1eb;border-radius:5px;padding:6px 8px}.tag.primary{background:#eaffc5;color:#3c5900}.tag.dark{background:#252525;color:#fff}.job-actions{display:flex;align-items:center;gap:8px;align-self:center}.save{background:#fff;border:1px solid var(--line);color:#777870;border-radius:7px;width:38px;height:38px;cursor:pointer;font-size:20px}.save.saved{color:var(--orange);border-color:#f2b4a5}.view{background:var(--ink);color:#fff;border-radius:7px;padding:10px 15px;font-size:12px;font-weight:800;white-space:nowrap}.date{display:block;color:var(--green);font:11px 'DM Mono',monospace;margin-top:14px}.empty{background:#fff;border:1px dashed #c8c9c0;border-radius:12px;padding:34px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--ink);font-size:16px;margin-bottom:5px}.secondary{margin-top:42px}.company-list{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.company-card{background:#fff;border:1px solid var(--line);border-radius:9px;padding:15px;font-weight:800;font-size:13px}.company-card small{display:block;color:var(--muted);font-size:11px;font-weight:500;margin-top:4px}.gate{margin-top:42px;border-radius:13px;background:var(--ink);color:#fff;padding:25px 27px;display:flex;justify-content:space-between;align-items:center;gap:20px}.gate h2{font-size:22px;letter-spacing:-.8px;margin:0 0 5px}.gate p{font-size:13px;color:#c9cbc3;margin:0;max-width:660px}.gate a{background:var(--lime);color:var(--ink);border-radius:7px;padding:11px 15px;font-size:12px;font-weight:800;white-space:nowrap}.loading{padding:30px;color:var(--muted);text-align:center;background:#fff;border:1px solid var(--line);border-radius:12px}
-    @media(max-width:900px){.layout{grid-template-columns:1fr}.sidebar{display:none}.search-row{grid-template-columns:1fr 1fr}.field:first-child{grid-column:1/-1}.find{padding:12px}.company-list{grid-template-columns:repeat(3,1fr)}}@media(max-width:600px){main{padding:28px 16px 55px}.header{display:block}.profile{margin-top:18px}.search-row{grid-template-columns:1fr}.field:first-child{grid-column:auto}.job-card{grid-template-columns:1fr;padding:18px}.job-actions{justify-content:flex-end}.company-list{grid-template-columns:repeat(2,1fr)}.gate{display:block}.gate a{display:inline-block;margin-top:17px}}
-    @media(min-width:901px){.layout{display:block}.sidebar{height:76px;width:100%;padding:0 5%;display:flex;flex-direction:row;align-items:center;border-right:0;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10}.brand{padding:0;margin-right:42px}.label,.side-cta{display:none}.nav{display:flex;align-items:center;gap:4px}.nav a{padding:10px 14px}.nav a.active{background:transparent;color:var(--ink);position:relative}.nav a.active:after{content:'';position:absolute;left:14px;right:14px;bottom:2px;height:3px;background:var(--lime);border-radius:5px}.nav a:hover{background:#f4f4ef}.sidebar:after{content:'Create a profile →';margin-left:auto;background:var(--ink);color:#fff;border-radius:7px;padding:10px 14px;font-size:12px;font-weight:800}main{max-width:1180px;padding-top:58px}}
+    :root {
+      --bg-color: #ffffff;
+      --surface-color: #ffffff;
+      --primary: #D4FF33;
+      --primary-hover: #bde62b;
+      --secondary: #FF6B4A;
+      --text-heading: #000000;
+      --text-body: #27272A;
+      --text-muted: #52525B;
+      --border: #e4e4e7;
+      --soft: #fafafa;
+      --teal: #00FFCC;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
+    body { background: var(--bg-color); color: var(--text-body); overflow-x: hidden; line-height: 1.6; }
+    a { color: inherit; text-decoration: none; }
+    button, input, select { font: inherit; }
+
+    nav { display: flex; align-items: center; padding: 1.5rem clamp(2rem, 3.25vw, 4rem); max-width: 1680px; margin: 0 auto; border-bottom: 1px solid rgba(0,0,0,0.06); position: sticky; top: 0; background: #fff; z-index: 100; }
+    .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; display: flex; align-items: center; gap: 0; text-transform: uppercase; }
+    .nav-links { display: flex; flex: 1; align-items: center; min-width: 0; margin-left: clamp(2.5rem, 4vw, 4.75rem); }
+    .nav-primary, .nav-actions { display: flex; align-items: center; }
+    .nav-primary { gap: clamp(1.5rem, 2vw, 2.5rem); }
+    .nav-actions { gap: 1.25rem; margin-left: auto; padding-left: clamp(3rem, 6vw, 7rem); }
+    .nav-link { color: #000000; text-decoration: none; font-weight: 600; text-transform: uppercase; font-size: 0.9rem; white-space: nowrap; }
+    .btn { padding: 0.8rem 1.85rem; border-radius: 50px; font-size: 0.95rem; font-weight: 800; cursor: pointer; text-decoration: none; transition: all 0.25s ease; display: inline-block; text-transform: uppercase; letter-spacing: 0.3px; text-align: center; border: 0; }
+    .btn-nav { padding: 0.55rem 1.25rem; font-size: 0.8rem; box-shadow: 0 4px 14px rgba(212, 255, 51, 0.3); }
+    .btn-primary { background: linear-gradient(135deg, #D4FF33, #00FFCC, #D4FF33); background-size: 200% auto; color: #000000; border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 10px 30px rgba(212, 255, 51, 0.35); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.5); }
+
+    .mobile-nav-toggle { display: none; background: none; border: none; cursor: pointer; padding: 0.5rem; flex-direction: column; gap: 4px; z-index: 100; }
+    .mobile-nav-toggle span { display: block; width: 22px; height: 2.5px; background: #000; border-radius: 2px; transition: 0.2s; }
+    .mobile-nav-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.3); z-index: 998; }
+    .mobile-nav-overlay.active { display: block; }
+    .mobile-nav-panel { position: fixed; top: 0; right: -260px; width: 250px; height: 100%; background: #fff; z-index: 999; padding: 2rem 1.5rem; box-shadow: -4px 0 20px rgba(0,0,0,0.08); transition: right 0.25s ease; display: flex; flex-direction: column; gap: 0.5rem; }
+    .mobile-nav-panel.active { right: 0; }
+    .mobile-nav-close { background: none; border: none; font-size: 1.8rem; cursor: pointer; align-self: flex-end; color: #000; padding: 0; line-height: 1; }
+    .mobile-nav-panel a { color: #000; text-decoration: none; font-weight: 700; font-size: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0; }
+    .mobile-nav-panel .mobile-nav-cta { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000; text-align: center; border: none; border-radius: 8px; padding: 0.75rem; font-weight: 800; margin-top: 0.5rem; }
+
+    main { max-width: 1400px; margin: 0 auto; padding: 4.5rem 5% 6rem; }
+    .page-kicker { color: #71717A; font-size: 0.78rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 0.9rem; }
+    h1 { color: var(--text-heading); font-size: 4rem; font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.15rem; max-width: 860px; text-transform: uppercase; }
+    .lead { color: var(--text-muted); font-size: 1.15rem; font-weight: 500; line-height: 1.65; max-width: 780px; margin-bottom: 2.25rem; }
+
+    .search-panel { border: 1px solid var(--border); background: #ffffff; border-radius: 16px; padding: 1.25rem; box-shadow: 0 18px 45px rgba(0,0,0,0.04); margin-bottom: 3rem; }
+    .search-row { display: grid; grid-template-columns: minmax(260px, 1.4fr) minmax(180px, 0.85fr) minmax(180px, 0.85fr) auto; gap: 0.85rem; align-items: stretch; }
+    .field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .field span { color: #71717A; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; }
+    .field input, .field select { width: 100%; min-height: 52px; border: 1px solid var(--border); outline: 0; background: var(--soft); color: var(--text-heading); border-radius: 10px; padding: 0 1rem; font-size: 0.95rem; font-weight: 600; }
+    .field input:focus, .field select:focus { border-color: #111111; background: #ffffff; }
+    .find { align-self: end; min-height: 52px; background: #000000; color: #ffffff; border: 0; border-radius: 10px; padding: 0 1.5rem; cursor: pointer; font-weight: 900; white-space: nowrap; }
+    .find:hover { background: #27272a; }
+    .quick { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; margin-top: 1rem; }
+    .quick-label { color: #71717A; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.8px; }
+    .quick button { background: #ffffff; border: 1px solid var(--border); border-radius: 999px; color: #3f3f46; font-size: 0.85rem; font-weight: 700; padding: 0.45rem 0.85rem; cursor: pointer; }
+    .quick button.active, .quick button:hover { border-color: #000000; color: #000000; background: rgba(212,255,51,0.18); }
+
+    .section-head { display: flex; justify-content: space-between; align-items: end; gap: 1rem; margin: 0 0 1.1rem; }
+    .section-head h2 { color: #000000; font-size: 1.85rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 0.25rem; }
+    .section-head p { color: var(--text-muted); font-size: 0.95rem; margin: 0; }
+    .see { color: #000000; font-weight: 900; font-size: 0.9rem; border-bottom: 1px solid #000000; padding-bottom: 3px; white-space: nowrap; }
+    .job-list { display: grid; gap: 0.9rem; }
+    .job-card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.35rem 1.45rem; display: grid; grid-template-columns: 1fr auto; gap: 1.25rem; transition: 0.2s ease; }
+    .job-card:hover { border-color: #a1a1aa; box-shadow: 0 14px 35px rgba(0,0,0,0.06); transform: translateY(-1px); }
+    .job-card h3 { color: #000000; margin: 0 0 0.25rem; font-size: 1.2rem; font-weight: 900; letter-spacing: -0.4px; }
+    .company { font-size: 0.92rem; color: var(--text-muted); font-weight: 600; }
+    .mark { float: left; width: 42px; height: 42px; background: linear-gradient(135deg, rgba(212,255,51,0.24), rgba(0,255,204,0.2)); border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; display: grid; place-items: center; font-weight: 900; margin-right: 0.85rem; color: #000000; }
+    .meta { display: flex; flex-wrap: wrap; gap: 0.45rem; margin-top: 1rem; }
+    .tag { color: #3f3f46; background: #f4f4f5; border: 1px solid #eeeeef; border-radius: 999px; padding: 0.32rem 0.65rem; font-size: 0.76rem; font-weight: 700; }
+    .tag.primary { background: rgba(212,255,51,0.25); color: #253000; border-color: rgba(212,255,51,0.6); }
+    .tag.dark { background: #18181b; color: #ffffff; border-color: #18181b; }
+    .job-actions { display: flex; align-items: center; gap: 0.5rem; align-self: center; }
+    .save { background: #ffffff; border: 1px solid var(--border); color: #52525B; border-radius: 999px; min-height: 40px; padding: 0 0.85rem; cursor: pointer; font-size: 0.8rem; font-weight: 900; text-transform: uppercase; }
+    .save.saved { color: var(--secondary); border-color: rgba(255,107,74,0.4); background: rgba(255,107,74,0.06); }
+    .view { background: #000000; color: #ffffff; border-radius: 999px; padding: 0.7rem 1rem; font-size: 0.82rem; font-weight: 900; white-space: nowrap; text-transform: uppercase; }
+    .date { display: block; color: #047857; font-size: 0.78rem; font-weight: 800; margin-top: 0.9rem; text-transform: uppercase; letter-spacing: 0.3px; }
+    .empty, .loading { background: #ffffff; border: 1px dashed #d4d4d8; border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted); font-weight: 500; }
+    .empty strong { display: block; color: #000000; font-size: 1rem; margin-bottom: 0.35rem; }
+    .secondary { margin-top: 4rem; }
+    .company-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 0.85rem; }
+    .company-card { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.1rem; font-weight: 900; font-size: 0.95rem; color: #000000; }
+    .company-card small { display: block; color: var(--text-muted); font-size: 0.78rem; font-weight: 600; margin-top: 0.25rem; }
+    .gate { margin-top: 4rem; background: #09090b; color: #ffffff; border-radius: 16px; padding: 2rem; display: flex; justify-content: space-between; align-items: center; gap: 1.5rem; }
+    .gate h2 { font-size: 1.55rem; font-weight: 900; letter-spacing: -0.5px; margin-bottom: 0.35rem; }
+    .gate p { color: #d4d4d8; font-size: 0.95rem; max-width: 760px; }
+    .gate a { background: var(--primary); color: #000000; border-radius: 999px; padding: 0.75rem 1.05rem; font-size: 0.82rem; font-weight: 900; text-transform: uppercase; white-space: nowrap; }
+
+    @media (max-width: 1100px) {
+      .nav-links { display: none; }
+      nav { justify-content: space-between; }
+      .mobile-nav-toggle { display: flex; }
+      h1 { font-size: 3rem; }
+      .search-row { grid-template-columns: 1fr 1fr; }
+      .field:first-child { grid-column: 1 / -1; }
+      .find { padding: 0 1rem; }
+      .company-list { grid-template-columns: repeat(3, 1fr); }
+    }
+
+    @media (max-width: 700px) {
+      nav { padding: 1rem 1.25rem; }
+      .logo svg { height: 40px !important; }
+      main { padding: 2.6rem 1.25rem 4rem; }
+      h1 { font-size: 2.35rem; letter-spacing: -1px; }
+      .lead { font-size: 1rem; }
+      .search-row { grid-template-columns: 1fr; }
+      .field:first-child { grid-column: auto; }
+      .job-card { grid-template-columns: 1fr; }
+      .job-actions { justify-content: flex-end; }
+      .section-head { align-items: flex-start; flex-direction: column; }
+      .company-list { grid-template-columns: 1fr 1fr; }
+      .gate { display: block; }
+      .gate a { display: inline-block; margin-top: 1.1rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="layout">
-    <aside class="sidebar"><a class="brand" href="dashboard.html">RO<span>O</span>OVER</a><div class="label">Workspace</div><nav class="nav"><a href="dashboard.html"><span class="nav-icon">⌂</span>Dashboard</a><a class="active" href="job-for-you.html"><span class="nav-icon">✦</span>Jobs for you</a><a href="swipe.html"><span class="nav-icon">▱</span>Job deck</a><a href="swipe.html"><span class="nav-icon">♡</span>Saved jobs</a><a href="dashboard.html#alerts"><span class="nav-icon">◎</span>Alerts</a></nav><div class="side-cta"><strong>Let Rooover apply</strong>Connect your CV once and let us handle repetitive applications for the roles you choose.</div></aside>
-    <main>
-      <header class="header"><div><p class="eyebrow">Global job discovery / 01</p><h1>Jobs for you</h1><p class="lede">Search relevant roles from anywhere in the world. Choose a location and work preference to see your first matches — no account required.</p></div><div class="profile"><span class="avatar">R</span><span>Public preview<br><a href="signup.html" style="color:var(--ink);font-weight:800">Create a profile →</a></span></div></header>
-      <form class="toolbar" id="search-form"><div class="search-row"><label class="field"><span>⌕</span><input id="query" type="search" placeholder="Job title, skill, or company"></label><label class="field"><span>⌖</span><select id="location"><option value="">Any location</option><option>Nigeria</option><option>Ghana</option><option>Kenya</option><option>USA</option><option>South Africa</option><option>Worldwide</option></select></label><label class="field"><span>◌</span><select id="work-type"><option value="">Any work type</option><option>Remote</option><option>Hybrid</option><option>On-site</option></select></label><button class="find" type="submit">Find jobs</button></div><div class="quick"><span class="quick-label">Quick filters</span><button type="button" class="active">All matches</button><button type="button">Open globally</button><button type="button">Africa eligible</button><button type="button">Visa sponsorship</button></div></form>
-      <section><div class="section-head"><div><h2>Recommended for you</h2><p>Roles matched to your Rooover profile <span id="match-summary"></span></p></div><a class="see" href="swipe.html">Add more jobs →</a></div><div id="job-list" class="job-list"><div class="loading">Loading your matches…</div></div></section>
-      <section class="secondary"><div class="section-head"><div><h2>Global hiring companies</h2><p>Explore teams that hire across borders</p></div><a class="see" href="swipe.html">Browse all →</a></div><div class="company-list"><div class="company-card">GitLab<small>Remote · Technology</small></div><div class="company-card">Deel<small>Remote · Fintech</small></div><div class="company-card">Canva<small>Remote · Design</small></div><div class="company-card">Flutterwave<small>Nigeria · Fintech</small></div><div class="company-card">Microsoft<small>Global · Technology</small></div></div></section>
-      <section class="gate"><div><h2>Want to see more matches?</h2><p>Open the job deck to review more roles, save opportunities, and choose which applications Rooover should prepare for you.</p></div><a href="swipe.html">Add more jobs →</a></section>
-    </main>
-  </div>
+  <nav>
+    <a href="index.html" class="logo" style="text-decoration: none; display: flex; align-items: center; gap: 0px; color: var(--text-heading);">
+      <svg viewBox="0 0 350 84" fill="none" xmlns="http://www.w3.org/2000/svg" style="width: auto; height: 48px; display: inline-block; vertical-align: middle;">
+        <defs>
+          <linearGradient id="soft-grad-nav" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#B2FF33" />
+            <stop offset="100%" stop-color="#33FFAA" />
+          </linearGradient>
+        </defs>
+        <image href="assets/rover_suitcase_icon.png" x="28" y="7" width="70" height="67" preserveAspectRatio="xMidYMid meet"/>
+        <text x="98" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="currentColor" letter-spacing="-2px">R</text>
+        <g transform="translate(148, 19)">
+          <circle cx="28" cy="28" r="28" stroke="url(#soft-grad-nav)" stroke-width="5" fill="none"/>
+          <circle cx="28" cy="28" r="22" stroke="currentColor" stroke-width="1.2" stroke-dasharray="1.5 2.5" opacity="0.35" fill="none"/>
+          <text x="28" y="15.5" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">N</text>
+          <text x="28" y="40.5" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">S</text>
+          <text x="15" y="28" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">W</text>
+          <text x="41" y="28" font-family="'Outfit', sans-serif" font-size="10.5" font-weight="900" fill="currentColor" text-anchor="middle" dominant-baseline="middle">E</text>
+          <g transform="rotate(-8 28 28)">
+            <polygon points="28,28 24.5,28 28,16" fill="#D4FF33"/>
+            <polygon points="28,28 31.5,28 28,16" fill="#00FFCC"/>
+            <polygon points="28,28 24.5,28 28,40" fill="#a1a1aa"/>
+            <polygon points="28,28 31.5,28 28,40" fill="#52525b"/>
+            <circle cx="28" cy="28" r="2.5" fill="#ffffff" stroke="#18181b" stroke-width="1"/>
+          </g>
+        </g>
+        <text x="208" y="72" font-family="'Outfit', sans-serif" font-size="72" font-weight="900" fill="currentColor" letter-spacing="-2px">VER</text>
+      </svg>
+    </a>
+
+    <button class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="mobile-nav-overlay" id="mobile-nav-overlay" onclick="toggleMobileNav()"></div>
+    <div class="mobile-nav-panel" id="mobile-nav-panel">
+      <button class="mobile-nav-close" onclick="toggleMobileNav()">&times;</button>
+      <a href="index.html#how-it-works">How it works</a>
+      <a href="index.html#roles">Supported Roles</a>
+      <a href="index.html#countries">Supported Countries</a>
+      <a href="index.html#pricing">Pricing</a>
+      <a href="job-for-you.html">Jobs for you</a>
+      <a href="login.html" onclick="toggleMobileNav()">Log In</a>
+      <a href="signup.html" onclick="toggleMobileNav()" class="mobile-nav-cta">Try for Free</a>
+    </div>
+
+    <div class="nav-links">
+      <div class="nav-primary">
+        <a href="index.html#how-it-works" class="nav-link">How it works</a>
+        <a href="index.html#roles" class="nav-link">Supported Roles</a>
+        <a href="index.html#countries" class="nav-link">Supported Countries</a>
+        <a href="index.html#pricing" class="nav-link">Pricing</a>
+        <a href="job-for-you.html" class="nav-link">Jobs for you</a>
+      </div>
+      <div class="nav-actions">
+        <a href="login.html" class="nav-link">Log In</a>
+        <a href="signup.html" class="btn btn-primary btn-nav">Try for Free</a>
+      </div>
+    </div>
+  </nav>
+
+  <main>
+    <p class="page-kicker">Global job discovery / public preview</p>
+    <h1>Jobs for you</h1>
+    <p class="lead">Search global roles by title, company, country, and work style. You can preview up to 10 matching jobs without signing in.</p>
+
+    <form class="search-panel" id="search-form">
+      <div class="search-row">
+        <label class="field">
+          <span>Search</span>
+          <input id="query" type="search" placeholder="Job title, skill, or company" value="Software Engineer">
+        </label>
+        <label class="field">
+          <span>Location</span>
+          <select id="location">
+            <option value="">Any location</option>
+            <option>Nigeria</option>
+            <option>Ghana</option>
+            <option>Kenya</option>
+            <option>USA</option>
+            <option>South Africa</option>
+            <option>Worldwide</option>
+          </select>
+        </label>
+        <label class="field">
+          <span>Work type</span>
+          <select id="work-type">
+            <option value="">Any work type</option>
+            <option>Remote</option>
+            <option>Hybrid</option>
+            <option>On-site</option>
+          </select>
+        </label>
+        <button class="find" type="submit">Find jobs</button>
+      </div>
+      <div class="quick">
+        <span class="quick-label">Quick filters</span>
+        <button type="button" class="active">All matches</button>
+        <button type="button">Open globally</button>
+        <button type="button">Africa eligible</button>
+        <button type="button">Visa sponsorship</button>
+      </div>
+    </form>
+
+    <section>
+      <div class="section-head">
+        <div>
+          <h2>Recommended for you</h2>
+          <p>Public preview from the RoleRover job pool <span id="match-summary"></span></p>
+        </div>
+        <a class="see" href="signup.html">Add more jobs &rarr;</a>
+      </div>
+      <div id="job-list" class="job-list"><div class="loading">Loading jobs...</div></div>
+    </section>
+
+    <section class="secondary">
+      <div class="section-head">
+        <div>
+          <h2>Global hiring companies</h2>
+          <p>Explore teams that hire across borders</p>
+        </div>
+        <a class="see" href="signup.html">Browse all &rarr;</a>
+      </div>
+      <div class="company-list">
+        <div class="company-card">GitLab<small>Remote &middot; Technology</small></div>
+        <div class="company-card">Deel<small>Remote &middot; Fintech</small></div>
+        <div class="company-card">Canva<small>Remote &middot; Design</small></div>
+        <div class="company-card">Flutterwave<small>Nigeria &middot; Fintech</small></div>
+        <div class="company-card">Microsoft<small>Global &middot; Technology</small></div>
+      </div>
+    </section>
+
+    <section class="gate">
+      <div>
+        <h2>Want more than the public preview?</h2>
+        <p>Create a profile to save jobs, get alerts, check eligibility, connect your CV, and let RoleRover apply for selected roles.</p>
+      </div>
+      <a href="signup.html">Add more jobs &rarr;</a>
+    </section>
+  </main>
+
   <script>
-    const SUPABASE_URL='https://ahpvdcdpwtdeoiatjvnq.supabase.co';
-    const SUPABASE_ANON_KEY='sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
-    const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);let allJobs=[];
-    const esc=value=>{const el=document.createElement('span');el.textContent=value||'';return el.innerHTML};
-    const text=(job,...keys)=>keys.map(key=>job?.[key]).find(value=>value!==undefined&&value!==null&&String(value).trim())||'';
-    function normalise(job){return{title:text(job,'title','job_title')||'Role',company:text(job,'companyName','company_name','company')||'Company',location:text(job,'location','job_location')||'Worldwide',work:text(job,'workplaceType','workplace_type','work_type')||'Remote',seniority:text(job,'seniorityLevel','seniority_level')||'Experience not listed',employment:text(job,'employmentType','employment_type')||'Full-time',eligibility:text(job,'eligibility','geo_eligibility')||'Eligibility not listed',visa:text(job,'visa_status','visaStatus')||'Visa status unknown',posted:text(job,'postedAt','posted_at','created_at'),link:text(job,'applyUrl','apply_url','link')||'#'}}
-    function formatDate(value){if(!value)return'Recently added';const date=new Date(value);if(Number.isNaN(date.getTime()))return'Recently added';const days=Math.floor((Date.now()-date.getTime())/86400000);return days<=0?'Posted today':days===1?'Posted yesterday':`Posted ${days} days ago`}
-    function render(){const jobs=allJobs.slice(0,10);const summary=document.getElementById('match-summary');if(summary)summary.textContent=jobs.length&&jobs.length<10?` · ${jobs.length} matches available`:'';const list=document.getElementById('job-list');if(!jobs.length){list.innerHTML='<div class="empty"><strong>No matching roles yet</strong>Try a different title or location.</div>';return}list.innerHTML=jobs.map((job,index)=>`<article class="job-card"><div><span class="mark">${esc(job.company.slice(0,1).toUpperCase())}</span><h3>${esc(job.title)}</h3><div class="company">${esc(job.company)}</div><div class="meta"><span class="tag primary">${esc(job.work)} · ${esc(job.location)}</span><span class="tag">${esc(job.seniority)}</span><span class="tag">${esc(job.employment)}</span><span class="tag">${esc(job.eligibility)}</span><span class="tag dark">${esc(job.visa)}</span></div><span class="date">● ${esc(formatDate(job.posted))}</span></div><div class="job-actions"><button class="save" data-index="${index}" aria-label="Save job">♡</button>${job.link&&job.link!=='#'?`<a class="view" target="_blank" rel="noopener" href="${esc(job.link)}">View job</a>`:'<a class="view" href="swipe.html">View job</a>'}</div></article>`).join('');document.querySelectorAll('.save').forEach(button=>button.addEventListener('click',()=>{button.classList.toggle('saved');button.textContent=button.classList.contains('saved')?'♥':'♡'}))}
-    async function load(){const body={query:document.getElementById('query').value.trim(),location:document.getElementById('location').value,work_type:document.getElementById('work-type').value};document.getElementById('job-list').innerHTML='<div class="loading">Loading jobs…</div>';const{data,error}=await supabaseClient.functions.invoke('public-job-search',{body});if(error){document.getElementById('job-list').innerHTML='<div class="empty"><strong>We could not load jobs</strong>Please try again in a moment.</div>';return}const jobs=Array.isArray(data?.jobs)?data.jobs:[];allJobs=jobs.map(normalise);render()}
-    document.getElementById('search-form').addEventListener('submit',event=>{event.preventDefault();load()});document.querySelectorAll('#location,#work-type').forEach(input=>input.addEventListener('change',load));document.querySelectorAll('.quick button').forEach(button=>button.addEventListener('click',()=>{document.querySelectorAll('.quick button').forEach(item=>item.classList.remove('active'));button.classList.add('active')}));load();
+    const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let allJobs = [];
+
+    function toggleMobileNav() {
+      document.getElementById('mobile-nav-panel').classList.toggle('active');
+      document.getElementById('mobile-nav-overlay').classList.toggle('active');
+    }
+
+    const esc = value => {
+      const el = document.createElement('span');
+      el.textContent = value || '';
+      return el.innerHTML;
+    };
+
+    const text = (job, ...keys) => keys
+      .map(key => job && job[key])
+      .find(value => value !== undefined && value !== null && String(value).trim()) || '';
+
+    function normalise(job) {
+      return {
+        title: text(job, 'title', 'job_title') || 'Role',
+        company: text(job, 'companyName', 'company_name', 'company') || 'Company',
+        location: text(job, 'location', 'job_location') || 'Worldwide',
+        work: text(job, 'workplaceType', 'workplace_type', 'work_type') || 'Remote',
+        seniority: text(job, 'seniorityLevel', 'seniority_level') || 'Experience not listed',
+        employment: text(job, 'employmentType', 'employment_type') || 'Full-time',
+        eligibility: text(job, 'eligibility', 'geo_eligibility') || 'Eligibility not listed',
+        visa: text(job, 'visa_status', 'visaStatus') || 'Visa status unknown',
+        posted: text(job, 'postedAt', 'posted_at', 'created_at'),
+        link: text(job, 'applyUrl', 'apply_url', 'link') || '#'
+      };
+    }
+
+    function formatDate(value) {
+      if (!value) return 'Recently added';
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) return 'Recently added';
+      const days = Math.floor((Date.now() - date.getTime()) / 86400000);
+      if (days <= 0) return 'Posted today';
+      if (days === 1) return 'Posted yesterday';
+      return `Posted ${days} days ago`;
+    }
+
+    function render() {
+      const jobs = allJobs.slice(0, 10);
+      const summary = document.getElementById('match-summary');
+      if (summary) summary.textContent = jobs.length && jobs.length < 10 ? ` - ${jobs.length} matches available` : '';
+
+      const list = document.getElementById('job-list');
+      if (!jobs.length) {
+        list.innerHTML = '<div class="empty"><strong>No matching roles yet</strong>Try a different title or location.</div>';
+        return;
+      }
+
+      list.innerHTML = jobs.map((job, index) => `
+        <article class="job-card">
+          <div>
+            <span class="mark">${esc(job.company.slice(0, 1).toUpperCase())}</span>
+            <h3>${esc(job.title)}</h3>
+            <div class="company">${esc(job.company)}</div>
+            <div class="meta">
+              <span class="tag primary">${esc(job.work)} &middot; ${esc(job.location)}</span>
+              <span class="tag">${esc(job.seniority)}</span>
+              <span class="tag">${esc(job.employment)}</span>
+              <span class="tag">${esc(job.eligibility)}</span>
+              <span class="tag dark">${esc(job.visa)}</span>
+            </div>
+            <span class="date">${esc(formatDate(job.posted))}</span>
+          </div>
+          <div class="job-actions">
+            <button class="save" data-index="${index}" aria-label="Save job">Save</button>
+            ${job.link && job.link !== '#'
+              ? `<a class="view" target="_blank" rel="noopener" href="${esc(job.link)}">View job</a>`
+              : '<a class="view" href="signup.html">View job</a>'}
+          </div>
+        </article>
+      `).join('');
+
+      document.querySelectorAll('.save').forEach(button => {
+        button.addEventListener('click', () => {
+          button.classList.toggle('saved');
+          button.textContent = button.classList.contains('saved') ? 'Saved' : 'Save';
+        });
+      });
+    }
+
+    async function load() {
+      const body = {
+        query: document.getElementById('query').value.trim(),
+        location: document.getElementById('location').value,
+        work_type: document.getElementById('work-type').value
+      };
+
+      document.getElementById('job-list').innerHTML = '<div class="loading">Loading jobs...</div>';
+      const { data, error } = await supabaseClient.functions.invoke('public-job-search', { body });
+      if (error) {
+        document.getElementById('job-list').innerHTML = '<div class="empty"><strong>We could not load jobs</strong>Please try again in a moment.</div>';
+        return;
+      }
+
+      const jobs = Array.isArray(data && data.jobs) ? data.jobs : [];
+      allJobs = jobs.map(normalise);
+      render();
+    }
+
+    document.getElementById('search-form').addEventListener('submit', event => {
+      event.preventDefault();
+      load();
+    });
+
+    document.querySelectorAll('#location,#work-type').forEach(input => input.addEventListener('change', load));
+    document.querySelectorAll('.quick button').forEach(button => {
+      button.addEventListener('click', () => {
+        document.querySelectorAll('.quick button').forEach(item => item.classList.remove('active'));
+        button.classList.add('active');
+      });
+    });
+
+    load();
   </script>
 </body>
 </html>
