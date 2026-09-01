@@ -149,6 +149,7 @@
         .resume-section-body p { margin: 0.15rem 0; }
         .resume-section.missing { background: rgba(248,250,252,0.75); }
         .resume-section.missing .resume-section-body { color: #94A3B8; font-style: italic; }
+        .resume-covered-field { display: none !important; }
         .extracted-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
         .skill-chip { padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(0,255,204,0.12); color: #00695C; font-size: 0.7rem; font-weight: 800; }
         @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
@@ -1048,6 +1049,18 @@
             document.getElementById('profile-review').classList.toggle('is-visible', visible);
         }
 
+        function hideCoveredFields() {
+            const coveredIds = ['first-name', 'last-name', 'phone', 'linkedin', 'portfolio', 'city', 'state', 'country'];
+            coveredIds.forEach(id => {
+                const input = document.getElementById(id);
+                const group = input?.closest('.form-group');
+                if (input?.value.trim() && group) group.classList.add('resume-covered-field');
+            });
+            document.querySelectorAll('.job-title-input').forEach(input => {
+                if (input.value.trim()) input.closest('.form-group')?.classList.add('resume-covered-field');
+            });
+        }
+
         function buildResumeExtraction(text) {
             const lines = text.split(/\r?\n/).map(line => line.replace(/^[^\w]+/, '').trim()).filter(line => line.length > 2);
             const contact = { email: (text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i) || [])[0] || '', phone: (text.match(/(?:\+?\d{1,3}[\s.-])?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}/) || [])[0] || '', linkedin: (text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i) || [])[0] || '' };
@@ -1129,11 +1142,10 @@
             if (selectedResumeFile) {
                 const fileRow = document.createElement('div');
                 fileRow.className = 'extracted-file';
-                fileRow.innerHTML = '<span class="extracted-file-name"></span><span class="extracted-file-actions"><a class="preview-resume">Preview</a><a class="replace-resume">Replace</a></span>';
+                fileRow.innerHTML = '<span class="extracted-file-name"></span><span class="extracted-file-actions"><a class="preview-resume">Preview</a></span>';
                 fileRow.querySelector('.extracted-file-name').textContent = selectedResumeFile.name;
                 fileRow.querySelector('.preview-resume').href = URL.createObjectURL(selectedResumeFile);
                 fileRow.querySelector('.preview-resume').target = '_blank';
-                fileRow.querySelector('.replace-resume').addEventListener('click', () => document.getElementById('resume-file').click());
                 profile.appendChild(fileRow);
             }
             profile.classList.add('is-visible');
@@ -1211,13 +1223,6 @@
                 pages.push(content.items.map(item => item.str).join('\n'));
             }
             return pages.join('\n');
-        }
-
-        async function saveResumeExtraction(status = 'ready') {
-            if (!currentUserId || !window.resumeExtraction) return;
-            const payload = { ...window.resumeExtraction, status };
-            const { error } = await supabaseClient.from('profiles').update({ resume_extraction: payload, skills_taxonomy: { version: 1, extracted_at: payload.extracted_at, skills: payload.skills || [] }, resume_extraction_status: status, updated_at: new Date().toISOString() }).eq('id', currentUserId);
-            if (error) console.warn('Could not save resume extraction draft', error);
         }
 
         function inferResumeRole(lines) {
@@ -1309,7 +1314,6 @@
             document.getElementById('extraction-grid').innerHTML = '<div class="extraction-item"><span class="extraction-value">Reading name, experience, contact and location…</span></div>';
             startExtractionAnimation();
             try {
-                if (currentUserId) await supabaseClient.from('profiles').update({ resume_extraction_status: 'processing' }).eq('id', currentUserId);
                 window.lastResumeText = await readResumeText(file);
                 window.resumeExtraction = buildResumeExtraction(window.lastResumeText);
                 const filled = prefillFromResume(window.lastResumeText);
@@ -1319,10 +1323,9 @@
                     ? `Resume ready — we filled ${filled} field${filled === 1 ? '' : 's'}. Please review the form below and complete anything missing.`
                     : 'Resume ready. Please complete the profile fields below; this PDF did not contain reliable values we could prefill.';
                 renderExtractionSummary();
-                await saveResumeExtraction('ready');
+                hideCoveredFields();
                 setReviewVisibility(true);
             } catch (error) {
-                if (currentUserId) await supabaseClient.from('profiles').update({ resume_extraction_status: 'failed' }).eq('id', currentUserId);
                 finishExtractionAnimation();
                 document.querySelector('.extraction-badge').textContent = 'Review below';
                 status.textContent = 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
@@ -1339,7 +1342,7 @@
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
             
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency, resume_extraction, resume_extraction_status').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -1351,7 +1354,6 @@
                 }
                 setReviewVisibility(true);
             }
-            if (profile && profile.resume_extraction && Object.keys(profile.resume_extraction).length) window.resumeExtraction = profile.resume_extraction;
 
             // Prepopulate from session user metadata if empty in local storage
             const fullName = session.user.user_metadata?.full_name || '';
@@ -1481,10 +1483,6 @@
                     localStorage.setItem('onb_job-titles', validTitles.join(', '));
                     localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
-            }
-            if (profile && profile.resume_extraction && Object.keys(profile.resume_extraction).length) {
-                renderExtractionSummary();
-                document.getElementById('resume-extraction-panel').classList.add('is-visible');
             }
         })();
 
@@ -1759,9 +1757,6 @@
                     // an invite code. dashboard.html's triggerInitialScrape() is the
                     // only place that should ever set this, right before the real
                     // scrape webhook actually fires.
-                    resume_extraction: window.resumeExtraction ? { ...window.resumeExtraction, status: 'confirmed', confirmed_at: new Date().toISOString() } : {},
-                    resume_extraction_status: 'confirmed',
-                    resume_extraction_confirmed_at: new Date().toISOString(),
                     onboarding_complete: true,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'id' });
