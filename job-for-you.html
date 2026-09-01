@@ -53,7 +53,7 @@
     .mobile-nav-panel a { color: #000; text-decoration: none; font-weight: 700; font-size: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0; }
     .mobile-nav-panel .mobile-nav-cta { background: linear-gradient(135deg, #B8F24A, #22D6AE); color: #000; text-align: center; border: none; border-radius: 8px; padding: 0.75rem; font-weight: 800; margin-top: 0.5rem; }
 
-    main { max-width: 1400px; margin: 0 auto; padding: 3.75rem 5% 6rem; }
+    main { max-width: 1400px; margin: 0 auto; padding: 1.85rem 5% 6rem; }
     .page-kicker { color: #71717A; font-size: 0.78rem; font-weight: 800; letter-spacing: 1.4px; text-transform: uppercase; margin-bottom: 0.9rem; }
     h1 { color: var(--text-heading); font-size: 4rem; font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.15rem; max-width: 860px; text-transform: uppercase; }
     .lead { color: var(--text-muted); font-size: 1.08rem; font-weight: 500; line-height: 1.6; max-width: 780px; margin-bottom: 0.65rem; }
@@ -86,15 +86,15 @@
     .mark { width: 42px; height: 42px; background: linear-gradient(135deg, rgba(184,242,74,0.18), rgba(34,214,174,0.16)); border: 1px solid rgba(0,0,0,0.08); border-radius: 10px; display: grid; place-items: center; font-weight: 900; color: #000000; flex: 0 0 auto; }
     .meta { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
     .tag { color: #3f3f46; background: #f4f4f5; border: 1px solid #eeeeef; border-radius: 999px; padding: 0.32rem 0.65rem; font-size: 0.76rem; font-weight: 700; }
-    .tag.primary { background: rgba(184,242,74,0.18); color: #253000; border-color: rgba(184,242,74,0.45); }
+    .tag.primary { background: rgba(184,242,74,0.18); color: #253000; border-color: rgba(184,242,74,0.45); max-width: min(100%, 520px); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tag.dark { background: #18181b; color: #ffffff; border-color: #18181b; }
     .job-actions { display: grid; gap: 0.65rem; align-self: stretch; align-content: center; }
     .action-item { display: grid; gap: 0.28rem; }
     .job-action-btn { width: 100%; min-height: 42px; border-radius: 999px; padding: 0.72rem 1rem; font-size: 0.8rem; font-weight: 900; white-space: nowrap; text-transform: uppercase; text-align: center; cursor: pointer; border: 1px solid transparent; line-height: 1.1; display: inline-flex; align-items: center; justify-content: center; }
     .manual-btn { background: #ffffff; color: #000000; border-color: #d4d4d8; }
     .manual-btn:hover { border-color: #000000; background: #fafafa; }
-    .auto-btn { background: linear-gradient(135deg, #B8F24A, #22D6AE); color: #000000; box-shadow: 0 8px 20px rgba(34,214,174,0.18); }
-    .auto-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 26px rgba(34,214,174,0.24); }
+    .auto-btn { background: linear-gradient(135deg, #B8F24A, #22D6AE); color: #000000; box-shadow: 0 3px 10px rgba(34,214,174,0.12); }
+    .auto-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(34,214,174,0.16); }
     .action-copy { color: #71717A; font-size: 0.75rem; line-height: 1.35; text-align: center; }
     .date { display: block; color: #047857; font-size: 0.76rem; font-weight: 850; margin-top: 0.65rem; text-transform: uppercase; letter-spacing: 0.3px; }
     .empty, .loading { background: #ffffff; border: 1px dashed #d4d4d8; border-radius: 12px; padding: 2.5rem 1.5rem; text-align: center; color: var(--text-muted); font-weight: 500; }
@@ -132,7 +132,7 @@
     @media (max-width: 700px) {
       nav { padding: 1rem 1.25rem; }
       .logo svg { height: 40px !important; }
-      main { padding: 2.6rem 1.25rem 4rem; }
+      main { padding: 1.5rem 1.25rem 4rem; }
       h1 { font-size: 2.35rem; letter-spacing: -1px; }
       .lead { font-size: 1rem; }
       .search-row { grid-template-columns: 1fr; }
@@ -254,10 +254,10 @@
     <section>
       <div class="section-head">
         <div>
-          <h2>Recommended for you</h2>
-          <p>Matching roles from the RoleRover job pool <span id="match-summary"></span></p>
+          <h2>Jobs matching your search</h2>
+          <p>From the RoleRover job pool <span id="match-summary"></span></p>
         </div>
-        <a class="see" href="signup.html">Add more jobs &rarr;</a>
+        <a class="see" href="signup.html">View more jobs &rarr;</a>
       </div>
       <div id="job-list" class="job-list"><div class="loading">Loading jobs...</div></div>
     </section>
@@ -316,12 +316,39 @@
       .map(key => job && job[key])
       .find(value => value !== undefined && value !== null && String(value).trim()) || '';
 
+    const US_STATE_PATTERN = /\b(alabama|alaska|arizona|arkansas|california|colorado|connecticut|delaware|florida|georgia|hawaii|idaho|illinois|indiana|iowa|kansas|kentucky|louisiana|maine|maryland|massachusetts|michigan|minnesota|mississippi|missouri|montana|nebraska|nevada|new hampshire|new jersey|new mexico|new york|north carolina|north dakota|ohio|oklahoma|oregon|pennsylvania|rhode island|south carolina|south dakota|tennessee|texas|utah|vermont|virginia|washington|west virginia|wisconsin|wyoming)\b/i;
+
+    function compactLocation(rawLocation, work) {
+      const raw = String(rawLocation || '').replace(/\s+/g, ' ').trim();
+      if (!raw) return 'Worldwide';
+
+      const remoteMentions = (raw.match(/\bremote\b/gi) || []).length;
+      const isRemote = /remote/i.test(work || '') || remoteMentions > 0;
+      if (/\b(worldwide|global|anywhere|international)\b/i.test(raw)) return 'Worldwide';
+      if (/\bafrica\b/i.test(raw) && raw.length > 32) return 'Africa';
+
+      // Job sources sometimes provide every eligible US state as one string.
+      // That is useful for matching but not for a compact job card.
+      if (isRemote && US_STATE_PATTERN.test(raw) && (remoteMentions > 1 || raw.length > 65)) {
+        return 'US only';
+      }
+
+      const cleaned = raw
+        .replace(/^remote(?:\s+or)?\s*[·,;:–—-]?\s*/i, '')
+        .replace(/\s*[-–—]\s*remote\b/gi, '')
+        .trim();
+      if (!cleaned || /^remote$/i.test(cleaned)) return isRemote ? 'Worldwide' : raw;
+      return cleaned.length > 70 ? 'Location varies' : cleaned;
+    }
+
     function normalise(job) {
+      const work = text(job, 'workplaceType', 'workplace_type', 'work_type') || 'Remote';
+      const rawLocation = text(job, 'location', 'job_location');
       return {
         title: text(job, 'title', 'job_title') || 'Role',
         company: text(job, 'companyName', 'company_name', 'company') || 'Company',
-        location: text(job, 'location', 'job_location') || 'Worldwide',
-        work: text(job, 'workplaceType', 'workplace_type', 'work_type') || 'Remote',
+        location: compactLocation(rawLocation, work),
+        work,
         visa: text(job, 'visa_status', 'visaStatus'),
         dateValue: text(job, 'postedAt', 'posted_at') || text(job, 'created_at') || text(job, 'last_seen_at'),
         dateKind: text(job, 'postedAt', 'posted_at') ? 'posted' : (text(job, 'created_at') ? 'added' : 'seen'),
