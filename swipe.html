@@ -80,6 +80,13 @@
             --text-body: #d4d4d8;
             --border: #3f3f46;
         }
+        /* The balance value has legacy inline light-theme colors. Keep the
+           compact pill readable when the account switches to dark mode. */
+        [data-theme="dark"] #credit-balance-value {
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: var(--text-heading) !important;
+            border-color: rgba(255, 255, 255, 0.18) !important;
+        }
         [data-theme="dark"] .app-main { background: var(--bg-color) !important; }
         [data-theme="dark"] .glass-panel { background: rgba(35, 35, 38, 0.85) !important; border-color: rgba(255, 255, 255, 0.1) !important; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important; }
         [data-theme="dark"] .sidebar-logo-area svg { background: #ffffff; padding: 0.3rem 0.6rem; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.2); margin-left: -0.2rem; }

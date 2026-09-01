@@ -344,6 +344,10 @@
         .desc-modal .full-text { color: var(--text-body); font-size: 1rem; line-height: 1.75; white-space: pre-wrap; max-width: 68ch; }
         .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #71717A; font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
         .close-modal:hover { color: #000000; }
+        /* Skill Gap uses a white informational modal in both themes. Its
+           paragraphs previously inherited the dark-theme light text token,
+           which reduced contrast against that white surface. */
+        [data-theme="dark"] #skill-gap-info-modal .desc-modal p { color: #3f3f46 !important; }
         
         .resume-render-area { background: white; color: black; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; min-height: 400px; }
         .resume-render-area h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; text-transform: none; }
