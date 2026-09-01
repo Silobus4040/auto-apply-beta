@@ -1062,7 +1062,10 @@
             coveredIds.forEach(id => {
                 const input = document.getElementById(id);
                 const group = input?.closest('.form-group');
-                if (input?.value.trim() && group) group.classList.add('resume-covered-field');
+                if (input?.value.trim() && group) {
+                    group.classList.add('resume-covered-field');
+                    input.required = false;
+                }
             });
             document.querySelectorAll('.job-title-input').forEach(input => {
                 if (input.value.trim()) input.closest('.form-group')?.classList.add('resume-covered-field');
@@ -1279,7 +1282,15 @@
                 filled += fillIfBlank('first-name', parts[0]) ? 1 : 0;
                 filled += fillIfBlank('last-name', parts.slice(1).join(' ')) ? 1 : 0;
             }
-            if (phone) filled += fillIfBlank('phone', phone[0].replace(/\s+/g, ' ').trim()) ? 1 : 0;
+            if (phone) {
+                filled += fillIfBlank('phone', phone[0].replace(/\s+/g, ' ').trim()) ? 1 : 0;
+                const phoneCode = phone[0].match(/^\+(\d{1,3})/);
+                const phoneCodeSelect = document.getElementById('phone-code');
+                if (phoneCode && phoneCodeSelect && !phoneCodeSelect.value) {
+                    const option = Array.from(phoneCodeSelect.options).find(item => item.value === phoneCode[1]);
+                    if (option) { phoneCodeSelect.value = option.value; localStorage.setItem('onb_phone-code', option.value); filled++; }
+                }
+            }
             if (linkedin) filled += fillIfBlank('linkedin', linkedin[0]) ? 1 : 0;
             if (website) filled += fillIfBlank('portfolio', website[0]) ? 1 : 0;
             if (location) {
