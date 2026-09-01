@@ -20,7 +20,7 @@ Keep in onboarding because these are preferences or eligibility details
 - Workplace type
 - Home market / target countries
 - Commitment type
-- Nationality, unless explicitly extracted
+- Nationality
 - Work authorization
 - Visa sponsorship
 - Desired salary
