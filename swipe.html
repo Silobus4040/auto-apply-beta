@@ -444,16 +444,16 @@
         .nav-inbox-btn .badge { background: var(--primary); color: #000; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 10px; font-weight: 900; }
 
         /* ===== APP LAYOUT: SIDEBAR + MAIN ===== */
-        .app-layout { display: flex; min-height: calc(100vh - 65px); }
+        .app-layout { display: flex; min-height: 100vh; }
 
         /* Left Sidebar */
         .app-sidebar {
             width: 240px; min-width: 240px; background: var(--surface-color); border-right: 1px solid var(--border);
             display: flex; flex-direction: column; padding: 0; gap: 0;
-            overflow-y: auto; position: sticky; top: 65px; height: calc(100vh - 65px);
+            overflow-y: auto; position: sticky; top: 0; height: 100vh;
         }
         .sidebar-logo-area {
-            display: flex; align-items: center; gap: 0.5rem; min-height: 96px; padding: 1.25rem;
+            display: flex; align-items: center; gap: 0.5rem; min-height: 84px; padding: 1rem 1.25rem;
             background: #ffffff; border-bottom: 1px solid #e4e4e7;
         }
         .sidebar-logo-area svg {
