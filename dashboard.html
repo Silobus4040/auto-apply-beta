@@ -137,9 +137,9 @@
            of -- which made the quietest action the loudest element on screen.
            Matches .table-btn-sm's neutral register instead. */
         .stat-view-btn {
-            background: transparent;
-            border: 1px solid var(--border);
-            color: var(--text-body);
+            background: #18181b;
+            border: 1px solid #18181b;
+            color: #ffffff;
             padding: 0.3rem 0.65rem;
             font-size: 0.78rem;
             font-weight: 600;
@@ -154,10 +154,12 @@
             white-space: nowrap;
         }
         .stat-view-btn:hover {
+            background: #000000;
             border-color: #000000;
-            background: rgba(0, 0, 0, 0.03);
-            color: #000000;
+            color: #ffffff;
         }
+        [data-theme="dark"] .stat-view-btn { background: #f4f4f5; border-color: #f4f4f5; color: #18181b; }
+        [data-theme="dark"] .stat-view-btn:hover { background: #ffffff; border-color: #ffffff; color: #000000; }
 
         /* Upgrade as the ONE filled primary CTA -- applied by JS only once a
            real checkout URL exists (see UPGRADE_URL). Uses the landing page's
@@ -272,6 +274,10 @@
         .document-actions { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
         .table-status-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 0.4rem; }
         .status-note { max-width: 205px; color: #71717a; font-size: 0.75rem; line-height: 1.4; }
+        .table-btn-posting { background: #18181b; border-color: #18181b; color: #ffffff; }
+        .table-btn-posting:hover { background: #000000; border-color: #000000; color: #ffffff; }
+        .table-btn-submitted { border-color: transparent; color: #047857; padding-left: 0; text-decoration: underline; text-underline-offset: 3px; }
+        .table-btn-submitted:hover { background: transparent; border-color: transparent; color: #065f46; }
         .table-btn {
             background: transparent;
             border: 1px solid var(--border);
@@ -326,6 +332,9 @@
         [data-theme="dark"] .field label { color: #a1a1aa; }
         [data-theme="dark"] #welcome-greeting { color: #a1a1aa !important; }
         [data-theme="dark"] .status-note { color: #a1a1aa; }
+        [data-theme="dark"] .table-btn-posting { background: #f4f4f5; border-color: #f4f4f5; color: #18181b; }
+        [data-theme="dark"] .table-btn-posting:hover { background: #ffffff; border-color: #ffffff; color: #000000; }
+        [data-theme="dark"] .table-btn-submitted { color: var(--secondary); }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
         .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
@@ -605,8 +614,8 @@
         .info-strip-cell {
             display: flex; flex-direction: column; gap: 0.15rem; min-width: 0;
         }
-        .info-strip-cell:first-child { flex: 1 1 390px; max-width: 570px; }
-        .info-strip-cell:nth-child(2) { flex: 0 1 330px; }
+        .info-strip-cell:first-child { flex: 0 1 520px; width: 520px; max-width: 100%; }
+        .info-strip-cell:nth-child(2) { flex: 0 1 330px; width: 330px; max-width: 100%; }
         .info-strip-cell:nth-child(3) { flex: 0 1 180px; }
         .info-strip-label {
             font-size: 0.65rem; text-transform: uppercase; font-weight: 700;
@@ -649,8 +658,8 @@
             font-weight: 700; color: var(--secondary); text-decoration: none;
         }
         #job-filter-bar { gap: 0.85rem !important; }
-        #job-filter-bar .field:first-child { flex: 0 1 440px !important; max-width: 440px !important; }
-        #job-filter-bar .field:last-child { min-width: 220px !important; margin-left: 0 !important; }
+        #job-filter-bar .field:first-child { flex: 1 1 500px !important; max-width: none !important; }
+        #job-filter-bar .field:last-child { flex: 0 0 285px; min-width: 220px !important; margin-left: 0 !important; }
         .credit-balance { min-width: 178px; }
         .credit-balance-label { color: #71717a; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 0.15rem; }
         .credit-balance-line { display: flex; align-items: center; justify-content: flex-end; gap: 0.45rem; margin-bottom: 0.35rem; }
@@ -971,7 +980,7 @@
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
                     <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
-                    <a class="stat-view-btn" href="swipe.html" style="text-decoration: none;">View</a>
+                    <a class="stat-view-btn" href="swipe.html" style="text-decoration: none;">Open Deck</a>
                 </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
@@ -2450,10 +2459,10 @@
                 const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'No Longer Available' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
-                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm">View Posting</a>` : '';
+                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm table-btn-posting">View Posting</a>` : '';
                 const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">Custom Resume</button>` : '';
                 const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'coverLetter')">Custom Cover Letter</button>` : '';
-                const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
+                const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm table-btn-submitted" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
                 // Reassure the user Rover is handling this, not asking them to -- see
                 // memory: "Needs Review" implied a human reviewer that doesn't exist.
                 const retryingNote = job.status === 'Needs Human Review' ? `<div class="status-note">This role closed before Rover could finish. You weren't charged.</div>` : '';
