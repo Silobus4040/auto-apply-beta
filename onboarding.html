@@ -115,7 +115,7 @@
         .workplace-help { margin: 0 0 0.9rem; color: #6B7280; font-size: 0.8rem; }
         .workplace-help summary { cursor: pointer; color: #27272A; font-weight: 700; }
         .workplace-help p { margin: 0.65rem 0 0; }
-        .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1rem; border: 1px solid rgba(0, 255, 204, 0.25); border-radius: 16px; background: linear-gradient(135deg, rgba(212,255,51,0.08), rgba(0,255,204,0.08)); }
+        .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1.25rem 0 0; border-top: 1px solid rgba(0, 255, 204, 0.25); background: transparent; }
         .resume-extraction-panel.is-visible { display: block; }
         .extraction-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; color: #000; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
         .extraction-badge { padding: 0.25rem 0.55rem; border-radius: 999px; background: #D4FF33; font-size: 0.68rem; white-space: nowrap; }
@@ -142,6 +142,13 @@
         .extracted-file-name { overflow: hidden; color: #334155; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
         .extracted-file-actions { flex: 0 0 auto; display: flex; gap: 0.7rem; }
         .extracted-file-actions a { color: #1550A8; font-weight: 800; text-decoration: underline; cursor: pointer; }
+        .resume-sections { display: grid; gap: 0.7rem; margin-top: 0.9rem; }
+        .resume-section { padding: 0.75rem; border: 1px solid rgba(0,0,0,0.07); border-radius: 12px; background: #ffffff; }
+        .resume-section-heading { margin-bottom: 0.35rem; color: #71717A; font-size: 0.67rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
+        .resume-section-body { color: #334155; font-size: 0.78rem; line-height: 1.5; }
+        .resume-section-body p { margin: 0.15rem 0; }
+        .resume-section.missing { background: rgba(248,250,252,0.75); }
+        .resume-section.missing .resume-section-body { color: #94A3B8; font-style: italic; }
         .extracted-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
         .skill-chip { padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(0,255,204,0.12); color: #00695C; font-size: 0.7rem; font-weight: 800; }
         @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
@@ -285,12 +292,13 @@
                                         <div class="extraction-stage">Separating education and contact details</div>
                                     </div>
                                     <div class="extraction-profile" id="extraction-profile"></div>
+                                    <div class="resume-sections" id="resume-sections"></div>
                                     <div class="extraction-grid" id="extraction-grid"></div>
                                     <div class="extracted-skills" id="extracted-skills"></div>
                                 </div>
                             </div>
                             <button type="button" class="finish-later" id="btn-finish-later">
-                                I don’t have my resume yet — save and finish later
+                                Continue without a resume for now
                             </button>
 
                             <div class="profile-review" id="profile-review">
@@ -1040,6 +1048,38 @@
             document.getElementById('profile-review').classList.toggle('is-visible', visible);
         }
 
+        function renderResumeSections(text) {
+            const lines = text.split(/\r?\n/).map(line => line.replace(/^[•\-–|\s]+/, '').trim()).filter(line => line.length > 2);
+            const skills = extractResumeSkills(text);
+            const roleWords = /analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|sales|product|project|operations/i;
+            const summary = lines.slice(0, 8).filter(line => !/@|linkedin|https?:\/\//i.test(line)).slice(0, 3);
+            const work = lines.filter(line => /\b(19|20)\d{2}\b/.test(line) || roleWords.test(line)).slice(0, 4);
+            const education = lines.filter(line => /education|university|college|bachelor|master|degree|diploma|school/i.test(line)).slice(0, 3);
+            const certifications = lines.filter(line => /certif|credential|licensed|aws certified|microsoft certified|google certified|pmp\b|scrum master/i.test(line)).slice(0, 3);
+            const sections = [
+                ['Summary', summary],
+                ['Work history', work],
+                ['Education', education],
+                ['Certifications', certifications],
+                ['Skills', skills.length ? [`${skills.length} skills identified`, skills.join(' · ')] : []]
+            ];
+            const container = document.getElementById('resume-sections');
+            container.innerHTML = '';
+            sections.forEach(([heading, rows]) => {
+                const section = document.createElement('section');
+                section.className = `resume-section${rows.length ? '' : ' missing'}`;
+                const title = document.createElement('div');
+                title.className = 'resume-section-heading';
+                title.textContent = heading;
+                const body = document.createElement('div');
+                body.className = 'resume-section-body';
+                if (rows.length) rows.forEach(row => { const p = document.createElement('p'); p.textContent = row; body.appendChild(p); });
+                else body.textContent = 'Not detected — add or correct this section below.';
+                section.append(title, body);
+                container.appendChild(section);
+            });
+        }
+
         function renderExtractionSummary() {
             const value = id => document.getElementById(id)?.value.trim() || '';
             const role = document.querySelector('.job-title-input')?.value.trim() || '';
@@ -1051,6 +1091,7 @@
                 ['Location', [value('city'), value('state'), value('country')].filter(Boolean).join(', ')]
             ];
             const skills = extractResumeSkills(window.lastResumeText || '');
+            renderResumeSections(window.lastResumeText || '');
             document.getElementById('extraction-heading-text').textContent = 'We read your resume';
             document.querySelector('.extraction-badge').textContent = 'Looks complete';
             document.getElementById('extraction-stage-list').style.display = 'none';
@@ -1085,6 +1126,7 @@
             }
             profile.classList.add('is-visible');
             const grid = document.getElementById('extraction-grid');
+            grid.style.display = 'none';
             grid.innerHTML = '';
             details.forEach(([label, detail]) => {
                 const item = document.createElement('div');
@@ -1473,18 +1515,16 @@
         const stepIndicator = document.getElementById('step-indicator');
 
         document.getElementById('btn-finish-later').addEventListener('click', async () => {
-            // The account already exists from signup. Leaving onboarding incomplete
-            // deliberately keeps dashboard access and applications locked until a
-            // resume and the remaining required details are supplied.
+            // Let users continue filling the profile without a resume, but keep
+            // onboarding incomplete. The final submit validation still requires a
+            // PDF before activation or applications are allowed.
             localStorage.setItem('onb_step', '1');
-            const button = document.getElementById('btn-finish-later');
-            button.disabled = true;
-            button.textContent = 'Saving…';
-            try {
-                await supabaseClient.auth.signOut();
-            } finally {
-                window.location.href = 'index.html';
-            }
+            const status = document.getElementById('resume-status');
+            status.textContent = 'You can complete the profile now. Upload a PDF before finishing setup.';
+            status.style.color = '#A16207';
+            status.style.display = 'block';
+            setReviewVisibility(true);
+            document.querySelector('.profile-review').scrollIntoView({ behavior: 'smooth', block: 'start' });
         });
 
         btnNext.addEventListener('click', async () => {
@@ -1495,10 +1535,17 @@
             const file = document.getElementById('resume-file').files[0];
             const savedResumeUrl = localStorage.getItem('onb_resume_url');
 
-            if (!jobTitles || countries.length === 0 || workplaces.length === 0 || (!file && !savedResumeUrl)) {
-                errorMsg.textContent = "Please fill all fields, select at least one country and workplace, and upload a resume before continuing.";
+            if (!jobTitles || countries.length === 0 || workplaces.length === 0) {
+                errorMsg.textContent = "Please add at least one target role, country, and workplace type before continuing.";
                 errorMsg.style.display = 'block';
                 return;
+            }
+
+            if (!file && !savedResumeUrl) {
+                const status = document.getElementById('resume-status');
+                status.textContent = 'You can review the next step now, but a PDF resume is required before setup can be completed.';
+                status.style.color = '#A16207';
+                status.style.display = 'block';
             }
 
             if (file) {
