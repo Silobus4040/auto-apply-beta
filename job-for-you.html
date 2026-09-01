@@ -223,12 +223,56 @@
           <span>Location</span>
           <select id="location">
             <option value="">Any location</option>
+            <option>Australia</option>
+            <option>Austria</option>
+            <option>Belgium</option>
+            <option>Brazil</option>
+            <option>Bulgaria</option>
+            <option>Canada</option>
+            <option>China</option>
+            <option>Colombia</option>
+            <option>Costa Rica</option>
+            <option>Czechia</option>
+            <option>Denmark</option>
+            <option>Egypt</option>
+            <option>Finland</option>
+            <option>France</option>
+            <option>Germany</option>
+            <option>Greece</option>
+            <option>Hungary</option>
+            <option>India</option>
+            <option>Indonesia</option>
+            <option>Ireland</option>
+            <option>Israel</option>
+            <option>Italy</option>
+            <option>Japan</option>
+            <option>Malaysia</option>
+            <option>Mexico</option>
+            <option>Netherlands</option>
+            <option>New Zealand</option>
             <option>Nigeria</option>
-            <option>Ghana</option>
-            <option>Kenya</option>
-            <option>USA</option>
+            <option>Norway</option>
+            <option>Pakistan</option>
+            <option>Philippines</option>
+            <option>Poland</option>
+            <option>Portugal</option>
+            <option>Romania</option>
+            <option>Saudi Arabia</option>
+            <option>Singapore</option>
+            <option>Slovakia</option>
+            <option>Slovenia</option>
             <option>South Africa</option>
-            <option>Worldwide</option>
+            <option>South Korea</option>
+            <option>Spain</option>
+            <option>Sweden</option>
+            <option>Switzerland</option>
+            <option>Taiwan</option>
+            <option>Thailand</option>
+            <option>Turkey</option>
+            <option>UAE</option>
+            <option>United Kingdom</option>
+            <option value="USA">United States</option>
+            <option>Vietnam</option>
           </select>
         </label>
         <label class="field">
@@ -244,10 +288,9 @@
       </div>
       <div class="quick">
         <span class="quick-label">Quick filters</span>
-        <button type="button" class="active">All matches</button>
-        <button type="button">Open globally</button>
-        <button type="button">Africa eligible</button>
-        <button type="button">Visa sponsorship</button>
+        <button type="button" class="active" data-scope="all">All matches</button>
+        <button type="button" data-scope="local">Local jobs</button>
+        <button type="button" data-scope="global">Global jobs</button>
       </div>
     </form>
 
@@ -292,6 +335,7 @@
     const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     let allJobs = [];
+    let activeScope = 'all';
 
     function toggleMobileNav() {
       document.getElementById('mobile-nav-panel').classList.toggle('active');
@@ -422,10 +466,17 @@
     }
 
     async function load() {
+      const selectedLocation = document.getElementById('location').value;
+      if (activeScope === 'local' && !selectedLocation) {
+        document.getElementById('job-list').innerHTML = '<div class="empty"><strong>Choose a country first</strong>Select one of our supported countries to browse local roles.</div>';
+        return;
+      }
+
       const body = {
         query: document.getElementById('query').value.trim(),
-        location: document.getElementById('location').value,
-        work_type: document.getElementById('work-type').value
+        location: activeScope === 'global' ? '' : selectedLocation,
+        work_type: document.getElementById('work-type').value,
+        scope: activeScope
       };
 
       document.getElementById('job-list').innerHTML = '<div class="loading">Loading jobs...</div>';
@@ -450,6 +501,8 @@
       button.addEventListener('click', () => {
         document.querySelectorAll('.quick button').forEach(item => item.classList.remove('active'));
         button.classList.add('active');
+        activeScope = button.dataset.scope || 'all';
+        load();
       });
     });
 
