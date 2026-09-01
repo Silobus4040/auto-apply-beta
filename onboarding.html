@@ -123,6 +123,27 @@
         .extraction-item { min-width: 0; padding: 0.6rem 0.7rem; border-radius: 10px; background: rgba(255,255,255,0.82); border: 1px solid rgba(0,0,0,0.06); }
         .extraction-label { display: block; margin-bottom: 0.2rem; color: #71717A; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
         .extraction-value { display: block; overflow: hidden; color: #18181B; font-size: 0.82rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .extraction-stage-list { display: grid; gap: 0.55rem; }
+        .extraction-stage { display: flex; align-items: center; gap: 0.6rem; color: #71717A; font-size: 0.78rem; font-weight: 700; }
+        .extraction-stage::before { content: ''; width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: #D4D4D8; }
+        .extraction-stage.active { color: #00695C; }
+        .extraction-stage.active::before { background: #00FFCC; box-shadow: 0 0 0 4px rgba(0,255,204,0.14); }
+        .extraction-stage.complete { color: #27272A; }
+        .extraction-stage.complete::before { content: '✓'; width: 16px; height: 16px; flex-basis: 16px; color: #00695C; background: #D4FF33; font-size: 0.65rem; font-weight: 900; text-align: center; line-height: 16px; }
+        .extraction-profile { display: none; padding: 0.25rem 0 0.8rem; }
+        .extraction-profile.is-visible { display: block; }
+        .profile-identity { display: flex; align-items: center; gap: 0.7rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
+        .profile-avatar { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%; background: #EAF0FF; color: #1550A8; font-size: 0.8rem; font-weight: 900; }
+        .profile-name { color: #18181B; font-size: 1rem; font-weight: 900; }
+        .profile-role { margin-top: 0.15rem; color: #64748B; font-size: 0.78rem; font-weight: 600; }
+        .profile-stats { display: flex; flex-wrap: wrap; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid rgba(0,0,0,0.08); color: #64748B; font-size: 0.75rem; }
+        .profile-stat strong { color: #334155; font-size: 0.95rem; margin-right: 0.2rem; }
+        .extracted-file { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.75rem; color: #64748B; font-size: 0.75rem; }
+        .extracted-file-name { overflow: hidden; color: #334155; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .extracted-file-actions { flex: 0 0 auto; display: flex; gap: 0.7rem; }
+        .extracted-file-actions a { color: #1550A8; font-weight: 800; text-decoration: underline; cursor: pointer; }
+        .extracted-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+        .skill-chip { padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(0,255,204,0.12); color: #00695C; font-size: 0.7rem; font-weight: 800; }
         @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
         @keyframes reveal-profile { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
@@ -256,8 +277,16 @@
                                 <input type="file" id="resume-file" accept="application/pdf,.pdf">
                                 <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #008066; font-weight: 600; display: none;"></p>
                                 <div class="resume-extraction-panel" id="resume-extraction-panel" aria-live="polite">
-                                    <div class="extraction-heading"><span>Rover found these details</span><span class="extraction-badge">Review below</span></div>
+                                    <div class="extraction-heading"><span id="extraction-heading-text">Rover is analyzing your resume</span><span class="extraction-badge">Extracting…</span></div>
+                                    <div class="extraction-stage-list" id="extraction-stage-list">
+                                        <div class="extraction-stage active">Reading your resume</div>
+                                        <div class="extraction-stage">Analyzing your work history</div>
+                                        <div class="extraction-stage">Identifying skills and experience</div>
+                                        <div class="extraction-stage">Separating education and contact details</div>
+                                    </div>
+                                    <div class="extraction-profile" id="extraction-profile"></div>
                                     <div class="extraction-grid" id="extraction-grid"></div>
+                                    <div class="extracted-skills" id="extracted-skills"></div>
                                 </div>
                             </div>
                             <button type="button" class="finish-later" id="btn-finish-later">
@@ -813,6 +842,8 @@
 
         let currentUserId = null;
         let currentUserEmail = null;
+        let selectedResumeFile = null;
+        let extractionStageTimer = null;
 
         const countrySelectEl = document.getElementById('target-countries');
         const countryChoices = new Choices(countrySelectEl, {
@@ -1015,12 +1046,44 @@
             const level = document.querySelector('.job-level-select')?.value || '';
             const name = [value('first-name'), value('last-name')].filter(Boolean).join(' ');
             const details = [
-                ['Name', name],
-                ['Role', role ? `${role}${level ? ` · ${level}` : ''}` : 'Not detected'],
                 ['Phone', value('phone')],
                 ['LinkedIn', value('linkedin')],
                 ['Location', [value('city'), value('state'), value('country')].filter(Boolean).join(', ')]
             ];
+            const skills = extractResumeSkills(window.lastResumeText || '');
+            document.getElementById('extraction-heading-text').textContent = 'We read your resume';
+            document.querySelector('.extraction-badge').textContent = 'Looks complete';
+            document.getElementById('extraction-stage-list').style.display = 'none';
+            const profile = document.getElementById('extraction-profile');
+            profile.innerHTML = '';
+            const initials = name.split(/\s+/).filter(Boolean).map(part => part[0]).join('').slice(0, 2).toUpperCase() || 'RR';
+            const identity = document.createElement('div');
+            identity.className = 'profile-identity';
+            identity.innerHTML = `<span class="profile-avatar"></span><div><div class="profile-name"></div><div class="profile-role"></div></div>`;
+            identity.querySelector('.profile-avatar').textContent = initials;
+            identity.querySelector('.profile-name').textContent = name || 'Name not detected';
+            identity.querySelector('.profile-role').textContent = role ? `${role}${level ? ` · ${level}` : ''}` : 'Role not detected';
+            profile.appendChild(identity);
+            const stats = document.createElement('div');
+            stats.className = 'profile-stats';
+            [['Roles', Array.from(document.querySelectorAll('.job-title-input')).filter(input => input.value.trim()).length], ['Education', /education|university|college|bachelor|master|degree/i.test(window.lastResumeText || '') ? 1 : 0], ['Skills', skills.length]].forEach(([label, count]) => {
+                const stat = document.createElement('span');
+                stat.className = 'profile-stat';
+                stat.innerHTML = `<strong>${count}</strong> ${label}`;
+                stats.appendChild(stat);
+            });
+            profile.appendChild(stats);
+            if (selectedResumeFile) {
+                const fileRow = document.createElement('div');
+                fileRow.className = 'extracted-file';
+                fileRow.innerHTML = '<span class="extracted-file-name"></span><span class="extracted-file-actions"><a class="preview-resume">Preview</a><a class="replace-resume">Replace</a></span>';
+                fileRow.querySelector('.extracted-file-name').textContent = selectedResumeFile.name;
+                fileRow.querySelector('.preview-resume').href = URL.createObjectURL(selectedResumeFile);
+                fileRow.querySelector('.preview-resume').target = '_blank';
+                fileRow.querySelector('.replace-resume').addEventListener('click', () => document.getElementById('resume-file').click());
+                profile.appendChild(fileRow);
+            }
+            profile.classList.add('is-visible');
             const grid = document.getElementById('extraction-grid');
             grid.innerHTML = '';
             details.forEach(([label, detail]) => {
@@ -1035,7 +1098,50 @@
                 item.append(labelEl, valueEl);
                 grid.appendChild(item);
             });
+            const skillContainer = document.getElementById('extracted-skills');
+            skillContainer.innerHTML = '';
+            skills.slice(0, 8).forEach(skill => {
+                const chip = document.createElement('span');
+                chip.className = 'skill-chip';
+                chip.textContent = skill;
+                skillContainer.appendChild(chip);
+            });
+            if (skills.length > 8) {
+                const more = document.createElement('span');
+                more.className = 'skill-chip';
+                more.textContent = `+${skills.length - 8}`;
+                skillContainer.appendChild(more);
+            }
             document.getElementById('resume-extraction-panel').classList.add('is-visible');
+        }
+
+        function extractResumeSkills(text) {
+            const knownSkills = ['JavaScript', 'TypeScript', 'Python', 'Java', 'Go', 'C++', 'SQL', 'Node.js', 'React', 'Vue', 'Angular', 'HTML', 'CSS', 'AWS', 'Azure', 'Docker', 'Kubernetes', 'Git', 'Figma', 'Excel', 'Tableau', 'Power BI', 'Project Management', 'Agile', 'Scrum', 'Machine Learning', 'Data Analysis', 'Leadership'];
+            return knownSkills.filter(skill => new RegExp('\\b' + skill.replace(/[.+]/g, '\\$&') + '\\b', 'i').test(text));
+        }
+
+        function startExtractionAnimation() {
+            const stages = Array.from(document.querySelectorAll('.extraction-stage'));
+            let active = 0;
+            stages.forEach((stage, index) => stage.classList.toggle('active', index === 0));
+            stages.forEach(stage => stage.classList.remove('complete'));
+            document.getElementById('extraction-stage-list').style.display = 'grid';
+            clearInterval(extractionStageTimer);
+            extractionStageTimer = setInterval(() => {
+                if (active >= stages.length - 1) return;
+                stages[active].classList.remove('active');
+                stages[active].classList.add('complete');
+                active++;
+                stages[active].classList.add('active');
+            }, 550);
+        }
+
+        function finishExtractionAnimation() {
+            clearInterval(extractionStageTimer);
+            document.querySelectorAll('.extraction-stage').forEach(stage => {
+                stage.classList.remove('active');
+                stage.classList.add('complete');
+            });
         }
 
         async function readResumeText(file) {
@@ -1126,6 +1232,7 @@
             const file = event.target.files[0];
             const status = document.getElementById('resume-status');
             if (!file) return;
+            selectedResumeFile = file;
             if (file.type && file.type !== 'application/pdf') {
                 status.textContent = 'Please choose a PDF resume.';
                 status.style.color = '#EF4444';
@@ -1139,8 +1246,11 @@
             document.getElementById('resume-extraction-panel').classList.add('is-visible');
             document.querySelector('.extraction-badge').textContent = 'Extracting…';
             document.getElementById('extraction-grid').innerHTML = '<div class="extraction-item"><span class="extraction-value">Reading name, experience, contact and location…</span></div>';
+            startExtractionAnimation();
             try {
-                const filled = prefillFromResume(await readResumeText(file));
+                window.lastResumeText = await readResumeText(file);
+                const filled = prefillFromResume(window.lastResumeText);
+                finishExtractionAnimation();
                 document.querySelector('.extraction-badge').textContent = 'Review below';
                 status.textContent = filled
                     ? `Resume ready — we filled ${filled} field${filled === 1 ? '' : 's'}. Please review the form below and complete anything missing.`
@@ -1148,6 +1258,7 @@
                 renderExtractionSummary();
                 setReviewVisibility(true);
             } catch (error) {
+                finishExtractionAnimation();
                 document.querySelector('.extraction-badge').textContent = 'Review below';
                 status.textContent = 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
                 status.style.color = '#A16207';
