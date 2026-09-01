@@ -1048,14 +1048,25 @@
             document.getElementById('profile-review').classList.toggle('is-visible', visible);
         }
 
-        function renderResumeSections(text) {
+        function buildResumeExtraction(text) {
+            const lines = text.split(/\r?\n/).map(line => line.replace(/^[^\w]+/, '').trim()).filter(line => line.length > 2);
+            const contact = { email: (text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i) || [])[0] || '', phone: (text.match(/(?:\+?\d{1,3}[\s.-])?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}/) || [])[0] || '', linkedin: (text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i) || [])[0] || '' };
+            const roleWords = /analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|sales|product|project|operations|accountant|teacher|nurse|attorney/i;
+            const education = lines.filter(line => /university|college|bachelor|master|degree|diploma|school|education/i.test(line));
+            const certifications = lines.filter(line => /certif|credential|licensed|aws certified|microsoft certified|google certified|pmp\b|scrum master/i.test(line));
+            const experience = lines.filter(line => /\b(19|20)\d{2}\b/.test(line) || roleWords.test(line)).filter(line => !education.includes(line) && !certifications.includes(line));
+            const summary = lines.slice(0, 10).filter(line => !/@|linkedin|https?:\/\//i.test(line) && !experience.includes(line)).slice(0, 5);
+            return { version: 1, status: 'ready', extracted_at: new Date().toISOString(), contact, summary, experience: experience.slice(0, 20), education: education.slice(0, 20), certifications: certifications.slice(0, 20), skills: extractResumeSkills(text), source_file_name: selectedResumeFile?.name || '' };
+        }
+
+        function renderResumeSections(text, extraction = buildResumeExtraction(text)) {
             const lines = text.split(/\r?\n/).map(line => line.replace(/^[•\-–|\s]+/, '').trim()).filter(line => line.length > 2);
-            const skills = extractResumeSkills(text);
+            const skills = extraction.skills || [];
             const roleWords = /analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|sales|product|project|operations/i;
-            const summary = lines.slice(0, 8).filter(line => !/@|linkedin|https?:\/\//i.test(line)).slice(0, 3);
-            const work = lines.filter(line => /\b(19|20)\d{2}\b/.test(line) || roleWords.test(line)).slice(0, 4);
-            const education = lines.filter(line => /education|university|college|bachelor|master|degree|diploma|school/i.test(line)).slice(0, 3);
-            const certifications = lines.filter(line => /certif|credential|licensed|aws certified|microsoft certified|google certified|pmp\b|scrum master/i.test(line)).slice(0, 3);
+            const summary = extraction.summary || [];
+            const work = extraction.experience || [];
+            const education = extraction.education || [];
+            const certifications = extraction.certifications || [];
             const sections = [
                 ['Summary', summary],
                 ['Work history', work],
@@ -1082,7 +1093,8 @@
 
         function renderExtractionSummary() {
             const value = id => document.getElementById(id)?.value.trim() || '';
-            const role = document.querySelector('.job-title-input')?.value.trim() || '';
+            const extraction = window.resumeExtraction || buildResumeExtraction(window.lastResumeText || '');
+            const role = document.querySelector('.job-title-input')?.value.trim() || extraction.experience?.[0] || '';
             const level = document.querySelector('.job-level-select')?.value || '';
             const name = [value('first-name'), value('last-name')].filter(Boolean).join(' ');
             const details = [
@@ -1090,8 +1102,8 @@
                 ['LinkedIn', value('linkedin')],
                 ['Location', [value('city'), value('state'), value('country')].filter(Boolean).join(', ')]
             ];
-            const skills = extractResumeSkills(window.lastResumeText || '');
-            renderResumeSections(window.lastResumeText || '');
+            const skills = extraction.skills || [];
+            renderResumeSections(window.lastResumeText || '', extraction);
             document.getElementById('extraction-heading-text').textContent = 'We read your resume';
             document.querySelector('.extraction-badge').textContent = 'Looks complete';
             document.getElementById('extraction-stage-list').style.display = 'none';
@@ -1107,7 +1119,7 @@
             profile.appendChild(identity);
             const stats = document.createElement('div');
             stats.className = 'profile-stats';
-            [['Roles', Array.from(document.querySelectorAll('.job-title-input')).filter(input => input.value.trim()).length], ['Education', /education|university|college|bachelor|master|degree/i.test(window.lastResumeText || '') ? 1 : 0], ['Skills', skills.length]].forEach(([label, count]) => {
+            [['Roles', extraction.experience?.length || 0], ['Education', extraction.education?.length || 0], ['Skills', skills.length]].forEach(([label, count]) => {
                 const stat = document.createElement('span');
                 stat.className = 'profile-stat';
                 stat.innerHTML = `<strong>${count}</strong> ${label}`;
@@ -1201,6 +1213,13 @@
             return pages.join('\n');
         }
 
+        async function saveResumeExtraction(status = 'ready') {
+            if (!currentUserId || !window.resumeExtraction) return;
+            const payload = { ...window.resumeExtraction, status };
+            const { error } = await supabaseClient.from('profiles').update({ resume_extraction: payload, skills_taxonomy: { version: 1, extracted_at: payload.extracted_at, skills: payload.skills || [] }, resume_extraction_status: status, updated_at: new Date().toISOString() }).eq('id', currentUserId);
+            if (error) console.warn('Could not save resume extraction draft', error);
+        }
+
         function inferResumeRole(lines) {
             const roleWords = /\b(analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|marketing|sales|product|project|operations|accountant|teacher|nurse|attorney)\b/i;
             return lines.slice(0, 16).map(line => line.replace(/^[•\-–|\s]+/, '').trim())
@@ -1290,7 +1309,9 @@
             document.getElementById('extraction-grid').innerHTML = '<div class="extraction-item"><span class="extraction-value">Reading name, experience, contact and location…</span></div>';
             startExtractionAnimation();
             try {
+                if (currentUserId) await supabaseClient.from('profiles').update({ resume_extraction_status: 'processing' }).eq('id', currentUserId);
                 window.lastResumeText = await readResumeText(file);
+                window.resumeExtraction = buildResumeExtraction(window.lastResumeText);
                 const filled = prefillFromResume(window.lastResumeText);
                 finishExtractionAnimation();
                 document.querySelector('.extraction-badge').textContent = 'Review below';
@@ -1298,8 +1319,10 @@
                     ? `Resume ready — we filled ${filled} field${filled === 1 ? '' : 's'}. Please review the form below and complete anything missing.`
                     : 'Resume ready. Please complete the profile fields below; this PDF did not contain reliable values we could prefill.';
                 renderExtractionSummary();
+                await saveResumeExtraction('ready');
                 setReviewVisibility(true);
             } catch (error) {
+                if (currentUserId) await supabaseClient.from('profiles').update({ resume_extraction_status: 'failed' }).eq('id', currentUserId);
                 finishExtractionAnimation();
                 document.querySelector('.extraction-badge').textContent = 'Review below';
                 status.textContent = 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
@@ -1316,7 +1339,7 @@
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
             
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency, resume_extraction, resume_extraction_status').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -1328,6 +1351,7 @@
                 }
                 setReviewVisibility(true);
             }
+            if (profile && profile.resume_extraction && Object.keys(profile.resume_extraction).length) window.resumeExtraction = profile.resume_extraction;
 
             // Prepopulate from session user metadata if empty in local storage
             const fullName = session.user.user_metadata?.full_name || '';
@@ -1457,6 +1481,10 @@
                     localStorage.setItem('onb_job-titles', validTitles.join(', '));
                     localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
+            }
+            if (profile && profile.resume_extraction && Object.keys(profile.resume_extraction).length) {
+                renderExtractionSummary();
+                document.getElementById('resume-extraction-panel').classList.add('is-visible');
             }
         })();
 
@@ -1731,6 +1759,9 @@
                     // an invite code. dashboard.html's triggerInitialScrape() is the
                     // only place that should ever set this, right before the real
                     // scrape webhook actually fires.
+                    resume_extraction: window.resumeExtraction ? { ...window.resumeExtraction, status: 'confirmed', confirmed_at: new Date().toISOString() } : {},
+                    resume_extraction_status: 'confirmed',
+                    resume_extraction_confirmed_at: new Date().toISOString(),
                     onboarding_complete: true,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'id' });
