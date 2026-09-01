@@ -150,6 +150,9 @@
         .resume-section.missing { background: rgba(248,250,252,0.75); }
         .resume-section.missing .resume-section-body { color: #94A3B8; font-style: italic; }
         .resume-covered-field { display: none !important; }
+        .profile-page-hidden { display: none !important; }
+        .profile-only .form-step { width: 100%; }
+        .profile-only .form-step + .form-step { margin-top: 1.25rem; }
         .extracted-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
         .skill-chip { padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(0,255,204,0.12); color: #00695C; font-size: 0.7rem; font-weight: 800; }
         @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
@@ -297,6 +300,7 @@
                                     <div class="extraction-grid" id="extraction-grid"></div>
                                     <div class="extracted-skills" id="extracted-skills"></div>
                                 </div>
+                                <button type="button" class="btn btn-primary resume-continue" id="btn-resume-continue" hidden>Continue to profile setup &rarr;</button>
                             </div>
                             <button type="button" class="finish-later" id="btn-finish-later">
                                 Continue without a resume for now
@@ -848,6 +852,7 @@
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const profileOnly = new URLSearchParams(window.location.search).get('step') === 'profile';
 
         let currentUserId = null;
         let currentUserEmail = null;
@@ -1323,8 +1328,7 @@
                     ? `Resume ready — we filled ${filled} field${filled === 1 ? '' : 's'}. Please review the form below and complete anything missing.`
                     : 'Resume ready. Please complete the profile fields below; this PDF did not contain reliable values we could prefill.';
                 renderExtractionSummary();
-                hideCoveredFields();
-                setReviewVisibility(true);
+                document.getElementById('btn-resume-continue').hidden = false;
             } catch (error) {
                 finishExtractionAnimation();
                 document.querySelector('.extraction-badge').textContent = 'Review below';
@@ -1332,6 +1336,26 @@
                 status.style.color = '#A16207';
                 renderExtractionSummary();
                 setReviewVisibility(true);
+            }
+        });
+
+        document.getElementById('btn-resume-continue').addEventListener('click', async () => {
+            const file = document.getElementById('resume-file').files[0];
+            if (!file) return;
+            const button = document.getElementById('btn-resume-continue');
+            button.disabled = true;
+            button.textContent = 'Saving resume…';
+            try {
+                const fileName = `${currentUserId}_${Date.now()}.pdf`;
+                const { error } = await supabaseClient.storage.from('resumes').upload(fileName, file);
+                if (error) throw error;
+                const { data } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
+                localStorage.setItem('onb_resume_url', data.publicUrl);
+                window.location.href = 'onboarding.html?step=profile';
+            } catch (error) {
+                button.disabled = false;
+                button.textContent = 'Continue to profile setup →';
+                document.getElementById('resume-status').textContent = `Could not save resume: ${error.message}`;
             }
         });
 
@@ -1484,6 +1508,7 @@
                     localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
             }
+            if (profileOnly) hideCoveredFields();
         })();
 
         // Dynamic Job Titles Logic
@@ -1540,17 +1565,25 @@
         const errorMsg = document.getElementById('error-msg');
         const stepIndicator = document.getElementById('step-indicator');
 
+        if (profileOnly) {
+            document.body.classList.add('profile-only');
+            slider.style.width = '100%';
+            slider.style.display = 'block';
+            document.querySelector('.profile-review')?.classList.add('is-visible');
+            document.getElementById('resume-file')?.closest('.form-group')?.classList.add('profile-page-hidden');
+            document.querySelector('.info-box')?.classList.add('profile-page-hidden');
+            document.getElementById('resume-extraction-panel')?.classList.add('profile-page-hidden');
+            document.getElementById('btn-finish-later')?.classList.add('profile-page-hidden');
+            document.querySelector('.form-step:first-child > .card > .card-title')?.classList.add('profile-page-hidden');
+            document.getElementById('step-indicator').textContent = 'Step 2 of 2';
+            document.querySelector('.header-section h1').textContent = 'Complete Your Profile';
+        }
+
         document.getElementById('btn-finish-later').addEventListener('click', async () => {
             // Let users continue filling the profile without a resume, but keep
             // onboarding incomplete. The final submit validation still requires a
             // PDF before activation or applications are allowed.
-            localStorage.setItem('onb_step', '1');
-            const status = document.getElementById('resume-status');
-            status.textContent = 'You can complete the profile now. Upload a PDF before finishing setup.';
-            status.style.color = '#A16207';
-            status.style.display = 'block';
-            setReviewVisibility(true);
-            document.querySelector('.profile-review').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            window.location.href = 'onboarding.html?step=profile';
         });
 
         btnNext.addEventListener('click', async () => {
@@ -1598,12 +1631,20 @@
 
             localStorage.setItem('onb_job-titles', jobTitles);
             errorMsg.style.display = 'none';
+            if (!profileOnly) {
+                window.location.href = 'onboarding.html?step=profile';
+                return;
+            }
             slider.style.transform = 'translateX(-50%)';
             stepIndicator.textContent = 'Step 2 of 2';
             localStorage.setItem('onb_step', '2');
         });
 
         btnBack.addEventListener('click', () => {
+            if (profileOnly) {
+                window.location.href = 'onboarding.html';
+                return;
+            }
             errorMsg.style.display = 'none';
             slider.style.transform = 'translateX(0)';
             stepIndicator.textContent = 'Step 1 of 2';
