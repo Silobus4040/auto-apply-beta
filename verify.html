@@ -58,27 +58,21 @@
         .lock-icon { font-size: 3rem; margin-bottom: 1rem; display: block; text-align: center; animation: pulse 2s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        /* OTP Input Boxes */
+        /* Plain OTP input */
         .otp-container { display: flex; gap: 0.75rem; justify-content: center; margin: 2rem 0; }
         .otp-input {
-            width: 48px; height: 62px;
+            width: 100%; height: 62px;
             background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 12px;
             color: #000000;
             font-size: 1.6rem;
             font-weight: 900;
-            text-align: center;
+            text-align: left;
+            padding: 0 1.1rem;
+            letter-spacing: 0.15em;
             caret-color: var(--secondary);
             transition: all 0.2s;
-        }
-        /* 8 boxes at 48px + 7 gaps at 0.75rem = 468px, wider than every phone
-           screen (iPhone tops out ~430px) -- the 8th box was silently
-           overflowing off-screen with no way to reach it. Shrink box size
-           and gap on narrow viewports so all 8 stay visible and tappable. */
-        @media (max-width: 480px) {
-            .otp-container { gap: 0.4rem; }
-            .otp-input { width: 34px; height: 46px; font-size: 1.2rem; }
         }
         .otp-input:focus {
             outline: none;
@@ -128,11 +122,6 @@
         .back-link a { color: #52525B; text-decoration: none; font-weight: 700; text-transform: uppercase; }
         .back-link a:hover { text-decoration: underline; }
 
-        /* Progress dots */
-        .progress { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; }
-        .progress-dot { width: 10px; height: 10px; background: var(--border); border-radius: 0; transition: all 0.3s; }
-        .progress-dot.done { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
-        .progress-dot.active { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); animation: pulse 1.5s ease-in-out infinite; }
         @keyframes rover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
     <!-- Cloudflare Web Analytics -->
@@ -196,25 +185,12 @@
             <p>We sent an 8-digit code to <span class="email-highlight" id="user-email">your email</span>. Enter it below to activate your account.</p>
         </div>
 
-        <div class="progress">
-            <div class="progress-dot done"></div>
-            <div class="progress-dot done"></div>
-            <div class="progress-dot active"></div>
-        </div>
-
         <div class="card">
             <div class="error-msg" id="error-msg"></div>
             <div class="success-msg" id="success-msg"></div>
 
             <div class="otp-container" id="otp-container">
-                <input type="text" maxlength="1" class="otp-input" data-index="0" inputmode="numeric" autocomplete="one-time-code">
-                <input type="text" maxlength="1" class="otp-input" data-index="1" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="2" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="3" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="4" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="5" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="6" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="7" inputmode="numeric">
+                <input type="text" maxlength="8" class="otp-input" id="otp-code" inputmode="numeric" autocomplete="one-time-code" aria-label="8-digit verification code">
             </div>
 
             <button class="btn btn-primary" id="verify-btn" onclick="verifyOtp()">Verify & Continue &rarr;</button>
@@ -278,7 +254,6 @@
         supabaseClient.auth.onAuthStateChange((event) => {
             if (event === 'PASSWORD_RECOVERY') {
                 document.querySelector('.header').style.display = 'none';
-                document.querySelector('.progress').style.display = 'none';
                 document.querySelector('.card').style.display = 'none';
                 document.getElementById('new-password-card').style.display = 'block';
             }
@@ -302,60 +277,15 @@
 
         // ─── OTP Input Logic ───
         const inputs = document.querySelectorAll('.otp-input');
-
-        inputs.forEach((input, idx) => {
-            input.addEventListener('input', (e) => {
-                const val = e.target.value;
-                // Only allow digits
-                if (!/^\d$/.test(val)) {
-                    e.target.value = '';
-                    return;
-                }
-                e.target.classList.add('filled');
-                // Auto-focus next
-                if (idx < inputs.length - 1) {
-                    inputs[idx + 1].focus();
-                }
-                // Auto-submit when all 6 filled
-                if (getOtpValue().length === 8) {
-                    verifyOtp();
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace') {
-                    if (input.value === '' && idx > 0) {
-                        inputs[idx - 1].focus();
-                        inputs[idx - 1].value = '';
-                        inputs[idx - 1].classList.remove('filled');
-                    } else {
-                        input.value = '';
-                        input.classList.remove('filled');
-                    }
-                }
-            });
-
-            // Handle paste of full code
-            input.addEventListener('paste', (e) => {
-                e.preventDefault();
-                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 8);
-                if (pasted.length === 8) {
-                    pasted.split('').forEach((ch, i) => {
-                        inputs[i].value = ch;
-                        inputs[i].classList.add('filled');
-                    });
-                    inputs[7].focus();
-                    verifyOtp();
-                }
-            });
-
-            input.addEventListener('focus', () => {
-                input.select();
-            });
+        const otpInput = document.getElementById('otp-code');
+        otpInput.addEventListener('input', () => {
+            otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 8);
+            otpInput.classList.toggle('filled', otpInput.value.length > 0);
+            if (otpInput.value.length === 8) verifyOtp();
         });
 
         function getOtpValue() {
-            return Array.from(inputs).map(i => i.value).join('');
+            return otpInput.value;
         }
 
         // ─── Verify OTP ───
@@ -408,9 +338,6 @@
                     // Success
                     successMsg.textContent = 'Email verified! Setting up your account...';
                     successMsg.style.display = 'block';
-
-                    // Update progress dots
-                    document.querySelectorAll('.progress-dot').forEach(d => { d.classList.add('done'); d.classList.remove('active'); });
 
                     // Pre-populate profiles table with signup email and names
                     const user = data.user;
