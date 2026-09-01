@@ -324,8 +324,8 @@
                                 <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
                                 <details class="workplace-help">
                                     <summary>What’s the difference?</summary>
-                                    <p><strong>Remote (Local):</strong> Best for US, Canada, UK, and EU users. Local roles in other countries are available but limited. Choose Remote Global too if you are outside those markets.</p>
-                                    <p><strong>Remote (Global):</strong> Open to applicants anywhere in the world. Pick both if you are open to either.</p>
+                                    <p><strong>Remote (Local):</strong> Remote jobs in your country or region.</p>
+                                    <p><strong>Remote (Global):</strong> Remote jobs open to applicants anywhere. Choose both if you want both options.</p>
                                 </details>
                                 <select id="workplace-select" name="workplace" multiple>
                                     <option value="Remote Local">Remote &mdash; Local</option>
@@ -1668,6 +1668,7 @@
                 input.addEventListener('input', () => localStorage.setItem('onb_' + input.id, input.value));
             }
         });
+        if (profileOnly) setTimeout(hideCoveredFields, 0);
         
         // Resume Step State
         if (localStorage.getItem('onb_step') === '2') {
