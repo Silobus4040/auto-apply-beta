@@ -197,10 +197,6 @@
 
             <form id="signup-form">
                 <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="signup-name" required placeholder="John Doe">
-                </div>
-                <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" id="signup-email" required placeholder="john@example.com">
                 </div>
@@ -270,7 +266,6 @@
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
 
-            const name = document.getElementById('signup-name').value.trim();
             const email = document.getElementById('signup-email').value.trim();
             const password = document.getElementById('signup-password').value;
             const confirm = document.getElementById('signup-confirm').value;
@@ -306,8 +301,7 @@
             try {
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
-                    password,
-                    options: { data: { full_name: name } }
+                    password
                 });
 
                 if (error) throw error;
@@ -329,7 +323,7 @@
 
                 // PostHog: identify the new account + mark signup as a funnel step
                 if (window.posthog && data.user) {
-                    posthog.identify(data.user.id, { email, full_name: name });
+                    posthog.identify(data.user.id, { email });
                     posthog.capture('signup_completed');
                 }
 

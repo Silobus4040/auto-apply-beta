@@ -1000,6 +1000,16 @@
                 .find(line => line.length >= 4 && line.length <= 80 && roleWords.test(line) && !/@|linkedin|www\.|http|resume|curriculum vitae/i.test(line));
         }
 
+        function inferResumeName(lines) {
+            const excluded = /resume|curriculum vitae|professional summary|work experience|education|skills|experience|references|linkedin|@|\d|analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|sales|product|project|operations|accountant|teacher|nurse|attorney/i;
+            return lines.slice(0, 12).map(line => line.replace(/^[•\-–|\s]+/, '').trim())
+                .find(line => {
+                    const words = line.split(/\s+/);
+                    return words.length >= 2 && words.length <= 4 && line.length <= 60 && !excluded.test(line)
+                        && words.every(word => /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]*$/.test(word));
+                });
+        }
+
         function setExtractedRole(role) {
             if (!role) return false;
             const firstRole = document.querySelector('.job-title-input');
@@ -1023,7 +1033,13 @@
             const linkedin = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i);
             const website = text.match(/(?:https?:\/\/|www\.)(?!linkedin\.com)[a-z0-9-]+\.[a-z]{2,}(?:\/[^\s|,;]*)?/i);
             const location = lines.slice(0, 16).join(' ').match(/\b([A-Za-z][A-Za-z .'-]{1,40}),\s*([A-Z]{2})\b/);
+            const name = inferResumeName(lines);
 
+            if (name) {
+                const parts = name.split(/\s+/);
+                filled += fillIfBlank('first-name', parts[0]) ? 1 : 0;
+                filled += fillIfBlank('last-name', parts.slice(1).join(' ')) ? 1 : 0;
+            }
             if (phone) filled += fillIfBlank('phone', phone[0].replace(/\s+/g, ' ').trim()) ? 1 : 0;
             if (linkedin) filled += fillIfBlank('linkedin', linkedin[0]) ? 1 : 0;
             if (website) filled += fillIfBlank('portfolio', website[0]) ? 1 : 0;
