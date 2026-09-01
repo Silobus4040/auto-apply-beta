@@ -70,6 +70,7 @@
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #00FFCC; }
+        .form-group input[type="file"]::file-selector-button { margin-right: 0.75rem; padding: 0.7rem 1rem; border: 0; border-radius: 8px; background: #111111; color: #ffffff; font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer; }
         .choices__inner { position: relative !important; border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.5rem 2.5rem 0.5rem 1rem !important; }
         .choices__inner::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; }
         .choices.is-focused .choices__inner { border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
@@ -107,6 +108,14 @@
         
         .btn-secondary { background: #ffffff; color: #52525B; border: 1px solid var(--border); margin-bottom: 1rem; border-radius: 50px; }
         .btn-secondary:hover { color: #FF6B4A; border-color: #FF6B4A; }
+        .finish-later { width: auto; margin: -0.25rem auto 0; padding: 0.25rem; background: transparent; border: 0; color: #71717A; font-size: 0.85rem; font-weight: 700; letter-spacing: 0; text-transform: none; text-decoration: underline; box-shadow: none; }
+        .finish-later:hover { color: #000000; transform: none; box-shadow: none; }
+        .profile-review { display: none; }
+        .profile-review.is-visible { display: block; animation: reveal-profile 0.3s ease-out; }
+        .workplace-help { margin: 0 0 0.9rem; color: #6B7280; font-size: 0.8rem; }
+        .workplace-help summary { cursor: pointer; color: #27272A; font-weight: 700; }
+        .workplace-help p { margin: 0.65rem 0 0; }
+        @keyframes reveal-profile { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; text-transform: uppercase; text-align: center; border-radius: 12px; }
         
@@ -238,10 +247,11 @@
                                 <input type="file" id="resume-file" accept="application/pdf,.pdf">
                                 <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #008066; font-weight: 600; display: none;"></p>
                             </div>
-                            <button type="button" class="btn btn-secondary btn-compact" id="btn-finish-later" style="margin-top: -0.5rem;">
-                                I Don’t Have My Resume Yet — Save &amp; Finish Later
+                            <button type="button" class="finish-later" id="btn-finish-later">
+                                I don’t have my resume yet — save and finish later
                             </button>
 
+                            <div class="profile-review" id="profile-review">
                             <div class="card-title" style="font-size: 1rem; margin-top: 2rem;"><div class="num" style="background:#F4F4F5;">2</div> Review Your Profile</div>
 
                             <div class="form-group">
@@ -254,9 +264,11 @@
 
                             <div class="form-group">
                                 <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Local):</strong> Best for US, Canada, UK, and EU Users. Local jobs from almost every other country are available but limited. Add Remote Global if you're outside the listed countries to see more roles.</p>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Global):</strong> Global remote roles are open to anyone, anywhere in the world, including companies based in other countries.</p>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Pick both if you're open to either.</p>
+                                <details class="workplace-help">
+                                    <summary>What’s the difference?</summary>
+                                    <p><strong>Remote (Local):</strong> Best for US, Canada, UK, and EU users. Local roles in other countries are available but limited. Choose Remote Global too if you are outside those markets.</p>
+                                    <p><strong>Remote (Global):</strong> Open to applicants anywhere in the world. Pick both if you are open to either.</p>
+                                </details>
                                 <select id="workplace-select" name="workplace" multiple>
                                     <option value="Remote Local">Remote &mdash; Local</option>
                                     <option value="Remote Global">Remote &mdash; Global</option>
@@ -335,6 +347,7 @@
                         <button type="button" class="btn btn-primary btn-compact" id="btn-next" style="margin-top: 2rem;">
                             Continue &rarr;
                         </button>
+                        </div>
                     </div>
                 </div>
 
@@ -979,6 +992,10 @@
             return true;
         }
 
+        function setReviewVisibility(visible) {
+            document.getElementById('profile-review').classList.toggle('is-visible', visible);
+        }
+
         async function readResumeText(file) {
             if (!window.pdfjsLib) throw new Error('Resume reader is unavailable.');
             const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
@@ -1082,9 +1099,11 @@
                 status.textContent = filled
                     ? `Resume ready — we filled ${filled} field${filled === 1 ? '' : 's'}. Please review the form below and complete anything missing.`
                     : 'Resume ready. Please complete the profile fields below; this PDF did not contain reliable values we could prefill.';
+                setReviewVisibility(true);
             } catch (error) {
                 status.textContent = 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
                 status.style.color = '#A16207';
+                setReviewVisibility(true);
             }
         });
 
@@ -1105,6 +1124,7 @@
                     resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View PDF</a>`;
                     resumeStatus.style.display = 'block';
                 }
+                setReviewVisibility(true);
             }
 
             // Prepopulate from session user metadata if empty in local storage
