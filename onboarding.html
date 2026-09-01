@@ -115,6 +115,15 @@
         .workplace-help { margin: 0 0 0.9rem; color: #6B7280; font-size: 0.8rem; }
         .workplace-help summary { cursor: pointer; color: #27272A; font-weight: 700; }
         .workplace-help p { margin: 0.65rem 0 0; }
+        .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1rem; border: 1px solid rgba(0, 255, 204, 0.25); border-radius: 16px; background: linear-gradient(135deg, rgba(212,255,51,0.08), rgba(0,255,204,0.08)); }
+        .resume-extraction-panel.is-visible { display: block; }
+        .extraction-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; color: #000; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
+        .extraction-badge { padding: 0.25rem 0.55rem; border-radius: 999px; background: #D4FF33; font-size: 0.68rem; white-space: nowrap; }
+        .extraction-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+        .extraction-item { min-width: 0; padding: 0.6rem 0.7rem; border-radius: 10px; background: rgba(255,255,255,0.82); border: 1px solid rgba(0,0,0,0.06); }
+        .extraction-label { display: block; margin-bottom: 0.2rem; color: #71717A; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+        .extraction-value { display: block; overflow: hidden; color: #18181B; font-size: 0.82rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
         @keyframes reveal-profile { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; text-transform: uppercase; text-align: center; border-radius: 12px; }
@@ -246,6 +255,10 @@
                                 <label>Upload Current Resume (PDF) <span style="color: #FF6B4A;">*</span></label>
                                 <input type="file" id="resume-file" accept="application/pdf,.pdf">
                                 <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #008066; font-weight: 600; display: none;"></p>
+                                <div class="resume-extraction-panel" id="resume-extraction-panel" aria-live="polite">
+                                    <div class="extraction-heading"><span>Rover found these details</span><span class="extraction-badge">Review below</span></div>
+                                    <div class="extraction-grid" id="extraction-grid"></div>
+                                </div>
                             </div>
                             <button type="button" class="finish-later" id="btn-finish-later">
                                 I don’t have my resume yet — save and finish later
@@ -996,6 +1009,35 @@
             document.getElementById('profile-review').classList.toggle('is-visible', visible);
         }
 
+        function renderExtractionSummary() {
+            const value = id => document.getElementById(id)?.value.trim() || '';
+            const role = document.querySelector('.job-title-input')?.value.trim() || '';
+            const level = document.querySelector('.job-level-select')?.value || '';
+            const name = [value('first-name'), value('last-name')].filter(Boolean).join(' ');
+            const details = [
+                ['Name', name],
+                ['Role', role ? `${role}${level ? ` · ${level}` : ''}` : 'Not detected'],
+                ['Phone', value('phone')],
+                ['LinkedIn', value('linkedin')],
+                ['Location', [value('city'), value('state'), value('country')].filter(Boolean).join(', ')]
+            ];
+            const grid = document.getElementById('extraction-grid');
+            grid.innerHTML = '';
+            details.forEach(([label, detail]) => {
+                const item = document.createElement('div');
+                item.className = 'extraction-item';
+                const labelEl = document.createElement('span');
+                labelEl.className = 'extraction-label';
+                labelEl.textContent = label;
+                const valueEl = document.createElement('span');
+                valueEl.className = 'extraction-value';
+                valueEl.textContent = detail || 'Not detected — add below';
+                item.append(labelEl, valueEl);
+                grid.appendChild(item);
+            });
+            document.getElementById('resume-extraction-panel').classList.add('is-visible');
+        }
+
         async function readResumeText(file) {
             if (!window.pdfjsLib) throw new Error('Resume reader is unavailable.');
             const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
@@ -1094,15 +1136,22 @@
             status.textContent = 'Reading your resume and filling what we can…';
             status.style.color = '#008066';
             status.style.display = 'block';
+            document.getElementById('resume-extraction-panel').classList.add('is-visible');
+            document.querySelector('.extraction-badge').textContent = 'Extracting…';
+            document.getElementById('extraction-grid').innerHTML = '<div class="extraction-item"><span class="extraction-value">Reading name, experience, contact and location…</span></div>';
             try {
                 const filled = prefillFromResume(await readResumeText(file));
+                document.querySelector('.extraction-badge').textContent = 'Review below';
                 status.textContent = filled
                     ? `Resume ready — we filled ${filled} field${filled === 1 ? '' : 's'}. Please review the form below and complete anything missing.`
                     : 'Resume ready. Please complete the profile fields below; this PDF did not contain reliable values we could prefill.';
+                renderExtractionSummary();
                 setReviewVisibility(true);
             } catch (error) {
+                document.querySelector('.extraction-badge').textContent = 'Review below';
                 status.textContent = 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
                 status.style.color = '#A16207';
+                renderExtractionSummary();
                 setReviewVisibility(true);
             }
         });
