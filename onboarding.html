@@ -78,7 +78,10 @@
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
         .select-wrapper { position: relative; }
-        .select-wrapper::after { content: "▼"; font-size: 0.8rem; color: #FF6B4A; position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); pointer-events: none; }
+        /* Use the browser's familiar native select control instead of the decorative
+           orange caret. This keeps dropdowns accessible and consistent on mobile. */
+        .select-wrapper::after { display: none; }
+        .select-wrapper select { -webkit-appearance: auto; appearance: auto; }
 
         .industry-combobox { position: relative; }
         .industry-combobox #industry { padding-right: 3.25rem; }
@@ -1679,7 +1682,11 @@
                 input.addEventListener('input', () => localStorage.setItem('onb_' + input.id, input.value));
             }
         });
-        if (profileOnly) setTimeout(hideCoveredFields, 0);
+        if (profileOnly) {
+            // Resume values are restored after async profile initialization. Retry
+            // once the values have settled so covered fields reliably stay hidden.
+            [0, 250, 750, 1500].forEach(delay => setTimeout(hideCoveredFields, delay));
+        }
         
         // Resume Step State
         if (!profileOnly && localStorage.getItem('onb_step') === '2') {
