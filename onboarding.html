@@ -1682,7 +1682,7 @@
         if (profileOnly) setTimeout(hideCoveredFields, 0);
         
         // Resume Step State
-        if (localStorage.getItem('onb_step') === '2') {
+        if (!profileOnly && localStorage.getItem('onb_step') === '2') {
             slider.style.transform = 'translateX(-50%)';
             stepIndicator.textContent = 'Step 2 of 2';
         }
