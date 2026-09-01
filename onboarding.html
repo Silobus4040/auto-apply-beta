@@ -153,6 +153,9 @@
         .profile-page-hidden { display: none !important; }
         .profile-only .form-step { width: 100%; }
         .profile-only .form-step + .form-step { margin-top: 1.25rem; }
+        /* The first page is intentionally a compact scan confirmation, not a
+           second résumé editor. Detailed extraction stays in the backend. */
+        #resume-sections, #extracted-skills, #extraction-grid, .profile-stats { display: none !important; }
         .extracted-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
         .skill-chip { padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(0,255,204,0.12); color: #00695C; font-size: 0.7rem; font-weight: 800; }
         @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
