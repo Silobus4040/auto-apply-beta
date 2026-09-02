@@ -27,3 +27,4 @@ workflow.json
 .env
 .env.local
 scratch/
+.claude/settings.local.json

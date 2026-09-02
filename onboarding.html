@@ -78,10 +78,13 @@
         /* Keep multi-select menus focused on the option names. The library's
            helper copy adds a divider and repeats the same instruction in every tab. */
         .choices__item--selectable::after { display: none !important; }
-        .choices__list--multiple .choices__button { position: relative !important; width: 18px !important; min-width: 18px !important; height: 22px !important; margin-left: 0.35rem !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important; background: none !important; color: transparent !important; font-size: 0 !important; opacity: 1 !important; }
-        .choices__list--multiple .choices__button::before { content: '×'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #6B7280 !important; font-size: 1.15rem; font-weight: 700; line-height: 1; }
-        .choices__list--multiple .choices__button:hover::before { color: #111827 !important; }
+        .choices__list--multiple .choices__button { --choices-icon-cross: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; width: 18px !important; min-width: 18px !important; height: 18px !important; background-size: 12px !important; margin-left: 0.35rem !important; padding: 0 !important; border: 0 !important; opacity: 1 !important; }
+        .choices__list--multiple .choices__button:hover { opacity: 0.6 !important; }
         .choices__list--dropdown { max-height: 260px !important; overflow-y: auto !important; z-index: 100 !important; }
+        .choices__list--dropdown .choices__item--disabled { display: none !important; }
+        .choices__list--dropdown .choices__item--choice.is-disabled { display: none !important; }
+        .choices[data-type*="select-one"] .choices__button { --choices-icon-cross-inverse: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; opacity: 1 !important; margin-right: 1.5rem !important; }
+        .choices[data-type*="select-one"] .choices__button:hover { opacity: 0.6 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
         .select-wrapper { position: relative; }
@@ -122,9 +125,6 @@
         .finish-later:hover { color: #000000; transform: none; box-shadow: none; }
         .profile-review { display: none; }
         .profile-review.is-visible { display: block; animation: reveal-profile 0.3s ease-out; }
-        .workplace-help { margin: 0 0 0.9rem; color: #6B7280; font-size: 0.8rem; }
-        .workplace-help summary { cursor: pointer; color: #27272A; font-weight: 700; }
-        .workplace-help p { margin: 0.65rem 0 0; }
         .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1.25rem 0 0; border-top: 1px solid rgba(0, 255, 204, 0.25); background: transparent; }
         .resume-extraction-panel.is-visible { display: block; }
         .extraction-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; color: #000; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
@@ -169,6 +169,9 @@
         .details-only .form-step:last-child { display: block; width: 100%; }
         .profile-only #step-indicator, .details-only #step-indicator { display: none; }
         .profile-only .num, .details-only .num { display: none; }
+        .profile-only .header-section { margin-bottom: 1.5rem; }
+        .profile-only .header-section h1 { max-width: 620px; margin-left: auto; margin-right: auto; font-size: clamp(1.75rem, 5vw, 2.15rem); }
+        .profile-only .card { padding-top: 1.75rem; }
         /* The first page is intentionally a compact scan confirmation, not a
            second résumé editor. Detailed extraction stays in the backend. */
         #resume-sections, #extracted-skills, #extraction-grid, .profile-stats { display: none !important; }
@@ -326,7 +329,7 @@
                             </button>
 
                             <div class="profile-review" id="profile-review">
-                            <div class="card-title" style="font-size: 1rem; margin-top: 2rem;"><div class="num" style="background:#F4F4F5;">2</div> Review Your Profile</div>
+                            <div class="card-title" style="font-size: 1rem; margin-top: 2rem;"><div class="num" style="background:#F4F4F5;">2</div> Choose Your Preferences</div>
 
                             <div class="form-group">
                                 <label>Target Job Titles & Experience <span style="color: #FF6B4A;">*</span></label>
@@ -338,11 +341,6 @@
 
                             <div class="form-group">
                                 <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
-                                <details class="workplace-help">
-                                    <summary>What’s the difference?</summary>
-                                    <p><strong>Remote (Local):</strong> Remote jobs in your country or region.</p>
-                                    <p><strong>Remote (Global):</strong> Remote jobs open to applicants anywhere. Choose both if you want both options.</p>
-                                </details>
                                 <select id="workplace-select" name="workplace" multiple>
                                     <option value="Remote Local">Remote (Local)</option>
                                     <option value="Remote Global">Remote (Global)</option>
