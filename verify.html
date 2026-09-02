@@ -394,14 +394,8 @@
             pwErrorMsg.style.display = 'none';
             pwSuccessMsg.style.display = 'none';
 
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            if (newPassword !== newPassword.trim() || confirmPassword !== confirmPassword.trim()) {
-                pwErrorMsg.textContent = 'Password cannot start or end with a space. Remove the extra space and try again.';
-                pwErrorMsg.style.display = 'block';
-                return;
-            }
+            const newPassword = document.getElementById('new-password').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
 
             if (newPassword.length < 8) {
                 pwErrorMsg.textContent = 'Password must be at least 8 characters.';
