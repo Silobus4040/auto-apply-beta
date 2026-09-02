@@ -1072,8 +1072,23 @@
             document.getElementById('profile-review').classList.toggle('is-visible', visible);
         }
 
+        const RESUME_DERIVED_FIELD_IDS = ['first-name', 'last-name', 'phone', 'phone-code', 'linkedin', 'portfolio', 'city', 'state', 'country'];
+
+        // Clears any value a *previous* resume left behind (in the inputs and in
+        // this browser's autosave cache) before a newly chosen resume is parsed.
+        // Without this, fillIfBlank sees the old value as "already filled" and
+        // silently keeps it instead of applying the new resume's data — e.g. a
+        // name from an earlier profile attempt surviving into a brand new one.
+        function clearResumeDerivedFields() {
+            RESUME_DERIVED_FIELD_IDS.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+                localStorage.removeItem('onb_' + id);
+            });
+        }
+
         function hideCoveredFields() {
-            const coveredIds = ['first-name', 'last-name', 'phone', 'linkedin', 'portfolio', 'city', 'state', 'country'];
+            const coveredIds = RESUME_DERIVED_FIELD_IDS.filter(id => id !== 'phone-code');
             coveredIds.forEach(id => {
                 const input = document.getElementById(id);
                 const group = input?.closest('.form-group');
@@ -1392,6 +1407,7 @@
                 event.target.value = '';
                 return;
             }
+            clearResumeDerivedFields();
             status.textContent = 'Reading your resume and filling what we can…';
             status.style.color = '#008066';
             status.style.display = 'block';
