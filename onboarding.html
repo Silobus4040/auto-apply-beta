@@ -75,6 +75,10 @@
         .choices__inner::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; }
         .choices.is-focused .choices__inner { border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
         .choices__list--multiple .choices__item { background-color: #F4F4F5 !important; border: 1px solid #D4D4D8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; }
+        /* Keep multi-select menus focused on the option names. The library's
+           helper copy adds a divider and repeats the same instruction in every tab. */
+        .choices__item--selectable::after { display: none !important; }
+        .choices__list--multiple .choices__button { margin-left: 0.45rem !important; padding-left: 0.45rem !important; border-left: 0 !important; color: #6B7280 !important; font-size: 1rem !important; font-weight: 700 !important; opacity: 1 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
         .select-wrapper { position: relative; }
@@ -156,6 +160,10 @@
         .profile-page-hidden { display: none !important; }
         .profile-only .form-step { width: 100%; }
         .profile-only .form-step + .form-step { margin-top: 1.25rem; }
+        .details-only .form-step:first-child { display: none; }
+        .details-only .form-step:last-child { display: block; width: 100%; }
+        .profile-only #step-indicator, .details-only #step-indicator { display: none; }
+        .profile-only .num, .details-only .num { display: none; }
         /* The first page is intentionally a compact scan confirmation, not a
            second résumé editor. Detailed extraction stays in the backend. */
         #resume-sections, #extracted-skills, #extraction-grid, .profile-stats { display: none !important; }
@@ -858,7 +866,10 @@
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const profileOnly = new URLSearchParams(window.location.search).get('step') === 'profile';
+        const stepParam = new URLSearchParams(window.location.search).get('step');
+        const profileOnly = stepParam === 'profile';
+        const detailsOnly = stepParam === 'details';
+        const profileMode = profileOnly || detailsOnly;
 
         let currentUserId = null;
         let currentUserEmail = null;
@@ -1523,7 +1534,7 @@
                     localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
             }
-            if (profileOnly) hideCoveredFields();
+            if (profileMode) hideCoveredFields();
         })();
 
         // Dynamic Job Titles Logic
@@ -1580,8 +1591,9 @@
         const errorMsg = document.getElementById('error-msg');
         const stepIndicator = document.getElementById('step-indicator');
 
-        if (profileOnly) {
+        if (profileMode) {
             document.body.classList.add('profile-only');
+            if (detailsOnly) document.body.classList.add('details-only');
             slider.style.width = '100%';
             slider.style.display = 'block';
             document.querySelector('.profile-review')?.classList.add('is-visible');
@@ -1594,7 +1606,7 @@
             if (document.getElementById('phone-code')) document.getElementById('phone-code').required = false;
             if (document.getElementById('phone')) document.getElementById('phone').required = false;
             document.getElementById('step-indicator').textContent = 'Step 2 of 2';
-            document.querySelector('.header-section h1').textContent = 'Select Your Job Search Preferences';
+            document.querySelector('.header-section h1').textContent = detailsOnly ? 'Complete Profile Details' : 'Select Your Job Search Preferences';
         }
 
         document.getElementById('btn-finish-later').addEventListener('click', async () => {
@@ -1653,14 +1665,17 @@
                 window.location.href = 'onboarding.html?step=profile';
                 return;
             }
-            slider.style.transform = 'translateX(-50%)';
-            stepIndicator.textContent = 'Step 2 of 2';
-            localStorage.setItem('onb_step', '2');
+            window.location.href = 'onboarding.html?step=details';
+            return;
         });
 
         btnBack.addEventListener('click', () => {
             if (profileOnly) {
                 window.location.href = 'onboarding.html';
+                return;
+            }
+            if (detailsOnly) {
+                window.location.href = 'onboarding.html?step=profile';
                 return;
             }
             errorMsg.style.display = 'none';
@@ -1683,14 +1698,14 @@
                 input.addEventListener('input', () => localStorage.setItem('onb_' + input.id, input.value));
             }
         });
-        if (profileOnly) {
+        if (profileMode) {
             // Resume values are restored after async profile initialization. Retry
             // once the values have settled so covered fields reliably stay hidden.
             [0, 250, 750, 1500].forEach(delay => setTimeout(hideCoveredFields, delay));
         }
         
         // Resume Step State
-        if (!profileOnly && localStorage.getItem('onb_step') === '2') {
+        if (!profileMode && localStorage.getItem('onb_step') === '2') {
             slider.style.transform = 'translateX(-50%)';
             stepIndicator.textContent = 'Step 2 of 2';
         }
