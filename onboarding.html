@@ -78,7 +78,9 @@
         /* Keep multi-select menus focused on the option names. The library's
            helper copy adds a divider and repeats the same instruction in every tab. */
         .choices__item--selectable::after { display: none !important; }
-        .choices__list--multiple .choices__button { margin-left: 0.45rem !important; padding-left: 0.45rem !important; border-left: 0 !important; color: #6B7280 !important; font-size: 1rem !important; font-weight: 700 !important; opacity: 1 !important; }
+        .choices__list--multiple .choices__button { position: relative !important; width: 22px !important; min-width: 22px !important; height: 22px !important; margin-left: 0.45rem !important; padding: 0 !important; border: 1px solid #9CA3AF !important; border-radius: 50% !important; background: #ffffff !important; color: transparent !important; font-size: 0 !important; opacity: 1 !important; }
+        .choices__list--multiple .choices__button::after { content: '×'; position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; color: #374151; font-size: 1rem; font-weight: 700; line-height: 1; }
+        .choices__list--multiple .choices__button:hover { border-color: #111827 !important; background: #F3F4F6 !important; }
         .choices__list--dropdown .choices__item--disabled { display: none !important; }
         .choices[data-type*="select-one"] .choices__button { margin-right: 1.5rem !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
