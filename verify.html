@@ -243,6 +243,20 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // onboarding.html autosaves every field to localStorage under flat
+        // 'onb_*' keys so a refresh doesn't lose progress. Those keys aren't
+        // scoped per-account, so verifying a brand new signup in a browser
+        // that previously onboarded a different account would otherwise
+        // silently inherit that account's cached name/resume/answers. Tag the
+        // cache with whichever account it belongs to and wipe it on any
+        // mismatch (including never-tagged) before the user ever reaches
+        // onboarding.html.
+        function reconcileOnboardingCache(userId) {
+            if (localStorage.getItem('onb_owner') === userId) return;
+            Object.keys(localStorage).filter(key => key.startsWith('onb_')).forEach(key => localStorage.removeItem(key));
+            localStorage.setItem('onb_owner', userId);
+        }
+
         // A real password-reset email link (resetPasswordForEmail's redirectTo) lands here
         // with recovery tokens in the URL that supabase-js auto-detects on page load, firing
         // a PASSWORD_RECOVERY auth event -- no code to type, no sessionStorage dependency
@@ -341,6 +355,7 @@
 
                     // Pre-populate profiles table with signup email and names
                     const user = data.user;
+                    reconcileOnboardingCache(user.id);
                     const fullName = user.user_metadata?.full_name || '';
                     const parts = fullName.split(' ');
                     const firstName = parts[0] || '';
