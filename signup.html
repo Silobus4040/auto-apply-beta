@@ -267,17 +267,11 @@
             successMsg.style.display = 'none';
 
             const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value;
-            const confirm = document.getElementById('signup-confirm').value;
+            const password = document.getElementById('signup-password').value.trim();
+            const confirm = document.getElementById('signup-confirm').value.trim();
 
             if (email.includes('+')) {
                 errorMsg.textContent = 'Emails containing a "+" symbol (aliases) are not allowed. Please use your standard email.';
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            if (password !== password.trim() || confirm !== confirm.trim()) {
-                errorMsg.textContent = 'Password cannot start or end with a space. Remove the extra space and try again.';
                 errorMsg.style.display = 'block';
                 return;
             }
