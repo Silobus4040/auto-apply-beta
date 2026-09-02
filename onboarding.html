@@ -1159,7 +1159,7 @@
             const skills = extraction.skills || [];
             renderResumeSections(window.lastResumeText || '', extraction);
             document.getElementById('extraction-heading-text').textContent = 'We read your resume';
-            document.querySelector('.extraction-badge').textContent = 'Looks complete';
+            document.querySelector('.extraction-badge').style.display = 'none';
             document.getElementById('extraction-stage-list').style.display = 'none';
             const profile = document.getElementById('extraction-profile');
             profile.innerHTML = '';
@@ -1412,23 +1412,21 @@
             status.style.color = '#008066';
             status.style.display = 'block';
             document.getElementById('resume-extraction-panel').classList.add('is-visible');
-            document.querySelector('.extraction-badge').textContent = 'Extracting…';
+            const extractionBadge = document.querySelector('.extraction-badge');
+            extractionBadge.textContent = 'Extracting…';
+            extractionBadge.style.display = '';
             document.getElementById('extraction-grid').innerHTML = '<div class="extraction-item"><span class="extraction-value">Reading name, experience, contact and location…</span></div>';
             startExtractionAnimation();
             try {
                 window.lastResumeText = await readResumeText(file);
                 window.resumeExtraction = buildResumeExtraction(window.lastResumeText);
-                const filled = prefillFromResume(window.lastResumeText);
+                prefillFromResume(window.lastResumeText);
                 finishExtractionAnimation();
-                document.querySelector('.extraction-badge').textContent = 'Review below';
-                status.textContent = filled
-                    ? `Resume ready — we filled ${filled} field${filled === 1 ? '' : 's'}. Please review the form below and complete anything missing.`
-                    : 'Resume ready. Please complete the profile fields below; this PDF did not contain reliable values we could prefill.';
+                status.style.display = 'none';
                 renderExtractionSummary();
                 document.getElementById('btn-resume-continue').hidden = false;
             } catch (error) {
                 finishExtractionAnimation();
-                document.querySelector('.extraction-badge').textContent = 'Review below';
                 status.textContent = 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
                 status.style.color = '#A16207';
                 renderExtractionSummary();
