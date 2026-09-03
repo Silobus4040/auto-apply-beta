@@ -725,7 +725,7 @@
         /* Company marks need to read as brands, not browser favicons. */
         .swipe-card-logo { width: 54px; height: 54px; border-radius: 12px; object-fit: contain; background: #f8fafc; border: 1px solid #e4e4e7; padding: 6px; flex-shrink: 0; }
         .swipe-card-company { font-size: 0.9rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; }
-        .swipe-card-title { font-size: 1.45rem; font-weight: 900; color: #000; line-height: 1.25; margin-bottom: 0.9rem; letter-spacing: -0.02em; }
+        .swipe-card-title { font-size: 1.45rem; font-weight: 800; color: #000; line-height: 1.25; margin-bottom: 0.9rem; letter-spacing: -0.02em; }
         /* No flex-grow: this block holds only the location/salary lines, and
            letting it grow made it swallow every spare pixel of the fixed-height
            card -- a single 25px text row sat in a 118px box, i.e. ~93px of dead
@@ -836,7 +836,7 @@
         /* Qualification gaps invite review; they are not an error or a failed state. */
         .swipe-card-gap-summary {
             display: inline-flex; align-items: center; gap: 0.35rem;
-            background: #FFFBEB; border: 1px solid #FDE68A; color: #92400E;
+            background: #FFFBEB; border: 1px solid #FDE68A; color: #A16207;
             border-radius: 999px; padding: 0.3rem 0.7rem;
             font: inherit; font-size: 0.78rem; font-weight: 750; cursor: pointer;
         }
@@ -2431,8 +2431,7 @@
             // the existing modal, where it is always readable.
             const gapSummary = missing.length ? `
                 <div class="swipe-card-gap-group">
-                    <span class="swipe-card-fit-tags-label">Qualifications to review</span>
-                    <button type="button" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${missing.length} ${missing.length === 1 ? 'area' : 'areas'} to review <span aria-hidden="true">→</span></button>
+                    <button type="button" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${missing.length} ${missing.length === 1 ? 'gap' : 'gaps'} <span aria-hidden="true">→</span></button>
                 </div>` : '';
 
             const rawReason = job.fit_reason || '';
@@ -2544,7 +2543,7 @@
                     </div>
                     ${buildGeoBadge(job)}
                     ${buildFitScoreBadge(job, jobIndexInPool)}
-                    <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Read job description →</button>
+                    <button type="button" class="swipe-card-readmore" onclick="event.stopPropagation(); openSwipeJobDescription(${jobIndexInPool})">Job Description →</button>
                 `;
 
                 if (depthFromTop === 0) {
