@@ -687,10 +687,38 @@
             .app-sidebar.open { left: 0; }
             .sidebar-overlay.open { display: block; }
             .app-main { width: 100%; }
-            .container { padding: 1.5rem 1rem; }
-            .stats-bar { flex-direction: column; }
-            .stat { min-width: 100%; }
-            .info-strip { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+
+            /* The mobile top bar already names the screen. Keep the content
+               header for account controls only, so "Dashboard" isn't said twice. */
+            .page-header { margin-bottom: 0.75rem; }
+            .page-header > div:first-child { display: none; }
+            .page-header > div:last-child { width: 100%; justify-content: space-between; gap: 0.75rem; }
+            .credit-balance { min-width: 142px; text-align: left !important; }
+            .credit-balance-line { justify-content: flex-start; }
+            #nav-upgrade-btn { white-space: nowrap; padding: 0.55rem 0.85rem !important; background: #ECFDF5 !important; border-color: #A7F3D0 !important; color: #047857 !important; }
+
+            /* A single deck hero followed by a compact outcome grid reads as
+               a funnel instead of five equally-important stacked cards. */
+            /* JS controls whether this starts hidden; only turn its visible
+               flex state into a grid, never reveal a zero-value stats bar. */
+            #stats-bar[style*="flex"] { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; margin-bottom: 1rem !important; }
+            .stat { min-width: 0; padding: 0.8rem 0.9rem !important; border-radius: 14px; }
+            .stats-bar .stat:first-child { grid-column: 1 / -1; gap: 0.45rem !important; }
+            .stats-bar .stat:first-child > div { display: grid !important; grid-template-columns: 1fr; gap: 0.55rem; align-items: start !important; }
+            .stats-bar .stat:first-child .stat-view-btn { width: 100%; justify-content: center; min-height: 42px; }
+            .stat-number { font-size: 1.55rem !important; }
+            .stat-label { font-size: 0.68rem !important; letter-spacing: 0.35px; }
+
+            /* Keep saved criteria useful without turning the filters into a
+               screen-length form before users reach their applications. */
+            .info-strip { padding: 0.8rem 0.9rem; gap: 0.7rem; margin-bottom: 1rem; }
+            .info-strip-cell:first-child, .info-strip-cell:nth-child(2), .info-strip-cell:nth-child(3) { flex: 1 1 100%; width: 100%; }
+            .pref-chip { font-size: 0.75rem; padding: 0.18rem 0.55rem; }
+            #job-filter-bar { display: grid !important; grid-template-columns: 1fr; gap: 0.8rem !important; margin-bottom: 1rem !important; }
+            #job-filter-bar .field:first-child, #job-filter-bar .field:last-child { min-width: 0 !important; width: 100%; max-width: none !important; margin-left: 0 !important; }
+            #job-filter-bar .field label { font-size: 0.78rem; letter-spacing: 0.2px; text-transform: none; }
+            #job-filter-bar .field input, #job-filter-bar .field select { min-height: 48px; width: 100%; }
 
             /* Compact mobile card (redesigned): company eyebrow + role headline,
                status pill, then a tight inline row of action buttons -- instead of
@@ -704,12 +732,12 @@
                 display: flex;
                 flex-wrap: wrap;
                 align-items: center;
-                gap: 0.55rem 0.6rem;
+                gap: 0.45rem 0.55rem;
                 background: var(--surface-color);
                 border: 1px solid var(--border);
                 border-radius: 14px;
                 margin-bottom: 0.85rem;
-                padding: 1rem 1.1rem;
+                padding: 0.9rem 1rem;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.03);
             }
             /* No zebra striping on cards: that's a TABLE convention (it helps the
@@ -734,7 +762,7 @@
                 margin-top: 0 !important;
             }
             .jobs-table td[data-label="Company / Role"] div:last-child {
-                font-size: 1.05rem !important; font-weight: 700 !important;
+                font-size: 1rem !important; font-weight: 700 !important;
                 color: var(--text-heading) !important; margin-top: 0.15rem !important; line-height: 1.3;
             }
 
@@ -757,9 +785,9 @@
                  2. View Submitted Form -- secondary, keeps the outline
                  3. Resume / Cover Letter -- tertiary, de-emphasised documents */
             .jobs-table td[data-label="Career Page"] .table-btn {
-                background: var(--primary);
-                border-color: var(--primary);
-                color: #000;
+                background: #059669;
+                border-color: #059669;
+                color: #ffffff;
                 font-weight: 700;
             }
             .jobs-table td[data-label="Resume & Cover Letter"] .table-btn {
