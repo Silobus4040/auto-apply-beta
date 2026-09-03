@@ -372,9 +372,12 @@
         .desc-modal .full-text { color: var(--text-body); font-size: 1rem; line-height: 1.75; white-space: pre-wrap; max-width: 68ch; }
         /* Gap modal content is structured UI, not prose: preserve neither the
            template's indentation nor one-line pill widths on a narrow phone. */
-        .desc-modal .full-text.gap-list { white-space: normal; max-width: none; }
-        .gap-section { margin-bottom: 1.1rem; }
-        .gap-section:last-child { margin-bottom: 0; }
+        .desc-modal .full-text.gap-list {
+            display: grid !important; grid-auto-rows: max-content; align-content: start;
+            gap: 1rem; white-space: normal; max-width: none; min-height: 0;
+            height: auto; margin: 0; padding: 0; line-height: normal;
+        }
+        .gap-section { margin: 0 !important; min-height: 0; }
         .gap-section-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
         .gap-section-items { display: flex; flex-wrap: wrap; gap: 0.45rem; }
         .gap-section-items .swipe-card-tag.fit-gap-static { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
