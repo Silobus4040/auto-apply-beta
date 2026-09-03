@@ -370,8 +370,22 @@
            copy. white-space:pre-wrap (already here) is what renders the real
            paragraph/bullet line breaks the scraper now preserves. */
         .desc-modal .full-text { color: var(--text-body); font-size: 1rem; line-height: 1.75; white-space: pre-wrap; max-width: 68ch; }
+        /* Gap modal content is structured UI, not prose: preserve neither the
+           template's indentation nor one-line pill widths on a narrow phone. */
+        .desc-modal .full-text.gap-list { white-space: normal; max-width: none; }
+        .gap-section { margin-bottom: 1.1rem; }
+        .gap-section:last-child { margin-bottom: 0; }
+        .gap-section-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+        .gap-section-items { display: flex; flex-wrap: wrap; gap: 0.45rem; }
+        .gap-section-items .swipe-card-tag.fit-gap-static { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
         .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #71717A; font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
         .close-modal:hover { color: #000000; }
+        @media (max-width: 768px) {
+            .modal-overlay { align-items: flex-start; padding: 0.75rem; }
+            .desc-modal { max-height: calc(100dvh - 1.5rem); padding: 1.5rem; border-radius: 22px; }
+            .desc-modal h2 { font-size: 1.2rem; line-height: 1.25; padding-right: 1.75rem; }
+            .desc-modal .modal-company { margin-bottom: 1rem; }
+        }
         
         .resume-render-area { background: white; color: black; padding: 2rem; font-family: 'Calibri', 'Segoe UI', Arial, sans-serif; font-size: 10.5pt; line-height: 1.5; min-height: 400px; }
         .resume-render-area h1 { font-size: 16pt; text-align: center; margin-bottom: 2pt; color: #111; text-transform: none; }
@@ -2605,7 +2619,9 @@
             if (!job) return;
             document.getElementById('modal-title').innerText = "Why you're a fit";
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
-            document.getElementById('modal-text').innerText = job.fit_reason || '';
+            const modalText = document.getElementById('modal-text');
+            modalText.classList.remove('gap-list');
+            modalText.innerText = job.fit_reason || '';
             document.getElementById('desc-modal').classList.add('active');
         }
 
@@ -2622,16 +2638,18 @@
                 .map(category => ({ category, gaps: missing.filter(gap => gap.category === category) }))
                 .filter(group => group.gaps.length);
             const html = grouped.map(group => `
-                <div style="margin-bottom: 1.5rem;">
-                    <div style="font-size: 0.7rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.6rem;">${escapeHtml(GAP_CATEGORY_LABELS[group.category])}</div>
-                    <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                        ${group.gaps.map(gap => `<span class="swipe-card-tag fit-gap fit-gap-static" style="white-space: normal; padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`).join('')}
+                <section class="gap-section">
+                    <div class="gap-section-label">${escapeHtml(GAP_CATEGORY_LABELS[group.category])}</div>
+                    <div class="gap-section-items">
+                        ${group.gaps.map(gap => `<span class="swipe-card-tag fit-gap fit-gap-static" style="padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`).join('')}
                     </div>
-                </div>
+                </section>
             `).join('');
             document.getElementById('modal-title').innerText = job.title || 'Role';
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
-            document.getElementById('modal-text').innerHTML = html || 'No gaps found.';
+            const modalText = document.getElementById('modal-text');
+            modalText.classList.add('gap-list');
+            modalText.innerHTML = html || 'No gaps found.';
             document.getElementById('desc-modal').classList.add('active');
         }
 
@@ -2640,7 +2658,9 @@
             if (!job) return;
             document.getElementById('modal-title').innerText = job.title || 'Role';
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
-            document.getElementById('modal-text').innerText = job.description_text || 'No description available.';
+            const modalText = document.getElementById('modal-text');
+            modalText.classList.remove('gap-list');
+            modalText.innerText = job.description_text || 'No description available.';
             document.getElementById('desc-modal').classList.add('active');
         }
 

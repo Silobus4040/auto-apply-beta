@@ -515,6 +515,21 @@
                 background: none; border: none; color: #000; font-weight: 700;
                 font-size: 0.85rem; cursor: pointer; padding: 0 0 0.75rem; margin: 0;
             }
+            .email-content-header { padding: 1.25rem 1.35rem; }
+            .email-content-subject { font-size: 1.1rem; line-height: 1.35; overflow-wrap: anywhere; }
+            .email-content-meta { align-items: flex-start; gap: 0.35rem; flex-direction: column; }
+            .email-content-sender, .email-content-date { max-width: 100%; overflow-wrap: anywhere; }
+            .email-client-container.is-composing > .close-modal { display: none !important; }
+            .reply-composer-header { padding: 1.25rem !important; }
+            .reply-composer-title { font-size: 1.1rem !important; }
+            .reply-composer-body { padding: 1.25rem !important; gap: 0.8rem !important; }
+            .reply-field { display: grid !important; align-items: center !important; gap: 0.5rem !important; min-width: 0; }
+            .reply-to-field { grid-template-columns: 62px minmax(0, 1fr) auto; }
+            .reply-subject-field { grid-template-columns: 62px minmax(0, 1fr); }
+            .reply-field input { min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+            .reply-lock-label { font-size: 0.75rem !important; white-space: nowrap; }
+            .reply-composer-footer { padding: 1rem 1.25rem !important; }
+            .reply-send-btn { width: 100%; justify-content: center; background: #059669 !important; color: #ffffff !important; box-shadow: 0 4px 14px rgba(5,150,105,0.2) !important; }
         }
         
         .nav-inbox-btn { background: #000; color: #fff; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.4rem; }
@@ -744,7 +759,7 @@
                eye track across long horizontal rows). Cards are already separated
                by their own border, gap and shadow, so the stripe was decorative
                only -- and a 6% tint is close to invisible on a phone in daylight. */
-            .jobs-table tbody tr:nth-child(even) td { background: transparent; }
+            .jobs-table tbody tr:nth-child(even) td, .jobs-table tr:hover td { background: transparent !important; }
             .jobs-table td { border-bottom: none; padding: 0; }
 
             /* Drop the uppercase field labels -- content is self-evident on a card */
@@ -3005,7 +3020,9 @@
                 supabaseClient.from('emails').update({ is_read: true }).eq('id', email.id).then();
             }
             
-            document.querySelector('.email-client-container').classList.add('mobile-show-content');
+            const emailClient = document.querySelector('.email-client-container');
+            emailClient.classList.add('mobile-show-content');
+            emailClient.classList.remove('is-composing');
 
             const pane = document.getElementById('email-content-pane');
             const d = new Date(email.created_at);
@@ -3085,19 +3102,20 @@
             const originalSubject = email.subject || '(No Subject)';
             const replySubject = originalSubject.startsWith('Re:') ? originalSubject : `Re: ${originalSubject}`;
             
+            document.querySelector('.email-client-container').classList.add('is-composing');
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%; background: #fff;">
-                    <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="font-weight: 800; font-size: 1.25rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.4rem;">↩️</span> Secure Reply</h3>
+                    <div class="reply-composer-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="reply-composer-title" style="font-weight: 800; font-size: 1.25rem; margin: 0;">Secure Reply</h3>
                         <button onclick="showEmailContent(${index})" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #71717A; font-weight: 600; padding: 0.5rem; transition: color 0.2s;">Cancel</button>
                     </div>
-                    <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
-                        <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
+                    <div class="reply-composer-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
+                        <div class="reply-field reply-to-field" style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">To:</span>
                             <input type="text" id="reply-to" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
-                            <span style="font-size: 0.8rem; color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">🔒 Locked</span>
+                            <span class="reply-lock-label" style="font-size: 0.8rem; color: #10B981; font-weight: 700;">Locked</span>
                         </div>
-                        <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
+                        <div class="reply-field reply-subject-field" style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">Subject:</span>
                             <input type="text" id="reply-subject" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
                         </div>
@@ -3105,9 +3123,9 @@
                             <textarea id="reply-body" placeholder="Write your reply here..." style="flex: 1; border: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: none; color: #27272a; min-height: 300px;"></textarea>
                         </div>
                     </div>
-                    <div style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
-                        <button id="send-reply-btn" onclick="sendReply(${index})" style="background: var(--primary); color: #000; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); transition: opacity 0.2s;">
-                            Send Securely 🚀
+                    <div class="reply-composer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
+                        <button id="send-reply-btn" class="reply-send-btn" onclick="sendReply(${index})" style="background: #059669; color: #fff; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(5,150,105,0.2); transition: opacity 0.2s;">
+                            Send Securely
                         </button>
                     </div>
                 </div>
@@ -3163,7 +3181,7 @@
                 console.error(err);
                 alert("Failed to send reply. Please try again. Error: " + err.message);
                 btn.disabled = false;
-                btn.innerText = "Send Securely 🚀";
+                btn.innerText = "Send Securely";
             }
         }
 
