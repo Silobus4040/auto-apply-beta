@@ -726,7 +726,7 @@
         .swipe-card-logo { width: 54px; height: 54px; border-radius: 12px; object-fit: contain; background: #f8fafc; border: 1px solid #e4e4e7; padding: 6px; flex-shrink: 0; }
         .swipe-card-logo-fallback { display: flex; align-items: center; justify-content: center; background: #00FFCC; color: #0a0a0a; font-weight: 800; font-size: 1.1rem; padding: 0; box-sizing: border-box; }
         .swipe-card-company { font-size: 0.9rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; }
-        .swipe-card-title { font-size: 1.45rem; font-weight: 800; color: #000; line-height: 1.25; margin-bottom: 0.9rem; letter-spacing: -0.02em; }
+        .swipe-card-title { font-size: 1.3rem; font-weight: 800; color: #000; line-height: 1.25; margin-bottom: 0.9rem; letter-spacing: -0.02em; }
         /* No flex-grow: this block holds only the location/salary lines, and
            letting it grow made it swallow every spare pixel of the fixed-height
            card -- a single 25px text row sat in a 118px box, i.e. ~93px of dead
@@ -786,7 +786,7 @@
         /* margin-bottom leaves room for .swipe-card-readmore, which is now
            position:absolute at the card's bottom edge (see its own comment) --
            without this reserve, this wrap's own content could render underneath it. */
-        .swipe-card-fit-tags-wrap { margin-bottom: 2.25rem; flex-shrink: 0; }
+        .swipe-card-fit-tags-wrap { margin-bottom: 0; flex-shrink: 0; }
         .swipe-card-fit-tags-label { display: block; font-size: 0.65rem; text-transform: uppercase; font-weight: 700; color: #A1A1AA; letter-spacing: 0.5px; margin-bottom: 0.35rem; }
         .swipe-card-fit-tags { display: flex; flex-wrap: nowrap; overflow: hidden; gap: 0.4rem; }
         .swipe-card-fit-tags.is-categorized { display: block; }
@@ -853,10 +853,9 @@
            to read the full posting. Absolute positioning guarantees it survives
            regardless of how tall the content above grows, same fix already used
            for .swipe-card-stamp and the external .swipe-actions bar. */
-        /* Keep this fixed affordance below the qualification summary; the
-           summary's height is content-driven, so the link belongs in the
-           card's lower padding rather than sharing its last text line. */
-        .swipe-card-readmore { position: absolute; left: 1.75rem; right: 1.75rem; bottom: 0.55rem; padding: 0; background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); width: fit-content; }
+        /* Keep the description affordance with the card details rather than
+           marooning it above the action bar on tall mobile screens. */
+        .swipe-card-readmore { position: static; align-self: flex-start; margin-top: 0.75rem; padding: 0; background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); width: fit-content; flex-shrink: 0; }
         /* The card is a fixed-height flex column, so on short screens (or a tall
            card: salary row + geo badge + several gap tags) the content can exceed
            the box and spill past the rounded bottom onto the fused action bar.
@@ -938,7 +937,8 @@
 
         /* ===== Action bar — fused to the bottom of the top card, no gap/seam ===== */
         .swipe-actions{
-            gap: 1rem !important; margin-top: 0 !important; flex-wrap: wrap !important;
+            display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1.32fr) minmax(0, 1fr);
+            gap: 0.65rem !important; margin-top: 0 !important;
             background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important;
             -webkit-backdrop-filter: blur(26px) saturate(185%);
             backdrop-filter: blur(26px) saturate(185%);
@@ -949,8 +949,8 @@
             box-shadow: 0 34px 60px -22px rgba(6,10,26,.62), 0 10px 24px -14px rgba(6,10,26,.5) !important;
         }
         .swipe-btn{
-            width: auto !important; height: 50px !important; min-width: 120px; border-radius: 999px !important;
-            padding: 0 1.25rem; gap: .5rem; font-size: .9rem !important; font-weight: 800; letter-spacing: .35px;
+            width: 100% !important; height: 50px !important; min-width: 0 !important; border-radius: 999px !important;
+            padding: 0 0.7rem; gap: .4rem; font-size: .78rem !important; font-weight: 800; letter-spacing: .2px;
             text-transform: uppercase;
             background: rgba(255,255,255,.62) !important;
             -webkit-backdrop-filter: blur(16px) saturate(180%);
@@ -958,7 +958,7 @@
             border: 1px solid rgba(255,255,255,.78) !important;
             box-shadow: inset 0 1px 0 rgba(255,255,255,.9), 0 14px 26px -14px rgba(10,15,35,.55) !important;
         }
-        .swipe-btn .swipe-btn-ico{ font-size: 1.1rem; line-height:1; }
+        .swipe-btn .swipe-btn-icon{ width: 17px; height: 17px; stroke-width: 2.5; flex-shrink: 0; }
         .swipe-btn.pass{ color:#b91c1c; }
         .swipe-btn.later{ color:#475569; }
         .swipe-btn.apply{ background: #059669 !important; color: #ffffff; }
@@ -979,14 +979,14 @@
         @media (max-height: 720px) {
             #swipe-deck-section { --deck-chrome: 240px; }
             .swipe-card { padding: 1rem 1.25rem; }
-            .swipe-card-title { font-size: 1.15rem; margin-bottom: 0.4rem; }
+            .swipe-card-title { font-size: 1.1rem; margin-bottom: 0.4rem; }
             .swipe-card-info { gap: 0.35rem; }
             .swipe-card-info-row { font-size: 0.85rem; }
             .swipe-card-geo-badge { margin-top: 0.4rem; margin-bottom: 0.5rem; }
             .swipe-card-fit-badge { padding: 0.45rem 0.6rem; margin-bottom: 0.5rem; }
             .swipe-card-readmore { padding-top: 0.5rem; }
             .swipe-actions { padding: 0.6rem 0 0.75rem !important; gap: 0.5rem !important; }
-            .swipe-btn { height: 44px !important; min-width: 92px; padding: 0 0.9rem !important; font-size: 0.78rem !important; }
+            .swipe-btn { height: 44px !important; padding: 0 0.45rem !important; font-size: 0.7rem !important; }
         }
     </style>
 
@@ -1161,9 +1161,9 @@
         <div id="swipe-deck-section" style="display: none;">
             <div class="swipe-stack" id="swipe-stack"></div>
             <div class="swipe-actions">
-                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Decline"><span class="swipe-btn-ico">✕</span> Decline</button>
-                <button class="swipe-btn later" onclick="skipJobForNow()" title="Skip for now"><span class="swipe-btn-ico">⏭</span> Skip for now</button>
-                <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply"><span class="swipe-btn-ico">✓</span> Apply</button>
+                <button class="swipe-btn pass" onclick="swipeCurrentCard('skip')" title="Decline"><i data-lucide="x" class="swipe-btn-icon"></i> Decline</button>
+                <button class="swipe-btn later" onclick="skipJobForNow()" title="Skip for now"><i data-lucide="chevrons-right" class="swipe-btn-icon"></i> Skip for now</button>
+                <button class="swipe-btn apply" onclick="swipeCurrentCard('apply')" title="Apply"><i data-lucide="check" class="swipe-btn-icon"></i> Apply</button>
             </div>
         </div>
 
