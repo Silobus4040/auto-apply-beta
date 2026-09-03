@@ -724,6 +724,7 @@
         .swipe-card-header { display: flex; align-items: center; gap: 0.8rem; margin-bottom: 0.7rem; }
         /* Company marks need to read as brands, not browser favicons. */
         .swipe-card-logo { width: 54px; height: 54px; border-radius: 12px; object-fit: contain; background: #f8fafc; border: 1px solid #e4e4e7; padding: 6px; flex-shrink: 0; }
+        .swipe-card-logo-fallback { display: flex; align-items: center; justify-content: center; background: #00FFCC; color: #0a0a0a; font-weight: 800; font-size: 1.1rem; padding: 0; box-sizing: border-box; }
         .swipe-card-company { font-size: 0.9rem; font-weight: 800; color: var(--secondary); text-transform: uppercase; letter-spacing: 0.4px; }
         .swipe-card-title { font-size: 1.45rem; font-weight: 800; color: #000; line-height: 1.25; margin-bottom: 0.9rem; letter-spacing: -0.02em; }
         /* No flex-grow: this block holds only the location/salary lines, and
@@ -2252,6 +2253,34 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function companyInitials(name) {
+            const words = String(name || '?').trim().split(/\s+/).filter(Boolean);
+            return words.slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
+        }
+
+        // Swaps a broken/missing logo <img> for an initials badge. Built as a real
+        // DOM node (not a string template) so company names with quotes/special
+        // characters can't break out of an inline onerror attribute.
+        function companyLogoFallback(img) {
+            const div = document.createElement('div');
+            div.className = 'swipe-card-logo swipe-card-logo-fallback';
+            div.textContent = img.dataset.initials || '?';
+            img.replaceWith(div);
+        }
+
+        // Real logo when we have a domain; a colored initials badge otherwise, or if
+        // Brandfetch has no logo indexed for that domain (onerror swaps to the badge
+        // instead of leaving a blank gap on the card).
+        function renderCompanyLogo(job) {
+            const name = job.company_name || job.company || '';
+            const initials = companyInitials(name);
+            if (!job.company_domain) {
+                return `<div class="swipe-card-logo swipe-card-logo-fallback">${escapeHtml(initials)}</div>`;
+            }
+            const src = `https://cdn.brandfetch.io/${escapeAttr(job.company_domain)}/w/128/h/128?c=1idlTOiC23Rkxngh_Zx`;
+            return `<img class="swipe-card-logo" src="${src}" alt="" data-initials="${escapeAttr(initials)}" onerror="companyLogoFallback(this)">`;
+        }
+
         function normalizeSkillName(skill) {
             return String(skill || '').trim().toLowerCase().replace(/\s+/g, ' ');
         }
@@ -2533,7 +2562,7 @@
                     <div class="swipe-card-stamp pass">Decline</div>
                     <div class="swipe-card-stamp apply">Apply</div>
                     <div class="swipe-card-header">
-                        ${job.company_domain ? `<img class="swipe-card-logo" src="https://cdn.brandfetch.io/${escapeHtml(job.company_domain)}/w/128/h/128?c=1idlTOiC23Rkxngh_Zx" onerror="this.remove()" alt="">` : ''}
+                        ${renderCompanyLogo(job)}
                         <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
                     </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
