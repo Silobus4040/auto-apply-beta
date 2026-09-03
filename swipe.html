@@ -2624,6 +2624,7 @@
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
+            modalText.style.cssText = '';
             modalText.innerText = job.fit_reason || '';
             document.getElementById('desc-modal').classList.add('active');
         }
@@ -2641,7 +2642,7 @@
                 .map(category => ({ category, gaps: missing.filter(gap => gap.category === category) }))
                 .filter(group => group.gaps.length);
             const html = grouped.map(group => `
-                <section class="gap-section">
+                <section class="gap-section" style="margin:0; min-height:0;">
                     <div class="gap-section-label">${escapeHtml(GAP_CATEGORY_LABELS[group.category])}</div>
                     <div class="gap-section-items">
                         ${group.gaps.map(gap => `<span class="swipe-card-tag fit-gap fit-gap-static" style="padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`).join('')}
@@ -2652,6 +2653,10 @@
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
             const modalText = document.getElementById('modal-text');
             modalText.classList.add('gap-list');
+            // This modal is reused for prose and gaps. Set the compact gap
+            // layout inline at open-time so no inherited prose/height rule can
+            // distribute categories across the available viewport.
+            modalText.style.cssText = 'display:grid;grid-auto-rows:max-content;align-content:start;gap:1rem;white-space:normal;max-width:none;min-height:0;height:auto;margin:0;padding:0;line-height:normal;';
             modalText.innerHTML = html || 'No gaps found.';
             document.getElementById('desc-modal').classList.add('active');
         }
@@ -2663,6 +2668,7 @@
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
+            modalText.style.cssText = '';
             modalText.innerText = job.description_text || 'No description available.';
             document.getElementById('desc-modal').classList.add('active');
         }
