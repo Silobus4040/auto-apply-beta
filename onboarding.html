@@ -160,11 +160,6 @@
         .resume-section-body p { margin: 0.15rem 0; }
         .resume-section.missing { background: rgba(248,250,252,0.75); }
         .resume-section.missing .resume-section-body { color: #94A3B8; font-style: italic; }
-        /* Fields the resume already answered stay visible (not hidden) — just
-           marked so the user can see what came from their resume vs. what
-           still needs their input. */
-        .resume-covered-field input, .resume-covered-field select { border-color: rgba(0,255,204,0.5); background: rgba(0,255,204,0.05); }
-        .resume-autofill-tag { display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: #D4FF33; color: #000; font-size: 0.62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; vertical-align: middle; }
         .details-autofill-status { margin-bottom: 1.5rem; }
         .profile-page-hidden { display: none !important; }
         .step-badge { display: none !important; }
@@ -1096,30 +1091,9 @@
             });
         }
 
-        // Marks fields the resume already answered instead of hiding them —
-        // the user asked to see the full form with what came from the resume
-        // clearly shown, not silently removed from view.
+        // Fields the resume answered are just populated like any normal
+        // input — no hiding, no badge, nothing else to do here.
         function markCoveredFields() {
-            const coveredIds = RESUME_DERIVED_FIELD_IDS.filter(id => id !== 'phone-code');
-            coveredIds.forEach(id => {
-                const input = document.getElementById(id);
-                const group = input?.closest('.form-group');
-                if (!input || !group) return;
-                const label = group.querySelector('label');
-                const alreadyTagged = label?.querySelector('.resume-autofill-tag');
-                if (input.value.trim()) {
-                    group.classList.add('resume-covered-field');
-                    if (label && !alreadyTagged) {
-                        const tag = document.createElement('span');
-                        tag.className = 'resume-autofill-tag';
-                        tag.textContent = 'From your resume';
-                        label.appendChild(tag);
-                    }
-                } else {
-                    group.classList.remove('resume-covered-field');
-                    alreadyTagged?.remove();
-                }
-            });
         }
 
         function buildResumeExtraction(text) {
@@ -1377,24 +1351,39 @@
         // capture bleed across unrelated lines (e.g. picking up the name line
         // that happens to precede the actual "City, ST" contact line).
         function findResumeLocation(lines) {
-            // Global pattern first: most non-US resumes put location in the
-            // header as "City, Region, Country" or "City, Country" — checking
-            // the last comma-separated segment against our own country list
-            // (not a fixed enum) lets this work for any country, not just US
-            // states. Kept to short, plain-word segments near the top of the
-            // resume to avoid matching degree titles or company names.
-            const headerLines = lines.slice(0, 12);
+            // Global, country-agnostic pass: scan for ANY comma- or pipe-
+            // delimited line that names a real country (checked against our
+            // own ~170-country list, not a fixed enum), wherever that country
+            // segment falls in the line -- "City, Country", "City, State,
+            // Country", "City | State | Country" all match. Whatever
+            // precedes the country name is taken as city (and state, if a
+            // second segment precedes it). This works the same for a US
+            // state, a Canadian province, a Nigerian state, or a Ghanaian/
+            // Liberian region -- there's no per-country list to maintain,
+            // because the region name is just "whatever's next to the
+            // country name," not something we have to separately recognize.
+            // A leading field label ("Location:", "Address:", "Based in", ...)
+            // commonly sits in front of the actual city on resumes that list
+            // contact details as labeled fields -- strip it before validating.
+            const stripLabel = seg => seg.replace(/^(?:current\s+)?(?:location|address|residence|city|based\s+in)\s*:?\s*/i, '').trim();
             const isPlaceLike = seg => seg.length > 0 && seg.length <= 40 && /^[A-Za-z][A-Za-z .'-]*$/.test(seg);
-            for (const line of headerLines) {
-                if (/[@]|https?:|www\.|\b(19|20)\d{2}\b/i.test(line)) continue;
-                const segments = line.split(',').map(seg => seg.trim()).filter(Boolean);
-                if (segments.length < 2 || segments.length > 3 || !segments.every(isPlaceLike)) continue;
-                const last = segments[segments.length - 1];
-                const matchedCountry = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === last.toLowerCase());
-                if (matchedCountry) {
-                    return segments.length === 3
-                        ? { city: segments[0], state: segments[1], country: matchedCountry }
-                        : { city: segments[0], state: '', country: matchedCountry };
+            for (const line of lines) {
+                for (const delimiter of [',', '|']) {
+                    // Split first, validate per-segment after -- a whole-line
+                    // reject on "contains @" would also throw out a valid
+                    // location segment that merely shares a line with an
+                    // email/phone in a different segment (common on a single
+                    // "City, Country | email | phone" contact line).
+                    const segments = line.split(delimiter).map((seg, i) => i === 0 ? stripLabel(seg.trim()) : seg.trim()).filter(Boolean);
+                    if (segments.length < 2 || segments.length > 4) continue;
+                    const countryIndex = segments.findIndex(seg => KNOWN_COUNTRY_NAMES.some(name => name.toLowerCase() === seg.toLowerCase()));
+                    if (countryIndex < 1) continue; // no country found, or it's the very first segment (nothing precedes it)
+                    const placeSegments = segments.slice(0, countryIndex);
+                    if (!placeSegments.every(isPlaceLike)) continue;
+                    const country = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === segments[countryIndex].toLowerCase());
+                    return placeSegments.length >= 2
+                        ? { city: placeSegments[0], state: placeSegments[1], country }
+                        : { city: placeSegments[0], state: '', country };
                 }
             }
 
@@ -1434,7 +1423,10 @@
             const phone = text.match(/(?:\+?\d{1,3}[\s.-])?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}/);
             const linkedin = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i);
             const website = text.match(/(?:https?:\/\/|www\.)(?!linkedin\.com)[a-z0-9-]+\.[a-z]{2,}(?:\/[^\s|,;]*)?/i);
-            const location = findResumeLocation(lines.slice(0, 16));
+            // A wide window, not just the header -- location info often sits
+            // under a "Contact"/"Personal Details" section rather than the
+            // very first lines.
+            const location = findResumeLocation(lines.slice(0, 60));
             const name = inferResumeName(lines);
 
             if (name) {
@@ -1696,7 +1688,7 @@
                     const filledCount = prefillFromResume(text);
                     if (autofillStatus) {
                         autofillStatus.textContent = filledCount > 0
-                            ? 'We filled in what we could find in your resume (marked "From your resume" below) — please review and complete anything still blank.'
+                            ? 'We filled in what we could find in your resume below — please review and complete anything still blank.'
                             : "We couldn't find anything new in your resume for the fields below — please fill them in.";
                     }
                 } catch (err) {
