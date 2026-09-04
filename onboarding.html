@@ -1775,7 +1775,19 @@
                     localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
             }
-            if (profileMode) markCoveredFields();
+            if (profileMode) {
+                markCoveredFields();
+                // Only hide the country-code picker once we actually know it
+                // got a value -- from the DB, localStorage, or the resume
+                // re-fetch above, all of which have finished by this point.
+                // Leaving it hidden unconditionally meant a user whose phone
+                // number had no detectable country code got stuck on a
+                // required field with no visible way to fill it in.
+                const phoneCodeEl = document.getElementById('phone-code');
+                if (phoneCodeEl && phoneCodeEl.value) {
+                    phoneCodeEl.parentElement?.classList.add('profile-page-hidden');
+                }
+            }
         })();
 
         // Dynamic Job Titles Logic
@@ -1843,12 +1855,11 @@
             document.getElementById('resume-extraction-panel')?.classList.add('profile-page-hidden');
             document.getElementById('btn-finish-later')?.classList.add('profile-page-hidden');
             document.querySelector('.form-step:first-child > .card > .card-title')?.classList.add('profile-page-hidden');
-            // phone-code shares its .form-group with the actual phone number
-            // input (they sit side by side in the same flex row) -- hiding the
-            // whole group was hiding the Phone Number field entirely, making a
-            // required field impossible to fill in on this page. Hide only the
-            // phone-code select's own wrapper, not its shared parent group.
-            document.getElementById('phone-code')?.parentElement?.classList.add('profile-page-hidden');
+            // phone-code's visibility is decided later, once we know whether
+            // it actually got auto-filled (see the end of init() below) --
+            // hiding it unconditionally here left users with no way to pick
+            // a country code at all when auto-detection didn't find one,
+            // while the mandatory-fields check still required it.
             if (document.getElementById('phone-code')) document.getElementById('phone-code').required = false;
             if (document.getElementById('phone')) document.getElementById('phone').required = false;
             document.getElementById('step-indicator').textContent = 'Step 2 of 2';
