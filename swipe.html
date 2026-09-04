@@ -2849,19 +2849,41 @@
         // no human safety net") -- now enforced client-side since the
         // backend veto this used to lean on was deliberately removed
         // entirely for every swipe-initiated call, automatic or manual.
+        // Single source of truth for "how many applications has this user
+        // really used, right now" -- a fresh read, never the cached
+        // userProfile snapshot. Used by both the manual Apply gate and the
+        // Auto-Apply sweep's starting point.
+        async function fetchFreshApplicationUsage(userId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('applications_limit, application_credit_used')
+                    .eq('id', userId)
+                    .single();
+                if (error || !data) return null;
+                return {
+                    limit: Number(data.applications_limit) || 10,
+                    used: Number(data.application_credit_used) || 0
+                };
+            } catch (err) {
+                console.error('Failed to fetch fresh application usage', err);
+                return null;
+            }
+        }
+
         async function submitApplyForJob(userId, job) {
-            // Real usage gate -- was previously only enforced inside the
-            // Auto-Apply sweep loop, so a manual "Apply" click could go past
-            // applications_limit indefinitely (real leakage: unpaid ATS
-            // submissions with no cap). Same application_credit_used
-            // comparison as the Auto-Apply fix, now enforced here too.
-            if (userProfile) {
-                const limit = Number(userProfile.applications_limit) || 10;
-                const used = Number(userProfile.application_credit_used) || 0;
-                if (used >= limit) {
-                    showLimitReachedModal(limit);
-                    return;
-                }
+            // Real usage gate. Was checking the in-memory userProfile snapshot
+            // (fetched once at page load), which goes stale the moment usage
+            // changes afterward -- proven live: an admin tightening the limit
+            // mid-session had no effect until the tab was reloaded. Fetching
+            // fresh from Supabase right before every apply closes that gap for
+            // real usage too, not just admin edits (credits from earlier in
+            // this same session finishing async also wouldn't have shown up
+            // in the cached copy).
+            const usage = await fetchFreshApplicationUsage(userId);
+            if (usage && usage.used >= usage.limit) {
+                showLimitReachedModal(usage.limit);
+                return;
             }
             try {
                 await supabaseClient.from('user_job_swipes').upsert(
@@ -2952,9 +2974,15 @@
             autoApplySweepRunning = true;
             const minScore = 70;
             let optimisticAppliedThisSweep = 0;
+            // Fetch real starting usage once, fresh, instead of trusting
+            // userProfile's page-load snapshot (see submitApplyForJob for why
+            // that goes stale). optimisticAppliedThisSweep still tracks applies
+            // made within this same sweep on top of that real baseline.
+            const startingUsage = await fetchFreshApplicationUsage(userId);
+            const creditsUsedAtStart = startingUsage ? startingUsage.used : (Number(userProfile.application_credit_used) || 0);
             try {
                 while (userProfile && userProfile.auto_apply_enabled && pooledJobIndex < pooledJobs.length) {
-                    const applicationsLimit = Number(userProfile.applications_limit) || 10;
+                    const applicationsLimit = (startingUsage ? startingUsage.limit : null) || Number(userProfile.applications_limit) || 10;
                     // Real usage is profiles.application_credit_used (incremented exactly once,
                     // only when a job genuinely reaches status='applied', via a Postgres trigger --
                     // see PROGRESS_LOG "applications_limit beta-tier fix"). currentJobs.length was
@@ -2963,8 +2991,7 @@
                     // a lot of retries that count blows past applicationsLimit almost immediately,
                     // so the very first loop iteration silently disabled the toggle before a single
                     // job was even attempted. Compare against the real credit counter instead.
-                    const creditsUsed = Number(userProfile.application_credit_used) || 0;
-                    if (creditsUsed + optimisticAppliedThisSweep >= applicationsLimit) {
+                    if (creditsUsedAtStart + optimisticAppliedThisSweep >= applicationsLimit) {
                         console.log(`Auto-Apply stopped: reached applications_limit (${applicationsLimit})`);
                         await disableAutoApplyForLimitReached(userId, applicationsLimit);
                         break;
