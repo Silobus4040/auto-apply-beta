@@ -1408,9 +1408,9 @@
             <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(212, 255, 51, 0.18); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
                 <i data-lucide="zap-off" style="width: 24px; height: 24px; color: #7a7a00;"></i>
             </div>
-            <h2 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; letter-spacing: -0.4px;">You're out of applications</h2>
+            <h2 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; letter-spacing: -0.4px;">You're out of credit</h2>
             <p id="limit-reached-modal-body" style="color: #52525B; font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.75rem;">You've used every application included in your plan.</p>
-            <button class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800; margin-bottom: 0.75rem;" onclick="closeModal('limit-reached-modal'); openUpgradeModal();">Add More Applications &rarr;</button>
+            <button class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800; margin-bottom: 0.75rem;" onclick="closeModal('limit-reached-modal'); openUpgradeModal();">Add More Credit &rarr;</button>
             <button style="width: 100%; background: none; border: none; color: #71717A; font-size: 0.85rem; font-weight: 700; cursor: pointer; padding: 0.5rem;" onclick="closeModal('limit-reached-modal')">Maybe later</button>
         </div>
     </div>
@@ -3066,8 +3066,8 @@
             if (body) {
                 const limit = applicationsLimit || (userProfile && userProfile.applications_limit) || 0;
                 body.textContent = limit
-                    ? `You've used all ${limit} applications included in your plan.`
-                    : "You've used every application included in your plan.";
+                    ? `You've used all ${limit} credits included in your plan.`
+                    : "You've used all your available credit for this plan.";
             }
             const modal = document.getElementById('limit-reached-modal');
             if (modal) modal.classList.add('active');
