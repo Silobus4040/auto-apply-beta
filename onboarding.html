@@ -11,6 +11,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.7.0/mammoth.browser.min.js"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -159,7 +160,12 @@
         .resume-section-body p { margin: 0.15rem 0; }
         .resume-section.missing { background: rgba(248,250,252,0.75); }
         .resume-section.missing .resume-section-body { color: #94A3B8; font-style: italic; }
-        .resume-covered-field { display: none !important; }
+        /* Fields the resume already answered stay visible (not hidden) — just
+           marked so the user can see what came from their resume vs. what
+           still needs their input. */
+        .resume-covered-field input, .resume-covered-field select { border-color: rgba(0,255,204,0.5); background: rgba(0,255,204,0.05); }
+        .resume-autofill-tag { display: inline-block; margin-left: 0.5rem; padding: 0.1rem 0.5rem; border-radius: 999px; background: #D4FF33; color: #000; font-size: 0.62rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.4px; vertical-align: middle; }
+        .details-autofill-status { margin-bottom: 1.5rem; }
         .profile-page-hidden { display: none !important; }
         .step-badge { display: none !important; }
         .profile-only .form-step { width: 100%; }
@@ -306,8 +312,8 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Upload Current Resume (PDF) <span style="color: #FF6B4A;">*</span></label>
-                                <input type="file" id="resume-file" accept="application/pdf,.pdf">
+                                <label>Upload Current Resume (PDF, DOC, or DOCX) <span style="color: #FF6B4A;">*</span></label>
+                                <input type="file" id="resume-file" accept="application/pdf,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                                 <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #008066; font-weight: 600; display: none;"></p>
                                 <div class="resume-extraction-panel" id="resume-extraction-panel" aria-live="polite">
                                     <div class="extraction-heading"><span id="extraction-heading-text">Rover is analyzing your resume</span><span class="extraction-badge">Extracting…</span></div>
@@ -428,7 +434,8 @@
                 <div class="form-step">
                     <div class="card">
                         <div class="card-title"><div class="num">2</div> Complete Profile Details</div>
-                        
+                        <p class="form-hint details-autofill-status" id="details-autofill-status" style="display:none;"></p>
+
                         <div class="row-grid">
                             <div class="form-group">
                                 <label>First Name <span style="color: #FF6B4A;">*</span></label>
@@ -1073,7 +1080,7 @@
             document.getElementById('profile-review').classList.toggle('is-visible', visible);
         }
 
-        const RESUME_DERIVED_FIELD_IDS = ['first-name', 'last-name', 'phone', 'phone-code', 'linkedin', 'portfolio', 'city', 'state', 'country'];
+        const RESUME_DERIVED_FIELD_IDS = ['first-name', 'last-name', 'phone', 'phone-code', 'linkedin', 'portfolio', 'city', 'state', 'country', 'nationality'];
 
         // Clears any value a *previous* resume left behind (in the inputs and in
         // this browser's autosave cache) before a newly chosen resume is parsed.
@@ -1088,18 +1095,29 @@
             });
         }
 
-        function hideCoveredFields() {
+        // Marks fields the resume already answered instead of hiding them —
+        // the user asked to see the full form with what came from the resume
+        // clearly shown, not silently removed from view.
+        function markCoveredFields() {
             const coveredIds = RESUME_DERIVED_FIELD_IDS.filter(id => id !== 'phone-code');
             coveredIds.forEach(id => {
                 const input = document.getElementById(id);
                 const group = input?.closest('.form-group');
-                if (input?.value.trim() && group) {
+                if (!input || !group) return;
+                const label = group.querySelector('label');
+                const alreadyTagged = label?.querySelector('.resume-autofill-tag');
+                if (input.value.trim()) {
                     group.classList.add('resume-covered-field');
-                    input.required = false;
+                    if (label && !alreadyTagged) {
+                        const tag = document.createElement('span');
+                        tag.className = 'resume-autofill-tag';
+                        tag.textContent = 'From your resume';
+                        label.appendChild(tag);
+                    }
+                } else {
+                    group.classList.remove('resume-covered-field');
+                    alreadyTagged?.remove();
                 }
-            });
-            document.querySelectorAll('.job-title-input').forEach(input => {
-                if (input.value.trim()) input.closest('.form-group')?.classList.add('resume-covered-field');
             });
         }
 
@@ -1252,7 +1270,27 @@
             });
         }
 
+        function detectResumeFormat(file) {
+            const name = (file.name || '').toLowerCase();
+            if (file.type === 'application/pdf' || name.endsWith('.pdf')) return 'pdf';
+            if (name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'docx';
+            if (name.endsWith('.doc') || file.type === 'application/msword') return 'doc';
+            return null;
+        }
+
         async function readResumeText(file) {
+            const format = detectResumeFormat(file);
+            if (format === 'docx') {
+                if (!window.mammoth) throw new Error('Resume reader is unavailable.');
+                const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+                return result.value;
+            }
+            if (format === 'doc') {
+                // Legacy binary .doc has no reliable in-browser parser (mammoth
+                // only reads the newer .docx format). The file still uploads and
+                // saves fine below — only automatic field-detection is skipped.
+                throw new Error('DOC_UNSUPPORTED');
+            }
             if (!window.pdfjsLib) throw new Error('Resume reader is unavailable.');
             const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
             const pages = [];
@@ -1282,6 +1320,21 @@
         ];
         const STATE_ABBR_PATTERN = US_STATES.map(([abbr]) => abbr).join('|');
         const STATE_NAME_PATTERN = US_STATES.map(([, name]) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+
+        function escapeRegex(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        // Reuses the phone-code dropdown's ~170-country list as the single
+        // source of truth for "is this text a real country name" — it's
+        // already maintained in the page, so location/country detection below
+        // works for any country the phone-code list covers, not just the US.
+        function getKnownCountryNames() {
+            const select = document.getElementById('phone-code');
+            if (!select) return [];
+            return Array.from(select.options)
+                .map(opt => opt.text.replace(/\s*\(\+\d+\)\s*$/, '').trim())
+                .filter(Boolean);
+        }
+        const KNOWN_COUNTRY_NAMES = getKnownCountryNames();
 
         function inferResumeRole(lines) {
             const roleWords = /\b(analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|marketing|sales|product|project|operations|accountant|teacher|nurse|attorney)\b/i;
@@ -1323,6 +1376,29 @@
         // capture bleed across unrelated lines (e.g. picking up the name line
         // that happens to precede the actual "City, ST" contact line).
         function findResumeLocation(lines) {
+            // Global pattern first: most non-US resumes put location in the
+            // header as "City, Region, Country" or "City, Country" — checking
+            // the last comma-separated segment against our own country list
+            // (not a fixed enum) lets this work for any country, not just US
+            // states. Kept to short, plain-word segments near the top of the
+            // resume to avoid matching degree titles or company names.
+            const headerLines = lines.slice(0, 12);
+            const isPlaceLike = seg => seg.length > 0 && seg.length <= 40 && /^[A-Za-z][A-Za-z .'-]*$/.test(seg);
+            for (const line of headerLines) {
+                if (/[@]|https?:|www\.|\b(19|20)\d{2}\b/i.test(line)) continue;
+                const segments = line.split(',').map(seg => seg.trim()).filter(Boolean);
+                if (segments.length < 2 || segments.length > 3 || !segments.every(isPlaceLike)) continue;
+                const last = segments[segments.length - 1];
+                const matchedCountry = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === last.toLowerCase());
+                if (matchedCountry) {
+                    return segments.length === 3
+                        ? { city: segments[0], state: segments[1], country: matchedCountry }
+                        : { city: segments[0], state: '', country: matchedCountry };
+                }
+            }
+
+            // US fallback: "City, ST" / "City, State Name" without a trailing
+            // country name (very common on US resumes).
             const cityStatePattern = [
                 new RegExp(`\\b([A-Za-z][A-Za-z .'-]{1,40}),\\s*(${STATE_ABBR_PATTERN})\\b`),
                 new RegExp(`\\b([A-Za-z][A-Za-z .'-]{1,40}),\\s*(${STATE_NAME_PATTERN})\\b`, 'i')
@@ -1330,7 +1406,7 @@
             for (const line of lines) {
                 for (const pattern of cityStatePattern) {
                     const match = line.match(pattern);
-                    if (match) return { city: match[1], state: match[2] };
+                    if (match) return { city: match[1], state: match[2], country: 'United States' };
                 }
             }
             // A lone state (no city alongside it) is much more collision-prone —
@@ -1341,11 +1417,11 @@
                 new RegExp(`(?:^|[\\s,|/•])(${STATE_ABBR_PATTERN})(?=$|[\\s,|/•])`),
                 new RegExp(`\\b(${STATE_NAME_PATTERN})\\b`, 'i')
             ];
-            const headerLines = lines.slice(0, 8).filter(line => line.split(/\s+/).length <= 8);
-            for (const line of headerLines) {
+            const shortHeaderLines = lines.slice(0, 8).filter(line => line.split(/\s+/).length <= 8);
+            for (const line of shortHeaderLines) {
                 for (const pattern of lonePattern) {
                     const match = line.match(pattern);
-                    if (match) return { city: '', state: match[1] };
+                    if (match) return { city: '', state: match[1], country: 'United States' };
                 }
             }
             return null;
@@ -1379,15 +1455,35 @@
             if (location) {
                 if (location.city) filled += fillIfBlank('city', location.city) ? 1 : 0;
                 if (location.state) filled += fillIfBlank('state', location.state) ? 1 : 0;
+                if (location.country) filled += fillIfBlank('country', location.country) ? 1 : 0;
             }
 
-            const countryOption = Array.from(countrySelectEl.options).find(option =>
-                new RegExp('\\b' + option.value.replace(/[.*+?^${}()|[\]\\\\]/g, '\\$&') + '\\b', 'i').test(text));
-            if (countryOption) {
-                filled += fillIfBlank('country', countryOption.value) ? 1 : 0;
-                if (!Array.from(countrySelectEl.selectedOptions).length) {
-                    countryChoices.setChoiceByValue([countryOption.value]);
-                    localStorage.setItem('onb_target-countries', JSON.stringify([countryOption.value]));
+            // Whole-document fallback: catches a country name mentioned anywhere
+            // (e.g. next to "Nationality" or "Location") even when the header
+            // line above didn't match the strict "City, Country" shape.
+            if (!document.getElementById('country')?.value.trim()) {
+                const wholeTextCountry = KNOWN_COUNTRY_NAMES.find(name => new RegExp('\\b' + escapeRegex(name) + '\\b', 'i').test(text));
+                if (wholeTextCountry) filled += fillIfBlank('country', wholeTextCountry) ? 1 : 0;
+            }
+
+            // Nationality is only ever filled when the resume states it
+            // explicitly (a "Nationality:"/"Citizenship:" line, or "X citizen" /
+            // "X national" phrasing) — never inferred from country of
+            // residence, since living somewhere isn't the same as being a
+            // citizen of it, and we don't want to fabricate that.
+            const nationalityMatch = text.match(/\b(?:nationality|citizenship)\s*[:\-]\s*([A-Za-z][A-Za-z .'-]{1,40})/i)
+                || text.match(/\b([A-Za-z]{3,20})\s+(?:citizen|national)\b/i);
+            if (nationalityMatch) filled += fillIfBlank('nationality', nationalityMatch[1].trim()) ? 1 : 0;
+
+            // "Home Market" (target-countries) is a separate concept from
+            // country of residence — only auto-select it when the detected
+            // country is actually one of the supported target markets.
+            const residenceCountry = document.getElementById('country')?.value.trim();
+            if (residenceCountry && !Array.from(countrySelectEl.selectedOptions).length) {
+                const targetMarketOption = Array.from(countrySelectEl.options).find(option => option.value.toLowerCase() === residenceCountry.toLowerCase());
+                if (targetMarketOption) {
+                    countryChoices.setChoiceByValue([targetMarketOption.value]);
+                    localStorage.setItem('onb_target-countries', JSON.stringify([targetMarketOption.value]));
                     updateEeoVisibility();
                     filled++;
                 }
@@ -1401,8 +1497,8 @@
             const status = document.getElementById('resume-status');
             if (!file) return;
             selectedResumeFile = file;
-            if (file.type && file.type !== 'application/pdf') {
-                status.textContent = 'Please choose a PDF resume.';
+            if (!detectResumeFormat(file)) {
+                status.textContent = 'Please choose a PDF, DOC, or DOCX resume.';
                 status.style.color = '#EF4444';
                 status.style.display = 'block';
                 event.target.value = '';
@@ -1428,7 +1524,9 @@
                 document.getElementById('btn-resume-continue').hidden = false;
             } catch (error) {
                 finishExtractionAnimation();
-                status.textContent = 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
+                status.textContent = error.message === 'DOC_UNSUPPORTED'
+                    ? "We'll save your .doc file, but can't automatically read the older Word format yet — please fill in the fields below, or upload a PDF/DOCX instead for auto-fill."
+                    : 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
                 status.style.color = '#A16207';
                 renderExtractionSummary();
                 setReviewVisibility(true);
@@ -1442,7 +1540,8 @@
             button.disabled = true;
             button.textContent = 'Saving resume…';
             try {
-                const fileName = `${currentUserId}_${Date.now()}.pdf`;
+                const ext = (file.name.split('.').pop() || 'pdf').toLowerCase();
+                const fileName = `${currentUserId}_${Date.now()}.${ext}`;
                 const { error } = await supabaseClient.storage.from('resumes').upload(fileName, file);
                 if (error) throw error;
                 const { data } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
@@ -1469,7 +1568,7 @@
                 localStorage.setItem('onb_resume_url', profile.resume_url);
                 const resumeStatus = document.getElementById('resume-status');
                 if (resumeStatus) {
-                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View PDF</a>`;
+                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View Resume</a>`;
                     resumeStatus.style.display = 'block';
                 }
                 setReviewVisibility(true);
@@ -1564,6 +1663,45 @@
                 }
             }
 
+            // "Complete Profile Details" gate: re-read the resume already on
+            // file and fill in whatever's still blank. This page previously
+            // only showed whatever the DB already had — if the original
+            // signup pass missed a field (common for non-US resumes before
+            // this fix), there was no way to recover it here, so the user was
+            // stuck with a required field neither they nor the resume had
+            // ever actually filled in.
+            if (detailsOnly && profile && profile.resume_url) {
+                const autofillStatus = document.getElementById('details-autofill-status');
+                if (autofillStatus) {
+                    autofillStatus.textContent = 'Reading your saved resume to fill in what we can…';
+                    autofillStatus.style.display = 'block';
+                }
+                try {
+                    const response = await fetch(profile.resume_url);
+                    if (!response.ok) throw new Error('Could not download saved resume.');
+                    const blob = await response.blob();
+                    const urlPath = new URL(profile.resume_url).pathname;
+                    const resumeName = decodeURIComponent(urlPath.split('/').pop() || 'resume.pdf');
+                    const resumeFile = new File([blob], resumeName, { type: blob.type });
+                    selectedResumeFile = resumeFile;
+                    const text = await readResumeText(resumeFile);
+                    window.lastResumeText = text;
+                    window.resumeExtraction = buildResumeExtraction(text);
+                    const filledCount = prefillFromResume(text);
+                    if (autofillStatus) {
+                        autofillStatus.textContent = filledCount > 0
+                            ? 'We filled in what we could find in your resume (marked "From your resume" below) — please review and complete anything still blank.'
+                            : "We couldn't find anything new in your resume for the fields below — please fill them in.";
+                    }
+                } catch (err) {
+                    if (autofillStatus) {
+                        autofillStatus.textContent = err.message === 'DOC_UNSUPPORTED'
+                            ? "We can't automatically read your saved .doc resume yet — please fill in the fields below."
+                            : "We couldn't automatically re-read your saved resume — please fill in the fields below.";
+                    }
+                }
+            }
+
             // BULLETPROOF JOB TITLE RESTORE
             const savedJobTitles = localStorage.getItem('onb_job-titles') || (profile ? profile.target_job_titles : null);
             const savedJobLevels = localStorage.getItem('onb_job-levels') || (profile ? profile.experience_level_bucket : null);
@@ -1604,7 +1742,7 @@
                     localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
             }
-            if (profileMode) hideCoveredFields();
+            if (profileMode) markCoveredFields();
         })();
 
         // Dynamic Job Titles Logic
@@ -1702,7 +1840,7 @@
 
             if (!file && !savedResumeUrl) {
                 const status = document.getElementById('resume-status');
-                status.textContent = 'You can review the next step now, but a PDF resume is required before setup can be completed.';
+                status.textContent = 'You can review the next step now, but a resume (PDF, DOC, or DOCX) is required before setup can be completed.';
                 status.style.color = '#A16207';
                 status.style.display = 'block';
             }
@@ -1712,7 +1850,8 @@
                 const originalText = btnNext.innerHTML;
                 btnNext.innerHTML = "Uploading Resume...";
                 try {
-                    const fileName = `${currentUserId}_${Date.now()}.pdf`;
+                    const ext = (file.name.split('.').pop() || 'pdf').toLowerCase();
+                    const fileName = `${currentUserId}_${Date.now()}.${ext}`;
                     const { error: storageError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
                     if (storageError) throw storageError;
                     
@@ -1770,8 +1909,8 @@
         });
         if (profileMode) {
             // Resume values are restored after async profile initialization. Retry
-            // once the values have settled so covered fields reliably stay hidden.
-            [0, 250, 750, 1500].forEach(delay => setTimeout(hideCoveredFields, delay));
+            // once the values have settled so covered fields are reliably marked.
+            [0, 250, 750, 1500].forEach(delay => setTimeout(markCoveredFields, delay));
         }
         
         // Resume Step State
@@ -1787,7 +1926,7 @@
 
             const resumeUrl = localStorage.getItem('onb_resume_url');
             if (!resumeUrl) {
-                errorMsg.textContent = "Resume not found. Please go back to Step 1 and upload your PDF.";
+                errorMsg.textContent = "Resume not found. Please go back to Step 1 and upload your resume.";
                 errorMsg.style.display = 'block';
                 slider.style.transform = 'translateX(0)';
                 stepIndicator.textContent = 'Step 1 of 2';
