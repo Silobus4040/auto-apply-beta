@@ -1375,9 +1375,14 @@
                     // email/phone in a different segment (common on a single
                     // "City, Country | email | phone" contact line).
                     const segments = line.split(delimiter).map((seg, i) => i === 0 ? stripLabel(seg.trim()) : seg.trim()).filter(Boolean);
-                    if (segments.length < 2 || segments.length > 4) continue;
+                    if (segments.length < 2) continue;
                     const countryIndex = segments.findIndex(seg => KNOWN_COUNTRY_NAMES.some(name => name.toLowerCase() === seg.toLowerCase()));
-                    if (countryIndex < 1) continue; // no country found, or it's the very first segment (nothing precedes it)
+                    // Only look at a country within the first few segments (city
+                    // [, state] , country) -- trailing segments after it (email,
+                    // phone, job title) are common and shouldn't disqualify the
+                    // line, but a country buried deep in a long line is more
+                    // likely a false positive than a real address.
+                    if (countryIndex < 1 || countryIndex > 2) continue;
                     const placeSegments = segments.slice(0, countryIndex);
                     if (!placeSegments.every(isPlaceLike)) continue;
                     const country = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === segments[countryIndex].toLowerCase());
