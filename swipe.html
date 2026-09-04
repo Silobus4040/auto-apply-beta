@@ -2711,12 +2711,23 @@
                     applyStamp.style.opacity = 0;
                 }
             };
-            const onUp = () => {
+            const onUp = async () => {
                 if (!dragging) return;
                 dragging = false;
                 card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 if (Math.abs(currentX) > 100) {
-                    finishSwipe(card, job, currentX > 0 ? 'apply' : 'skip');
+                    const decision = currentX > 0 ? 'apply' : 'skip';
+                    const swiped = await finishSwipe(card, job, decision);
+                    if (!swiped) {
+                        // Blocked (no credit, or a skill-write error) --
+                        // finishSwipe deliberately left the card's transform
+                        // alone, so snap it back to center same as an
+                        // under-threshold drag, instead of leaving it frozen
+                        // wherever the drag was released.
+                        card.style.transform = '';
+                        passStamp.style.opacity = 0;
+                        applyStamp.style.opacity = 0;
+                    }
                 } else {
                     card.style.transform = '';
                     passStamp.style.opacity = 0;
@@ -2783,7 +2794,8 @@
             if (decision === 'apply' && applyStamp) applyStamp.style.opacity = 1;
             if (decision !== 'apply' && passStamp) passStamp.style.opacity = 1;
             await wait(120);
-            await finishSwipe(topCard, job, decision);
+            const swiped = await finishSwipe(topCard, job, decision);
+            if (!swiped) return false;
             await wait(420);
             return true;
         }
@@ -2794,7 +2806,7 @@
                     await waitForPendingSkillWrites();
                 } catch (err) {
                     alert('One skill could not be added yet. Please retry it or apply without adding it.');
-                    return;
+                    return false;
                 }
 
                 // Real usage gate, checked BEFORE the card is touched at all --
@@ -2805,11 +2817,11 @@
                 // same as a confirmed over-limit -- never let a check we
                 // couldn't verify pass silently.
                 const { data: { user: gateUser } } = await supabaseClient.auth.getUser();
-                if (!gateUser) return;
+                if (!gateUser) return false;
                 const usage = await fetchFreshApplicationUsage(gateUser.id);
                 if (!usage || usage.used >= usage.limit) {
                     showLimitReachedModal(usage ? usage.limit : null);
-                    return;
+                    return false;
                 }
             }
 
@@ -2830,7 +2842,7 @@
             setTimeout(renderSwipeStack, 280); // optimistic advance, no wait on the network calls below
 
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
+            if (!user) return false;
 
             if (decision === 'apply') {
                 await submitApplyForJob(user.id, job);
@@ -2848,6 +2860,7 @@
             updateStats(currentJobs, user.id);
 
             refreshDeckSilently();
+            return true;
         }
 
         // Shared by both the manual "Apply" swipe and the Auto-Apply sweep
@@ -3015,7 +3028,14 @@
                     const decision = typeof job.fit_score === 'number' && job.fit_score >= minScore ? 'apply' : 'skip';
                     if (decision === 'apply') optimisticAppliedThisSweep++;
                     const swiped = await autoSwipeCurrentCard(decision);
-                    if (!swiped) break;
+                    if (!swiped) {
+                        // finishSwipe already showed the limit modal (or a
+                        // skill-write error) -- also turn the toggle off here
+                        // rather than leaving it showing "on" while the sweep
+                        // has actually stopped doing anything.
+                        await disableAutoApplyForLimitReached(userId, applicationsLimit);
+                        break;
+                    }
                 }
                 updateStats(currentJobs, userId);
                 refreshDeckSilently();
