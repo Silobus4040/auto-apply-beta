@@ -2796,6 +2796,21 @@
                     alert('One skill could not be added yet. Please retry it or apply without adding it.');
                     return;
                 }
+
+                // Real usage gate, checked BEFORE the card is touched at all --
+                // moved here from submitApplyForJob, which used to run only
+                // after the card had already animated off-screen and the deck
+                // had already advanced, so a blocked apply still looked like it
+                // succeeded. Fails CLOSED: an unreadable usage fetch blocks too,
+                // same as a confirmed over-limit -- never let a check we
+                // couldn't verify pass silently.
+                const { data: { user: gateUser } } = await supabaseClient.auth.getUser();
+                if (!gateUser) return;
+                const usage = await fetchFreshApplicationUsage(gateUser.id);
+                if (!usage || usage.used >= usage.limit) {
+                    showLimitReachedModal(usage ? usage.limit : null);
+                    return;
+                }
             }
 
             card.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
@@ -2872,19 +2887,10 @@
         }
 
         async function submitApplyForJob(userId, job) {
-            // Real usage gate. Was checking the in-memory userProfile snapshot
-            // (fetched once at page load), which goes stale the moment usage
-            // changes afterward -- proven live: an admin tightening the limit
-            // mid-session had no effect until the tab was reloaded. Fetching
-            // fresh from Supabase right before every apply closes that gap for
-            // real usage too, not just admin edits (credits from earlier in
-            // this same session finishing async also wouldn't have shown up
-            // in the cached copy).
-            const usage = await fetchFreshApplicationUsage(userId);
-            if (usage && usage.used >= usage.limit) {
-                showLimitReachedModal(usage.limit);
-                return;
-            }
+            // The real usage gate now lives in finishSwipe (this function's
+            // only caller), checked BEFORE the card animates away -- see that
+            // function for why it moved. No gate here anymore; by the time
+            // this runs, finishSwipe has already confirmed there's credit.
             try {
                 await supabaseClient.from('user_job_swipes').upsert(
                     { user_id: userId, job_pool_id: job.id, decision: 'apply' },
@@ -2979,7 +2985,16 @@
             // that goes stale). optimisticAppliedThisSweep still tracks applies
             // made within this same sweep on top of that real baseline.
             const startingUsage = await fetchFreshApplicationUsage(userId);
-            const creditsUsedAtStart = startingUsage ? startingUsage.used : (Number(userProfile.application_credit_used) || 0);
+            if (!startingUsage) {
+                // Fail closed -- couldn't verify real usage, don't guess from a
+                // possibly-stale cached value. Each card is still independently
+                // gated in finishSwipe, but don't even start the sweep loop
+                // without a real number to check against.
+                autoApplySweepRunning = false;
+                showLimitReachedModal(userProfile.applications_limit || null);
+                return;
+            }
+            const creditsUsedAtStart = startingUsage.used;
             try {
                 while (userProfile && userProfile.auto_apply_enabled && pooledJobIndex < pooledJobs.length) {
                     const applicationsLimit = (startingUsage ? startingUsage.limit : null) || Number(userProfile.applications_limit) || 10;
