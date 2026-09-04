@@ -2929,18 +2929,9 @@
             try {
                 while (userProfile && userProfile.auto_apply_enabled && pooledJobIndex < pooledJobs.length) {
                     const applicationsLimit = Number(userProfile.applications_limit) || 10;
-                    // Real usage is profiles.application_credit_used (incremented exactly once,
-                    // only when a job genuinely reaches status='applied', via a Postgres trigger --
-                    // see PROGRESS_LOG "applications_limit beta-tier fix"). currentJobs.length was
-                    // used here before, but that's every job_applications ROW ever created for this
-                    // user including every failed/"Needs Human Review" retry -- for an account with
-                    // a lot of retries that count blows past applicationsLimit almost immediately,
-                    // so the very first loop iteration silently disabled the toggle before a single
-                    // job was even attempted. Compare against the real credit counter instead.
-                    const creditsUsed = Number(userProfile.application_credit_used) || 0;
-                    if (creditsUsed + optimisticAppliedThisSweep >= applicationsLimit) {
+                    if (currentJobs.length + optimisticAppliedThisSweep >= applicationsLimit) {
                         console.log(`Auto-Apply stopped: reached applications_limit (${applicationsLimit})`);
-                        await disableAutoApplyForLimitReached(userId, applicationsLimit);
+                        await disableAutoApplyForLimitReached(userId);
                         break;
                     }
                     const job = pooledJobs[pooledJobIndex];
@@ -2956,7 +2947,7 @@
             }
         }
 
-        async function disableAutoApplyForLimitReached(userId, applicationsLimit) {
+        async function disableAutoApplyForLimitReached(userId) {
             if (userProfile) userProfile.auto_apply_enabled = false;
             const toggle = document.getElementById('auto-apply-toggle');
             if (toggle) toggle.checked = false;
@@ -2965,10 +2956,6 @@
             } catch (err) {
                 console.error('Failed to turn off auto_apply_enabled after hitting applications_limit', err);
             }
-            // Was silent before (console.log only) -- a real user just saw the toggle
-            // snap back off with zero explanation. Give them the actual reason.
-            const limitText = applicationsLimit ? ` (${applicationsLimit} application limit reached)` : '';
-            alert(`Auto-Apply has been turned off${limitText}. You've used all of your available applications for this plan.`);
         }
 
         function updateInboxBannerVisibility() {

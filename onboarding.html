@@ -861,8 +861,8 @@
                         <button type="button" class="btn btn-secondary" id="btn-back" style="margin-top: 2rem;">
                             &larr; Back
                         </button>
-                        <button type="submit" class="btn btn-primary" id="submit-btn">
-                            Complete Setup &rarr;
+                        <button type="button" class="btn btn-primary" id="submit-btn">
+                            Continue &rarr;
                         </button>
                     </div>
                 </div>
@@ -1546,7 +1546,7 @@
                 if (error) throw error;
                 const { data } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
                 localStorage.setItem('onb_resume_url', data.publicUrl);
-                window.location.href = 'onboarding.html?step=profile';
+                window.location.href = 'onboarding.html?step=details';
             } catch (error) {
                 button.disabled = false;
                 button.textContent = 'Continue to profile setup →';
@@ -1810,18 +1810,33 @@
             document.getElementById('resume-extraction-panel')?.classList.add('profile-page-hidden');
             document.getElementById('btn-finish-later')?.classList.add('profile-page-hidden');
             document.querySelector('.form-step:first-child > .card > .card-title')?.classList.add('profile-page-hidden');
-            document.getElementById('phone-code')?.closest('.form-group')?.classList.add('profile-page-hidden');
+            // phone-code shares its .form-group with the actual phone number
+            // input (they sit side by side in the same flex row) -- hiding the
+            // whole group was hiding the Phone Number field entirely, making a
+            // required field impossible to fill in on this page. Hide only the
+            // phone-code select's own wrapper, not its shared parent group.
+            document.getElementById('phone-code')?.parentElement?.classList.add('profile-page-hidden');
             if (document.getElementById('phone-code')) document.getElementById('phone-code').required = false;
             if (document.getElementById('phone')) document.getElementById('phone').required = false;
             document.getElementById('step-indicator').textContent = 'Step 2 of 2';
             document.querySelector('.header-section h1').textContent = detailsOnly ? 'Complete Profile Details' : 'Select Your Job Search Preferences';
+            // Job search preferences is now the last step (right before
+            // activation) -- its "Continue" button is the real submit action.
+            if (profileOnly) {
+                btnNext.textContent = 'Complete Setup →';
+                // #btn-back physically lives inside the Complete Profile
+                // Details card (form-step 2), which is entirely hidden on
+                // this page -- move it into the preferences card so users
+                // can actually get back to the details they just filled in.
+                document.querySelector('.profile-review')?.insertBefore(btnBack, btnNext);
+            }
         }
 
         document.getElementById('btn-finish-later').addEventListener('click', async () => {
             // Let users continue filling the profile without a resume, but keep
             // onboarding incomplete. The final submit validation still requires a
-            // PDF before activation or applications are allowed.
-            window.location.href = 'onboarding.html?step=profile';
+            // resume before activation or applications are allowed.
+            window.location.href = 'onboarding.html?step=details';
         });
 
         btnNext.addEventListener('click', async () => {
@@ -1871,20 +1886,21 @@
             localStorage.setItem('onb_job-titles', jobTitles);
             errorMsg.style.display = 'none';
             if (!profileOnly) {
-                window.location.href = 'onboarding.html?step=profile';
+                window.location.href = 'onboarding.html?step=details';
                 return;
             }
-            window.location.href = 'onboarding.html?step=details';
-            return;
+            // Job search preferences is now the last step -- this is the real
+            // "finish onboarding" action, not a further navigation.
+            completeOnboarding();
         });
 
         btnBack.addEventListener('click', () => {
             if (profileOnly) {
-                window.location.href = 'onboarding.html';
+                window.location.href = 'onboarding.html?step=details';
                 return;
             }
             if (detailsOnly) {
-                window.location.href = 'onboarding.html?step=profile';
+                window.location.href = 'onboarding.html';
                 return;
             }
             errorMsg.style.display = 'none';
@@ -1899,7 +1915,7 @@
         // only ever returns the FIRST selected option, so including it here was
         // silently overwriting the correct saved list down to a single country
         // (confirmed live 2026-07-15: 4 selected countries collapsed to 1).
-        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form select:not([multiple]):not(#target-countries)');
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form input[type="tel"], #onboarding-form select:not([multiple]):not(#target-countries)');
         formInputs.forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem('onb_' + input.id);
@@ -1919,24 +1935,58 @@
             stepIndicator.textContent = 'Step 2 of 2';
         }
 
-        // Form Submit Logic
-        document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Details-page "Continue": this card holds first name/city/state/
+        // country/phone, so it validates them before moving on to the
+        // (now last) job search preferences step.
+        document.getElementById('submit-btn').addEventListener('click', () => {
             errorMsg.style.display = 'none';
 
             const resumeUrl = localStorage.getItem('onb_resume_url');
             if (!resumeUrl) {
-                errorMsg.textContent = "Resume not found. Please go back to Step 1 and upload your resume.";
+                errorMsg.textContent = "Resume not found. Please go back and upload your resume.";
                 errorMsg.style.display = 'block';
-                slider.style.transform = 'translateX(0)';
-                stepIndicator.textContent = 'Step 1 of 2';
-                localStorage.setItem('onb_step', '1');
+                return;
+            }
+
+            const phoneCode = document.getElementById('phone-code').value.trim();
+            if (!phoneCode) {
+                errorMsg.textContent = "Please select your country code.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const firstName = document.getElementById('first-name').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const state = document.getElementById('state').value.trim();
+            const country = document.getElementById('country').value.trim();
+            const phoneRaw = document.getElementById('phone').value.trim();
+
+            if (!firstName || !city || !state || !country || !phoneRaw) {
+                errorMsg.textContent = "Please fill out all mandatory fields: First Name, City, State, Country, and Phone Number.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            window.location.href = 'onboarding.html?step=profile';
+        });
+
+        // Final "Complete Setup" action -- runs from the job search
+        // preferences page (now the last step) via btnNext, and from a
+        // native form submit (kept as a fallback; no submit-type button
+        // remains in the form today).
+        async function completeOnboarding() {
+            errorMsg.style.display = 'none';
+
+            const resumeUrl = localStorage.getItem('onb_resume_url');
+            if (!resumeUrl) {
+                errorMsg.textContent = "Resume not found. Please go back and upload your resume.";
+                errorMsg.style.display = 'block';
                 return;
             }
 
             const phoneCode = document.getElementById('phone-code').value.trim();
             const phoneRaw = document.getElementById('phone').value.trim();
-            
+
             if (!phoneCode) {
                 errorMsg.textContent = "Please select your country code.";
                 errorMsg.style.display = 'block';
@@ -1972,11 +2022,12 @@
                 targetCurrency = customCode;
             }
 
-            const btn = document.getElementById('submit-btn');
+            const submitBtn = document.getElementById('submit-btn');
             const loadingOverlay = document.getElementById('loading-overlay');
             const loadingText = document.getElementById('loading-text');
-            
-            btn.disabled = true;
+
+            submitBtn.disabled = true;
+            btnNext.disabled = true;
             loadingOverlay.classList.add('active');
 
             try {
@@ -2067,8 +2118,17 @@
                 loadingOverlay.classList.remove('active');
                 errorMsg.textContent = err.message || 'Something went wrong. Please try again.';
                 errorMsg.style.display = 'block';
-                btn.disabled = false;
+                submitBtn.disabled = false;
+                btnNext.disabled = false;
             }
+        }
+
+        // Kept as a fallback in case a native form submit ever fires (e.g.
+        // Enter in a text field) -- no type="submit" button remains in the
+        // form today, so this mainly guards against future markup changes.
+        document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            completeOnboarding();
         });
     </script>
     <script>
