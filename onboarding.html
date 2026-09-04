@@ -434,6 +434,7 @@
                 <div class="form-step">
                     <div class="card">
                         <div class="card-title"><div class="num">2</div> Complete Profile Details</div>
+                        <p class="form-hint" id="signed-in-as-status" style="display:none; margin-bottom: 0.5rem;"></p>
                         <p class="form-hint details-autofill-status" id="details-autofill-status" style="display:none;"></p>
 
                         <div class="row-grid">
@@ -1560,7 +1561,12 @@
             if (!session) { window.location.href = 'login.html'; return; }
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
-            
+            const signedInAsEl = document.getElementById('signed-in-as-status');
+            if (signedInAsEl && currentUserEmail) {
+                signedInAsEl.textContent = `Signed in as ${currentUserEmail}`;
+                signedInAsEl.style.display = 'block';
+            }
+
             const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
