@@ -1386,8 +1386,14 @@
                     const placeSegments = segments.slice(0, countryIndex);
                     if (!placeSegments.every(isPlaceLike)) continue;
                     const country = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === segments[countryIndex].toLowerCase());
-                    return placeSegments.length >= 2
-                        ? { city: placeSegments[0], state: placeSegments[1], country }
+                    if (placeSegments.length >= 2) return { city: placeSegments[0], state: placeSegments[1], country };
+                    // A single segment before the country is usually a city
+                    // ("Accra, Ghana") -- but when it names a region outright
+                    // ("Lagos State, Nigeria", "Ashanti Region, Ghana"), put
+                    // it in State instead so City doesn't get a region name.
+                    const REGION_KEYWORD = /\b(?:state|region|province|county|territory|prefecture|governorate|emirate)$/i;
+                    return REGION_KEYWORD.test(placeSegments[0])
+                        ? { city: '', state: placeSegments[0], country }
                         : { city: placeSegments[0], state: '', country };
                 }
             }
