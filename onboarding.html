@@ -1438,7 +1438,23 @@
             // at all, which the strict pattern above can't match.
             const phoneStrictMatch = text.match(/(?:\+?\d{1,3}[\s.-])?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}/);
             const phoneLabeledMatch = text.match(/\b(?:phone|tel(?:ephone)?|mobile|cell|whatsapp|contact)\s*(?:number)?\s*[:\-]\s*(\+?[\d\s().-]{7,18}\d)/i);
-            const phone = phoneStrictMatch ? [phoneStrictMatch[0]] : (phoneLabeledMatch ? [phoneLabeledMatch[1]] : null);
+            // Last resort: a bare, unlabeled 8+ digit run, but only within the
+            // header (first 10 lines) -- restricting to the header is what
+            // keeps this from grabbing an unrelated 8-digit run further down
+            // the page (an employment date range collapses to 8 digits too),
+            // and a line naming a birth date is skipped outright. Still a
+            // real trade-off with no label to go on: could occasionally catch
+            // a different 8+ digit header field (an ID, a postal code range).
+            let phoneBareMatch = null;
+            if (!phoneStrictMatch && !phoneLabeledMatch) {
+                for (const line of lines.slice(0, 10)) {
+                    if (/\b(?:dob|birth)\b/i.test(line)) continue;
+                    if (/^(?:19|20)\d{2}\s*[-–]\s*(?:19|20)\d{2}$/.test(line)) continue; // a bare year range ("2020-2024") is 8 digits too
+                    const candidate = line.match(/\+?(?:\d[\s.()-]*){8,15}/);
+                    if (candidate) { phoneBareMatch = candidate[0].trim(); break; }
+                }
+            }
+            const phone = phoneStrictMatch ? [phoneStrictMatch[0]] : (phoneLabeledMatch ? [phoneLabeledMatch[1]] : (phoneBareMatch ? [phoneBareMatch] : null));
             const linkedin = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i);
             const website = text.match(/(?:https?:\/\/|www\.)(?!linkedin\.com)[a-z0-9-]+\.[a-z]{2,}(?:\/[^\s|,;]*)?/i);
             // A wide window, not just the header -- location info often sits
