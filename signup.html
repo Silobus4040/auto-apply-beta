@@ -46,9 +46,9 @@
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
         .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
 
-        .container { max-width: 500px; margin: 4rem auto; padding: 0 5%; flex: 1; position: relative; z-index: 1; }
+        .container { width: 100%; max-width: 500px; margin: 4rem auto; padding: 0 5%; flex: 1; position: relative; z-index: 1; }
         .header { text-align: center; margin-bottom: 2.5rem; }
-        .header h1 { color: var(--text-heading); font-size: 2.2rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -1px; }
+        .header h1 { color: var(--text-heading); font-size: 2.2rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -1px; line-height: 1.1; }
         .header p { color: #52525B; font-size: 1rem; font-weight: 500; }
 
         .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 3rem 2.5rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); }
@@ -56,6 +56,9 @@
         .form-group label { display: block; margin-bottom: 0.5rem; color: #52525B; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
         input { width: 100%; padding: 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem; transition: all 0.2s; }
         input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
+        /* Prevent the general input padding from turning the agreement control
+           into an oversized, misaligned square on small screens. */
+        .form-group input[type="checkbox"] { width: 24px !important; height: 24px; min-height: 24px; padding: 0; margin-top: 0.1rem !important; border-radius: 7px; accent-color: #00D6AE; }
         .password-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
         /* Password show/hide eye button. Real mobile-specific bug: iOS
@@ -96,6 +99,37 @@
         .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; border-radius: 12px; }
         .success-msg { background: rgba(0,255,204,0.08); border: 1px solid rgba(0,255,204,0.2); color: var(--text-heading); padding: 0.75rem 1rem; font-weight: 700; font-size: 0.9rem; margin-bottom: 1rem; display: none; text-transform: uppercase; border-radius: 12px; }
         @keyframes rover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+        /* The desktop card has generous breathing room. On phones, that same
+           padding leaves the actual fields too narrow and makes the form feel
+           squeezed even though the card itself nearly fills the screen. */
+        @media (max-width: 600px) {
+            nav {
+                padding: max(0.85rem, env(safe-area-inset-top)) 1rem 0.85rem;
+            }
+            nav .logo svg { height: 40px !important; }
+            .container {
+                max-width: 34rem;
+                margin: 2rem auto 3rem;
+                padding: 0 1rem;
+            }
+            .header { margin-bottom: 1.75rem; }
+            .header h1 { font-size: clamp(1.9rem, 9vw, 2.2rem); letter-spacing: -0.8px; }
+            .header p { font-size: 0.98rem; line-height: 1.55; }
+            .card { border-radius: 20px; padding: 1.5rem; }
+            .form-group { margin-bottom: 1.25rem; }
+            input { min-height: 52px; padding: 0.875rem 1rem; }
+            .password-toggle-btn { right: 0.35rem; }
+            .btn { min-height: 52px; padding: 0.8rem 1rem; }
+            .login-link { margin-top: 1.25rem; }
+        }
+
+        @media (max-width: 360px) {
+            .container { padding: 0 0.75rem; }
+            .card { padding: 1.25rem; }
+            .header h1 { font-size: 1.8rem; }
+            .form-group label { font-size: 0.8rem; }
+        }
     </style>
     <!-- Cloudflare Web Analytics -->
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e283f8a57d564d11a0e493125628363a"}'></script>
@@ -162,10 +196,6 @@
             <div class="success-msg" id="success-msg"></div>
 
             <form id="signup-form">
-                <div class="form-group">
-                    <label>Full Name</label>
-                    <input type="text" id="signup-name" required placeholder="John Doe">
-                </div>
                 <div class="form-group">
                     <label>Email Address</label>
                     <input type="email" id="signup-email" required placeholder="john@example.com">
@@ -236,19 +266,12 @@
             errorMsg.style.display = 'none';
             successMsg.style.display = 'none';
 
-            const name = document.getElementById('signup-name').value.trim();
             const email = document.getElementById('signup-email').value.trim();
-            const password = document.getElementById('signup-password').value;
-            const confirm = document.getElementById('signup-confirm').value;
+            const password = document.getElementById('signup-password').value.trim();
+            const confirm = document.getElementById('signup-confirm').value.trim();
 
             if (email.includes('+')) {
                 errorMsg.textContent = 'Emails containing a "+" symbol (aliases) are not allowed. Please use your standard email.';
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            if (password !== password.trim() || confirm !== confirm.trim()) {
-                errorMsg.textContent = 'Password cannot start or end with a space. Remove the extra space and try again.';
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -272,8 +295,7 @@
             try {
                 const { data, error } = await supabaseClient.auth.signUp({
                     email,
-                    password,
-                    options: { data: { full_name: name } }
+                    password
                 });
 
                 if (error) throw error;
@@ -295,14 +317,14 @@
 
                 // PostHog: identify the new account + mark signup as a funnel step
                 if (window.posthog && data.user) {
-                    posthog.identify(data.user.id, { email, full_name: name });
+                    posthog.identify(data.user.id, { email });
                     posthog.capture('signup_completed');
                 }
 
                 // Store email for OTP verification page
                 sessionStorage.setItem('pending_verification_email', email);
 
-                successMsg.textContent = '✅ Account created! Check your email for a 6-digit verification code.';
+                successMsg.textContent = '✅ Account created! Check your email for an 8-digit verification code.';
                 successMsg.style.display = 'block';
 
                 setTimeout(() => {

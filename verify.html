@@ -50,7 +50,7 @@
         .header { text-align: center; margin-bottom: 2.5rem; }
         .header h1 { color: var(--text-heading); font-size: 2.2rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -1px; }
         .header p { color: #52525B; font-size: 1rem; font-weight: 500; }
-        .header .email-highlight { color: var(--primary); font-weight: 700; }
+        .header .email-highlight { color: var(--text-heading); font-weight: 700; }
 
         .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); }
 
@@ -58,27 +58,21 @@
         .lock-icon { font-size: 3rem; margin-bottom: 1rem; display: block; text-align: center; animation: pulse 2s ease-in-out infinite; }
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
 
-        /* OTP Input Boxes */
+        /* Plain OTP input */
         .otp-container { display: flex; gap: 0.75rem; justify-content: center; margin: 2rem 0; }
         .otp-input {
-            width: 48px; height: 62px;
+            width: 100%; height: 62px;
             background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 12px;
             color: #000000;
             font-size: 1.6rem;
             font-weight: 900;
-            text-align: center;
+            text-align: left;
+            padding: 0 1.1rem;
+            letter-spacing: 0.15em;
             caret-color: var(--secondary);
             transition: all 0.2s;
-        }
-        /* 8 boxes at 48px + 7 gaps at 0.75rem = 468px, wider than every phone
-           screen (iPhone tops out ~430px) -- the 8th box was silently
-           overflowing off-screen with no way to reach it. Shrink box size
-           and gap on narrow viewports so all 8 stay visible and tappable. */
-        @media (max-width: 480px) {
-            .otp-container { gap: 0.4rem; }
-            .otp-input { width: 34px; height: 46px; font-size: 1.2rem; }
         }
         .otp-input:focus {
             outline: none;
@@ -128,11 +122,6 @@
         .back-link a { color: #52525B; text-decoration: none; font-weight: 700; text-transform: uppercase; }
         .back-link a:hover { text-decoration: underline; }
 
-        /* Progress dots */
-        .progress { display: flex; justify-content: center; gap: 0.5rem; margin-bottom: 2rem; }
-        .progress-dot { width: 10px; height: 10px; background: var(--border); border-radius: 0; transition: all 0.3s; }
-        .progress-dot.done { background: var(--primary); box-shadow: 0 0 10px var(--primary); }
-        .progress-dot.active { background: var(--secondary); box-shadow: 0 0 10px var(--secondary); animation: pulse 1.5s ease-in-out infinite; }
         @keyframes rover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     </style>
     <!-- Cloudflare Web Analytics -->
@@ -196,25 +185,12 @@
             <p>We sent an 8-digit code to <span class="email-highlight" id="user-email">your email</span>. Enter it below to activate your account.</p>
         </div>
 
-        <div class="progress">
-            <div class="progress-dot done"></div>
-            <div class="progress-dot done"></div>
-            <div class="progress-dot active"></div>
-        </div>
-
         <div class="card">
             <div class="error-msg" id="error-msg"></div>
             <div class="success-msg" id="success-msg"></div>
 
             <div class="otp-container" id="otp-container">
-                <input type="text" maxlength="1" class="otp-input" data-index="0" inputmode="numeric" autocomplete="one-time-code">
-                <input type="text" maxlength="1" class="otp-input" data-index="1" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="2" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="3" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="4" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="5" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="6" inputmode="numeric">
-                <input type="text" maxlength="1" class="otp-input" data-index="7" inputmode="numeric">
+                <input type="text" maxlength="8" class="otp-input" id="otp-code" inputmode="numeric" autocomplete="one-time-code" aria-label="8-digit verification code">
             </div>
 
             <button class="btn btn-primary" id="verify-btn" onclick="verifyOtp()">Verify & Continue &rarr;</button>
@@ -267,6 +243,20 @@
         const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        // onboarding.html autosaves every field to localStorage under flat
+        // 'onb_*' keys so a refresh doesn't lose progress. Those keys aren't
+        // scoped per-account, so verifying a brand new signup in a browser
+        // that previously onboarded a different account would otherwise
+        // silently inherit that account's cached name/resume/answers. Tag the
+        // cache with whichever account it belongs to and wipe it on any
+        // mismatch (including never-tagged) before the user ever reaches
+        // onboarding.html.
+        function reconcileOnboardingCache(userId) {
+            if (localStorage.getItem('onb_owner') === userId) return;
+            Object.keys(localStorage).filter(key => key.startsWith('onb_')).forEach(key => localStorage.removeItem(key));
+            localStorage.setItem('onb_owner', userId);
+        }
+
         // A real password-reset email link (resetPasswordForEmail's redirectTo) lands here
         // with recovery tokens in the URL that supabase-js auto-detects on page load, firing
         // a PASSWORD_RECOVERY auth event -- no code to type, no sessionStorage dependency
@@ -278,7 +268,6 @@
         supabaseClient.auth.onAuthStateChange((event) => {
             if (event === 'PASSWORD_RECOVERY') {
                 document.querySelector('.header').style.display = 'none';
-                document.querySelector('.progress').style.display = 'none';
                 document.querySelector('.card').style.display = 'none';
                 document.getElementById('new-password-card').style.display = 'block';
             }
@@ -302,60 +291,15 @@
 
         // ─── OTP Input Logic ───
         const inputs = document.querySelectorAll('.otp-input');
-
-        inputs.forEach((input, idx) => {
-            input.addEventListener('input', (e) => {
-                const val = e.target.value;
-                // Only allow digits
-                if (!/^\d$/.test(val)) {
-                    e.target.value = '';
-                    return;
-                }
-                e.target.classList.add('filled');
-                // Auto-focus next
-                if (idx < inputs.length - 1) {
-                    inputs[idx + 1].focus();
-                }
-                // Auto-submit when all 6 filled
-                if (getOtpValue().length === 8) {
-                    verifyOtp();
-                }
-            });
-
-            input.addEventListener('keydown', (e) => {
-                if (e.key === 'Backspace') {
-                    if (input.value === '' && idx > 0) {
-                        inputs[idx - 1].focus();
-                        inputs[idx - 1].value = '';
-                        inputs[idx - 1].classList.remove('filled');
-                    } else {
-                        input.value = '';
-                        input.classList.remove('filled');
-                    }
-                }
-            });
-
-            // Handle paste of full code
-            input.addEventListener('paste', (e) => {
-                e.preventDefault();
-                const pasted = (e.clipboardData.getData('text') || '').replace(/\D/g, '').slice(0, 8);
-                if (pasted.length === 8) {
-                    pasted.split('').forEach((ch, i) => {
-                        inputs[i].value = ch;
-                        inputs[i].classList.add('filled');
-                    });
-                    inputs[7].focus();
-                    verifyOtp();
-                }
-            });
-
-            input.addEventListener('focus', () => {
-                input.select();
-            });
+        const otpInput = document.getElementById('otp-code');
+        otpInput.addEventListener('input', () => {
+            otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 8);
+            otpInput.classList.toggle('filled', otpInput.value.length > 0);
+            if (otpInput.value.length === 8) verifyOtp();
         });
 
         function getOtpValue() {
-            return Array.from(inputs).map(i => i.value).join('');
+            return otpInput.value;
         }
 
         // ─── Verify OTP ───
@@ -409,11 +353,9 @@
                     successMsg.textContent = 'Email verified! Setting up your account...';
                     successMsg.style.display = 'block';
 
-                    // Update progress dots
-                    document.querySelectorAll('.progress-dot').forEach(d => { d.classList.add('done'); d.classList.remove('active'); });
-
                     // Pre-populate profiles table with signup email and names
                     const user = data.user;
+                    reconcileOnboardingCache(user.id);
                     const fullName = user.user_metadata?.full_name || '';
                     const parts = fullName.split(' ');
                     const firstName = parts[0] || '';
@@ -467,14 +409,8 @@
             pwErrorMsg.style.display = 'none';
             pwSuccessMsg.style.display = 'none';
 
-            const newPassword = document.getElementById('new-password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-
-            if (newPassword !== newPassword.trim() || confirmPassword !== confirmPassword.trim()) {
-                pwErrorMsg.textContent = 'Password cannot start or end with a space. Remove the extra space and try again.';
-                pwErrorMsg.style.display = 'block';
-                return;
-            }
+            const newPassword = document.getElementById('new-password').value.trim();
+            const confirmPassword = document.getElementById('confirm-password').value.trim();
 
             if (newPassword.length < 8) {
                 pwErrorMsg.textContent = 'Password must be at least 8 characters.';

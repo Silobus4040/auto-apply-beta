@@ -1,0 +1,35 @@
+RoleRover onboarding review notes
+
+Workplace explanation
+Remote (Local): Remote jobs in your country or region.
+Remote (Global): Remote jobs open to applicants anywhere.
+Choose both if you want both options.
+
+Hide from onboarding when already found in the resume
+- First name
+- Last name
+- City
+- State
+- Country
+- Phone number
+- LinkedIn
+- Portfolio / website
+- Target job title, when clearly detected
+
+Keep in onboarding because these are preferences or eligibility details
+- Workplace type
+- Home market / target countries
+- Commitment type
+- Nationality
+- Work authorization
+- Visa sponsorship
+- Desired salary
+- Currency
+- Industry preference
+- Notice period
+- Earliest start date
+
+Intended flow
+1. Page 1: upload and scan the resume, then show a compact read-only overview.
+2. Page 2: show only profile fields not covered by the resume.
+3. Keep the backend extraction and master resume unchanged.
