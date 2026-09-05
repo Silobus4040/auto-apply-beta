@@ -2170,7 +2170,7 @@
                             const h3 = emptyState.querySelector('h3');
                             const p = emptyState.querySelector('p');
                             if (h3) h3.textContent = 'Preparing your matches...';
-                            if (p) p.innerHTML = `${totalAvailable} roles matched your preferences! They are being scored and prepared for your deck — this takes about 60 seconds. Check your <a href="dashboard.html" style="color: var(--secondary); font-weight: 700;">Dashboard</a> in the meantime.`;
+                            if (p) p.textContent = `${totalAvailable} roles matched your preferences! They are being scored and prepared for your deck — this takes about 60 seconds.`;
                         }
                     }
                 } catch (err) {

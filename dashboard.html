@@ -1918,6 +1918,13 @@
 
             startPolling();
             updateScanningIndicator(true, 0);
+            // Without this, the job-list panel keeps showing whatever it last
+            // rendered (the pre-activation "Nothing Here Yet" placeholder)
+            // for up to 15s until the first poll tick -- activating should
+            // switch straight to the scanning spinner, not leave stale,
+            // now-wrong copy on screen in the meantime.
+            lastIsScanning = true;
+            renderJobs(currentJobs, true);
 
             try {
                 await supabaseClient.from('profiles').update({ scraper_status: 'scanning' }).eq('id', user.id);
