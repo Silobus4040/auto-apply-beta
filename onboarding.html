@@ -10,6 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.7.0/mammoth.browser.min.js"></script>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -69,18 +71,32 @@
         .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #00FFCC; }
+        .form-group input[type="file"]::file-selector-button { margin-right: 0.75rem; padding: 0.7rem 1rem; border: 0; border-radius: 8px; background: #111111; color: #ffffff; font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer; }
         .choices__inner { position: relative !important; border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.5rem 2.5rem 0.5rem 1rem !important; }
         .choices__inner::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; }
         .choices.is-focused .choices__inner { border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
         .choices__list--multiple .choices__item { background-color: #F4F4F5 !important; border: 1px solid #D4D4D8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; }
+        /* Keep multi-select menus focused on the option names. The library's
+           helper copy adds a divider and repeats the same instruction in every tab. */
+        .choices__item--selectable::after { display: none !important; }
+        .choices__list--multiple .choices__button { --choices-icon-cross: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; width: 18px !important; min-width: 18px !important; height: 18px !important; background-size: 12px !important; margin-left: 0.35rem !important; padding: 0 !important; border: 0 !important; opacity: 1 !important; }
+        .choices__list--multiple .choices__button:hover { opacity: 0.6 !important; }
+        .choices__list--dropdown { max-height: 260px !important; overflow-y: auto !important; z-index: 100 !important; }
+        .choices__list--dropdown .choices__item--disabled { display: none !important; }
+        .choices__list--dropdown .choices__item--choice.is-disabled { display: none !important; }
+        .choices[data-type*="select-one"] .choices__button { --choices-icon-cross-inverse: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; opacity: 1 !important; margin-right: 1.5rem !important; }
+        .choices[data-type*="select-one"] .choices__button:hover { opacity: 0.6 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
 
         .select-wrapper { position: relative; }
-        .select-wrapper::after { content: "▼"; font-size: 0.8rem; color: #FF6B4A; position: absolute; right: 1.25rem; top: 50%; transform: translateY(-50%); pointer-events: none; }
+        /* Use the browser's familiar native select control instead of the decorative
+           orange caret. This keeps dropdowns accessible and consistent on mobile. */
+        .select-wrapper::after { display: none; }
+        .select-wrapper select { -webkit-appearance: auto; appearance: auto; }
 
         .industry-combobox { position: relative; }
         .industry-combobox #industry { padding-right: 3.25rem; }
-        .industry-toggle { position: absolute; top: 0; right: 0; width: 3.25rem; height: 100%; border: 0; background: transparent; color: #FF6B4A; cursor: pointer; font-size: 0.8rem; border-radius: 0 12px 12px 0; }
+        .industry-toggle { position: absolute; top: 0; right: 0; width: 3.25rem; height: 100%; border: 0; background: transparent; color: #6B7280; cursor: pointer; font-size: 0.8rem; border-radius: 0 12px 12px 0; }
         .industry-options { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; z-index: 50; max-height: 260px; overflow-y: auto; padding: 0.4rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14); }
         .industry-options[hidden] { display: none; }
         .industry-option { display: block; width: 100%; padding: 0.8rem 0.9rem; border: 0; border-radius: 8px; background: transparent; color: #27272A; cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 600; line-height: 1.35; text-align: left; }
@@ -100,12 +116,70 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        .btn-primary { background: #00FFCC; color: #000000; border: none; box-shadow: 0 10px 30px rgba(0, 255, 204, 0.3); position: relative; }
-        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(0, 255, 204, 0.5); }
+        .btn-primary { background: #D4FF33; color: #000000; border: none; box-shadow: 0 10px 30px rgba(212, 255, 51, 0.3); position: relative; }
+        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.5); }
         .btn-compact { width: min(100%, 360px); margin-left: auto; margin-right: auto; padding: 0.95rem 1.75rem; font-size: 1rem; }
         
         .btn-secondary { background: #ffffff; color: #52525B; border: 1px solid var(--border); margin-bottom: 1rem; border-radius: 50px; }
         .btn-secondary:hover { color: #FF6B4A; border-color: #FF6B4A; }
+        .finish-later { width: auto; margin: -0.25rem auto 0; padding: 0.25rem; background: transparent; border: 0; color: #71717A; font-size: 0.85rem; font-weight: 700; letter-spacing: 0; text-transform: none; text-decoration: underline; box-shadow: none; }
+        .finish-later:hover { color: #000000; transform: none; box-shadow: none; }
+        .profile-review { display: none; }
+        .profile-review.is-visible { display: block; animation: reveal-profile 0.3s ease-out; }
+        .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1.25rem 0 0; border-top: 1px solid rgba(0, 255, 204, 0.25); background: transparent; }
+        .resume-extraction-panel.is-visible { display: block; }
+        .extraction-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; color: #000; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
+        .extraction-badge { padding: 0.25rem 0.55rem; border-radius: 999px; background: #D4FF33; font-size: 0.68rem; white-space: nowrap; }
+        .extraction-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
+        .extraction-item { min-width: 0; padding: 0.6rem 0.7rem; border-radius: 10px; background: rgba(255,255,255,0.82); border: 1px solid rgba(0,0,0,0.06); }
+        .extraction-label { display: block; margin-bottom: 0.2rem; color: #71717A; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
+        .extraction-value { display: block; overflow: hidden; color: #18181B; font-size: 0.82rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .extraction-stage-list { display: grid; gap: 0.55rem; }
+        .extraction-stage { display: flex; align-items: center; gap: 0.6rem; color: #71717A; font-size: 0.78rem; font-weight: 700; }
+        .extraction-stage::before { content: ''; width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: #D4D4D8; }
+        .extraction-stage.active { color: #00695C; }
+        .extraction-stage.active::before { background: #00FFCC; box-shadow: 0 0 0 4px rgba(0,255,204,0.14); }
+        .extraction-stage.complete { color: #27272A; }
+        .extraction-stage.complete::before { content: '✓'; width: 16px; height: 16px; flex-basis: 16px; color: #00695C; background: #D4FF33; font-size: 0.65rem; font-weight: 900; text-align: center; line-height: 16px; }
+        .extraction-profile { display: none; padding: 0.25rem 0 0.8rem; }
+        .extraction-profile.is-visible { display: block; }
+        .profile-identity { display: flex; align-items: center; gap: 0.7rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
+        .profile-avatar { display: grid; place-items: center; width: 42px; height: 42px; flex: 0 0 42px; border-radius: 50%; background: #EAF0FF; color: #1550A8; font-size: 0.8rem; font-weight: 900; }
+        .profile-name { color: #18181B; font-size: 1rem; font-weight: 900; }
+        .profile-role { margin-top: 0.15rem; color: #64748B; font-size: 0.78rem; font-weight: 600; }
+        .profile-stats { display: flex; flex-wrap: wrap; gap: 1rem; padding: 0.75rem 0; border-bottom: 1px solid rgba(0,0,0,0.08); color: #64748B; font-size: 0.75rem; }
+        .profile-stat strong { color: #334155; font-size: 0.95rem; margin-right: 0.2rem; }
+        .extracted-file { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-top: 0.75rem; color: #64748B; font-size: 0.75rem; }
+        .extracted-file-name { overflow: hidden; color: #334155; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .extracted-file-actions { flex: 0 0 auto; display: flex; gap: 0.7rem; }
+        .extracted-file-actions a { color: #1550A8; font-weight: 800; text-decoration: underline; cursor: pointer; }
+        .resume-sections { display: grid; gap: 0.7rem; margin-top: 0.9rem; }
+        .resume-section { padding: 0.75rem; border: 1px solid rgba(0,0,0,0.07); border-radius: 12px; background: #ffffff; }
+        .resume-section-heading { margin-bottom: 0.35rem; color: #71717A; font-size: 0.67rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
+        .resume-section-body { color: #334155; font-size: 0.78rem; line-height: 1.5; }
+        .resume-section-body p { margin: 0.15rem 0; }
+        .resume-section.missing { background: rgba(248,250,252,0.75); }
+        .resume-section.missing .resume-section-body { color: #94A3B8; font-style: italic; }
+        .details-autofill-status { margin-bottom: 1.5rem; }
+        .profile-page-hidden { display: none !important; }
+        .step-badge { display: none !important; }
+        .profile-only .form-step { width: 100%; }
+        .profile-only .form-step + .form-step { margin-top: 1.25rem; }
+        .profile-only .form-step:last-child { display: none; }
+        .details-only .form-step:first-child { display: none; }
+        .details-only .form-step:last-child { display: block; width: 100%; }
+        .profile-only #step-indicator, .details-only #step-indicator { display: none; }
+        .profile-only .num, .details-only .num { display: none; }
+        .profile-only .header-section { margin-bottom: 1.5rem; }
+        .profile-only .header-section h1 { max-width: 620px; margin-left: auto; margin-right: auto; font-size: clamp(1.75rem, 5vw, 2.15rem); }
+        .profile-only .card { padding-top: 1.75rem; }
+        /* The first page is intentionally a compact scan confirmation, not a
+           second résumé editor. Detailed extraction stays in the backend. */
+        #resume-sections, #extracted-skills, #extraction-grid, .profile-stats { display: none !important; }
+        .extracted-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
+        .skill-chip { padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(0,255,204,0.12); color: #00695C; font-size: 0.7rem; font-weight: 800; }
+        @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
+        @keyframes reveal-profile { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
         .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; text-transform: uppercase; text-align: center; border-radius: 12px; }
         
@@ -226,7 +300,37 @@
                     <!-- STEP 1: RESUME & TARGETS -->
                     <div class="form-step">
 <div class="card">
-                            <div class="card-title"><div class="num">1</div> Target Profile & Resume</div>
+                            <div class="card-title"><div class="num">1</div> Upload Your Resume</div>
+
+                            <div class="info-box">
+                                <p><strong>Let’s start with your resume.</strong> We’ll use it to fill in your profile automatically.</p>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Upload Current Resume (PDF, DOC, or DOCX) <span style="color: #FF6B4A;">*</span></label>
+                                <input type="file" id="resume-file" accept="application/pdf,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
+                                <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #008066; font-weight: 600; display: none;"></p>
+                                <div class="resume-extraction-panel" id="resume-extraction-panel" aria-live="polite">
+                                    <div class="extraction-heading"><span id="extraction-heading-text">Rover is analyzing your resume</span><span class="extraction-badge">Extracting…</span></div>
+                                    <div class="extraction-stage-list" id="extraction-stage-list">
+                                        <div class="extraction-stage active">Reading your resume</div>
+                                        <div class="extraction-stage">Analyzing your work history</div>
+                                        <div class="extraction-stage">Identifying skills and experience</div>
+                                        <div class="extraction-stage">Separating education and contact details</div>
+                                    </div>
+                                    <div class="extraction-profile" id="extraction-profile"></div>
+                                    <div class="resume-sections" id="resume-sections"></div>
+                                    <div class="extraction-grid" id="extraction-grid"></div>
+                                    <div class="extracted-skills" id="extracted-skills"></div>
+                                </div>
+                                <button type="button" class="btn btn-primary resume-continue" id="btn-resume-continue" hidden>Continue to profile setup &rarr;</button>
+                            </div>
+                            <button type="button" class="finish-later" id="btn-finish-later">
+                                Continue without a resume for now
+                            </button>
+
+                            <div class="profile-review" id="profile-review">
+                            <div class="card-title" style="font-size: 1rem; margin-top: 2rem;"><div class="num" style="background:#F4F4F5;">2</div> Choose Your Preferences</div>
 
                             <div class="form-group">
                                 <label>Target Job Titles & Experience <span style="color: #FF6B4A;">*</span></label>
@@ -237,13 +341,47 @@
                             </div>
 
                             <div class="form-group">
-                                <label style="margin-bottom: 0.8rem;">Workplace Type (Select all that apply) <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Local):</strong> Best for US, Canada, UK, and EU Users. Local jobs from almost every other country are available but limited. Add Remote Global if you're outside the listed countries to see more roles.</p>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;"><strong>Remote (Global):</strong> Global remote roles are open to anyone, anywhere in the world, including companies based in other countries.</p>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Pick both if you're open to either.</p>
+                                <label>Job Category <span style="color: #FF6B4A;">*</span></label>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Which function best describes the roles you're targeting?</p>
+                                <select id="target-role-family" required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    <option value="Account Executive">Account Executive</option>
+                                    <option value="Administrative & Executive Support">Administrative & Executive Support</option>
+                                    <option value="AI Engineer">AI Engineer</option>
+                                    <option value="Backend Engineer">Backend Engineer</option>
+                                    <option value="Content & Technical Writing">Content & Technical Writing</option>
+                                    <option value="Customer Success & Support">Customer Success & Support</option>
+                                    <option value="Cybersecurity Engineering & Operations">Cybersecurity Engineering &amp; Operations</option>
+                                    <option value="Data & Analytics Analyst">Data &amp; Analytics Analyst</option>
+                                    <option value="Data Engineer">Data Engineer</option>
+                                    <option value="Data Entry & Transcription">Data Entry &amp; Transcription</option>
+                                    <option value="Education & Training">Education &amp; Training</option>
+                                    <option value="Engineering Manager">Engineering Manager</option>
+                                    <option value="Finance & Accounting">Finance &amp; Accounting</option>
+                                    <option value="Freelance AI Training">Freelance AI Training</option>
+                                    <option value="Frontend & Mobile Engineer">Frontend &amp; Mobile Engineer</option>
+                                    <option value="Full Stack Engineer">Full Stack Engineer</option>
+                                    <option value="Human Resources">Human Resources</option>
+                                    <option value="Marketing & Growth Manager">Marketing &amp; Growth Manager</option>
+                                    <option value="Motion Design & VFX">Motion Design &amp; VFX</option>
+                                    <option value="Operations & Supply Chain">Operations &amp; Supply Chain</option>
+                                    <option value="Platform & DevOps Engineer">Platform &amp; DevOps Engineer</option>
+                                    <option value="Product Designer">Product Designer</option>
+                                    <option value="Product Manager">Product Manager</option>
+                                    <option value="Project & Program Management">Project &amp; Program Management</option>
+                                    <option value="Quantitative Trading & Investment">Quantitative Trading &amp; Investment</option>
+                                    <option value="Software Engineer">Software Engineer</option>
+                                    <option value="Solutions Engineering & Pre-Sales">Solutions Engineering &amp; Pre-Sales</option>
+                                    <option value="Talent Acquisition & Recruiting">Talent Acquisition &amp; Recruiting</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Workplace Type <span style="color: #FF6B4A;">*</span></label>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select your workplace type(s).</p>
                                 <select id="workplace-select" name="workplace" multiple>
-                                    <option value="Remote Local">Remote &mdash; Local</option>
-                                    <option value="Remote Global">Remote &mdash; Global</option>
+                                    <option value="Remote Local">Remote (Local)</option>
+                                    <option value="Remote Global">Remote (Global)</option>
                                     <option value="Hybrid">Hybrid</option>
                                     <option value="On-site">On-site</option>
                                 </select>
@@ -252,7 +390,7 @@
                             <div class="form-group">
                                 <label>Home Market <span style="color: #FF6B4A;">*</span></label>
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select your country.</p>
-                                <select id="target-countries" name="target-countries" multiple>
+                                <select id="target-countries" name="target-countries">
                                     <option value="Australia">Australia</option>
                                     <option value="Austria">Austria</option>
                                     <option value="Belgium">Belgium</option>
@@ -316,23 +454,20 @@
                                     <option value="Temporary">Temporary</option>
                                 </select>
                             </div>
-                        <div class="form-group">
-                            <label>Upload Current Resume (PDF) <span style="color: #FF6B4A;">*</span></label>
-                            <input type="file" id="resume-file" accept=".pdf">
-                            <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #00FFCC; font-weight: 600; display: none;"></p>
-                        </div>
-                        
                         <button type="button" class="btn btn-primary btn-compact" id="btn-next" style="margin-top: 2rem;">
                             Continue &rarr;
                         </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- STEP 2: Profile Details -->
                 <div class="form-step">
                     <div class="card">
-                        <div class="card-title"><div class="num">2</div> Profile Details</div>
-                        
+                        <div class="card-title"><div class="num">2</div> Complete Profile Details</div>
+                        <p class="form-hint" id="signed-in-as-status" style="display:none; margin-bottom: 0.5rem;"></p>
+                        <p class="form-hint details-autofill-status" id="details-autofill-status" style="display:none;"></p>
+
                         <div class="row-grid">
                             <div class="form-group">
                                 <label>First Name <span style="color: #FF6B4A;">*</span></label>
@@ -560,7 +695,7 @@
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>Authorized to work in location?</label>
+                                <label>Authorized to work in selected location?</label>
                                 <div class="select-wrapper">
                                     <select id="auth-work">
                                         <option value="Yes">Yes</option>
@@ -758,8 +893,8 @@
                         <button type="button" class="btn btn-secondary" id="btn-back" style="margin-top: 2rem;">
                             &larr; Back
                         </button>
-                        <button type="submit" class="btn btn-primary" id="submit-btn">
-                            Complete Setup &rarr;
+                        <button type="button" class="btn btn-primary" id="submit-btn">
+                            Continue &rarr;
                         </button>
                     </div>
                 </div>
@@ -774,18 +909,22 @@
         const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const stepParam = new URLSearchParams(window.location.search).get('step');
+        const profileOnly = stepParam === 'profile';
+        const detailsOnly = stepParam === 'details';
+        const profileMode = profileOnly || detailsOnly;
 
         let currentUserId = null;
         let currentUserEmail = null;
+        let selectedResumeFile = null;
+        let extractionStageTimer = null;
 
         const countrySelectEl = document.getElementById('target-countries');
         const countryChoices = new Choices(countrySelectEl, {
             removeItemButton: true,
             searchPlaceholderValue: 'Search for a country...',
             placeholder: true,
-            placeholderValue: 'Select countries',
-            maxItemCount: 3,
-            maxItemText: (maxItemCount) => `Only ${maxItemCount} countries max — remove one to add another.`
+            placeholderValue: 'Select a country'
         });
         
         // EEO Demographics only apply to US-bound applications (US EEOC
@@ -801,7 +940,7 @@
         if (savedCountries) {
             try {
                 const parsedCountries = JSON.parse(savedCountries);
-                countryChoices.setChoiceByValue(parsedCountries);
+                countryChoices.setChoiceByValue(Array.isArray(parsedCountries) ? parsedCountries[0] : parsedCountries);
             } catch(e) {}
         }
         updateEeoVisibility();
@@ -952,23 +1091,571 @@
             if (!industryCombobox.contains(event.target)) closeIndustryOptions();
         });
 
+        // Resume-first onboarding: extract text in the browser so the user can
+        // immediately review a prefilled version of the existing form. Nothing
+        // extracted here is treated as final; required-field validation below
+        // still makes the user complete or correct every missing detail.
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
+
+        function fillIfBlank(id, value) {
+            const input = document.getElementById(id);
+            if (!input || !value || input.value.trim()) return false;
+            input.value = value.trim();
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.dispatchEvent(new Event('change', { bubbles: true }));
+            return true;
+        }
+
+        function setReviewVisibility(visible) {
+            document.getElementById('profile-review').classList.toggle('is-visible', visible);
+        }
+
+        const RESUME_DERIVED_FIELD_IDS = ['first-name', 'last-name', 'phone', 'phone-code', 'linkedin', 'portfolio', 'city', 'state', 'country', 'nationality'];
+
+        // Clears any value a *previous* resume left behind (in the inputs and in
+        // this browser's autosave cache) before a newly chosen resume is parsed.
+        // Without this, fillIfBlank sees the old value as "already filled" and
+        // silently keeps it instead of applying the new resume's data — e.g. a
+        // name from an earlier profile attempt surviving into a brand new one.
+        function clearResumeDerivedFields() {
+            RESUME_DERIVED_FIELD_IDS.forEach(id => {
+                const input = document.getElementById(id);
+                if (input) input.value = '';
+                localStorage.removeItem('onb_' + id);
+            });
+        }
+
+        // Fields the resume answered are just populated like any normal
+        // input — no hiding, no badge, nothing else to do here.
+        function markCoveredFields() {
+        }
+
+        function buildResumeExtraction(text) {
+            const lines = text.split(/\r?\n/).map(line => line.replace(/^[^\w]+/, '').trim()).filter(line => line.length > 2);
+            const contact = { email: (text.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i) || [])[0] || '', phone: (text.match(/(?:\+?\d{1,3}[\s.-])?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}/) || [])[0] || '', linkedin: (text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i) || [])[0] || '' };
+            const roleWords = /analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|sales|product|project|operations|accountant|teacher|nurse|attorney/i;
+            const education = lines.filter(line => /university|college|bachelor|master|degree|diploma|school|education/i.test(line));
+            const certifications = lines.filter(line => /certif|credential|licensed|aws certified|microsoft certified|google certified|pmp\b|scrum master/i.test(line));
+            const experience = lines.filter(line => /\b(19|20)\d{2}\b/.test(line) || roleWords.test(line)).filter(line => !education.includes(line) && !certifications.includes(line));
+            const summary = lines.slice(0, 10).filter(line => !/@|linkedin|https?:\/\//i.test(line) && !experience.includes(line)).slice(0, 5);
+            return { version: 1, status: 'ready', extracted_at: new Date().toISOString(), contact, summary, experience: experience.slice(0, 20), education: education.slice(0, 20), certifications: certifications.slice(0, 20), skills: extractResumeSkills(text), source_file_name: selectedResumeFile?.name || '' };
+        }
+
+        function renderResumeSections(text, extraction = buildResumeExtraction(text)) {
+            const lines = text.split(/\r?\n/).map(line => line.replace(/^[•\-–|\s]+/, '').trim()).filter(line => line.length > 2);
+            const skills = extraction.skills || [];
+            const roleWords = /analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|sales|product|project|operations/i;
+            const summary = extraction.summary || [];
+            const work = extraction.experience || [];
+            const education = extraction.education || [];
+            const certifications = extraction.certifications || [];
+            const sections = [
+                ['Summary', summary],
+                ['Work history', work],
+                ['Education', education],
+                ['Certifications', certifications],
+                ['Skills', skills.length ? [`${skills.length} skills identified`, skills.join(' · ')] : []]
+            ];
+            const container = document.getElementById('resume-sections');
+            container.innerHTML = '';
+            sections.forEach(([heading, rows]) => {
+                const section = document.createElement('section');
+                section.className = `resume-section${rows.length ? '' : ' missing'}`;
+                const title = document.createElement('div');
+                title.className = 'resume-section-heading';
+                title.textContent = heading;
+                const body = document.createElement('div');
+                body.className = 'resume-section-body';
+                if (rows.length) rows.forEach(row => { const p = document.createElement('p'); p.textContent = row; body.appendChild(p); });
+                else body.textContent = 'Not detected — add or correct this section below.';
+                section.append(title, body);
+                container.appendChild(section);
+            });
+        }
+
+        function renderExtractionSummary() {
+            const value = id => document.getElementById(id)?.value.trim() || '';
+            const extraction = window.resumeExtraction || buildResumeExtraction(window.lastResumeText || '');
+            const role = document.querySelector('.job-title-input')?.value.trim() || extraction.experience?.[0] || '';
+            const level = document.querySelector('.job-level-select')?.value || '';
+            const name = [value('first-name'), value('last-name')].filter(Boolean).join(' ');
+            const details = [
+                ['Phone', value('phone')],
+                ['LinkedIn', value('linkedin')],
+                ['Location', [value('city'), value('state'), value('country')].filter(Boolean).join(', ')]
+            ];
+            const skills = extraction.skills || [];
+            renderResumeSections(window.lastResumeText || '', extraction);
+            document.getElementById('extraction-heading-text').textContent = 'We read your resume';
+            document.querySelector('.extraction-badge').style.display = 'none';
+            document.getElementById('extraction-stage-list').style.display = 'none';
+            const profile = document.getElementById('extraction-profile');
+            profile.innerHTML = '';
+            const initials = name.split(/\s+/).filter(Boolean).map(part => part[0]).join('').slice(0, 2).toUpperCase() || 'RR';
+            const identity = document.createElement('div');
+            identity.className = 'profile-identity';
+            identity.innerHTML = `<span class="profile-avatar"></span><div><div class="profile-name"></div><div class="profile-role"></div></div>`;
+            identity.querySelector('.profile-avatar').textContent = initials;
+            identity.querySelector('.profile-name').textContent = name || 'Name not detected';
+            identity.querySelector('.profile-role').textContent = role ? `${role}${level ? ` · ${level}` : ''}` : 'Role not detected';
+            profile.appendChild(identity);
+            const stats = document.createElement('div');
+            stats.className = 'profile-stats';
+            [['Roles', extraction.experience?.length || 0], ['Education', extraction.education?.length || 0], ['Skills', skills.length]].forEach(([label, count]) => {
+                const stat = document.createElement('span');
+                stat.className = 'profile-stat';
+                stat.innerHTML = `<strong>${count}</strong> ${label}`;
+                stats.appendChild(stat);
+            });
+            profile.appendChild(stats);
+            if (selectedResumeFile) {
+                const fileRow = document.createElement('div');
+                fileRow.className = 'extracted-file';
+                fileRow.innerHTML = '<span class="extracted-file-name"></span><span class="extracted-file-actions"><a class="preview-resume">Preview</a></span>';
+                fileRow.querySelector('.extracted-file-name').textContent = selectedResumeFile.name;
+                fileRow.querySelector('.preview-resume').href = URL.createObjectURL(selectedResumeFile);
+                fileRow.querySelector('.preview-resume').target = '_blank';
+                profile.appendChild(fileRow);
+            }
+            profile.classList.add('is-visible');
+            const grid = document.getElementById('extraction-grid');
+            grid.style.display = 'none';
+            grid.innerHTML = '';
+            details.forEach(([label, detail]) => {
+                const item = document.createElement('div');
+                item.className = 'extraction-item';
+                const labelEl = document.createElement('span');
+                labelEl.className = 'extraction-label';
+                labelEl.textContent = label;
+                const valueEl = document.createElement('span');
+                valueEl.className = 'extraction-value';
+                valueEl.textContent = detail || 'Not detected — add below';
+                item.append(labelEl, valueEl);
+                grid.appendChild(item);
+            });
+            const skillContainer = document.getElementById('extracted-skills');
+            skillContainer.innerHTML = '';
+            skills.slice(0, 8).forEach(skill => {
+                const chip = document.createElement('span');
+                chip.className = 'skill-chip';
+                chip.textContent = skill;
+                skillContainer.appendChild(chip);
+            });
+            if (skills.length > 8) {
+                const more = document.createElement('span');
+                more.className = 'skill-chip';
+                more.textContent = `+${skills.length - 8}`;
+                skillContainer.appendChild(more);
+            }
+            document.getElementById('resume-extraction-panel').classList.add('is-visible');
+        }
+
+        function extractResumeSkills(text) {
+            const knownSkills = ['JavaScript', 'TypeScript', 'Python', 'Java', 'Go', 'C++', 'SQL', 'Node.js', 'React', 'Vue', 'Angular', 'HTML', 'CSS', 'AWS', 'Azure', 'Docker', 'Kubernetes', 'Git', 'Figma', 'Excel', 'Tableau', 'Power BI', 'Project Management', 'Agile', 'Scrum', 'Machine Learning', 'Data Analysis', 'Leadership'];
+            return knownSkills.filter(skill => new RegExp('\\b' + skill.replace(/[.+]/g, '\\$&') + '\\b', 'i').test(text));
+        }
+
+        function startExtractionAnimation() {
+            const stages = Array.from(document.querySelectorAll('.extraction-stage'));
+            let active = 0;
+            stages.forEach((stage, index) => stage.classList.toggle('active', index === 0));
+            stages.forEach(stage => stage.classList.remove('complete'));
+            document.getElementById('extraction-stage-list').style.display = 'grid';
+            clearInterval(extractionStageTimer);
+            extractionStageTimer = setInterval(() => {
+                if (active >= stages.length - 1) return;
+                stages[active].classList.remove('active');
+                stages[active].classList.add('complete');
+                active++;
+                stages[active].classList.add('active');
+            }, 550);
+        }
+
+        function finishExtractionAnimation() {
+            clearInterval(extractionStageTimer);
+            document.querySelectorAll('.extraction-stage').forEach(stage => {
+                stage.classList.remove('active');
+                stage.classList.add('complete');
+            });
+        }
+
+        function detectResumeFormat(file) {
+            const name = (file.name || '').toLowerCase();
+            if (file.type === 'application/pdf' || name.endsWith('.pdf')) return 'pdf';
+            if (name.endsWith('.docx') || file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') return 'docx';
+            if (name.endsWith('.doc') || file.type === 'application/msword') return 'doc';
+            return null;
+        }
+
+        async function readResumeText(file) {
+            const format = detectResumeFormat(file);
+            if (format === 'docx') {
+                if (!window.mammoth) throw new Error('Resume reader is unavailable.');
+                const result = await mammoth.extractRawText({ arrayBuffer: await file.arrayBuffer() });
+                return result.value;
+            }
+            if (format === 'doc') {
+                // Legacy binary .doc has no reliable in-browser parser (mammoth
+                // only reads the newer .docx format). The file still uploads and
+                // saves fine below — only automatic field-detection is skipped.
+                throw new Error('DOC_UNSUPPORTED');
+            }
+            if (!window.pdfjsLib) throw new Error('Resume reader is unavailable.');
+            const pdf = await pdfjsLib.getDocument({ data: await file.arrayBuffer() }).promise;
+            const pages = [];
+            for (let pageNumber = 1; pageNumber <= pdf.numPages; pageNumber++) {
+                const page = await pdf.getPage(pageNumber);
+                const content = await page.getTextContent();
+                // PDF text items retain a useful reading order but not line
+                // breaks. Keeping items separate lets us identify headings such
+                // as a job title near the top of the resume.
+                pages.push(content.items.map(item => item.str).join('\n'));
+            }
+            return pages.join('\n');
+        }
+
+        const US_STATES = [
+            ['AL', 'Alabama'], ['AK', 'Alaska'], ['AZ', 'Arizona'], ['AR', 'Arkansas'], ['CA', 'California'],
+            ['CO', 'Colorado'], ['CT', 'Connecticut'], ['DE', 'Delaware'], ['FL', 'Florida'], ['GA', 'Georgia'],
+            ['HI', 'Hawaii'], ['ID', 'Idaho'], ['IL', 'Illinois'], ['IN', 'Indiana'], ['IA', 'Iowa'],
+            ['KS', 'Kansas'], ['KY', 'Kentucky'], ['LA', 'Louisiana'], ['ME', 'Maine'], ['MD', 'Maryland'],
+            ['MA', 'Massachusetts'], ['MI', 'Michigan'], ['MN', 'Minnesota'], ['MS', 'Mississippi'], ['MO', 'Missouri'],
+            ['MT', 'Montana'], ['NE', 'Nebraska'], ['NV', 'Nevada'], ['NH', 'New Hampshire'], ['NJ', 'New Jersey'],
+            ['NM', 'New Mexico'], ['NY', 'New York'], ['NC', 'North Carolina'], ['ND', 'North Dakota'], ['OH', 'Ohio'],
+            ['OK', 'Oklahoma'], ['OR', 'Oregon'], ['PA', 'Pennsylvania'], ['RI', 'Rhode Island'], ['SC', 'South Carolina'],
+            ['SD', 'South Dakota'], ['TN', 'Tennessee'], ['TX', 'Texas'], ['UT', 'Utah'], ['VT', 'Vermont'],
+            ['VA', 'Virginia'], ['WA', 'Washington'], ['WV', 'West Virginia'], ['WI', 'Wisconsin'], ['WY', 'Wyoming'],
+            ['DC', 'District of Columbia']
+        ];
+        const STATE_ABBR_PATTERN = US_STATES.map(([abbr]) => abbr).join('|');
+        const STATE_NAME_PATTERN = US_STATES.map(([, name]) => name.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|');
+
+        function escapeRegex(value) { return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        // Reuses the phone-code dropdown's ~170-country list as the single
+        // source of truth for "is this text a real country name" — it's
+        // already maintained in the page, so location/country detection below
+        // works for any country the phone-code list covers, not just the US.
+        function getKnownCountryNames() {
+            const select = document.getElementById('phone-code');
+            if (!select) return [];
+            return Array.from(select.options)
+                .map(opt => opt.text.replace(/\s*\(\+\d+\)\s*$/, '').trim())
+                .filter(Boolean);
+        }
+        const KNOWN_COUNTRY_NAMES = getKnownCountryNames();
+
+        function inferResumeRole(lines) {
+            const roleWords = /\b(analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|marketing|sales|product|project|operations|accountant|teacher|nurse|attorney)\b/i;
+            return lines.slice(0, 16).map(line => line.replace(/^[•\-–|\s]+/, '').trim())
+                .find(line => line.length >= 4 && line.length <= 80 && roleWords.test(line) && !/@|linkedin|www\.|http|resume|curriculum vitae/i.test(line));
+        }
+
+        function inferResumeName(lines) {
+            const excluded = /resume|curriculum vitae|professional summary|work experience|education|skills|experience|references|linkedin|@|\d|analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|sales|product|project|operations|accountant|teacher|nurse|attorney/i;
+            return lines.slice(0, 12).map(line => line.replace(/^[•\-–|\s]+/, '').trim())
+                .find(line => {
+                    const words = line.split(/\s+/);
+                    return words.length >= 2 && words.length <= 4 && line.length <= 60 && !excluded.test(line)
+                        && words.every(word => /^[A-Za-zÀ-ÿ][A-Za-zÀ-ÿ'’-]*$/.test(word));
+                });
+        }
+
+        function setExtractedRole(role) {
+            if (!role) return false;
+            const firstRole = document.querySelector('.job-title-input');
+            if (!firstRole || firstRole.value.trim()) return false;
+            firstRole.value = role;
+            firstRole.dispatchEvent(new Event('input', { bubbles: true }));
+            const level = document.querySelector('.job-level-select');
+            if (level) {
+                level.value = /\b(director|head|vp|vice president|chief)\b/i.test(role) ? 'Executive'
+                    : /\b(senior|lead|principal|staff)\b/i.test(role) ? 'Senior Level'
+                    : 'Mid Level';
+                level.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+            return true;
+        }
+
+        // Independently detects city and/or state so a resume that only gives
+        // one of them (e.g. just "Austin, TX" vs. just "Texas") still prefills
+        // whichever piece is actually present, leaving the rest blank for the
+        // user to fill in themselves. Matches per-line rather than against the
+        // whole header joined into one string, since joining lets the city
+        // capture bleed across unrelated lines (e.g. picking up the name line
+        // that happens to precede the actual "City, ST" contact line).
+        function findResumeLocation(lines) {
+            // Global, country-agnostic pass: scan for ANY comma- or pipe-
+            // delimited line that names a real country (checked against our
+            // own ~170-country list, not a fixed enum), wherever that country
+            // segment falls in the line -- "City, Country", "City, State,
+            // Country", "City | State | Country" all match. Whatever
+            // precedes the country name is taken as city (and state, if a
+            // second segment precedes it). This works the same for a US
+            // state, a Canadian province, a Nigerian state, or a Ghanaian/
+            // Liberian region -- there's no per-country list to maintain,
+            // because the region name is just "whatever's next to the
+            // country name," not something we have to separately recognize.
+            // A leading field label ("Location:", "Address:", "Based in", ...)
+            // commonly sits in front of the actual city on resumes that list
+            // contact details as labeled fields -- strip it before validating.
+            const stripLabel = seg => seg.replace(/^(?:current\s+)?(?:location|address|residence|city|based\s+in)\s*:?\s*/i, '').trim();
+            const isPlaceLike = seg => seg.length > 0 && seg.length <= 40 && /^[A-Za-z][A-Za-z .'-]*$/.test(seg);
+            for (const line of lines) {
+                for (const delimiter of [',', '|']) {
+                    // Split first, validate per-segment after -- a whole-line
+                    // reject on "contains @" would also throw out a valid
+                    // location segment that merely shares a line with an
+                    // email/phone in a different segment (common on a single
+                    // "City, Country | email | phone" contact line).
+                    const segments = line.split(delimiter).map((seg, i) => i === 0 ? stripLabel(seg.trim()) : seg.trim()).filter(Boolean);
+                    if (segments.length < 2) continue;
+                    const countryIndex = segments.findIndex(seg => KNOWN_COUNTRY_NAMES.some(name => name.toLowerCase() === seg.toLowerCase()));
+                    // Only look at a country within the first few segments (city
+                    // [, state] , country) -- trailing segments after it (email,
+                    // phone, job title) are common and shouldn't disqualify the
+                    // line, but a country buried deep in a long line is more
+                    // likely a false positive than a real address.
+                    if (countryIndex < 1 || countryIndex > 2) continue;
+                    const placeSegments = segments.slice(0, countryIndex);
+                    if (!placeSegments.every(isPlaceLike)) continue;
+                    const country = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === segments[countryIndex].toLowerCase());
+                    if (placeSegments.length >= 2) return { city: placeSegments[0], state: placeSegments[1], country };
+                    // A single segment before the country is usually a city
+                    // ("Accra, Ghana") -- but when it names a region outright
+                    // ("Lagos State, Nigeria", "Ashanti Region, Ghana"), put
+                    // it in State instead so City doesn't get a region name.
+                    const REGION_KEYWORD = /\b(?:state|region|province|county|territory|prefecture|governorate|emirate)$/i;
+                    return REGION_KEYWORD.test(placeSegments[0])
+                        ? { city: '', state: placeSegments[0], country }
+                        : { city: placeSegments[0], state: '', country };
+                }
+            }
+
+            // US fallback: "City, ST" / "City, State Name" without a trailing
+            // country name (very common on US resumes).
+            const cityStatePattern = [
+                new RegExp(`\\b([A-Za-z][A-Za-z .'-]{1,40}),\\s*(${STATE_ABBR_PATTERN})\\b`),
+                new RegExp(`\\b([A-Za-z][A-Za-z .'-]{1,40}),\\s*(${STATE_NAME_PATTERN})\\b`, 'i')
+            ];
+            for (const line of lines) {
+                for (const pattern of cityStatePattern) {
+                    const match = line.match(pattern);
+                    if (match) return { city: match[1], state: match[2], country: 'United States' };
+                }
+            }
+            // A lone state (no city alongside it) is much more collision-prone —
+            // e.g. "OK" or "Washington" turning up as an ordinary word or as
+            // part of an employer/university name — so this fallback only
+            // scans short, header-like lines near the very top of the resume.
+            const lonePattern = [
+                new RegExp(`(?:^|[\\s,|/•])(${STATE_ABBR_PATTERN})(?=$|[\\s,|/•])`),
+                new RegExp(`\\b(${STATE_NAME_PATTERN})\\b`, 'i')
+            ];
+            const shortHeaderLines = lines.slice(0, 8).filter(line => line.split(/\s+/).length <= 8);
+            for (const line of shortHeaderLines) {
+                for (const pattern of lonePattern) {
+                    const match = line.match(pattern);
+                    if (match) return { city: '', state: match[1], country: 'United States' };
+                }
+            }
+            return null;
+        }
+
+        function prefillFromResume(text) {
+            const lines = text.split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+            let filled = 0;
+            // Well-separated formats first ("+234 803 123 4567", "(555) 123-4567").
+            // Falls back to a labeled number regardless of internal separator
+            // style -- "Phone: 08031234567", "Mobile: 0803 123 4567" -- since
+            // plenty of real resumes run the digits together with no spacing
+            // at all, which the strict pattern above can't match.
+            const phoneStrictMatch = text.match(/(?:\+?\d{1,3}[\s.-])?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}/);
+            const phoneLabeledMatch = text.match(/\b(?:phone|tel(?:ephone)?|mobile|cell|whatsapp|contact)\s*(?:number)?\s*[:\-]\s*(\+?[\d\s().-]{7,18}\d)/i);
+            // Last resort: a bare, unlabeled 8+ digit run, but only within the
+            // header -- restricting to the header is what keeps this from
+            // grabbing an unrelated 8-digit run further down the page (an
+            // employment date range collapses to 8 digits too). Still a real
+            // trade-off with no label to go on: could occasionally catch a
+            // different 8+ digit header field (an ID, a postal code range).
+            //
+            // Scoped by CHARACTER count on the raw text, not by iterating
+            // resume "lines" one at a time -- pdf.js often extracts a PDF's
+            // header as many short fragments (sometimes one per word, or
+            // even one per character, depending on how the PDF was
+            // generated), each becoming its own "line" after the \n-join in
+            // readResumeText. A per-line match can never find 8 digits in a
+            // single-character "line", even though the phone number is
+            // sitting right there in the actual header -- scanning a
+            // contiguous character window sidesteps that entirely.
+            let phoneBareMatch = null;
+            if (!phoneStrictMatch && !phoneLabeledMatch) {
+                const headerBlob = text.slice(0, 700)
+                    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, ' ') // strip emails -- they can contain a stray 8+ digit run of their own
+                    .replace(/(?:https?:\/\/|www\.)\S+/gi, ' ') // strip URLs, same reason
+                    .replace(/\b(?:dob|date of birth|birth date)\s*:?\s*[\d\/.\-\s]+/gi, ' ') // strip a labeled birth date and its digits
+                    .replace(/\b(?:19|20)\d{2}\s*[-–]\s*(?:19|20)\d{2}\b/g, ' '); // strip a bare year range ("2020-2024") -- 8 digits too
+                const candidate = headerBlob.match(/\+?(?:\d[\s.()-]*){8,15}/);
+                // Strip all internal separators rather than just collapsing
+                // them -- this match's spacing came from wherever pdf.js
+                // happened to break up the header, not from anything the
+                // user actually typed, so it's not worth preserving (a
+                // heavily-fragmented PDF would otherwise leave one space per
+                // former line break, littering the number with gaps).
+                if (candidate) phoneBareMatch = candidate[0].replace(/[\s.()-]+/g, '');
+            }
+            const phone = phoneStrictMatch ? [phoneStrictMatch[0]] : (phoneLabeledMatch ? [phoneLabeledMatch[1]] : (phoneBareMatch ? [phoneBareMatch] : null));
+            const linkedin = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i);
+            const website = text.match(/(?:https?:\/\/|www\.)(?!linkedin\.com)[a-z0-9-]+\.[a-z]{2,}(?:\/[^\s|,;]*)?/i);
+            // A wide window, not just the header -- location info often sits
+            // under a "Contact"/"Personal Details" section rather than the
+            // very first lines.
+            const location = findResumeLocation(lines.slice(0, 60));
+            const name = inferResumeName(lines);
+
+            if (name) {
+                const parts = name.split(/\s+/);
+                filled += fillIfBlank('first-name', parts[0]) ? 1 : 0;
+                filled += fillIfBlank('last-name', parts.slice(1).join(' ')) ? 1 : 0;
+            }
+            if (phone) {
+                filled += fillIfBlank('phone', phone[0].replace(/\s+/g, ' ').trim()) ? 1 : 0;
+                const phoneCode = phone[0].match(/^\+(\d{1,3})/);
+                const phoneCodeSelect = document.getElementById('phone-code');
+                if (phoneCode && phoneCodeSelect && !phoneCodeSelect.value) {
+                    const option = Array.from(phoneCodeSelect.options).find(item => item.value === phoneCode[1]);
+                    if (option) { phoneCodeSelect.value = option.value; localStorage.setItem('onb_phone-code', option.value); filled++; }
+                }
+            }
+            if (linkedin) filled += fillIfBlank('linkedin', linkedin[0]) ? 1 : 0;
+            if (website) filled += fillIfBlank('portfolio', website[0]) ? 1 : 0;
+            if (location) {
+                if (location.city) filled += fillIfBlank('city', location.city) ? 1 : 0;
+                if (location.state) filled += fillIfBlank('state', location.state) ? 1 : 0;
+                if (location.country) filled += fillIfBlank('country', location.country) ? 1 : 0;
+            }
+
+            // Whole-document fallback: catches a country name mentioned anywhere
+            // (e.g. next to "Nationality" or "Location") even when the header
+            // line above didn't match the strict "City, Country" shape.
+            if (!document.getElementById('country')?.value.trim()) {
+                const wholeTextCountry = KNOWN_COUNTRY_NAMES.find(name => new RegExp('\\b' + escapeRegex(name) + '\\b', 'i').test(text));
+                if (wholeTextCountry) filled += fillIfBlank('country', wholeTextCountry) ? 1 : 0;
+            }
+
+            // Nationality is only ever filled when the resume states it
+            // explicitly (a "Nationality:"/"Citizenship:" line, or "X citizen" /
+            // "X national" phrasing) — never inferred from country of
+            // residence, since living somewhere isn't the same as being a
+            // citizen of it, and we don't want to fabricate that.
+            const nationalityMatch = text.match(/\b(?:nationality|citizenship)\s*[:\-]\s*([A-Za-z][A-Za-z .'-]{1,40})/i)
+                || text.match(/\b([A-Za-z]{3,20})\s+(?:citizen|national)\b/i);
+            if (nationalityMatch) filled += fillIfBlank('nationality', nationalityMatch[1].trim()) ? 1 : 0;
+
+            // "Home Market" (target-countries) is a separate concept from
+            // country of residence — only auto-select it when the detected
+            // country is actually one of the supported target markets.
+            const residenceCountry = document.getElementById('country')?.value.trim();
+            if (residenceCountry && !Array.from(countrySelectEl.selectedOptions).length) {
+                const targetMarketOption = Array.from(countrySelectEl.options).find(option => option.value.toLowerCase() === residenceCountry.toLowerCase());
+                if (targetMarketOption) {
+                    countryChoices.setChoiceByValue([targetMarketOption.value]);
+                    localStorage.setItem('onb_target-countries', JSON.stringify([targetMarketOption.value]));
+                    updateEeoVisibility();
+                    filled++;
+                }
+            }
+            filled += setExtractedRole(inferResumeRole(lines)) ? 1 : 0;
+            return filled;
+        }
+
+        document.getElementById('resume-file').addEventListener('change', async event => {
+            const file = event.target.files[0];
+            const status = document.getElementById('resume-status');
+            if (!file) return;
+            selectedResumeFile = file;
+            if (!detectResumeFormat(file)) {
+                status.textContent = 'Please choose a PDF, DOC, or DOCX resume.';
+                status.style.color = '#EF4444';
+                status.style.display = 'block';
+                event.target.value = '';
+                return;
+            }
+            clearResumeDerivedFields();
+            status.textContent = 'Reading your resume and filling what we can…';
+            status.style.color = '#008066';
+            status.style.display = 'block';
+            document.getElementById('resume-extraction-panel').classList.add('is-visible');
+            const extractionBadge = document.querySelector('.extraction-badge');
+            extractionBadge.textContent = 'Extracting…';
+            extractionBadge.style.display = '';
+            document.getElementById('extraction-grid').innerHTML = '<div class="extraction-item"><span class="extraction-value">Reading name, experience, contact and location…</span></div>';
+            startExtractionAnimation();
+            try {
+                window.lastResumeText = await readResumeText(file);
+                window.resumeExtraction = buildResumeExtraction(window.lastResumeText);
+                prefillFromResume(window.lastResumeText);
+                finishExtractionAnimation();
+                status.style.display = 'none';
+                renderExtractionSummary();
+                document.getElementById('btn-resume-continue').hidden = false;
+            } catch (error) {
+                finishExtractionAnimation();
+                status.textContent = error.message === 'DOC_UNSUPPORTED'
+                    ? "We'll save your .doc file, but can't automatically read the older Word format yet — please fill in the fields below, or upload a PDF/DOCX instead for auto-fill."
+                    : 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
+                status.style.color = '#A16207';
+                renderExtractionSummary();
+                setReviewVisibility(true);
+            }
+        });
+
+        document.getElementById('btn-resume-continue').addEventListener('click', async () => {
+            const file = document.getElementById('resume-file').files[0];
+            if (!file) return;
+            const button = document.getElementById('btn-resume-continue');
+            button.disabled = true;
+            button.textContent = 'Saving resume…';
+            try {
+                const ext = (file.name.split('.').pop() || 'pdf').toLowerCase();
+                const fileName = `${currentUserId}_${Date.now()}.${ext}`;
+                const { error } = await supabaseClient.storage.from('resumes').upload(fileName, file);
+                if (error) throw error;
+                const { data } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
+                localStorage.setItem('onb_resume_url', data.publicUrl);
+                window.location.href = 'onboarding.html?step=details';
+            } catch (error) {
+                button.disabled = false;
+                button.textContent = 'Continue to profile setup →';
+                document.getElementById('resume-status').textContent = `Could not save resume: ${error.message}`;
+            }
+        });
+
         // Auth Guard
         (async function init() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (!session) { window.location.href = 'login.html'; return; }
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
-            
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const signedInAsEl = document.getElementById('signed-in-as-status');
+            if (signedInAsEl && currentUserEmail) {
+                signedInAsEl.textContent = `Signed in as ${currentUserEmail}`;
+                signedInAsEl.style.display = 'block';
+            }
+
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, target_role_family, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
                 localStorage.setItem('onb_resume_url', profile.resume_url);
                 const resumeStatus = document.getElementById('resume-status');
                 if (resumeStatus) {
-                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View PDF</a>`;
+                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View Resume</a>`;
                     resumeStatus.style.display = 'block';
                 }
+                setReviewVisibility(true);
             }
 
             // Prepopulate from session user metadata if empty in local storage
@@ -1004,6 +1691,9 @@
                 if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
                     document.getElementById('industry').value = profile.industry;
                 }
+                if (profile.target_role_family && document.getElementById('target-role-family')) {
+                    document.getElementById('target-role-family').value = profile.target_role_family;
+                }
                 if (profile.notice_period && !localStorage.getItem('onb_notice-period') && document.getElementById('notice-period')) {
                     document.getElementById('notice-period').value = profile.notice_period;
                 }
@@ -1025,7 +1715,7 @@
                     const countries = profile.target_location.split(', ');
                     if (!localStorage.getItem('onb_target-countries')) {
                         localStorage.setItem('onb_target-countries', JSON.stringify(countries));
-                        countryChoices.setChoiceByValue(countries);
+                        countryChoices.setChoiceByValue(countries[0]);
                     }
                 }
                 
@@ -1057,6 +1747,45 @@
                     const types = profile.commitment_type.split(', ');
                     localStorage.setItem('onb_commitment', JSON.stringify(types));
                     commitmentChoices.setChoiceByValue(types);
+                }
+            }
+
+            // "Complete Profile Details" gate: re-read the resume already on
+            // file and fill in whatever's still blank. This page previously
+            // only showed whatever the DB already had — if the original
+            // signup pass missed a field (common for non-US resumes before
+            // this fix), there was no way to recover it here, so the user was
+            // stuck with a required field neither they nor the resume had
+            // ever actually filled in.
+            if (detailsOnly && profile && profile.resume_url) {
+                const autofillStatus = document.getElementById('details-autofill-status');
+                if (autofillStatus) {
+                    autofillStatus.textContent = 'Reading your saved resume to fill in what we can…';
+                    autofillStatus.style.display = 'block';
+                }
+                try {
+                    const response = await fetch(profile.resume_url);
+                    if (!response.ok) throw new Error('Could not download saved resume.');
+                    const blob = await response.blob();
+                    const urlPath = new URL(profile.resume_url).pathname;
+                    const resumeName = decodeURIComponent(urlPath.split('/').pop() || 'resume.pdf');
+                    const resumeFile = new File([blob], resumeName, { type: blob.type });
+                    selectedResumeFile = resumeFile;
+                    const text = await readResumeText(resumeFile);
+                    window.lastResumeText = text;
+                    window.resumeExtraction = buildResumeExtraction(text);
+                    const filledCount = prefillFromResume(text);
+                    if (autofillStatus) {
+                        autofillStatus.textContent = filledCount > 0
+                            ? 'We filled in what we could find in your resume below — please review and complete anything still blank.'
+                            : "We couldn't find anything new in your resume for the fields below — please fill them in.";
+                    }
+                } catch (err) {
+                    if (autofillStatus) {
+                        autofillStatus.textContent = err.message === 'DOC_UNSUPPORTED'
+                            ? "We can't automatically read your saved .doc resume yet — please fill in the fields below."
+                            : "We couldn't automatically re-read your saved resume — please fill in the fields below.";
+                    }
                 }
             }
 
@@ -1099,6 +1828,19 @@
                     localStorage.setItem('onb_job-titles', validTitles.join(', '));
                     localStorage.setItem('onb_job-levels', validLevels.join(', '));
                 });
+            }
+            if (profileMode) {
+                markCoveredFields();
+                // Only hide the country-code picker once we actually know it
+                // got a value -- from the DB, localStorage, or the resume
+                // re-fetch above, all of which have finished by this point.
+                // Leaving it hidden unconditionally meant a user whose phone
+                // number had no detectable country code got stuck on a
+                // required field with no visible way to fill it in.
+                const phoneCodeEl = document.getElementById('phone-code');
+                if (phoneCodeEl && phoneCodeEl.value) {
+                    phoneCodeEl.parentElement?.classList.add('profile-page-hidden');
+                }
             }
         })();
 
@@ -1156,6 +1898,45 @@
         const errorMsg = document.getElementById('error-msg');
         const stepIndicator = document.getElementById('step-indicator');
 
+        if (profileMode) {
+            document.body.classList.add('profile-only');
+            if (detailsOnly) document.body.classList.add('details-only');
+            slider.style.width = '100%';
+            slider.style.display = 'block';
+            document.querySelector('.profile-review')?.classList.add('is-visible');
+            document.getElementById('resume-file')?.closest('.form-group')?.classList.add('profile-page-hidden');
+            document.querySelector('.info-box')?.classList.add('profile-page-hidden');
+            document.getElementById('resume-extraction-panel')?.classList.add('profile-page-hidden');
+            document.getElementById('btn-finish-later')?.classList.add('profile-page-hidden');
+            document.querySelector('.form-step:first-child > .card > .card-title')?.classList.add('profile-page-hidden');
+            // phone-code's visibility is decided later, once we know whether
+            // it actually got auto-filled (see the end of init() below) --
+            // hiding it unconditionally here left users with no way to pick
+            // a country code at all when auto-detection didn't find one,
+            // while the mandatory-fields check still required it.
+            if (document.getElementById('phone-code')) document.getElementById('phone-code').required = false;
+            if (document.getElementById('phone')) document.getElementById('phone').required = false;
+            document.getElementById('step-indicator').textContent = 'Step 2 of 2';
+            document.querySelector('.header-section h1').textContent = detailsOnly ? 'Complete Profile Details' : 'Select Your Job Search Preferences';
+            // Job search preferences is now the last step (right before
+            // activation) -- its "Continue" button is the real submit action.
+            if (profileOnly) {
+                btnNext.textContent = 'Complete Setup →';
+                // #btn-back physically lives inside the Complete Profile
+                // Details card (form-step 2), which is entirely hidden on
+                // this page -- move it into the preferences card so users
+                // can actually get back to the details they just filled in.
+                document.querySelector('.profile-review')?.insertBefore(btnBack, btnNext);
+            }
+        }
+
+        document.getElementById('btn-finish-later').addEventListener('click', async () => {
+            // Let users continue filling the profile without a resume, but keep
+            // onboarding incomplete. The final submit validation still requires a
+            // resume before activation or applications are allowed.
+            window.location.href = 'onboarding.html?step=details';
+        });
+
         btnNext.addEventListener('click', async () => {
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
             const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
@@ -1164,10 +1945,17 @@
             const file = document.getElementById('resume-file').files[0];
             const savedResumeUrl = localStorage.getItem('onb_resume_url');
 
-            if (!jobTitles || countries.length === 0 || workplaces.length === 0 || (!file && !savedResumeUrl)) {
-                errorMsg.textContent = "Please fill all fields, select at least one country and workplace, and upload a resume before continuing.";
+            if (!jobTitles || countries.length === 0 || workplaces.length === 0) {
+                errorMsg.textContent = "Please add at least one target role, country, and workplace type before continuing.";
                 errorMsg.style.display = 'block';
                 return;
+            }
+
+            if (!file && !savedResumeUrl) {
+                const status = document.getElementById('resume-status');
+                status.textContent = 'You can review the next step now, but a resume (PDF, DOC, or DOCX) is required before setup can be completed.';
+                status.style.color = '#A16207';
+                status.style.display = 'block';
             }
 
             if (file) {
@@ -1175,7 +1963,8 @@
                 const originalText = btnNext.innerHTML;
                 btnNext.innerHTML = "Uploading Resume...";
                 try {
-                    const fileName = `${currentUserId}_${Date.now()}.pdf`;
+                    const ext = (file.name.split('.').pop() || 'pdf').toLowerCase();
+                    const fileName = `${currentUserId}_${Date.now()}.${ext}`;
                     const { error: storageError } = await supabaseClient.storage.from('resumes').upload(fileName, file);
                     if (storageError) throw storageError;
                     
@@ -1194,12 +1983,24 @@
 
             localStorage.setItem('onb_job-titles', jobTitles);
             errorMsg.style.display = 'none';
-            slider.style.transform = 'translateX(-50%)';
-            stepIndicator.textContent = 'Step 2 of 2';
-            localStorage.setItem('onb_step', '2');
+            if (!profileOnly) {
+                window.location.href = 'onboarding.html?step=details';
+                return;
+            }
+            // Job search preferences is now the last step -- this is the real
+            // "finish onboarding" action, not a further navigation.
+            completeOnboarding();
         });
 
         btnBack.addEventListener('click', () => {
+            if (profileOnly) {
+                window.location.href = 'onboarding.html?step=details';
+                return;
+            }
+            if (detailsOnly) {
+                window.location.href = 'onboarding.html';
+                return;
+            }
             errorMsg.style.display = 'none';
             slider.style.transform = 'translateX(0)';
             stepIndicator.textContent = 'Step 1 of 2';
@@ -1212,7 +2013,7 @@
         // only ever returns the FIRST selected option, so including it here was
         // silently overwriting the correct saved list down to a single country
         // (confirmed live 2026-07-15: 4 selected countries collapsed to 1).
-        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form select:not([multiple])');
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form input[type="tel"], #onboarding-form select:not([multiple]):not(#target-countries)');
         formInputs.forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem('onb_' + input.id);
@@ -1220,31 +2021,70 @@
                 input.addEventListener('input', () => localStorage.setItem('onb_' + input.id, input.value));
             }
         });
+        if (profileMode) {
+            // Resume values are restored after async profile initialization. Retry
+            // once the values have settled so covered fields are reliably marked.
+            [0, 250, 750, 1500].forEach(delay => setTimeout(markCoveredFields, delay));
+        }
         
         // Resume Step State
-        if (localStorage.getItem('onb_step') === '2') {
+        if (!profileMode && localStorage.getItem('onb_step') === '2') {
             slider.style.transform = 'translateX(-50%)';
             stepIndicator.textContent = 'Step 2 of 2';
         }
 
-        // Form Submit Logic
-        document.getElementById('onboarding-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Details-page "Continue": this card holds first name/city/state/
+        // country/phone, so it validates them before moving on to the
+        // (now last) job search preferences step.
+        document.getElementById('submit-btn').addEventListener('click', () => {
             errorMsg.style.display = 'none';
 
             const resumeUrl = localStorage.getItem('onb_resume_url');
             if (!resumeUrl) {
-                errorMsg.textContent = "Resume not found. Please go back to Step 1 and upload your PDF.";
+                errorMsg.textContent = "Resume not found. Please go back and upload your resume.";
                 errorMsg.style.display = 'block';
-                slider.style.transform = 'translateX(0)';
-                stepIndicator.textContent = 'Step 1 of 2';
-                localStorage.setItem('onb_step', '1');
+                return;
+            }
+
+            const phoneCode = document.getElementById('phone-code').value.trim();
+            if (!phoneCode) {
+                errorMsg.textContent = "Please select your country code.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            const firstName = document.getElementById('first-name').value.trim();
+            const city = document.getElementById('city').value.trim();
+            const state = document.getElementById('state').value.trim();
+            const country = document.getElementById('country').value.trim();
+            const phoneRaw = document.getElementById('phone').value.trim();
+
+            if (!firstName || !city || !state || !country || !phoneRaw) {
+                errorMsg.textContent = "Please fill out all mandatory fields: First Name, City, State, Country, and Phone Number.";
+                errorMsg.style.display = 'block';
+                return;
+            }
+
+            window.location.href = 'onboarding.html?step=profile';
+        });
+
+        // Final "Complete Setup" action -- runs from the job search
+        // preferences page (now the last step) via btnNext, and from a
+        // native form submit (kept as a fallback; no submit-type button
+        // remains in the form today).
+        async function completeOnboarding() {
+            errorMsg.style.display = 'none';
+
+            const resumeUrl = localStorage.getItem('onb_resume_url');
+            if (!resumeUrl) {
+                errorMsg.textContent = "Resume not found. Please go back and upload your resume.";
+                errorMsg.style.display = 'block';
                 return;
             }
 
             const phoneCode = document.getElementById('phone-code').value.trim();
             const phoneRaw = document.getElementById('phone').value.trim();
-            
+
             if (!phoneCode) {
                 errorMsg.textContent = "Please select your country code.";
                 errorMsg.style.display = 'block';
@@ -1280,11 +2120,12 @@
                 targetCurrency = customCode;
             }
 
-            const btn = document.getElementById('submit-btn');
+            const submitBtn = document.getElementById('submit-btn');
             const loadingOverlay = document.getElementById('loading-overlay');
             const loadingText = document.getElementById('loading-text');
-            
-            btn.disabled = true;
+
+            submitBtn.disabled = true;
+            btnNext.disabled = true;
             loadingOverlay.classList.add('active');
 
             try {
@@ -1338,6 +2179,7 @@
                     requires_sponsorship: sponsorship,
                     desired_salary: salary,
                     industry: document.getElementById('industry').value.trim(),
+                    target_role_family: document.getElementById('target-role-family').value,
                     notice_period: document.getElementById('notice-period').value,
                     start_date: document.getElementById('start-date').value || null,
                     target_currency: targetCurrency,
@@ -1375,8 +2217,17 @@
                 loadingOverlay.classList.remove('active');
                 errorMsg.textContent = err.message || 'Something went wrong. Please try again.';
                 errorMsg.style.display = 'block';
-                btn.disabled = false;
+                submitBtn.disabled = false;
+                btnNext.disabled = false;
             }
+        }
+
+        // Kept as a fallback in case a native form submit ever fires (e.g.
+        // Enter in a text field) -- no type="submit" button remains in the
+        // form today, so this mainly guards against future markup changes.
+        document.getElementById('onboarding-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            completeOnboarding();
         });
     </script>
     <script>
