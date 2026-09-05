@@ -383,6 +383,28 @@
         .gap-section-items .swipe-card-tag.fit-gap-static { max-width: 100%; white-space: normal; overflow-wrap: anywhere; }
         .close-modal { position: absolute; top: 1.25rem; right: 1.5rem; background: none; border: none; color: #71717A; font-size: 1.5rem; cursor: pointer; line-height: 1; transition: color 0.2s; }
         .close-modal:hover { color: #000000; }
+        /* #desc-modal (the job description popup) is long enough to scroll on
+           most postings, and its close button was a normal absolutely-
+           positioned child of the SAME scrolling box -- so it scrolled away
+           with the text, leaving no way to close without scrolling back up
+           first. Sticky pins it to the scrollport instead of the content.
+           Scoped to this one modal only -- other modals reusing .close-modal/
+           .desc-modal (feedback, queue, settings, fit-reason) rarely scroll
+           and keep their existing absolute behavior. */
+        #desc-modal .close-modal {
+            position: sticky;
+            float: right;
+            top: 0;
+            margin: 0 -1rem 0 1rem;
+            background: rgba(255, 255, 255, 0.92);
+            border-radius: 50%;
+            width: 2.25rem;
+            height: 2.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
         @media (max-width: 768px) {
             .modal-overlay { align-items: flex-start; padding: 0.75rem; }
             .desc-modal { max-height: calc(100dvh - 1.5rem); padding: 1.5rem; border-radius: 22px; }
