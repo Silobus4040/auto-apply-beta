@@ -1439,21 +1439,36 @@
             const phoneStrictMatch = text.match(/(?:\+?\d{1,3}[\s.-])?(?:\(?\d{2,4}\)?[\s.-])\d{3,4}[\s.-]\d{3,4}/);
             const phoneLabeledMatch = text.match(/\b(?:phone|tel(?:ephone)?|mobile|cell|whatsapp|contact)\s*(?:number)?\s*[:\-]\s*(\+?[\d\s().-]{7,18}\d)/i);
             // Last resort: a bare, unlabeled 8+ digit run, but only within the
-            // header (first 10 lines) -- restricting to the header is what
-            // keeps this from grabbing an unrelated 8-digit run further down
-            // the page (an employment date range collapses to 8 digits too),
-            // and a line naming a birth date is skipped outright. Still a
-            // real trade-off with no label to go on: could occasionally catch
-            // a different 8+ digit header field (an ID, a postal code range).
+            // header -- restricting to the header is what keeps this from
+            // grabbing an unrelated 8-digit run further down the page (an
+            // employment date range collapses to 8 digits too). Still a real
+            // trade-off with no label to go on: could occasionally catch a
+            // different 8+ digit header field (an ID, a postal code range).
+            //
+            // Scoped by CHARACTER count on the raw text, not by iterating
+            // resume "lines" one at a time -- pdf.js often extracts a PDF's
+            // header as many short fragments (sometimes one per word, or
+            // even one per character, depending on how the PDF was
+            // generated), each becoming its own "line" after the \n-join in
+            // readResumeText. A per-line match can never find 8 digits in a
+            // single-character "line", even though the phone number is
+            // sitting right there in the actual header -- scanning a
+            // contiguous character window sidesteps that entirely.
             let phoneBareMatch = null;
             if (!phoneStrictMatch && !phoneLabeledMatch) {
-                for (const line of lines.slice(0, 10)) {
-                    if (/[@]|https?:|www\./i.test(line)) continue; // an email/URL can easily contain a stray 8+ digit run of its own
-                    if (/\b(?:dob|birth)\b/i.test(line)) continue;
-                    if (/^(?:19|20)\d{2}\s*[-–]\s*(?:19|20)\d{2}$/.test(line)) continue; // a bare year range ("2020-2024") is 8 digits too
-                    const candidate = line.match(/\+?(?:\d[\s.()-]*){8,15}/);
-                    if (candidate) { phoneBareMatch = candidate[0].trim(); break; }
-                }
+                const headerBlob = text.slice(0, 700)
+                    .replace(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi, ' ') // strip emails -- they can contain a stray 8+ digit run of their own
+                    .replace(/(?:https?:\/\/|www\.)\S+/gi, ' ') // strip URLs, same reason
+                    .replace(/\b(?:dob|date of birth|birth date)\s*:?\s*[\d\/.\-\s]+/gi, ' ') // strip a labeled birth date and its digits
+                    .replace(/\b(?:19|20)\d{2}\s*[-–]\s*(?:19|20)\d{2}\b/g, ' '); // strip a bare year range ("2020-2024") -- 8 digits too
+                const candidate = headerBlob.match(/\+?(?:\d[\s.()-]*){8,15}/);
+                // Strip all internal separators rather than just collapsing
+                // them -- this match's spacing came from wherever pdf.js
+                // happened to break up the header, not from anything the
+                // user actually typed, so it's not worth preserving (a
+                // heavily-fragmented PDF would otherwise leave one space per
+                // former line break, littering the number with gaps).
+                if (candidate) phoneBareMatch = candidate[0].replace(/[\s.()-]+/g, '');
             }
             const phone = phoneStrictMatch ? [phoneStrictMatch[0]] : (phoneLabeledMatch ? [phoneLabeledMatch[1]] : (phoneBareMatch ? [phoneBareMatch] : null));
             const linkedin = text.match(/(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[^\s|,;]+/i);
