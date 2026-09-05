@@ -1402,19 +1402,6 @@
         </div>
     </div>
 
-    <div class="modal-overlay" id="limit-reached-modal">
-        <div class="desc-modal" style="max-width: 440px; padding: 2.5rem; text-align: left;">
-            <button class="close-modal" onclick="closeModal('limit-reached-modal')">&times;</button>
-            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(212, 255, 51, 0.18); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
-                <i data-lucide="zap-off" style="width: 24px; height: 24px; color: #7a7a00;"></i>
-            </div>
-            <h2 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; letter-spacing: -0.4px;">You're out of credit</h2>
-            <p id="limit-reached-modal-body" style="color: #52525B; font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.75rem;">You've used every application included in your plan.</p>
-            <button class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800; margin-bottom: 0.75rem;" onclick="closeModal('limit-reached-modal'); openUpgradeModal();">Add More Credit &rarr;</button>
-            <button style="width: 100%; background: none; border: none; color: #71717A; font-size: 0.85rem; font-weight: 700; cursor: pointer; padding: 0.5rem;" onclick="closeModal('limit-reached-modal')">Maybe later</button>
-        </div>
-    </div>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
@@ -2711,23 +2698,12 @@
                     applyStamp.style.opacity = 0;
                 }
             };
-            const onUp = async () => {
+            const onUp = () => {
                 if (!dragging) return;
                 dragging = false;
                 card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 if (Math.abs(currentX) > 100) {
-                    const decision = currentX > 0 ? 'apply' : 'skip';
-                    const swiped = await finishSwipe(card, job, decision);
-                    if (!swiped) {
-                        // Blocked (no credit, or a skill-write error) --
-                        // finishSwipe deliberately left the card's transform
-                        // alone, so snap it back to center same as an
-                        // under-threshold drag, instead of leaving it frozen
-                        // wherever the drag was released.
-                        card.style.transform = '';
-                        passStamp.style.opacity = 0;
-                        applyStamp.style.opacity = 0;
-                    }
+                    finishSwipe(card, job, currentX > 0 ? 'apply' : 'skip');
                 } else {
                     card.style.transform = '';
                     passStamp.style.opacity = 0;
@@ -2794,8 +2770,7 @@
             if (decision === 'apply' && applyStamp) applyStamp.style.opacity = 1;
             if (decision !== 'apply' && passStamp) passStamp.style.opacity = 1;
             await wait(120);
-            const swiped = await finishSwipe(topCard, job, decision);
-            if (!swiped) return false;
+            await finishSwipe(topCard, job, decision);
             await wait(420);
             return true;
         }
@@ -2806,22 +2781,7 @@
                     await waitForPendingSkillWrites();
                 } catch (err) {
                     alert('One skill could not be added yet. Please retry it or apply without adding it.');
-                    return false;
-                }
-
-                // Real usage gate, checked BEFORE the card is touched at all --
-                // moved here from submitApplyForJob, which used to run only
-                // after the card had already animated off-screen and the deck
-                // had already advanced, so a blocked apply still looked like it
-                // succeeded. Fails CLOSED: an unreadable usage fetch blocks too,
-                // same as a confirmed over-limit -- never let a check we
-                // couldn't verify pass silently.
-                const { data: { user: gateUser } } = await supabaseClient.auth.getUser();
-                if (!gateUser) return false;
-                const usage = await fetchFreshApplicationUsage(gateUser.id);
-                if (!usage || usage.used >= usage.limit) {
-                    showLimitReachedModal(usage ? usage.limit : null);
-                    return false;
+                    return;
                 }
             }
 
@@ -2842,7 +2802,7 @@
             setTimeout(renderSwipeStack, 280); // optimistic advance, no wait on the network calls below
 
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return false;
+            if (!user) return;
 
             if (decision === 'apply') {
                 await submitApplyForJob(user.id, job);
@@ -2860,7 +2820,6 @@
             updateStats(currentJobs, user.id);
 
             refreshDeckSilently();
-            return true;
         }
 
         // Shared by both the manual "Apply" swipe and the Auto-Apply sweep
@@ -2877,33 +2836,7 @@
         // no human safety net") -- now enforced client-side since the
         // backend veto this used to lean on was deliberately removed
         // entirely for every swipe-initiated call, automatic or manual.
-        // Single source of truth for "how many applications has this user
-        // really used, right now" -- a fresh read, never the cached
-        // userProfile snapshot. Used by both the manual Apply gate and the
-        // Auto-Apply sweep's starting point.
-        async function fetchFreshApplicationUsage(userId) {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('profiles')
-                    .select('applications_limit, application_credit_used')
-                    .eq('id', userId)
-                    .single();
-                if (error || !data) return null;
-                return {
-                    limit: Number(data.applications_limit) || 10,
-                    used: Number(data.application_credit_used) || 0
-                };
-            } catch (err) {
-                console.error('Failed to fetch fresh application usage', err);
-                return null;
-            }
-        }
-
         async function submitApplyForJob(userId, job) {
-            // The real usage gate now lives in finishSwipe (this function's
-            // only caller), checked BEFORE the card animates away -- see that
-            // function for why it moved. No gate here anymore; by the time
-            // this runs, finishSwipe has already confirmed there's credit.
             try {
                 await supabaseClient.from('user_job_swipes').upsert(
                     { user_id: userId, job_pool_id: job.id, decision: 'apply' },
@@ -2993,24 +2926,9 @@
             autoApplySweepRunning = true;
             const minScore = 70;
             let optimisticAppliedThisSweep = 0;
-            // Fetch real starting usage once, fresh, instead of trusting
-            // userProfile's page-load snapshot (see submitApplyForJob for why
-            // that goes stale). optimisticAppliedThisSweep still tracks applies
-            // made within this same sweep on top of that real baseline.
-            const startingUsage = await fetchFreshApplicationUsage(userId);
-            if (!startingUsage) {
-                // Fail closed -- couldn't verify real usage, don't guess from a
-                // possibly-stale cached value. Each card is still independently
-                // gated in finishSwipe, but don't even start the sweep loop
-                // without a real number to check against.
-                autoApplySweepRunning = false;
-                showLimitReachedModal(userProfile.applications_limit || null);
-                return;
-            }
-            const creditsUsedAtStart = startingUsage.used;
             try {
                 while (userProfile && userProfile.auto_apply_enabled && pooledJobIndex < pooledJobs.length) {
-                    const applicationsLimit = (startingUsage ? startingUsage.limit : null) || Number(userProfile.applications_limit) || 10;
+                    const applicationsLimit = Number(userProfile.applications_limit) || 10;
                     // Real usage is profiles.application_credit_used (incremented exactly once,
                     // only when a job genuinely reaches status='applied', via a Postgres trigger --
                     // see PROGRESS_LOG "applications_limit beta-tier fix"). currentJobs.length was
@@ -3019,7 +2937,8 @@
                     // a lot of retries that count blows past applicationsLimit almost immediately,
                     // so the very first loop iteration silently disabled the toggle before a single
                     // job was even attempted. Compare against the real credit counter instead.
-                    if (creditsUsedAtStart + optimisticAppliedThisSweep >= applicationsLimit) {
+                    const creditsUsed = Number(userProfile.application_credit_used) || 0;
+                    if (creditsUsed + optimisticAppliedThisSweep >= applicationsLimit) {
                         console.log(`Auto-Apply stopped: reached applications_limit (${applicationsLimit})`);
                         await disableAutoApplyForLimitReached(userId, applicationsLimit);
                         break;
@@ -3028,14 +2947,7 @@
                     const decision = typeof job.fit_score === 'number' && job.fit_score >= minScore ? 'apply' : 'skip';
                     if (decision === 'apply') optimisticAppliedThisSweep++;
                     const swiped = await autoSwipeCurrentCard(decision);
-                    if (!swiped) {
-                        // finishSwipe already showed the limit modal (or a
-                        // skill-write error) -- also turn the toggle off here
-                        // rather than leaving it showing "on" while the sweep
-                        // has actually stopped doing anything.
-                        await disableAutoApplyForLimitReached(userId, applicationsLimit);
-                        break;
-                    }
+                    if (!swiped) break;
                 }
                 updateStats(currentJobs, userId);
                 refreshDeckSilently();
@@ -3053,25 +2965,10 @@
             } catch (err) {
                 console.error('Failed to turn off auto_apply_enabled after hitting applications_limit', err);
             }
-            showLimitReachedModal(applicationsLimit);
-        }
-
-        // Shared by the Auto-Apply sweep's limit guard AND the manual Apply
-        // path (see the credit check at the top of submitApplyForJob) --
-        // replaces a raw alert() with the product's own modal styling, and
-        // routes straight into the existing Upgrade/checkout flow instead of
-        // being a dead end.
-        function showLimitReachedModal(applicationsLimit) {
-            const body = document.getElementById('limit-reached-modal-body');
-            if (body) {
-                const limit = applicationsLimit || (userProfile && userProfile.applications_limit) || 0;
-                body.textContent = limit
-                    ? `You've used all ${limit} credits included in your plan.`
-                    : "You've used all your available credit for this plan.";
-            }
-            const modal = document.getElementById('limit-reached-modal');
-            if (modal) modal.classList.add('active');
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            // Was silent before (console.log only) -- a real user just saw the toggle
+            // snap back off with zero explanation. Give them the actual reason.
+            const limitText = applicationsLimit ? ` (${applicationsLimit} application limit reached)` : '';
+            alert(`Auto-Apply has been turned off${limitText}. You've used all of your available applications for this plan.`);
         }
 
         function updateInboxBannerVisibility() {
