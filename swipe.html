@@ -451,6 +451,8 @@
         .email-content-meta { display: flex; justify-content: space-between; align-items: center; }
         .email-content-sender { font-size: 0.9rem; font-weight: 600; color: #3f3f46; }
         .email-content-date { font-size: 0.8rem; color: #71717a; }
+        .email-reply-btn { background: #059669 !important; color: #ffffff !important; }
+        .email-action-icon { width: 17px; height: 17px; stroke-width: 2.4; flex-shrink: 0; }
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
         .email-iframe { width: 100%; height: 100%; border: none; }
         .email-content-back-btn { display: none; }
@@ -1153,17 +1155,12 @@
                     <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
                 </div>
             </div>
-            <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
-                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">REJECTED</span>
-                <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
-                    <span class="stat-number" id="stat-rejected" style="font-size: 1.6rem;">0</span>
-                    <a class="stat-view-btn" href="dashboard.html" style="text-decoration: none;">View</a>
-                </div>
-            </div>
         </div>
 
-        <!-- Sits right-aligned directly under the Rejected card (the last/
-             rightmost stat), credit balance stays up in the header. -->
+        <!-- Sits right-aligned directly under the Offer card (the last/
+             rightmost stat), credit balance stays up in the header. Rejected
+             applications are still trackable via the status dropdown below,
+             just not surfaced as a top-line dashboard stat. -->
         <div style="display: flex; justify-content: flex-end; margin-bottom: 1rem;">
             <div class="auto-apply-bar" id="auto-apply-bar" style="display: none;">
                 <span class="auto-apply-title">⚡ Auto-Apply</span>
@@ -1399,6 +1396,19 @@
             </div>
             
             <button id="upgrade-checkout-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800;" onclick="triggerUpgradeCheckout()">Proceed to Checkout &rarr;</button>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="limit-reached-modal">
+        <div class="desc-modal" style="max-width: 440px; padding: 2.5rem; text-align: left;">
+            <button class="close-modal" onclick="closeModal('limit-reached-modal')">&times;</button>
+            <div style="width: 48px; height: 48px; border-radius: 12px; background: rgba(212, 255, 51, 0.18); display: flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+                <i data-lucide="zap-off" style="width: 24px; height: 24px; color: #7a7a00;"></i>
+            </div>
+            <h2 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; letter-spacing: -0.4px;">You're out of credit</h2>
+            <p id="limit-reached-modal-body" style="color: #52525B; font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.75rem;">You've used every application included in your plan.</p>
+            <button class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800; margin-bottom: 0.75rem;" onclick="closeModal('limit-reached-modal'); openUpgradeModal();">Add More Credit &rarr;</button>
+            <button style="width: 100%; background: none; border: none; color: #71717A; font-size: 0.85rem; font-weight: 700; cursor: pointer; padding: 0.5rem;" onclick="closeModal('limit-reached-modal')">Maybe later</button>
         </div>
     </div>
 
@@ -2698,12 +2708,23 @@
                     applyStamp.style.opacity = 0;
                 }
             };
-            const onUp = () => {
+            const onUp = async () => {
                 if (!dragging) return;
                 dragging = false;
                 card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 if (Math.abs(currentX) > 100) {
-                    finishSwipe(card, job, currentX > 0 ? 'apply' : 'skip');
+                    const decision = currentX > 0 ? 'apply' : 'skip';
+                    const swiped = await finishSwipe(card, job, decision);
+                    if (!swiped) {
+                        // Blocked (no credit, or a skill-write error) --
+                        // finishSwipe deliberately left the card's transform
+                        // alone, so snap it back to center same as an
+                        // under-threshold drag, instead of leaving it frozen
+                        // wherever the drag was released.
+                        card.style.transform = '';
+                        passStamp.style.opacity = 0;
+                        applyStamp.style.opacity = 0;
+                    }
                 } else {
                     card.style.transform = '';
                     passStamp.style.opacity = 0;
@@ -2770,7 +2791,8 @@
             if (decision === 'apply' && applyStamp) applyStamp.style.opacity = 1;
             if (decision !== 'apply' && passStamp) passStamp.style.opacity = 1;
             await wait(120);
-            await finishSwipe(topCard, job, decision);
+            const swiped = await finishSwipe(topCard, job, decision);
+            if (!swiped) return false;
             await wait(420);
             return true;
         }
@@ -2781,7 +2803,22 @@
                     await waitForPendingSkillWrites();
                 } catch (err) {
                     alert('One skill could not be added yet. Please retry it or apply without adding it.');
-                    return;
+                    return false;
+                }
+
+                // Real usage gate, checked BEFORE the card is touched at all --
+                // moved here from submitApplyForJob, which used to run only
+                // after the card had already animated off-screen and the deck
+                // had already advanced, so a blocked apply still looked like it
+                // succeeded. Fails CLOSED: an unreadable usage fetch blocks too,
+                // same as a confirmed over-limit -- never let a check we
+                // couldn't verify pass silently.
+                const { data: { user: gateUser } } = await supabaseClient.auth.getUser();
+                if (!gateUser) return false;
+                const usage = await fetchFreshApplicationUsage(gateUser.id);
+                if (!usage || usage.used >= usage.limit) {
+                    showLimitReachedModal(usage ? usage.limit : null);
+                    return false;
                 }
             }
 
@@ -2802,7 +2839,7 @@
             setTimeout(renderSwipeStack, 280); // optimistic advance, no wait on the network calls below
 
             const { data: { user } } = await supabaseClient.auth.getUser();
-            if (!user) return;
+            if (!user) return false;
 
             if (decision === 'apply') {
                 await submitApplyForJob(user.id, job);
@@ -2820,6 +2857,7 @@
             updateStats(currentJobs, user.id);
 
             refreshDeckSilently();
+            return true;
         }
 
         // Shared by both the manual "Apply" swipe and the Auto-Apply sweep
@@ -2836,7 +2874,33 @@
         // no human safety net") -- now enforced client-side since the
         // backend veto this used to lean on was deliberately removed
         // entirely for every swipe-initiated call, automatic or manual.
+        // Single source of truth for "how many applications has this user
+        // really used, right now" -- a fresh read, never the cached
+        // userProfile snapshot. Used by both the manual Apply gate and the
+        // Auto-Apply sweep's starting point.
+        async function fetchFreshApplicationUsage(userId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .select('applications_limit, application_credit_used')
+                    .eq('id', userId)
+                    .single();
+                if (error || !data) return null;
+                return {
+                    limit: Number(data.applications_limit) || 10,
+                    used: Number(data.application_credit_used) || 0
+                };
+            } catch (err) {
+                console.error('Failed to fetch fresh application usage', err);
+                return null;
+            }
+        }
+
         async function submitApplyForJob(userId, job) {
+            // The real usage gate now lives in finishSwipe (this function's
+            // only caller), checked BEFORE the card animates away -- see that
+            // function for why it moved. No gate here anymore; by the time
+            // this runs, finishSwipe has already confirmed there's credit.
             try {
                 await supabaseClient.from('user_job_swipes').upsert(
                     { user_id: userId, job_pool_id: job.id, decision: 'apply' },
@@ -2926,9 +2990,24 @@
             autoApplySweepRunning = true;
             const minScore = 70;
             let optimisticAppliedThisSweep = 0;
+            // Fetch real starting usage once, fresh, instead of trusting
+            // userProfile's page-load snapshot (see submitApplyForJob for why
+            // that goes stale). optimisticAppliedThisSweep still tracks applies
+            // made within this same sweep on top of that real baseline.
+            const startingUsage = await fetchFreshApplicationUsage(userId);
+            if (!startingUsage) {
+                // Fail closed -- couldn't verify real usage, don't guess from a
+                // possibly-stale cached value. Each card is still independently
+                // gated in finishSwipe, but don't even start the sweep loop
+                // without a real number to check against.
+                autoApplySweepRunning = false;
+                showLimitReachedModal(userProfile.applications_limit || null);
+                return;
+            }
+            const creditsUsedAtStart = startingUsage.used;
             try {
                 while (userProfile && userProfile.auto_apply_enabled && pooledJobIndex < pooledJobs.length) {
-                    const applicationsLimit = Number(userProfile.applications_limit) || 10;
+                    const applicationsLimit = (startingUsage ? startingUsage.limit : null) || Number(userProfile.applications_limit) || 10;
                     // Real usage is profiles.application_credit_used (incremented exactly once,
                     // only when a job genuinely reaches status='applied', via a Postgres trigger --
                     // see PROGRESS_LOG "applications_limit beta-tier fix"). currentJobs.length was
@@ -2937,8 +3016,7 @@
                     // a lot of retries that count blows past applicationsLimit almost immediately,
                     // so the very first loop iteration silently disabled the toggle before a single
                     // job was even attempted. Compare against the real credit counter instead.
-                    const creditsUsed = Number(userProfile.application_credit_used) || 0;
-                    if (creditsUsed + optimisticAppliedThisSweep >= applicationsLimit) {
+                    if (creditsUsedAtStart + optimisticAppliedThisSweep >= applicationsLimit) {
                         console.log(`Auto-Apply stopped: reached applications_limit (${applicationsLimit})`);
                         await disableAutoApplyForLimitReached(userId, applicationsLimit);
                         break;
@@ -2947,7 +3025,14 @@
                     const decision = typeof job.fit_score === 'number' && job.fit_score >= minScore ? 'apply' : 'skip';
                     if (decision === 'apply') optimisticAppliedThisSweep++;
                     const swiped = await autoSwipeCurrentCard(decision);
-                    if (!swiped) break;
+                    if (!swiped) {
+                        // finishSwipe already showed the limit modal (or a
+                        // skill-write error) -- also turn the toggle off here
+                        // rather than leaving it showing "on" while the sweep
+                        // has actually stopped doing anything.
+                        await disableAutoApplyForLimitReached(userId, applicationsLimit);
+                        break;
+                    }
                 }
                 updateStats(currentJobs, userId);
                 refreshDeckSilently();
@@ -2965,10 +3050,25 @@
             } catch (err) {
                 console.error('Failed to turn off auto_apply_enabled after hitting applications_limit', err);
             }
-            // Was silent before (console.log only) -- a real user just saw the toggle
-            // snap back off with zero explanation. Give them the actual reason.
-            const limitText = applicationsLimit ? ` (${applicationsLimit} application limit reached)` : '';
-            alert(`Auto-Apply has been turned off${limitText}. You've used all of your available applications for this plan.`);
+            showLimitReachedModal(applicationsLimit);
+        }
+
+        // Shared by the Auto-Apply sweep's limit guard AND the manual Apply
+        // path (see the credit check at the top of submitApplyForJob) --
+        // replaces a raw alert() with the product's own modal styling, and
+        // routes straight into the existing Upgrade/checkout flow instead of
+        // being a dead end.
+        function showLimitReachedModal(applicationsLimit) {
+            const body = document.getElementById('limit-reached-modal-body');
+            if (body) {
+                const limit = applicationsLimit || (userProfile && userProfile.applications_limit) || 0;
+                body.textContent = limit
+                    ? `You've used all ${limit} credits included in your plan.`
+                    : "You've used all your available credit for this plan.";
+            }
+            const modal = document.getElementById('limit-reached-modal');
+            if (modal) modal.classList.add('active');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         function updateInboxBannerVisibility() {
@@ -3023,7 +3123,6 @@
             const applied = rows.filter(j => j.status === 'applied').length;
             const interviewing = rows.filter(j => j.status === 'interview').length;
             const onOffer = rows.filter(j => j.status === 'offer').length;
-            const rejected = rows.filter(j => j.status === 'rejected').length;
             // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
             const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
             // Applied is NOT inflated -- it reflects the real live count (same
@@ -3032,7 +3131,6 @@
             const displayApplied = applied;
             const displayInterviewing = isDemoAccount ? 14 : interviewing;
             const displayOffer = isDemoAccount ? 3 : onOffer;
-            const displayRejected = isDemoAccount ? 21 : rejected;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
@@ -3054,7 +3152,6 @@
                 document.getElementById('stat-applied').textContent = displayApplied;
                 document.getElementById('stat-interview').textContent = displayInterviewing;
                 document.getElementById('stat-offer').textContent = displayOffer;
-                document.getElementById('stat-rejected').textContent = displayRejected;
             }
 
         }
@@ -3437,8 +3534,8 @@
             if (!isOutbound) {
                 replyBtnHtml = `
                     <div style="padding: 1.5rem; border-top: 1px solid var(--border); background: #fafafa; display: flex; justify-content: flex-end;">
-                        <button onclick="openReplyComposer(${index})" style="background: #000; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.9rem; transition: background 0.2s;">
-                            <span style="font-size: 1.1rem;">↩️</span> Reply to Recruiter
+                        <button class="email-reply-btn" onclick="openReplyComposer(${index})" style="background: #059669; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.9rem; transition: background 0.2s;">
+                            <i data-lucide="reply" class="email-action-icon"></i> Reply to Recruiter
                         </button>
                     </div>
                 `;
@@ -3460,6 +3557,7 @@
                     ${replyBtnHtml}
                 </div>
             `;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
 
             // Render the email body in a fully sandboxed iframe: sandbox="" (no
             // allow-scripts, no allow-same-origin) means anything in email.full_html
@@ -3501,14 +3599,14 @@
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%; background: #fff;">
                     <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                        <h3 style="font-weight: 800; font-size: 1.25rem; margin: 0; display: flex; align-items: center; gap: 0.5rem;"><span style="font-size: 1.4rem;">↩️</span> Secure Reply</h3>
+                        <h3 style="font-weight: 800; font-size: 1.25rem; margin: 0;">Secure Reply</h3>
                         <button onclick="showEmailContent(${index})" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #71717A; font-weight: 600; padding: 0.5rem; transition: color 0.2s;">Cancel</button>
                     </div>
                     <div style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
                         <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">To:</span>
                             <input type="text" id="reply-to" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
-                            <span style="font-size: 0.8rem; color: #10B981; font-weight: 700; display: flex; align-items: center; gap: 0.25rem;">🔒 Locked</span>
+                            <span style="font-size: 0.8rem; color: #10B981; font-weight: 700;">Locked</span>
                         </div>
                         <div style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
                             <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">Subject:</span>
@@ -3519,8 +3617,8 @@
                         </div>
                     </div>
                     <div style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
-                        <button id="send-reply-btn" onclick="sendReply(${index})" style="background: var(--primary); color: #000; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); transition: opacity 0.2s;">
-                            Send Securely 🚀
+                        <button id="send-reply-btn" onclick="sendReply(${index})" style="background: #059669; color: #fff; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(5,150,105,0.2); transition: opacity 0.2s;">
+                            Send Securely
                         </button>
                     </div>
                 </div>
@@ -3576,7 +3674,7 @@
                 console.error(err);
                 alert("Failed to send reply. Please try again. Error: " + err.message);
                 btn.disabled = false;
-                btn.innerText = "Send Securely 🚀";
+                btn.innerText = "Send Securely";
             }
         }
 

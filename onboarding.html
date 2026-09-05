@@ -341,42 +341,6 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Job Category <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Which function best describes the roles you're targeting?</p>
-                                <select id="target-role-family" required>
-                                    <option value="" disabled selected>Select a category</option>
-                                    <option value="Account Executive">Account Executive</option>
-                                    <option value="Administrative & Executive Support">Administrative & Executive Support</option>
-                                    <option value="AI Engineer">AI Engineer</option>
-                                    <option value="Backend Engineer">Backend Engineer</option>
-                                    <option value="Content & Technical Writing">Content & Technical Writing</option>
-                                    <option value="Customer Success & Support">Customer Success & Support</option>
-                                    <option value="Cybersecurity Engineering & Operations">Cybersecurity Engineering &amp; Operations</option>
-                                    <option value="Data & Analytics Analyst">Data &amp; Analytics Analyst</option>
-                                    <option value="Data Engineer">Data Engineer</option>
-                                    <option value="Data Entry & Transcription">Data Entry &amp; Transcription</option>
-                                    <option value="Education & Training">Education &amp; Training</option>
-                                    <option value="Engineering Manager">Engineering Manager</option>
-                                    <option value="Finance & Accounting">Finance &amp; Accounting</option>
-                                    <option value="Freelance AI Training">Freelance AI Training</option>
-                                    <option value="Frontend & Mobile Engineer">Frontend &amp; Mobile Engineer</option>
-                                    <option value="Full Stack Engineer">Full Stack Engineer</option>
-                                    <option value="Human Resources">Human Resources</option>
-                                    <option value="Marketing & Growth Manager">Marketing &amp; Growth Manager</option>
-                                    <option value="Motion Design & VFX">Motion Design &amp; VFX</option>
-                                    <option value="Operations & Supply Chain">Operations &amp; Supply Chain</option>
-                                    <option value="Platform & DevOps Engineer">Platform &amp; DevOps Engineer</option>
-                                    <option value="Product Designer">Product Designer</option>
-                                    <option value="Product Manager">Product Manager</option>
-                                    <option value="Project & Program Management">Project &amp; Program Management</option>
-                                    <option value="Quantitative Trading & Investment">Quantitative Trading &amp; Investment</option>
-                                    <option value="Software Engineer">Software Engineer</option>
-                                    <option value="Solutions Engineering & Pre-Sales">Solutions Engineering &amp; Pre-Sales</option>
-                                    <option value="Talent Acquisition & Recruiting">Talent Acquisition &amp; Recruiting</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
                                 <label>Workplace Type <span style="color: #FF6B4A;">*</span></label>
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select your workplace type(s).</p>
                                 <select id="workplace-select" name="workplace" multiple>
@@ -1645,7 +1609,7 @@
                 signedInAsEl.style.display = 'block';
             }
 
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, target_role_family, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -1690,9 +1654,6 @@
                 }
                 if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
                     document.getElementById('industry').value = profile.industry;
-                }
-                if (profile.target_role_family && document.getElementById('target-role-family')) {
-                    document.getElementById('target-role-family').value = profile.target_role_family;
                 }
                 if (profile.notice_period && !localStorage.getItem('onb_notice-period') && document.getElementById('notice-period')) {
                     document.getElementById('notice-period').value = profile.notice_period;
@@ -2179,7 +2140,6 @@
                     requires_sponsorship: sponsorship,
                     desired_salary: salary,
                     industry: document.getElementById('industry').value.trim(),
-                    target_role_family: document.getElementById('target-role-family').value,
                     notice_period: document.getElementById('notice-period').value,
                     start_date: document.getElementById('start-date').value || null,
                     target_currency: targetCurrency,
