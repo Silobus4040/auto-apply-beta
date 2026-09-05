@@ -341,6 +341,31 @@
                             </div>
 
                             <div class="form-group">
+                                <label>Job Category <span style="color: #FF6B4A;">*</span></label>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Which function best describes the roles you're targeting?</p>
+                                <select id="target-role-family" required>
+                                    <option value="" disabled selected>Select a category</option>
+                                    <option value="Engineering / Software Development">Engineering / Software Development</option>
+                                    <option value="Product Management">Product Management</option>
+                                    <option value="Design (UX/UI)">Design (UX/UI)</option>
+                                    <option value="Data & Analytics">Data &amp; Analytics</option>
+                                    <option value="Marketing">Marketing</option>
+                                    <option value="Sales & Business Development">Sales &amp; Business Development</option>
+                                    <option value="Customer Success / Support">Customer Success / Support</option>
+                                    <option value="Operations">Operations</option>
+                                    <option value="Finance & Accounting">Finance &amp; Accounting</option>
+                                    <option value="Human Resources / People">Human Resources / People</option>
+                                    <option value="Legal & Compliance">Legal &amp; Compliance</option>
+                                    <option value="Executive / Leadership">Executive / Leadership</option>
+                                    <option value="Administrative / Office Support">Administrative / Office Support</option>
+                                    <option value="Healthcare / Clinical">Healthcare / Clinical</option>
+                                    <option value="Education / Training">Education / Training</option>
+                                    <option value="Consulting">Consulting</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
                                 <label>Workplace Type <span style="color: #FF6B4A;">*</span></label>
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select your workplace type(s).</p>
                                 <select id="workplace-select" name="workplace" multiple>
@@ -1609,7 +1634,7 @@
                 signedInAsEl.style.display = 'block';
             }
 
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, target_role_family, notice_period, start_date, target_currency').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -1654,6 +1679,9 @@
                 }
                 if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
                     document.getElementById('industry').value = profile.industry;
+                }
+                if (profile.target_role_family && document.getElementById('target-role-family')) {
+                    document.getElementById('target-role-family').value = profile.target_role_family;
                 }
                 if (profile.notice_period && !localStorage.getItem('onb_notice-period') && document.getElementById('notice-period')) {
                     document.getElementById('notice-period').value = profile.notice_period;
@@ -2140,6 +2168,7 @@
                     requires_sponsorship: sponsorship,
                     desired_salary: salary,
                     industry: document.getElementById('industry').value.trim(),
+                    target_role_family: document.getElementById('target-role-family').value,
                     notice_period: document.getElementById('notice-period').value,
                     start_date: document.getElementById('start-date').value || null,
                     target_currency: targetCurrency,
