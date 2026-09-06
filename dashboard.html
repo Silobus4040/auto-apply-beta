@@ -2384,10 +2384,13 @@
             if (filterBar) filterBar.style.display = jobs.length ? 'flex' : 'none';
             if (jobs.length) renderStatusChips();
             if (!jobs.length) {
-                const deckCta = `<a href="swipe.html" style="margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; background: #000; color: #fff; padding: 0.75rem 2rem; border-radius: 40px; font-size: 0.9rem; font-weight: 800; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">Open Job Deck →</a>`;
-                const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
+                // Demo account always has jobs — 0 just means fetch not back yet. Don't
+                // render any empty/wait state; bail out and let the real data render when ready.
+                if (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') return;
 
-                if (poolAvailableCount > 0 && !isDemoAccount) {
+                const deckCta = `<a href="swipe.html" style="margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; background: #000; color: #fff; padding: 0.75rem 2rem; border-radius: 40px; font-size: 0.9rem; font-weight: 800; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">Open Job Deck →</a>`;
+
+                if (poolAvailableCount > 0) {
                     const dCount = poolAvailableCount;
                     const label = dCount === 1 ? 'role' : 'roles';
                     container.innerHTML = `
