@@ -341,36 +341,35 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Job Category <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Which function best describes the roles you're targeting?</p>
-                                <select id="target-role-family" required>
-                                    <option value="" disabled selected>Select a category</option>
-                                    <option value="Account Executive">Account Executive</option>
-                                    <option value="Administrative & Executive Support">Administrative & Executive Support</option>
-                                    <option value="AI Engineer">AI Engineer</option>
-                                    <option value="Backend Engineer">Backend Engineer</option>
-                                    <option value="Content & Technical Writing">Content & Technical Writing</option>
-                                    <option value="Customer Success & Support">Customer Success & Support</option>
-                                    <option value="Cybersecurity Engineering & Operations">Cybersecurity Engineering &amp; Operations</option>
-                                    <option value="Data & Analytics Analyst">Data &amp; Analytics Analyst</option>
-                                    <option value="Data Engineer">Data Engineer</option>
+                                <label>Job Categories <span style="color: #FF6B4A;">*</span></label>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select every category that fits the roles you want.</p>
+                                <select id="target-role-families" multiple required>
+                                    <option value="Sales & Account Management">Sales &amp; Account Management</option>
+                                    <option value="Administrative & Executive Support">Administrative &amp; Executive Support</option>
+                                    <option value="AI & Machine Learning">AI &amp; Machine Learning</option>
+                                    <option value="Backend Engineering">Backend Engineering</option>
+                                    <option value="Content & Technical Writing">Content &amp; Technical Writing</option>
+                                    <option value="Customer Success & Support">Customer Success &amp; Support</option>
+                                    <option value="Cybersecurity & Security Operations">Cybersecurity &amp; Security Operations</option>
+                                    <option value="Data & Analytics">Data &amp; Analytics</option>
+                                    <option value="Data Engineering">Data Engineering</option>
                                     <option value="Data Entry & Transcription">Data Entry &amp; Transcription</option>
                                     <option value="Education & Training">Education &amp; Training</option>
-                                    <option value="Engineering Manager">Engineering Manager</option>
+                                    <option value="Engineering Leadership">Engineering Leadership</option>
                                     <option value="Finance & Accounting">Finance &amp; Accounting</option>
-                                    <option value="Freelance AI Training">Freelance AI Training</option>
-                                    <option value="Frontend & Mobile Engineer">Frontend &amp; Mobile Engineer</option>
-                                    <option value="Full Stack Engineer">Full Stack Engineer</option>
+                                    <option value="AI Training & Evaluation">AI Training &amp; Evaluation</option>
+                                    <option value="Frontend & Mobile Engineering">Frontend &amp; Mobile Engineering</option>
+                                    <option value="Full Stack Engineering">Full Stack Engineering</option>
                                     <option value="Human Resources">Human Resources</option>
-                                    <option value="Marketing & Growth Manager">Marketing &amp; Growth Manager</option>
+                                    <option value="Marketing & Growth">Marketing &amp; Growth</option>
                                     <option value="Motion Design & VFX">Motion Design &amp; VFX</option>
                                     <option value="Operations & Supply Chain">Operations &amp; Supply Chain</option>
-                                    <option value="Platform & DevOps Engineer">Platform &amp; DevOps Engineer</option>
-                                    <option value="Product Designer">Product Designer</option>
-                                    <option value="Product Manager">Product Manager</option>
+                                    <option value="Platform & DevOps Engineering">Platform &amp; DevOps Engineering</option>
+                                    <option value="Product Design">Product Design</option>
+                                    <option value="Product Management">Product Management</option>
                                     <option value="Project & Program Management">Project &amp; Program Management</option>
-                                    <option value="Quantitative Trading & Investment">Quantitative Trading &amp; Investment</option>
-                                    <option value="Software Engineer">Software Engineer</option>
+                                    <option value="Quantitative Finance & Trading">Quantitative Finance &amp; Trading</option>
+                                    <option value="Software Engineering">Software Engineering</option>
                                     <option value="Solutions Engineering & Pre-Sales">Solutions Engineering &amp; Pre-Sales</option>
                                     <option value="Talent Acquisition & Recruiting">Talent Acquisition &amp; Recruiting</option>
                                 </select>
@@ -965,6 +964,22 @@
         workplaceSelectEl.addEventListener('change', () => {
             const selected = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
             localStorage.setItem('onb_workplace', JSON.stringify(selected));
+        });
+
+        const roleFamilySelectEl = document.getElementById('target-role-families');
+        const roleFamilyChoices = new Choices(roleFamilySelectEl, {
+            removeItemButton: true,
+            placeholder: true,
+            placeholderValue: 'Select job categories',
+            searchPlaceholderValue: 'Search job categories...'
+        });
+        const savedRoleFamilies = localStorage.getItem('onb_target-role-families');
+        if (savedRoleFamilies) {
+            try { roleFamilyChoices.setChoiceByValue(JSON.parse(savedRoleFamilies)); } catch(e) {}
+        }
+        roleFamilySelectEl.addEventListener('change', () => {
+            const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
+            localStorage.setItem('onb_target-role-families', JSON.stringify(selected));
         });
 
         const commitmentSelectEl = document.getElementById('commitment-select');
@@ -1646,6 +1661,10 @@
             }
 
             const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, target_role_family, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const { data: profileRoleFamilies } = await supabaseClient
+                .from('profile_role_families')
+                .select('role_key')
+                .eq('profile_id', currentUserId);
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
 
             if (profile && profile.resume_url) {
@@ -1691,8 +1710,15 @@
                 if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
                     document.getElementById('industry').value = profile.industry;
                 }
-                if (profile.target_role_family && document.getElementById('target-role-family')) {
-                    document.getElementById('target-role-family').value = profile.target_role_family;
+                if (!localStorage.getItem('onb_target-role-families')) {
+                    const savedFamilies = (profileRoleFamilies || []).map(row => row.role_key).filter(Boolean);
+                    if (savedFamilies.length > 0) {
+                        localStorage.setItem('onb_target-role-families', JSON.stringify(savedFamilies));
+                        roleFamilyChoices.setChoiceByValue(savedFamilies);
+                    } else if (profile.target_role_family) {
+                        localStorage.setItem('onb_target-role-families', JSON.stringify([profile.target_role_family]));
+                        roleFamilyChoices.setChoiceByValue([profile.target_role_family]);
+                    }
                 }
                 if (profile.notice_period && !localStorage.getItem('onb_notice-period') && document.getElementById('notice-period')) {
                     document.getElementById('notice-period').value = profile.notice_period;
@@ -1941,12 +1967,13 @@
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
             const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
             const countries = Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value);
+            const roleFamilies = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             const workplaces = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
             const file = document.getElementById('resume-file').files[0];
             const savedResumeUrl = localStorage.getItem('onb_resume_url');
 
-            if (!jobTitles || countries.length === 0 || workplaces.length === 0) {
-                errorMsg.textContent = "Please add at least one target role, country, and workplace type before continuing.";
+            if (!jobTitles || countries.length === 0 || roleFamilies.length === 0 || workplaces.length === 0) {
+                errorMsg.textContent = "Please add at least one target role, job category, country, and workplace type before continuing.";
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -2153,12 +2180,17 @@
                     : wantsRemoteLocal ? 'local'
                     : wantsRemoteGlobal ? 'global'
                     : null;
+                const selectedRoleFamilies = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
+                if (selectedRoleFamilies.length === 0) {
+                    throw new Error('Please select at least one job category.');
+                }
 
                 // Update Profile with ALL data
                 loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({
                     id: currentUserId,
                     remote_scope: remoteScope,
+                    target_role_family: selectedRoleFamilies[0],
                     target_job_titles: localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
                     experience_level_bucket: localStorage.getItem('onb_job-levels') || Array.from(document.querySelectorAll('.job-level-select')).map(s => s.value).join(', '),
                     target_location: Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value).join(', '),
@@ -2179,7 +2211,6 @@
                     requires_sponsorship: sponsorship,
                     desired_salary: salary,
                     industry: document.getElementById('industry').value.trim(),
-                    target_role_family: document.getElementById('target-role-family').value,
                     notice_period: document.getElementById('notice-period').value,
                     start_date: document.getElementById('start-date').value || null,
                     target_currency: targetCurrency,
@@ -2200,6 +2231,22 @@
                 }, { onConflict: 'id' });
 
                 if (profileError) throw profileError;
+
+                const { error: deleteRoleFamiliesError } = await supabaseClient
+                    .from('profile_role_families')
+                    .delete()
+                    .eq('profile_id', currentUserId);
+                if (deleteRoleFamiliesError) throw deleteRoleFamiliesError;
+
+                const roleFamilyRows = selectedRoleFamilies.map(roleKey => ({
+                    profile_id: currentUserId,
+                    role_key: roleKey,
+                    source: 'onboarding_multiselect'
+                }));
+                const { error: roleFamiliesError } = await supabaseClient
+                    .from('profile_role_families')
+                    .insert(roleFamilyRows);
+                if (roleFamiliesError) throw roleFamiliesError;
 
                 // PostHog: onboarding finished — the key activation funnel step
                 if (window.posthog) posthog.capture('onboarding_completed');
