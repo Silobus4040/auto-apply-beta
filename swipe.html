@@ -3397,7 +3397,9 @@
                 renderEmailList();
                 
                 // Update Badge
-                const unread = currentEmails.filter(e => !e.is_read).length;
+                const rawUnread = currentEmails.filter(e => !e.is_read).length;
+                const isDemoBadge = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
+                const unread = isDemoBadge ? 246 : rawUnread;
                 const badge = document.getElementById('inbox-badge');
                 const sidebarBadge = document.getElementById('sidebar-inbox-badge');
                 if (unread > 0) {

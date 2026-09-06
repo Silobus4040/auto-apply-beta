@@ -2385,9 +2385,10 @@
             if (jobs.length) renderStatusChips();
             if (!jobs.length) {
                 const deckCta = `<a href="swipe.html" style="margin-top: 1.5rem; display: inline-flex; align-items: center; gap: 0.5rem; background: #000; color: #fff; padding: 0.75rem 2rem; border-radius: 40px; font-size: 0.9rem; font-weight: 800; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 14px rgba(0,0,0,0.15);">Open Job Deck →</a>`;
+                const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
 
-                if (poolAvailableCount > 0) {
-                    const dCount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ? 1080 : poolAvailableCount;
+                if (poolAvailableCount > 0 && !isDemoAccount) {
+                    const dCount = poolAvailableCount;
                     const label = dCount === 1 ? 'role' : 'roles';
                     container.innerHTML = `
                         <div class="rover-loading">
@@ -2888,7 +2889,9 @@
                 renderEmailList();
                 
                 // Update Badge
-                const unread = currentEmails.filter(e => !e.is_read).length;
+                const rawUnread = currentEmails.filter(e => !e.is_read).length;
+                const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
+                const unread = isDemoAccount ? 246 : rawUnread;
                 const badge = document.getElementById('inbox-badge');
                 const sidebarBadge = document.getElementById('sidebar-inbox-badge');
                 if (unread > 0) {
