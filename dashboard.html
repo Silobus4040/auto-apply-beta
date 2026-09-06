@@ -2886,7 +2886,8 @@
                 renderEmailList();
                 
                 // Update Badge
-                const unread = currentEmails.filter(e => !e.is_read).length;
+                const isDemoAccount = (session && session.user && session.user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+                const unread = isDemoAccount ? 236 : currentEmails.filter(e => !e.is_read).length;
                 const badge = document.getElementById('inbox-badge');
                 const sidebarBadge = document.getElementById('sidebar-inbox-badge');
                 if (unread > 0) {
@@ -3014,7 +3015,8 @@
                 
                 const badge = document.getElementById('inbox-badge');
                 const sidebarBadge = document.getElementById('sidebar-inbox-badge');
-                const unread = currentEmails.filter(e => !e.is_read).length;
+                const isDemoAccount = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+                const unread = isDemoAccount ? 236 : currentEmails.filter(e => !e.is_read).length;
                 if (unread > 0) {
                     if (badge) { badge.textContent = unread; }
                     if (sidebarBadge) { sidebarBadge.textContent = unread; sidebarBadge.style.display = 'inline-block'; }
