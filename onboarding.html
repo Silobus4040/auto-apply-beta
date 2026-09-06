@@ -1610,6 +1610,7 @@
             startExtractionAnimation();
             try {
                 window.lastResumeText = await readResumeText(file);
+                localStorage.setItem('pending_resume_text', window.lastResumeText);
                 window.resumeExtraction = buildResumeExtraction(window.lastResumeText);
                 prefillFromResume(window.lastResumeText);
                 finishExtractionAnimation();
@@ -1799,6 +1800,7 @@
                     selectedResumeFile = resumeFile;
                     const text = await readResumeText(resumeFile);
                     window.lastResumeText = text;
+                    localStorage.setItem('pending_resume_text', text);
                     window.resumeExtraction = buildResumeExtraction(text);
                     const filledCount = prefillFromResume(text);
                     if (autofillStatus) {

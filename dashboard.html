@@ -1921,7 +1921,7 @@
                 .map(w => workplaceMap[w] || w)
                 .filter(w => w);
 
-            const resumeText = localStorage.getItem('master_resume') || '';
+            const resumeText = localStorage.getItem('pending_resume_text') || localStorage.getItem('master_resume') || '';
 
             startPolling();
             updateScanningIndicator(true, 0);
@@ -1953,6 +1953,7 @@
                         resumeText: resumeText
                     })
                 }).catch(err => console.error('Failed to trigger initial scrape webhook', err));
+                localStorage.removeItem('pending_resume_text');
             } catch (err) {
                 console.error('Error triggering initial scrape:', err);
             }
