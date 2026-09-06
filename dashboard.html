@@ -1687,7 +1687,7 @@
             // touch profile.target_location (which stays 'Nigeria' -- the
             // real value driving match-pool-jobs' geo eligibility).
             const countriesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
-                ? 'United States, Nigeria, Canada'
+                ? 'Nigeria'
                 : profile.target_location;
             renderPrefChips('pref-countries', countriesForDisplay);
             // "Remote" alone doesn't say whether the deck is scoped to the
@@ -1698,17 +1698,19 @@
             // unset, the pre-split-era default) stays plain "Remote" since
             // neither single label would be accurate.
             const scope = (profile.remote_scope || '').trim().toLowerCase();
-            const workplacesForDisplay = (profile.workplace_type || '')
-                .split(',')
-                .map(w => w.trim())
-                .filter(Boolean)
-                .map(w => {
-                    if (w.toLowerCase() !== 'remote') return w;
-                    if (scope === 'global') return 'Remote Global';
-                    if (scope === 'local') return 'Remote Local';
-                    return w;
-                })
-                .join(', ');
+            const workplacesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
+                ? 'Remote, Local'
+                : (profile.workplace_type || '')
+                    .split(',')
+                    .map(w => w.trim())
+                    .filter(Boolean)
+                    .map(w => {
+                        if (w.toLowerCase() !== 'remote') return w;
+                        if (scope === 'global') return 'Remote Global';
+                        if (scope === 'local') return 'Remote Local';
+                        return w;
+                    })
+                    .join(', ');
             renderPrefChips('pref-workplaces', workplacesForDisplay);
 
             if (profile.master_resume) {
