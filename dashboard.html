@@ -465,6 +465,8 @@
         .email-content-meta { display: flex; justify-content: space-between; align-items: center; }
         .email-content-sender { font-size: 0.9rem; font-weight: 600; color: #3f3f46; }
         .email-content-date { font-size: 0.8rem; color: #71717a; }
+        .email-reply-btn { background: #059669 !important; color: #ffffff !important; }
+        .email-action-icon { width: 17px; height: 17px; stroke-width: 2.4; flex-shrink: 0; }
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
         .email-iframe { width: 100%; height: 100%; border: none; }
         .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
@@ -2184,7 +2186,7 @@
             // increment it. Only the outcome stats below stay manufactured.
             const displayApplied = applied;
             const displayInterviewing = isDemoAccount ? 14 : interviewing;
-            const displayOffer = isDemoAccount ? 3 : onOffer;
+            const displayOffer = isDemoAccount ? 0 : onOffer;
             const displayRejected = isDemoAccount ? 21 : rejected;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
@@ -3048,8 +3050,8 @@
             if (!isOutbound) {
                 replyBtnHtml = `
                     <div style="padding: 1.5rem; border-top: 1px solid var(--border); background: var(--surface-color); display: flex; justify-content: flex-end;">
-                        <button onclick="openReplyComposer(${index})" style="background: #000; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.9rem; transition: background 0.2s;">
-                            <span style="font-size: 1.1rem;">↩️</span> Reply to Recruiter
+                        <button class="email-reply-btn" onclick="openReplyComposer(${index})" style="background: #059669; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.9rem; transition: background 0.2s;">
+                            <i data-lucide="reply" class="email-action-icon"></i> Reply to Recruiter
                         </button>
                     </div>
                 `;
@@ -3071,6 +3073,7 @@
                     ${replyBtnHtml}
                 </div>
             `;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
 
             // Render the email body in a fully sandboxed iframe: sandbox="" (no
             // allow-scripts, no allow-same-origin) means anything in email.full_html

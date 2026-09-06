@@ -3157,7 +3157,8 @@
             // increment it. Only the outcome stats below stay manufactured.
             const displayApplied = applied;
             const displayInterviewing = isDemoAccount ? 14 : interviewing;
-            const displayOffer = isDemoAccount ? 3 : onOffer;
+            const displayOffer = isDemoAccount ? 0 : onOffer;
+            const displayRejected = isDemoAccount ? 21 : rejected;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
                 bar.style.display = 'none';
@@ -3179,7 +3180,7 @@
                 document.getElementById('stat-applied').textContent = displayApplied;
                 document.getElementById('stat-interview').textContent = displayInterviewing;
                 document.getElementById('stat-offer').textContent = displayOffer;
-                document.getElementById('stat-rejected').textContent = rejected;
+                document.getElementById('stat-rejected').textContent = displayRejected;
             }
 
         }
