@@ -87,6 +87,11 @@
         .choices[data-type*="select-one"] .choices__button { --choices-icon-cross-inverse: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; opacity: 1 !important; margin-right: 1.5rem !important; }
         .choices[data-type*="select-one"] .choices__button:hover { opacity: 0.6 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
+        .category-guardrail { display: none; margin-top: 0.8rem; padding: 0.9rem 1rem; border: 1px solid #FCD34D; border-radius: 12px; background: #FFFBEB; color: #78350F; font-size: 0.85rem; font-weight: 600; line-height: 1.5; }
+        .category-guardrail.is-visible { display: block; }
+        .category-guardrail strong { color: #92400E; }
+        .category-guardrail button { display: block; width: auto; margin-top: 0.7rem; padding: 0.55rem 0.85rem; border: 1px solid #D97706; border-radius: 8px; background: #FFFFFF; color: #92400E; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 800; }
+        .category-guardrail button:hover { background: #FEF3C7; }
 
         .select-wrapper { position: relative; }
         /* Use the browser's familiar native select control instead of the decorative
@@ -373,6 +378,7 @@
                                     <option value="Solutions Engineering & Pre-Sales">Solutions Engineering &amp; Pre-Sales</option>
                                     <option value="Talent Acquisition & Recruiting">Talent Acquisition &amp; Recruiting</option>
                                 </select>
+                                <div id="category-guardrail" class="category-guardrail" role="alert" aria-live="polite"></div>
                             </div>
 
                             <div class="form-group">
@@ -896,10 +902,92 @@
         if (savedRoleFamilies) {
             try { roleFamilyChoices.setChoiceByValue(JSON.parse(savedRoleFamilies)); } catch(e) {}
         }
+
+        // Use distinctive phrases only. This helps catch accidental category
+        // choices without guessing a person's intended career direction.
+        const roleFamilyPhraseHints = {
+            'Sales & Account Management': ['account executive', 'account manager', 'sales representative', 'sales manager', 'business development'],
+            'Administrative & Executive Support': ['administrative assistant', 'executive assistant', 'office administrator'],
+            'AI & Machine Learning': ['machine learning engineer', 'machine learning scientist', 'ai engineer', 'research scientist'],
+            'Backend Engineering': ['backend engineer', 'backend developer', 'server-side engineer'],
+            'Content & Technical Writing': ['technical writer', 'content writer', 'copywriter', 'editor', 'academic writer'],
+            'Customer Success & Support': ['customer success manager', 'customer support specialist', 'support engineer'],
+            'Cybersecurity & Security Operations': ['security engineer', 'cybersecurity analyst', 'penetration tester', 'soc analyst'],
+            'Data & Analytics': ['data analyst', 'business analyst', 'analytics manager', 'market researcher'],
+            'Data Engineering': ['data engineer', 'analytics engineer', 'etl developer'],
+            'Data Entry & Transcription': ['data entry', 'transcriptionist', 'transcriber'],
+            'Education & Training': ['teacher', 'instructor', 'learning designer', 'training specialist'],
+            'Engineering Leadership': ['engineering manager', 'head of engineering', 'vp engineering'],
+            'Finance & Accounting': ['accountant', 'financial analyst', 'bookkeeper', 'finance manager'],
+            'AI Training & Evaluation': ['ai trainer', 'ai evaluator', 'prompt evaluator', 'rlhf'],
+            'Frontend & Mobile Engineering': ['frontend engineer', 'front-end engineer', 'frontend developer', 'mobile engineer', 'ios developer', 'android developer', 'react developer'],
+            'Full Stack Engineering': ['full stack engineer', 'full-stack engineer', 'full stack developer', 'full-stack developer'],
+            'Human Resources': ['hr manager', 'human resources', 'people operations'],
+            'Marketing & Growth': ['marketing manager', 'growth marketer', 'digital marketer', 'seo specialist'],
+            'Motion Design & VFX': ['motion designer', 'visual effects', 'vfx artist', '3d animator'],
+            'Operations & Supply Chain': ['operations manager', 'supply chain', 'logistics manager', 'procurement specialist'],
+            'Platform & DevOps Engineering': ['devops engineer', 'site reliability engineer', 'platform engineer', 'cloud engineer'],
+            'Product Design': ['product designer', 'ux designer', 'ui designer', 'user experience designer'],
+            'Product Management': ['product manager', 'product owner', 'technical product manager'],
+            'Project & Program Management': ['project manager', 'program manager', 'scrum master'],
+            'Quantitative Finance & Trading': ['quantitative analyst', 'quant trader', 'trading analyst', 'portfolio manager'],
+            'Software Engineering': ['software engineer', 'software developer', 'application developer'],
+            'Solutions Engineering & Pre-Sales': ['solutions engineer', 'sales engineer', 'pre-sales engineer', 'presales engineer'],
+            'Talent Acquisition & Recruiting': ['recruiter', 'talent acquisition', 'recruiting coordinator']
+        };
+        const categoryGuardrailEl = document.getElementById('category-guardrail');
+        let categoryConflictConfirmation = '';
+
+        function suggestedRoleFamilies(jobTitles) {
+            const normalizedTitles = (jobTitles || '').toLowerCase();
+            if (!normalizedTitles) return [];
+            return Object.entries(roleFamilyPhraseHints)
+                .filter(([, phrases]) => phrases.some(phrase => normalizedTitles.includes(phrase)))
+                .map(([family]) => family);
+        }
+
+        function categorySelectionSignature(jobTitles, selectedFamilies) {
+            return `${jobTitles.toLowerCase()}|${[...selectedFamilies].sort().join('|')}`;
+        }
+
+        function clearCategoryGuardrail() {
+            categoryConflictConfirmation = '';
+            categoryGuardrailEl.classList.remove('is-visible');
+            categoryGuardrailEl.replaceChildren();
+        }
+
+        function checkCategorySelection(jobTitles, selectedFamilies) {
+            const suggestions = suggestedRoleFamilies(jobTitles);
+            const signature = categorySelectionSignature(jobTitles, selectedFamilies);
+            if (!suggestions.length || suggestions.some(family => selectedFamilies.includes(family))) {
+                clearCategoryGuardrail();
+                return true;
+            }
+            if (categoryConflictConfirmation === signature) return true;
+
+            categoryGuardrailEl.replaceChildren();
+            const message = document.createElement('div');
+            message.innerHTML = `<strong>Please check your job categories.</strong> Your target role${suggestions.length > 1 ? 's look' : ' looks'} most like ${suggestions.join(' or ')}, but none of those ${suggestions.length > 1 ? 'categories are' : 'category is'} selected. If your choices are intentional, confirm to continue.`;
+            const confirmButton = document.createElement('button');
+            confirmButton.type = 'button';
+            confirmButton.textContent = 'My selections are intentional';
+            confirmButton.addEventListener('click', () => {
+                categoryConflictConfirmation = signature;
+                categoryGuardrailEl.classList.remove('is-visible');
+                btnNext.click();
+            });
+            categoryGuardrailEl.append(message, confirmButton);
+            categoryGuardrailEl.classList.add('is-visible');
+            categoryGuardrailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            return false;
+        }
+
         roleFamilySelectEl.addEventListener('change', () => {
             const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             localStorage.setItem('onb_target-role-families', JSON.stringify(selected));
+            clearCategoryGuardrail();
         });
+        document.getElementById('job-titles-container').addEventListener('input', clearCategoryGuardrail);
 
         const commitmentSelectEl = document.getElementById('commitment-select');
         const commitmentChoices = new Choices(commitmentSelectEl, {
@@ -1872,6 +1960,10 @@
             if (!jobTitles || roleFamilies.length === 0 || workplaces.length === 0) {
                 errorMsg.textContent = "Please add at least one target role, job category, and workplace type before continuing.";
                 errorMsg.style.display = 'block';
+                return;
+            }
+
+            if (!checkCategorySelection(jobTitles, roleFamilies)) {
                 return;
             }
 
