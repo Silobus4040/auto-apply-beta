@@ -1342,7 +1342,7 @@
                 <p style="font-size: 0.75rem; color: #71717A; margin-top: 0.5rem;">Locked during beta — our matching already catches title variants (e.g. "Software Engineer II", "Backend Engineer"). Changing your role focus resets your deck, so reach out to support if you need to pivot.</p>
             </div>
             <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
-                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Target Countries (comma separated)</label>
+                <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Country of Residence</label>
                 <input type="text" id="set-countries" style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem;">
             </div>
             <div class="form-group" style="margin-bottom: 1.5rem; text-align: left;">
@@ -1622,7 +1622,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score')
+                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score')
                 .eq('id', user.id)
                 .single();
 
@@ -1631,7 +1631,7 @@
                 return;
             }
 
-            // The Roles/Countries/Type search-criteria strip lives on
+            // The Roles/Residence/Type search-criteria strip lives on
             // dashboard.html only -- this page has no pref-roles/pref-countries/
             // pref-workplaces elements, so setting their textContent here threw
             // (confirmed live 2026-07-28) and silently aborted the rest of
@@ -1913,7 +1913,7 @@
 
         async function triggerInitialScrape(user, profile) {
             const roles = profile.target_job_titles || '';
-            const country = profile.target_location || 'United States';
+            const country = profile.country || profile.target_location || 'United States';
             
             const workplaceMap = {
                 'remote': '2',
@@ -2256,7 +2256,7 @@
                     const h3 = emptyState.querySelector('h3');
                     const p = emptyState.querySelector('p');
                     if (h3) h3.textContent = 'No Matching Jobs Found Yet';
-                    if (p) p.innerHTML = `Rover completed its first scan but didn't find any active listings matching your criteria. It keeps scanning in the background — new matches will appear here the moment they're found.<br><br>Try widening your search: add a few more job titles (including close variations of your role), add more countries, or uncheck a workplace-type filter if you've only selected Remote. <a href="onboarding.html?edit=true" style="color: var(--secondary); font-weight: 700;">Adjust your target settings →</a>`;
+                    if (p) p.innerHTML = `Rover completed its first scan but didn't find any active listings matching your criteria. It keeps scanning in the background — new matches will appear here the moment they're found.<br><br>Try widening your search: add a few more job titles (including close variations of your role), confirm your country of residence, or uncheck a workplace-type filter if you've only selected Remote. <a href="onboarding.html?edit=true" style="color: var(--secondary); font-weight: 700;">Adjust your target settings →</a>`;
                 }
             }
         }
@@ -3265,10 +3265,10 @@
 
         async function openSettingsModal() {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, workplace_type').eq('id', user.id).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, country, workplace_type').eq('id', user.id).single();
             if (profile) {
                 document.getElementById('set-roles').value = profile.target_job_titles || '';
-                document.getElementById('set-countries').value = profile.target_location || '';
+                document.getElementById('set-countries').value = profile.country || profile.target_location || '';
                 const wps = (profile.workplace_type || '').toLowerCase();
                 document.querySelectorAll('input[name="set-wp"]').forEach(cb => {
                     cb.checked = wps.includes(cb.value.toLowerCase());
@@ -3283,10 +3283,10 @@
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 const roles = document.getElementById('set-roles').value.trim();
-                const countries = document.getElementById('set-countries').value.trim();
+                const country = document.getElementById('set-countries').value.trim();
                 const wps = Array.from(document.querySelectorAll('input[name="set-wp"]:checked')).map(cb => cb.value).join(', ');
                 
-                let updateData = { target_job_titles: roles, target_location: countries, workplace_type: wps };
+                let updateData = { target_job_titles: roles, country: country, target_location: country, workplace_type: wps };
 
                 const fileInput = document.getElementById('set-resume');
                 if (fileInput.files.length > 0) {

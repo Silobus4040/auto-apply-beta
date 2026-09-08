@@ -387,63 +387,6 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Home Market <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select your country.</p>
-                                <select id="target-countries" name="target-countries">
-                                    <option value="Australia">Australia</option>
-                                    <option value="Austria">Austria</option>
-                                    <option value="Belgium">Belgium</option>
-                                    <option value="Brazil">Brazil</option>
-                                    <option value="Bulgaria">Bulgaria</option>
-                                    <option value="Canada">Canada</option>
-                                    <option value="China">China</option>
-                                    <option value="Colombia">Colombia</option>
-                                    <option value="Costa Rica">Costa Rica</option>
-                                    <option value="Czechia">Czechia</option>
-                                    <option value="Denmark">Denmark</option>
-                                    <option value="Egypt">Egypt</option>
-                                    <option value="Finland">Finland</option>
-                                    <option value="France">France</option>
-                                    <option value="Germany">Germany</option>
-                                    <option value="Greece">Greece</option>
-                                    <option value="Hungary">Hungary</option>
-                                    <option value="India">India</option>
-                                    <option value="Indonesia">Indonesia</option>
-                                    <option value="Ireland">Ireland</option>
-                                    <option value="Israel">Israel</option>
-                                    <option value="Italy">Italy</option>
-                                    <option value="Japan">Japan</option>
-                                    <option value="Malaysia">Malaysia</option>
-                                    <option value="Mexico">Mexico</option>
-                                    <option value="Netherlands">Netherlands</option>
-                                    <option value="New Zealand">New Zealand</option>
-                                    <option value="Nigeria">Nigeria</option>
-                                    <option value="Norway">Norway</option>
-                                    <option value="Pakistan">Pakistan</option>
-                                    <option value="Philippines">Philippines</option>
-                                    <option value="Poland">Poland</option>
-                                    <option value="Portugal">Portugal</option>
-                                    <option value="Romania">Romania</option>
-                                    <option value="Saudi Arabia">Saudi Arabia</option>
-                                    <option value="Singapore">Singapore</option>
-                                    <option value="Slovakia">Slovakia</option>
-                                    <option value="Slovenia">Slovenia</option>
-                                    <option value="South Africa">South Africa</option>
-                                    <option value="South Korea">South Korea</option>
-                                    <option value="Spain">Spain</option>
-                                    <option value="Sweden">Sweden</option>
-                                    <option value="Switzerland">Switzerland</option>
-                                    <option value="Taiwan">Taiwan</option>
-                                    <option value="Thailand">Thailand</option>
-                                    <option value="Turkey">Turkey</option>
-                                    <option value="United Arab Emirates">United Arab Emirates (UAE)</option>
-                                    <option value="United Kingdom">United Kingdom</option>
-                                    <option value="United States">United States</option>
-                                    <option value="Vietnam">Vietnam</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
                                 <label style="margin-bottom: 0.8rem;">Commitment Types (Optional) <span style="color: #6B7280; font-weight: 500; font-size: 0.8rem; text-transform: none;">Leave blank to search all</span></label>
                                 <select id="commitment-select" name="commitment" multiple>
                                     <option value="Full Time">Full Time</option>
@@ -806,11 +749,10 @@
                         </div>
 
                         <!-- EEO Demographics Section - US-specific EEOC self-identification
-                             categories, only relevant for US-bound applications. Shown/hidden
-                             by updateEeoVisibility() based on Target Countries selection. -->
+                             categories, only relevant for US-residence applications. Shown/hidden by updateEeoVisibility() based on Country of Residence. -->
                         <div id="eeo-section" style="border-top: 1px solid var(--border); margin: 2rem 0; padding-top: 1.5rem;">
                             <h3 style="color: white; font-size: 1rem; margin-bottom: 0.4rem; text-transform: uppercase;">EEO Demographics</h3>
-                            <p class="form-hint" style="margin-bottom: 1.1rem;">Shown because United States is one of your target countries — these are voluntary self-identification questions used on US job applications.</p>
+                            <p class="form-hint" style="margin-bottom: 1.1rem;">Shown because your country of residence is United States — these are voluntary self-identification questions used on US job applications.</p>
 
                             <div class="row-grid">
                                 <div class="form-group">
@@ -918,37 +860,14 @@
         let selectedResumeFile = null;
         let extractionStageTimer = null;
 
-        const countrySelectEl = document.getElementById('target-countries');
-        const countryChoices = new Choices(countrySelectEl, {
-            removeItemButton: true,
-            searchPlaceholderValue: 'Search for a country...',
-            placeholder: true,
-            placeholderValue: 'Select a country'
-        });
-        
-        // EEO Demographics only apply to US-bound applications (US EEOC
-        // self-identification categories have no relevance to, e.g., a
-        // Nigerian applicant targeting Nigerian or non-US jobs).
+        // EEO Demographics only apply to US-residence applications.
         function updateEeoVisibility() {
-            const selected = Array.from(countrySelectEl.selectedOptions).map(opt => opt.value);
+            const residenceCountry = document.getElementById('country')?.value.trim();
             const eeoSection = document.getElementById('eeo-section');
-            eeoSection.style.display = selected.includes('United States') ? 'block' : 'none';
-        }
-
-        const savedCountries = localStorage.getItem('onb_target-countries');
-        if (savedCountries) {
-            try {
-                const parsedCountries = JSON.parse(savedCountries);
-                countryChoices.setChoiceByValue(Array.isArray(parsedCountries) ? parsedCountries[0] : parsedCountries);
-            } catch(e) {}
+            if (eeoSection) eeoSection.style.display = residenceCountry === 'United States' ? 'block' : 'none';
         }
         updateEeoVisibility();
-
-        countrySelectEl.addEventListener('change', () => {
-            const selected = Array.from(countrySelectEl.selectedOptions).map(opt => opt.value);
-            localStorage.setItem('onb_target-countries', JSON.stringify(selected));
-            updateEeoVisibility();
-        });
+        document.getElementById('country')?.addEventListener('input', updateEeoVisibility);
 
         const workplaceSelectEl = document.getElementById('workplace-select');
         const workplaceChoices = new Choices(workplaceSelectEl, {
@@ -1568,20 +1487,6 @@
             const nationalityMatch = text.match(/\b(?:nationality|citizenship)\s*[:\-]\s*([A-Za-z][A-Za-z .'-]{1,40})/i)
                 || text.match(/\b([A-Za-z]{3,20})\s+(?:citizen|national)\b/i);
             if (nationalityMatch) filled += fillIfBlank('nationality', nationalityMatch[1].trim()) ? 1 : 0;
-
-            // "Home Market" (target-countries) is a separate concept from
-            // country of residence — only auto-select it when the detected
-            // country is actually one of the supported target markets.
-            const residenceCountry = document.getElementById('country')?.value.trim();
-            if (residenceCountry && !Array.from(countrySelectEl.selectedOptions).length) {
-                const targetMarketOption = Array.from(countrySelectEl.options).find(option => option.value.toLowerCase() === residenceCountry.toLowerCase());
-                if (targetMarketOption) {
-                    countryChoices.setChoiceByValue([targetMarketOption.value]);
-                    localStorage.setItem('onb_target-countries', JSON.stringify([targetMarketOption.value]));
-                    updateEeoVisibility();
-                    filled++;
-                }
-            }
             filled += setExtractedRole(inferResumeRole(lines)) ? 1 : 0;
             return filled;
         }
@@ -1737,15 +1642,6 @@
                     }
                     updateCurrencyCustomVisibility();
                 }
-                // Prepopulate target locations
-                if (profile.target_location) {
-                    const countries = profile.target_location.split(', ');
-                    if (!localStorage.getItem('onb_target-countries')) {
-                        localStorage.setItem('onb_target-countries', JSON.stringify(countries));
-                        countryChoices.setChoiceByValue(countries[0]);
-                    }
-                }
-                
                 // Prepopulate workplace types.
                 // A stored 'Remote' has to be expanded back into the two UI options
                 // using remote_scope. Rows saved before the split have no scope, so
@@ -1968,14 +1864,13 @@
         btnNext.addEventListener('click', async () => {
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
             const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
-            const countries = Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value);
             const roleFamilies = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             const workplaces = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
             const file = document.getElementById('resume-file').files[0];
             const savedResumeUrl = localStorage.getItem('onb_resume_url');
 
-            if (!jobTitles || countries.length === 0 || roleFamilies.length === 0 || workplaces.length === 0) {
-                errorMsg.textContent = "Please add at least one target role, job category, country, and workplace type before continuing.";
+            if (!jobTitles || roleFamilies.length === 0 || workplaces.length === 0) {
+                errorMsg.textContent = "Please add at least one target role, job category, and workplace type before continuing.";
                 errorMsg.style.display = 'block';
                 return;
             }
@@ -2037,12 +1932,7 @@
         });
 
         // Auto-Save Form State
-        // select:not([multiple]) — #target-countries is a multi-select with its
-        // own dedicated array-based save/restore above; .value on a multi-select
-        // only ever returns the FIRST selected option, so including it here was
-        // silently overwriting the correct saved list down to a single country
-        // (confirmed live 2026-07-15: 4 selected countries collapsed to 1).
-        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form input[type="tel"], #onboarding-form select:not([multiple]):not(#target-countries)');
+        const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form input[type="tel"], #onboarding-form select:not([multiple])');
         formInputs.forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem('onb_' + input.id);
@@ -2195,7 +2085,7 @@
                     target_role_family: selectedRoleFamilies[0],
                     target_job_titles: localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
                     experience_level_bucket: localStorage.getItem('onb_job-levels') || Array.from(document.querySelectorAll('.job-level-select')).map(s => s.value).join(', '),
-                    target_location: Array.from(document.getElementById('target-countries').selectedOptions).map(opt => opt.value).join(', '),
+                    target_location: country,
                     workplace_type: workplaceTypes.join(', '),
                     commitment_type: Array.from(commitmentSelectEl.selectedOptions).map(opt => opt.value).join(', '),
                     first_name: firstName,
