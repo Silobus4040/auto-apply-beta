@@ -2513,7 +2513,7 @@
                 const regions = Array.isArray(job.remote_geo_regions) ? job.remote_geo_regions.join(', ') : '';
                 return `<div class="swipe-card-geo-badge geo-restricted">📍 Remote — ${escapeHtml(regions || 'Restricted')} only</div>`;
             }
-            return `<div class="swipe-card-geo-badge geo-unclear">❓ Remote scope unclear — verify with employer</div>`;
+            return `<div class="swipe-card-geo-badge geo-unclear">❓ Remote scope unclear — check job description</div>`;
         }
 
         // How much of the reason to show before truncating. Deliberately a
