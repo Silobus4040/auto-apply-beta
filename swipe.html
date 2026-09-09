@@ -1834,7 +1834,12 @@
 
             document.getElementById('activation-gate-banner').style.display = 'none';
             userProfile.is_activated = true;
-            triggerInitialScrape(user, userProfile);
+            // Activation updates the profile server-side (including the real
+            // credit limit). Reload the page so mobile and desktop browsers
+            // follow the same proven fresh-load path: refetch profile, show
+            // the correct credit balance, and invoke match-pool-jobs.
+            localStorage.setItem('trigger_initial_scrape', 'true');
+            window.location.reload();
         }
 
         let pollingInterval = null;
