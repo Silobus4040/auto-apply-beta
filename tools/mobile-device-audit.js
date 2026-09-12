@@ -333,7 +333,7 @@ async function run() {
             await page.waitForTimeout(250);
             await resetPageState(page);
             await state.setup(page);
-            await page.waitForTimeout(150);
+            await page.waitForTimeout(400);
             metrics = await collectLayoutMetrics(page);
             await page.screenshot({ path: screenshotPath, fullPage: false });
           } catch (error) {
