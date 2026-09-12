@@ -27,4 +27,6 @@ workflow.json
 .env
 .env.local
 scratch/
+mobile-audit/
+debug.log
 .claude/settings.local.json

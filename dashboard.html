@@ -696,6 +696,7 @@
 
         @media (max-width: 768px) {
             .hamburger-btn { display: block; }
+            .background-blob { display: none; }
             .app-sidebar {
                 position: fixed; top: 0; left: -260px; width: 240px; min-width: 240px;
                 height: 100vh; z-index: 200; transition: left 0.3s ease;
@@ -818,6 +819,100 @@
             .jobs-table tr.skeleton-row {
                 background: var(--surface-color); border: 1px solid var(--border);
                 border-radius: 14px; margin-bottom: 0.85rem; padding: 1rem 1.1rem;
+            }
+
+            .modal-overlay {
+                align-items: flex-start !important;
+                justify-content: flex-start !important;
+                padding: 0.75rem !important;
+                overflow-y: auto;
+            }
+            .modal-overlay .desc-modal {
+                flex: 0 0 auto;
+                width: calc(100vw - 1.5rem) !important;
+                max-width: calc(100vw - 1.5rem) !important;
+                max-height: calc(100dvh - 1.5rem) !important;
+                margin: 0 auto;
+                padding: 1.25rem !important;
+                border-radius: 18px !important;
+            }
+            .desc-modal h2,
+            .desc-modal h3 {
+                max-width: calc(100% - 2.25rem);
+                font-size: 1.25rem !important;
+                line-height: 1.18 !important;
+                overflow-wrap: anywhere;
+            }
+            .desc-modal p,
+            .desc-modal li,
+            .desc-modal label,
+            .desc-modal input,
+            .desc-modal textarea,
+            .desc-modal button,
+            .desc-modal a,
+            .desc-modal strong,
+            .desc-modal span {
+                max-width: 100%;
+            }
+            .desc-modal p,
+            .desc-modal li,
+            .desc-modal strong {
+                overflow-wrap: anywhere;
+            }
+            .close-modal {
+                top: 0.75rem !important;
+                right: 0.75rem !important;
+            }
+            #email-client-modal {
+                align-items: stretch !important;
+                padding: 0.75rem !important;
+            }
+            #email-client-modal .email-client-container {
+                flex: 0 0 auto;
+                width: calc(100vw - 1.5rem) !important;
+                height: calc(100dvh - 1.5rem) !important;
+                border-radius: 16px !important;
+                overflow: hidden;
+            }
+            #email-client-modal .email-sidebar,
+            #email-client-modal .email-content {
+                width: 100% !important;
+                min-width: 0;
+            }
+            .email-sidebar-header {
+                padding: 1rem !important;
+            }
+            .email-item {
+                padding: 1rem 3.6rem 1rem 0.95rem !important;
+            }
+            .email-mobile-intro {
+                max-height: 30vh;
+                padding: 1rem !important;
+            }
+            .email-mobile-intro p {
+                overflow-wrap: anywhere;
+            }
+            .email-content-header {
+                padding: 1rem !important;
+            }
+            #settings-modal .desc-modal > div,
+            #inbox-modal .desc-modal > div,
+            #upgrade-modal .desc-modal > div {
+                min-width: 0;
+            }
+            #settings-modal .desc-modal input,
+            #inbox-modal .desc-modal input,
+            #upgrade-modal .desc-modal input {
+                min-width: 0;
+            }
+            #settings-modal .desc-modal label {
+                flex: 1 1 100% !important;
+            }
+            #save-inbox-btn,
+            #upgrade-checkout-btn,
+            #submit-feedback-btn {
+                white-space: normal !important;
+                line-height: 1.25 !important;
             }
         }
 
