@@ -273,8 +273,6 @@
         .status-note { max-width: 205px; color: #71717a; font-size: 0.75rem; line-height: 1.4; }
         .table-btn-posting { background: #18181b; border-color: #18181b; color: #ffffff; }
         .table-btn-posting:hover { background: #000000; border-color: #000000; color: #ffffff; }
-        .table-btn-submitted { border-color: transparent; color: #047857; padding-left: 0; text-decoration: underline; text-underline-offset: 3px; }
-        .table-btn-submitted:hover { background: transparent; border-color: transparent; color: #065f46; }
         .table-btn {
             background: transparent;
             border: 1px solid var(--border);
@@ -296,6 +294,17 @@
             border-color: #000000;
             background: rgba(0, 0, 0, 0.03);
             color: #000000;
+        }
+        .table-btn-submitted {
+            background: #ffffff;
+            border-color: rgba(4, 120, 87, 0.3);
+            color: #047857;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+        }
+        .table-btn-submitted:hover {
+            background: rgba(16, 185, 129, 0.08);
+            border-color: rgba(4, 120, 87, 0.45);
+            color: #065f46;
         }
         .table-btn-primary {
             border: none;
@@ -329,9 +338,36 @@
         [data-theme="dark"] .field label { color: #a1a1aa; }
         [data-theme="dark"] #welcome-greeting { color: #a1a1aa !important; }
         [data-theme="dark"] .status-note { color: #a1a1aa; }
-        [data-theme="dark"] .table-btn-posting { background: #f4f4f5; border-color: #f4f4f5; color: #18181b; }
-        [data-theme="dark"] .table-btn-posting:hover { background: #ffffff; border-color: #ffffff; color: #000000; }
-        [data-theme="dark"] .table-btn-submitted { color: var(--secondary); }
+        [data-theme="dark"] .jobs-table .table-btn {
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.16);
+            color: #f4f4f5;
+        }
+        [data-theme="dark"] .jobs-table .table-btn:hover {
+            background: rgba(255, 255, 255, 0.14);
+            border-color: rgba(255, 255, 255, 0.28);
+            color: #ffffff;
+        }
+        [data-theme="dark"] .jobs-table .table-btn-posting {
+            background: #f4f4f5;
+            border-color: #f4f4f5;
+            color: #18181b;
+        }
+        [data-theme="dark"] .jobs-table .table-btn-posting:hover {
+            background: #ffffff;
+            border-color: #ffffff;
+            color: #000000;
+        }
+        [data-theme="dark"] .jobs-table .table-btn-submitted {
+            background: rgba(16, 185, 129, 0.14);
+            border-color: rgba(16, 185, 129, 0.38);
+            color: var(--secondary);
+        }
+        [data-theme="dark"] .jobs-table .table-btn-submitted:hover {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: rgba(16, 185, 129, 0.55);
+            color: #7fffe2;
+        }
 
         .empty-state { text-align: center; padding: 4rem 2rem; color: var(--text-body); }
         .empty-state h3 { color: #000000; margin-bottom: 0.5rem; font-size: 1.3rem; font-weight: 800; }
@@ -720,7 +756,7 @@
                 padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
                 overflow-y: auto;
             }
-            .sidebar-account-menu-wrapper { margin-top: 1rem; }
+            .sidebar-account-menu-wrapper { margin-top: auto; }
             .sidebar-account-popover {
                 position: static;
                 margin-top: 0.65rem;
@@ -829,10 +865,16 @@
                 font-weight: 700;
             }
             .jobs-table td[data-label="Resume & Cover Letter"] .table-btn {
-                background: rgba(0, 0, 0, 0.035);
-                border-color: transparent;
-                color: #52525B;
-                font-weight: 600;
+                background: #ffffff;
+                border-color: rgba(15, 23, 42, 0.14);
+                color: #3f3f46;
+                font-weight: 700;
+                box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+            }
+            [data-theme="dark"] .jobs-table td[data-label="Resume & Cover Letter"] .table-btn {
+                background: rgba(255, 255, 255, 0.08);
+                border-color: rgba(255, 255, 255, 0.16);
+                color: #f4f4f5;
             }
 
             /* Loading skeleton rows keep a simple padded card */
