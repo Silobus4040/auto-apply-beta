@@ -3106,16 +3106,20 @@
 
         function getDemoInboxDate(index) {
             const now = new Date();
-            const recentMinutesAgo = [12, 28, 43, 61, 84, 116];
-            if (index < recentMinutesAgo.length) {
-                const d = new Date(now);
-                d.setMinutes(d.getMinutes() - recentMinutesAgo[index]);
-                return d;
-            }
-            const olderDaysAgo = [1, 1, 2, 2, 3, 3, 4, 4];
+            const dayOffsets = [0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6];
+            const times = [
+                [20, 48], [19, 32],
+                [16, 25], [10, 14],
+                [18, 41], [9, 58],
+                [15, 37], [11, 22],
+                [17, 9], [8, 46],
+                [14, 53], [10, 31],
+                [16, 18], [9, 12]
+            ];
             const d = new Date(now);
-            d.setDate(d.getDate() - olderDaysAgo[Math.min(index - recentMinutesAgo.length, olderDaysAgo.length - 1)]);
-            d.setHours(10, 15, 0, 0);
+            const selected = Math.min(index, dayOffsets.length - 1);
+            d.setDate(d.getDate() - dayOffsets[selected]);
+            d.setHours(times[selected][0], times[selected][1], 0, 0);
             return d;
         }
 
