@@ -639,8 +639,8 @@
         .email-action-icon { width: 17px; height: 17px; stroke-width: 2.4; flex-shrink: 0; }
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
         .email-iframe { width: 100%; height: 100%; border: none; }
-        .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
-        .email-full-intro-overlay { position: absolute; top: 0; left: 0; right: 0; bottom: 0; width: 100%; height: 100%; background: #ffffff; z-index: 40; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; border-radius: 12px; text-align: center; }
+        .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; padding: 2rem; text-align: center; }
+        .email-full-intro-overlay { position: absolute !important; top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important; width: 100% !important; height: 100% !important; background: #ffffff !important; z-index: 1000 !important; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; box-sizing: border-box; border-radius: 12px; text-align: center; }
         .email-content-back-btn { display: none; }
         .email-intro-dismiss-btn {
             display: inline-flex; margin-top: 1.25rem; background: #000; color: #fff;
@@ -3317,12 +3317,22 @@
                 overlay.style.display = 'none';
             }
             const pane = document.getElementById('email-content-pane');
-            if (pane) pane.innerHTML = '';
+            if (pane) {
+                pane.innerHTML = `
+                    <div class="email-empty-state">
+                        <div style="margin-bottom: 1rem; color: #a1a1aa;"><i data-lucide="mail-open" style="width: 44px; height: 44px;"></i></div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: #71717a; margin-bottom: 0.25rem;">Select an email to view</h3>
+                        <p style="color: #a1a1aa; font-size: 0.85rem;">Choose a message from your Rover Inbox on the left.</p>
+                    </div>
+                `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
             renderEmailList();
         }
 
         function renderInboxIntro() {
             const overlay = document.getElementById('email-full-intro-overlay');
+            const pane = document.getElementById('email-content-pane');
             const seenIntro = hasSeenJobHuntIntro();
             if (overlay) {
                 if (!seenIntro) {
@@ -3333,6 +3343,16 @@
                     overlay.innerHTML = '';
                     overlay.style.display = 'none';
                 }
+            }
+            if (pane && seenIntro && !pane.innerHTML.trim()) {
+                pane.innerHTML = `
+                    <div class="email-empty-state">
+                        <div style="margin-bottom: 1rem; color: #a1a1aa;"><i data-lucide="mail-open" style="width: 44px; height: 44px;"></i></div>
+                        <h3 style="font-size: 1.15rem; font-weight: 700; color: #71717a; margin-bottom: 0.25rem;">Select an email to view</h3>
+                        <p style="color: #a1a1aa; font-size: 0.85rem;">Choose a message from your Rover Inbox on the left.</p>
+                    </div>
+                `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
             }
         }
 
