@@ -482,6 +482,12 @@
         .email-iframe { width: 100%; height: 100%; border: none; }
         .email-content-back-btn { display: none; }
         .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
+        .email-list.intro-gated { display: none; }
+        .email-intro-dismiss-btn {
+            display: inline-flex; margin-top: 1rem; background: #000; color: #fff;
+            border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700;
+            font-size: 0.85rem; cursor: pointer; font-family: inherit;
+        }
         
         .nav-inbox-btn { background: #000; color: #fff; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.4rem; }
         .nav-inbox-btn:hover { background: #27272a; transform: translateY(-1px); }
@@ -1315,6 +1321,7 @@
                     <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
                     <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active</h3>
                     <p style="max-width: 400px; text-align: center; line-height: 1.5;">Your Rover Inbox keeps the job-search noise out of your personal email. Auto-replies, sign-up codes, "thank you for applying" messages, and interview invites are captured here, so your main inbox stays clean. <br><br><span style="color:var(--secondary); font-weight:700;">PS:</span> Reply from Rover Inbox to keep everything organized. Recruiter messages are also forwarded to your personal email as a backup, so you never miss anything.</p>
+                    <button class="email-intro-dismiss-btn" onclick="dismissJobHuntIntro()">Got it</button>
                 </div>
             </div>
         </div>
@@ -3428,6 +3435,7 @@
             // Always start on the list view, not wherever mobile detail view
             // was left open from a previous visit.
             document.querySelector('.email-client-container').classList.remove('mobile-show-content');
+            renderInboxIntro();
             await fetchEmails();
         }
 
@@ -3437,6 +3445,44 @@
 
         function closeMobileEmailDetail() {
             document.querySelector('.email-client-container').classList.remove('mobile-show-content');
+        }
+
+        function getInboxIntroHtml() {
+            return `
+                <div class="email-empty-state">
+                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active</h3>
+                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">Your Rover Inbox keeps the job-search noise out of your personal email. Auto-replies, sign-up codes, "thank you for applying" messages, and interview invites are captured here, so your main inbox stays clean. <br><br><span style="color:var(--secondary); font-weight:700;">PS:</span> Reply from Rover Inbox to keep everything organized. Recruiter messages are also forwarded to your personal email as a backup, so you never miss anything.</p>
+                    <button class="email-intro-dismiss-btn" onclick="dismissJobHuntIntro()">Got it</button>
+                </div>
+            `;
+        }
+
+        function jobHuntIntroSeenKey() {
+            const uid = (typeof cachedUserId !== 'undefined' && cachedUserId) ? cachedUserId : 'anon';
+            return `rr_job_hunt_intro_seen_${uid}`;
+        }
+
+        function hasSeenJobHuntIntro() {
+            try { return localStorage.getItem(jobHuntIntroSeenKey()) === '1'; } catch (e) { return false; }
+        }
+
+        function dismissJobHuntIntro() {
+            try { localStorage.setItem(jobHuntIntroSeenKey(), '1'); } catch (e) {}
+            const listEl = document.getElementById('email-list');
+            if (listEl) listEl.classList.remove('intro-gated');
+            const pane = document.getElementById('email-content-pane');
+            if (pane) pane.innerHTML = '';
+            renderEmailList();
+        }
+
+        function renderInboxIntro() {
+            const seenIntro = hasSeenJobHuntIntro();
+            const pane = document.getElementById('email-content-pane');
+            if (pane) pane.innerHTML = seenIntro ? '' : getInboxIntroHtml();
+            const listEl = document.getElementById('email-list');
+            if (listEl) listEl.classList.toggle('intro-gated', !seenIntro);
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         
         async function fetchEmails() {
@@ -3562,14 +3608,8 @@
             document.getElementById('tab-sent').style.color = tab === 'sent' ? '#000' : '#71717A';
             
             renderEmailList();
-            document.getElementById('email-content-pane').innerHTML = `
-                <div class="email-empty-state">
-                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active</h3>
-                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">Your Rover Inbox keeps the job-search noise out of your personal email. Auto-replies, sign-up codes, "thank you for applying" messages, and interview invites are captured here, so your main inbox stays clean. <br><br><span style="color:var(--secondary); font-weight:700;">PS:</span> Reply from Rover Inbox to keep everything organized. Recruiter messages are also forwarded to your personal email as a backup, so you never miss anything.</p>
-                </div>
-            `;
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
+            renderInboxIntro();
         }
 
         function renderEmailList() {
