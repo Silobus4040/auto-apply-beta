@@ -3103,6 +3103,29 @@
                 created_at: createdAt
             };
         }
+
+        function getDemoInboxDate(index) {
+            const now = new Date();
+            const recentMinutesAgo = [12, 28, 43, 61, 84, 116];
+            if (index < recentMinutesAgo.length) {
+                const d = new Date(now);
+                d.setMinutes(d.getMinutes() - recentMinutesAgo[index]);
+                return d;
+            }
+            const olderDaysAgo = [1, 1, 2, 2, 3, 3, 4, 4];
+            const d = new Date(now);
+            d.setDate(d.getDate() - olderDaysAgo[Math.min(index - recentMinutesAgo.length, olderDaysAgo.length - 1)]);
+            d.setHours(10, 15, 0, 0);
+            return d;
+        }
+
+        function getDemoInboxTimeLabel(index) {
+            const d = getDemoInboxDate(index);
+            const now = new Date();
+            const isToday = d.getDate() === now.getDate() && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear();
+            if (isToday) return d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            return d.toLocaleDateString([], {month: 'short', day: 'numeric'});
+        }
         
         let currentEmailTab = 'inbox';
         
@@ -3139,11 +3162,11 @@
             }
             
             listEl.innerHTML = '';
-            filteredEmails.forEach((email) => {
+            filteredEmails.forEach((email, displayIndex) => {
                 const originalIndex = currentEmails.findIndex(e => e.id === email.id);
                 const el = document.createElement('div');
                 el.className = `email-item ${email.is_read ? '' : 'unread'}`;
-                el.onclick = () => showEmailContent(originalIndex);
+                el.onclick = () => showEmailContent(originalIndex, displayIndex);
                 
                 let isOutbound = false;
                 if (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email) {
@@ -3171,9 +3194,10 @@
                     preview = (temp.textContent || temp.innerText || '').substring(0, 50) + '...';
                 }
 
-                const demoInvite = isDemoInboxView() && !isOutbound ? getDemoInterviewInvite(email, originalIndex) : null;
+                const demoInvite = isDemoInboxView() && !isOutbound ? getDemoInterviewInvite(email, displayIndex) : null;
                 const displaySubject = demoInvite ? demoInvite.subject : (email.subject || '(No Subject)');
                 const displayPreview = demoInvite ? demoInvite.preview : preview;
+                const displayTime = demoInvite ? getDemoInboxTimeLabel(displayIndex) : formatEmailDate(email.created_at);
 
                 // Outbound emails shouldn't trigger the "unread" dot since you sent them
                 if (isOutbound) el.classList.remove('unread');
@@ -3189,16 +3213,16 @@
                     <div class="email-sender">${escapeHtml(icon + prefix + displayName)}</div>
                     <div class="email-subject">${escapeHtml(displaySubject)}</div>
                     <div class="email-preview">${escapeHtml(displayPreview)}</div>
-                    <div class="email-time">${formatEmailDate(email.created_at)}</div>
+                    <div class="email-time">${displayTime}</div>
                 `;
                 listEl.appendChild(el);
             });
         }
 
-        async function showEmailContent(index) {
+        async function showEmailContent(index, demoDisplayIndex = index) {
             // Update active state in list
             document.querySelectorAll('.email-item').forEach((el, i) => {
-                el.classList.toggle('active', i === index);
+                el.classList.toggle('active', i === demoDisplayIndex);
             });
             
             const email = currentEmails[index];
@@ -3239,9 +3263,12 @@
             const displayAddress = isOutbound ? (email.recipient || 'Unknown Recipient') : email.sender;
             const directionLabel = isOutbound ? 'To:' : 'From:';
             const icon = isOutbound ? '↗️ ' : '';
-            const demoInvite = isDemoInboxView() && !isOutbound ? getDemoInterviewInvite(email, index) : null;
+            const demoInvite = isDemoInboxView() && !isOutbound ? getDemoInterviewInvite(email, demoDisplayIndex) : null;
             const displaySubject = demoInvite ? demoInvite.subject : (email.subject || '(No Subject)');
             const displayHtml = demoInvite ? demoInvite.html : (email.full_html || '<p>No content</p>');
+            const displayFullDate = demoInvite
+                ? getDemoInboxDate(demoDisplayIndex).toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + getDemoInboxDate(demoDisplayIndex).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
+                : fullDate;
 
             let replyBtnHtml = '';
             if (!isOutbound) {
@@ -3261,7 +3288,7 @@
                         <div class="email-content-subject">${escapeHtml(displaySubject)}</div>
                         <div class="email-content-meta">
                             <div class="email-content-sender">${escapeHtml(icon + directionLabel)} <span style="font-weight:700;">${escapeHtml(displayAddress)}</span></div>
-                            <div class="email-content-date">${fullDate}</div>
+                            <div class="email-content-date">${displayFullDate}</div>
                         </div>
                     </div>
                     <div class="email-iframe-container" style="flex: 1;">
