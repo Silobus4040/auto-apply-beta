@@ -511,11 +511,16 @@
         .email-client-container.list-only .email-item {
             display: flex;
             align-items: center;
-            height: 38px;
-            min-height: 38px;
+            height: 48px;
+            min-height: 48px;
             box-sizing: border-box;
             padding: 0 1.25rem 0 1.75rem;
             gap: 1.25rem;
+            transition: background 0.1s, box-shadow 0.1s;
+        }
+        .email-client-container.list-only .email-item:hover {
+            box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+            z-index: 1;
         }
         .email-client-container.list-only .email-item.unread::before {
             top: 50%;
@@ -523,14 +528,17 @@
             left: 0.6rem;
         }
         .email-client-container.list-only .email-sender {
-            width: 180px;
-            min-width: 180px;
+            width: 200px;
+            min-width: 200px;
             flex-shrink: 0;
             margin: 0;
-            font-size: 0.88rem;
+            font-size: 0.94rem;
+            font-weight: 800;
+            color: #1a1a1a;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            letter-spacing: -0.2px;
         }
         .email-client-container.list-only .email-body-line {
             flex: 1;
@@ -540,19 +548,21 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            font-size: 0.88rem;
+            font-size: 0.94rem;
         }
         .email-client-container.list-only .email-subject {
-            font-weight: 700;
-            color: #202124;
+            font-weight: 800;
+            color: #1a1a1a;
             margin: 0;
             flex-shrink: 0;
+            letter-spacing: -0.2px;
         }
         .email-client-container.list-only .email-preview {
             color: #5f6368;
             margin: 0;
             margin-left: 0.35rem;
-            font-size: 0.88rem;
+            font-size: 0.92rem;
+            font-weight: 400;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -560,15 +570,15 @@
             min-width: 0;
         }
         .email-client-container.list-only .email-time {
-            width: 85px;
-            min-width: 85px;
+            width: 90px;
+            min-width: 90px;
             flex-shrink: 0;
             text-align: right;
             position: static;
             margin: 0;
-            font-size: 0.75rem;
-            font-weight: 600;
-            color: #5f6368;
+            font-size: 0.8rem;
+            font-weight: 750;
+            color: #1a1a1a;
         }
         @media (max-width: 768px) {
             .email-mailbox-main { flex-direction: column; }
