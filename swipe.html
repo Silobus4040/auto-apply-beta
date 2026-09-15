@@ -458,7 +458,15 @@
         .email-sidebar { width: 350px; border-right: 1px solid var(--border); background: #fafafa; display: flex; flex-direction: column; }
         .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
         .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
-        .email-list { flex: 1; overflow-y: auto; }
+        .email-mailbox-main { display: flex; flex: 1; min-height: 0; }
+        .email-folder-nav { width: 215px; flex: 0 0 215px; padding: 0.8rem; border-right: 1px solid var(--border); background: #fafafa; overflow-y: auto; }
+        .email-folder-label { margin: 0.35rem 0.7rem 0.65rem; color: #71717a; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+        .email-folder-btn { width: 100%; display: flex; align-items: center; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
+        .email-folder-btn:hover { background: #f1f5f4; color: #111827; }
+        .email-folder-btn.active { background: rgba(16, 185, 129, 0.12); color: #111827; font-weight: 800; }
+        .email-folder-btn i { width: 16px; height: 16px; }
+        .email-folder-divider { height: 1px; margin: 0.65rem 0.45rem; background: var(--border); }
+        .email-list { flex: 1; min-width: 0; overflow-y: auto; }
         .email-item { padding: 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; position: relative; }
         .email-item:hover { background: #f4f4f5; }
         .email-item.active { background: rgba(0, 255, 204, 0.1); border-left: 4px solid var(--secondary); padding-left: calc(1.25rem - 4px); }
@@ -480,13 +488,18 @@
             column-gap: 1.25rem;
             row-gap: 0.15rem;
             align-items: center;
-            padding: 0.9rem 2rem;
+            padding: 0.9rem 1.5rem;
         }
         .email-client-container.list-only .email-sender { grid-column: 1; grid-row: 1 / span 2; margin: 0; }
         .email-client-container.list-only .email-subject { grid-column: 2; grid-row: 1; margin: 0; }
         .email-client-container.list-only .email-preview { grid-column: 2; grid-row: 2; margin: 0; }
         .email-client-container.list-only .email-time { grid-column: 3; grid-row: 1 / span 2; position: static; justify-self: end; }
         @media (max-width: 768px) {
+            .email-mailbox-main { flex-direction: column; }
+            .email-folder-nav { display: flex; width: 100%; flex: 0 0 auto; gap: 0.25rem; padding: 0.55rem 0.75rem; border-right: 0; border-bottom: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; }
+            .email-folder-label, .email-folder-divider { display: none; }
+            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.7rem; font-size: 0.78rem; white-space: nowrap; }
+            .email-folder-btn i { width: 14px; height: 14px; }
             .email-client-container.list-only .email-item { display: block; padding: 1rem 3.6rem 1rem 0.95rem; }
             .email-client-container.list-only .email-sender,
             .email-client-container.list-only .email-subject,
@@ -1329,12 +1342,20 @@
                     <h3 style="display: flex; align-items: center; gap: 0.4rem;"><i data-lucide="inbox" style="width: 16px; height: 16px;"></i> Rover Inbox</h3>
                     <button onclick="fetchEmails()" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000000; transition: background 0.15s;" title="Refresh" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i></button>
                 </div>
-                <div style="display: flex; border-bottom: 1px solid var(--border); background: #fafafa;">
-                    <button id="tab-inbox" onclick="switchEmailTab('inbox')" style="flex: 1; padding: 0.75rem; border: none; background: #fff; border-bottom: 2px solid var(--primary); font-weight: 800; font-size: 0.85rem; cursor: pointer; color: #000; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="inbox" style="width: 14px; height: 14px;"></i>Inbox</button>
-                    <button id="tab-sent" onclick="switchEmailTab('sent')" style="flex: 1; padding: 0.75rem; border: none; background: transparent; border-bottom: 2px solid transparent; font-weight: 600; font-size: 0.85rem; cursor: pointer; color: #71717A; transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 0.35rem;"><i data-lucide="send" style="width: 14px; height: 14px;"></i>Sent</button>
-                </div>
-                <div class="email-list" id="email-list">
-                    <div style="padding: 2rem; text-align: center; color: #a1a1aa; font-size: 0.9rem;">Loading emails...</div>
+                <div class="email-mailbox-main">
+                    <nav class="email-folder-nav" aria-label="Rover Inbox folders">
+                        <p class="email-folder-label">Mailboxes</p>
+                        <button id="tab-inbox" class="email-folder-btn active" data-email-tab="inbox" onclick="switchEmailTab('inbox')"><i data-lucide="inbox"></i>Inbox</button>
+                        <button id="tab-interviews" class="email-folder-btn" data-email-tab="interviews" onclick="switchEmailTab('interviews')"><i data-lucide="calendar-check"></i>Interview Invites</button>
+                        <button id="tab-offers" class="email-folder-btn" data-email-tab="offers" onclick="switchEmailTab('offers')"><i data-lucide="badge-check"></i>Job Offers</button>
+                        <button id="tab-codes" class="email-folder-btn" data-email-tab="codes" onclick="switchEmailTab('codes')"><i data-lucide="key-round"></i>Sign-up Codes</button>
+                        <button id="tab-rejections" class="email-folder-btn" data-email-tab="rejections" onclick="switchEmailTab('rejections')"><i data-lucide="circle-x"></i>Rejections</button>
+                        <div class="email-folder-divider"></div>
+                        <button id="tab-sent" class="email-folder-btn" data-email-tab="sent" onclick="switchEmailTab('sent')"><i data-lucide="send"></i>Sent</button>
+                    </nav>
+                    <div class="email-list" id="email-list">
+                        <div style="padding: 2rem; text-align: center; color: #a1a1aa; font-size: 0.9rem;">Loading emails...</div>
+                    </div>
                 </div>
             </div>
             
@@ -3623,15 +3644,9 @@
         
         function switchEmailTab(tab) {
             currentEmailTab = tab;
-            document.getElementById('tab-inbox').style.background = tab === 'inbox' ? '#fff' : 'transparent';
-            document.getElementById('tab-inbox').style.borderBottomColor = tab === 'inbox' ? 'var(--primary)' : 'transparent';
-            document.getElementById('tab-inbox').style.fontWeight = tab === 'inbox' ? '800' : '600';
-            document.getElementById('tab-inbox').style.color = tab === 'inbox' ? '#000' : '#71717A';
-            
-            document.getElementById('tab-sent').style.background = tab === 'sent' ? '#fff' : 'transparent';
-            document.getElementById('tab-sent').style.borderBottomColor = tab === 'sent' ? 'var(--primary)' : 'transparent';
-            document.getElementById('tab-sent').style.fontWeight = tab === 'sent' ? '800' : '600';
-            document.getElementById('tab-sent').style.color = tab === 'sent' ? '#000' : '#71717A';
+            document.querySelectorAll('.email-folder-btn').forEach(button => {
+                button.classList.toggle('active', button.dataset.emailTab === tab);
+            });
             
             renderEmailList();
             const emailClient = document.querySelector('.email-client-container');
@@ -3644,9 +3659,15 @@
             
             const filteredEmails = currentEmails.filter(email => {
                 const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
-                if (currentEmailTab === 'inbox') return !isOutbound;
                 if (currentEmailTab === 'sent') return isOutbound;
-                return true;
+                if (isOutbound) return false;
+                if (currentEmailTab === 'inbox') return true;
+                const searchable = [email.subject, email.body, email.preview].filter(Boolean).join(' ').toLowerCase();
+                if (currentEmailTab === 'interviews') return /interview|recruiter|schedule|next step|hiring team/.test(searchable) || isDemoInboxView();
+                if (currentEmailTab === 'offers') return /offer|compensation|salary|join our team/.test(searchable);
+                if (currentEmailTab === 'codes') return /sign.?up code|verification code|confirm.*code|one.time.*code|otp/.test(searchable);
+                if (currentEmailTab === 'rejections') return /not selected|unfortunately|rejection|we moved forward|other candidates/.test(searchable);
+                return false;
             });
             
             if (filteredEmails.length === 0) {
