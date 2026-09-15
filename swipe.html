@@ -466,6 +466,7 @@
         .email-folder-btn.active { background: rgba(16, 185, 129, 0.12); color: #111827; font-weight: 800; }
         .email-folder-btn i { width: 16px; height: 16px; }
         .email-folder-divider { height: 1px; margin: 0.65rem 0.45rem; background: var(--border); }
+        .folder-label-mobile { display: none; }
         .email-list { flex: 1; min-width: 0; overflow-y: auto; }
         .email-item { padding: 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; position: relative; }
         .email-item:hover { background: #f4f4f5; }
@@ -495,6 +496,19 @@
         .email-client-container.list-only .email-preview { grid-column: 2; grid-row: 2; margin: 0; }
         .email-client-container.list-only .email-time { grid-column: 3; grid-row: 1 / span 2; position: static; justify-self: end; }
         @media (max-width: 768px) {
+            .email-mailbox-main { flex-direction: column; }
+            .email-list { order: 1; min-height: 0; }
+            .email-folder-nav { order: 2; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.25rem; padding: 0.55rem 0.7rem max(0.55rem, env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
+            .email-folder-label, .email-folder-divider { display: none; }
+            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.6rem; font-size: 0.78rem; white-space: nowrap; }
+            .folder-label-desktop { display: none; }
+            .folder-label-mobile { display: inline; }
+            #tab-interviews { order: 1; }
+            #tab-rejections { order: 2; }
+            #tab-offers { order: 3; }
+            #tab-sent { order: 4; }
+            #tab-inbox { order: 5; }
+            #tab-codes { order: 6; }
             .email-client-container.list-only .email-item { display: block; padding: 1rem 3.6rem 1rem 0.95rem; }
             .email-client-container.list-only .email-sender,
             .email-client-container.list-only .email-subject,
@@ -1341,10 +1355,10 @@
                     <nav class="email-folder-nav" aria-label="Rover Inbox folders">
                         <p class="email-folder-label">Mailboxes</p>
                         <button id="tab-inbox" class="email-folder-btn active" data-email-tab="inbox" onclick="switchEmailTab('inbox')"><i data-lucide="inbox"></i>Inbox</button>
-                        <button id="tab-interviews" class="email-folder-btn" data-email-tab="interviews" onclick="switchEmailTab('interviews')"><i data-lucide="calendar-check"></i>Interview Invites</button>
-                        <button id="tab-offers" class="email-folder-btn" data-email-tab="offers" onclick="switchEmailTab('offers')"><i data-lucide="badge-check"></i>Job Offers</button>
-                        <button id="tab-codes" class="email-folder-btn" data-email-tab="codes" onclick="switchEmailTab('codes')"><i data-lucide="key-round"></i>Sign-up Codes</button>
-                        <button id="tab-rejections" class="email-folder-btn" data-email-tab="rejections" onclick="switchEmailTab('rejections')"><i data-lucide="circle-x"></i>Rejections</button>
+                        <button id="tab-interviews" class="email-folder-btn" data-email-tab="interviews" onclick="switchEmailTab('interviews')"><i data-lucide="calendar-check"></i><span class="folder-label-desktop">Interview Invites</span><span class="folder-label-mobile">Invites</span></button>
+                        <button id="tab-offers" class="email-folder-btn" data-email-tab="offers" onclick="switchEmailTab('offers')"><i data-lucide="badge-check"></i><span class="folder-label-desktop">Job Offers</span><span class="folder-label-mobile">Offers</span></button>
+                        <button id="tab-codes" class="email-folder-btn" data-email-tab="codes" onclick="switchEmailTab('codes')"><i data-lucide="key-round"></i><span class="folder-label-desktop">Sign-up Codes</span><span class="folder-label-mobile">Codes</span></button>
+                        <button id="tab-rejections" class="email-folder-btn" data-email-tab="rejections" onclick="switchEmailTab('rejections')"><i data-lucide="circle-x"></i><span class="folder-label-desktop">Rejections</span><span class="folder-label-mobile">Rejections</span></button>
                         <div class="email-folder-divider"></div>
                         <button id="tab-sent" class="email-folder-btn" data-email-tab="sent" onclick="switchEmailTab('sent')"><i data-lucide="send"></i>Sent</button>
                     </nav>
