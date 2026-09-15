@@ -480,7 +480,7 @@
         }
         
         /* Email Client UI */
-        .email-client-container { display: flex; width: 100%; height: 85vh; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .email-client-container { display: flex; width: 100%; height: 100vh; background: #fff; border-radius: 0; overflow: hidden; border: none; box-shadow: none; }
         .email-sidebar { width: 350px; border-right: 1px solid var(--border); background: var(--surface-color); display: flex; flex-direction: column; }
         .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-color); display: flex; justify-content: space-between; align-items: center; }
         .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
@@ -529,8 +529,8 @@
            happened. Stack instead: list view first, tap opens a full-screen
            detail view with a back button, same pattern as the app sidebar. */
         @media (max-width: 768px) {
-            #email-client-modal { padding: 0.75rem; }
-            .email-client-container { flex-direction: column; height: 92vh; }
+            #email-client-modal { padding: 0; }
+            .email-client-container { flex-direction: column; height: 100vh; border-radius: 0; }
             /* flex-direction:column means the sidebar no longer auto-stretches
                to the container's height (that's a row-axis default) -- without
                flex+min-height:0 here it just sizes to its content, so the list
@@ -931,13 +931,13 @@
             }
             #email-client-modal {
                 align-items: stretch !important;
-                padding: 0.75rem !important;
+                padding: 0 !important;
             }
             #email-client-modal .email-client-container {
                 flex: 0 0 auto;
-                width: calc(100vw - 1.5rem) !important;
-                height: calc(100dvh - 1.5rem) !important;
-                border-radius: 16px !important;
+                width: 100vw !important;
+                height: 100dvh !important;
+                border-radius: 0 !important;
                 overflow: hidden;
             }
             #email-client-modal .email-sidebar,
@@ -1319,7 +1319,7 @@
     </div>
 
     <!-- Email Client Modal -->
-    <div class="modal-overlay" id="email-client-modal" style="padding: 2rem;">
+    <div class="modal-overlay" id="email-client-modal" style="padding: 0;">
         <div class="email-client-container" style="position: relative;">
             <button class="close-modal" onclick="closeEmailClient()" style="z-index: 10; top: 1rem; right: 1rem; background: rgba(0,0,0,0.05); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</button>
             

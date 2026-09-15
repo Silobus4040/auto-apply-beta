@@ -454,7 +454,7 @@
         }
         
         /* Email Client UI */
-        .email-client-container { display: flex; width: 100%; height: 85vh; background: #fff; border-radius: 12px; overflow: hidden; border: 1px solid var(--border); box-shadow: 0 10px 40px rgba(0,0,0,0.1); }
+        .email-client-container { display: flex; width: 100%; height: 100vh; background: #fff; border-radius: 0; overflow: hidden; border: none; box-shadow: none; }
         .email-sidebar { width: 350px; border-right: 1px solid var(--border); background: #fafafa; display: flex; flex-direction: column; }
         .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
         .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
@@ -629,8 +629,8 @@
                Same list-then-full-screen-detail pattern as dashboard.html,
                including the flex+min-height:0 fix that page needed for the
                opened email's iframe to actually get a real height on mobile. */
-            #email-client-modal { padding: 0.75rem; }
-            .email-client-container { flex-direction: column; height: 92vh; }
+            #email-client-modal { padding: 0; }
+            .email-client-container { flex-direction: column; height: 100vh; border-radius: 0; }
             .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex: 1; min-height: 0; }
             .email-list { min-height: 0; }
             .email-content { display: none; }
@@ -1298,7 +1298,7 @@
     </div>
 
     <!-- Email Client Modal -->
-    <div class="modal-overlay" id="email-client-modal" style="padding: 2rem;">
+    <div class="modal-overlay" id="email-client-modal" style="padding: 0;">
         <div class="email-client-container" style="position: relative;">
             <button class="close-modal" onclick="closeEmailClient()" style="z-index: 10; top: 1rem; right: 1rem; background: rgba(0,0,0,0.05); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</button>
             
