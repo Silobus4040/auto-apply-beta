@@ -3773,7 +3773,14 @@
             const listEl = document.getElementById('email-list');
             
             const selectedCategory = mailboxCategoryByTab[currentEmailTab] || 'inbox';
-            const filteredEmails = currentEmails.filter(email => (email.category || 'inbox') === selectedCategory);
+            const filteredEmails = currentEmails.filter(email => {
+                const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
+                if (currentEmailTab === 'inbox') {
+                    if (isOutbound) return false;
+                    return (email.category || 'inbox') === 'inbox';
+                }
+                return (email.category || 'inbox') === selectedCategory;
+            });
             
             if (filteredEmails.length === 0) {
                 listEl.innerHTML = `<div style="padding: 3rem 1.5rem; text-align: center; color: #a1a1aa; font-size: 0.95rem;">No emails here yet.</div>`;
