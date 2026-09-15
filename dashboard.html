@@ -497,6 +497,28 @@
         .email-time { font-size: 0.7rem; color: #a1a1aa; font-weight: 600; position: absolute; top: 1.25rem; right: 1.25rem; }
         
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
+        .email-client-container.list-only .email-sidebar { width: 100%; flex: 1; border-right: none; }
+        .email-client-container.list-only .email-content { display: none; }
+        .email-client-container.list-only .email-item {
+            display: grid;
+            grid-template-columns: minmax(210px, 300px) minmax(260px, 1fr) 90px;
+            grid-template-rows: auto auto;
+            column-gap: 1.25rem;
+            row-gap: 0.15rem;
+            align-items: center;
+            padding: 0.9rem 2rem;
+        }
+        .email-client-container.list-only .email-sender { grid-column: 1; grid-row: 1 / span 2; margin: 0; }
+        .email-client-container.list-only .email-subject { grid-column: 2; grid-row: 1; margin: 0; }
+        .email-client-container.list-only .email-preview { grid-column: 2; grid-row: 2; margin: 0; }
+        .email-client-container.list-only .email-time { grid-column: 3; grid-row: 1 / span 2; position: static; justify-self: end; }
+        @media (max-width: 768px) {
+            .email-client-container.list-only .email-item { display: block; padding: 1rem 3.6rem 1rem 0.95rem; }
+            .email-client-container.list-only .email-sender,
+            .email-client-container.list-only .email-subject,
+            .email-client-container.list-only .email-preview { margin-bottom: 0.25rem; }
+            .email-client-container.list-only .email-time { position: absolute; top: 1.25rem; right: 1.25rem; }
+        }
         .email-content-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); }
         .email-content-subject { font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem; }
         .email-content-meta { display: flex; justify-content: space-between; align-items: center; }
@@ -2988,6 +3010,8 @@
             if (mobileIntro) { mobileIntro.innerHTML = ''; mobileIntro.style.display = 'none'; }
             const listEl = document.getElementById('email-list');
             if (listEl) listEl.classList.remove('intro-gated');
+            const emailClient = document.querySelector('.email-client-container');
+            if (emailClient) emailClient.classList.add('list-only');
             const pane = document.getElementById('email-content-pane');
             if (pane) pane.innerHTML = '';
             renderEmailList();
@@ -3000,6 +3024,8 @@
             if (pane) pane.innerHTML = seenIntro ? '' : html;
             const listEl = document.getElementById('email-list');
             if (listEl) listEl.classList.toggle('intro-gated', !seenIntro);
+            const emailClient = document.querySelector('.email-client-container');
+            if (emailClient) emailClient.classList.toggle('list-only', seenIntro);
             // Mobile pins this above the email list (see .email-mobile-intro),
             // which otherwise crowded the list out of view on every single
             // open. Show it once per user, then remember the dismissal.
@@ -3018,7 +3044,7 @@
 
         async function openEmailClient() {
             document.getElementById('email-client-modal').classList.add('active');
-            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
+            document.querySelector('.email-client-container').classList.remove('mobile-show-content', 'is-composing');
             renderInboxIntro();
             await fetchEmails();
         }
@@ -3154,7 +3180,8 @@
             document.getElementById('tab-sent').style.color = tab === 'sent' ? '#000' : '#71717A';
             
             renderEmailList();
-            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
+            const emailClient = document.querySelector('.email-client-container');
+            emailClient.classList.remove('mobile-show-content', 'is-composing');
             renderInboxIntro();
         }
 
@@ -3261,7 +3288,7 @@
             
             const emailClient = document.querySelector('.email-client-container');
             emailClient.classList.add('mobile-show-content');
-            emailClient.classList.remove('is-composing');
+            emailClient.classList.remove('is-composing', 'list-only');
 
             const pane = document.getElementById('email-content-pane');
             const d = new Date(email.created_at);
