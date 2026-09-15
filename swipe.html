@@ -3541,23 +3541,45 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
         
+        const mailboxCategoryByTab = Object.freeze({
+            inbox: 'inbox',
+            interviews: 'interview',
+            offers: 'job_offer',
+            codes: 'signup_code',
+            rejections: 'rejection',
+            sent: 'sent'
+        });
+
         async function fetchEmails() {
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (!session) return;
-                
-                const { data, error } = await supabaseClient
+
+                let query = supabaseClient
                     .from('emails')
                     .select('*')
                     .eq('user_id', session.user.id)
                     .order('created_at', { ascending: false });
+
+                const category = mailboxCategoryByTab[currentEmailTab] || 'inbox';
+                query = category === 'inbox'
+                    ? query.or('category.eq.inbox,category.is.null')
+                    : query.eq('category', category);
+
+                const { data, error } = await query;
                     
                 if (error) throw error;
                 currentEmails = data || [];
                 renderEmailList();
                 
                 // Update Badge
-                const rawUnread = currentEmails.filter(e => !e.is_read).length;
+                const { count: unreadCount, error: unreadError } = await supabaseClient
+                    .from('emails')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('user_id', session.user.id)
+                    .eq('is_read', false);
+                if (unreadError) throw unreadError;
+                const rawUnread = unreadCount || 0;
                 const isDemoBadge = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
                 const unread = isDemoBadge ? 246 : rawUnread;
                 const badge = document.getElementById('inbox-badge');
@@ -3651,33 +3673,23 @@
         
         let currentEmailTab = 'inbox';
         
-        function switchEmailTab(tab) {
+        async function switchEmailTab(tab) {
             currentEmailTab = tab;
             document.querySelectorAll('.email-folder-btn').forEach(button => {
                 button.classList.toggle('active', button.dataset.emailTab === tab);
             });
             
-            renderEmailList();
             const emailClient = document.querySelector('.email-client-container');
             emailClient.classList.remove('mobile-show-content', 'is-composing');
             renderInboxIntro();
+            await fetchEmails();
         }
 
         function renderEmailList() {
             const listEl = document.getElementById('email-list');
             
-            const filteredEmails = currentEmails.filter(email => {
-                const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
-                if (currentEmailTab === 'sent') return isOutbound;
-                if (isOutbound) return false;
-                if (currentEmailTab === 'inbox') return true;
-                const searchable = [email.subject, email.body, email.preview].filter(Boolean).join(' ').toLowerCase();
-                if (currentEmailTab === 'interviews') return /interview|recruiter|schedule|next step|hiring team/.test(searchable) || isDemoInboxView();
-                if (currentEmailTab === 'offers') return /offer|compensation|salary|join our team/.test(searchable);
-                if (currentEmailTab === 'codes') return /sign.?up code|verification code|confirm.*code|one.time.*code|otp/.test(searchable);
-                if (currentEmailTab === 'rejections') return /not selected|unfortunately|rejection|we moved forward|other candidates/.test(searchable);
-                return false;
-            });
+            const selectedCategory = mailboxCategoryByTab[currentEmailTab] || 'inbox';
+            const filteredEmails = currentEmails.filter(email => (email.category || 'inbox') === selectedCategory);
             
             if (filteredEmails.length === 0) {
                 listEl.innerHTML = `<div style="padding: 3rem 1.5rem; text-align: center; color: #a1a1aa; font-size: 0.95rem;">No emails here yet.</div>`;
@@ -3930,8 +3942,7 @@
                 
                 if (!response.ok) throw new Error("Failed to send reply");
                 
-                await fetchEmails();
-                switchEmailTab('sent');
+                await switchEmailTab('sent');
                 
             } catch (err) {
                 console.error(err);
