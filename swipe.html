@@ -576,11 +576,22 @@
             .email-client-container.list-only .email-preview { margin-bottom: 0.25rem; }
             .email-client-container.list-only .email-time { position: absolute; top: 1.25rem; right: 1.25rem; }
         }
-        .email-content-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); }
-        .email-content-subject { font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem; }
-        .email-content-meta { display: flex; justify-content: space-between; align-items: center; }
-        .email-content-sender { font-size: 0.9rem; font-weight: 600; color: #3f3f46; }
-        .email-content-date { font-size: 0.8rem; color: #71717a; }
+                .email-content-header { padding: 1.25rem 2.5rem 1rem; border-bottom: 1px solid #f1f3f4; background: #fff; }
+        .email-content-subject-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+        .email-content-subject { font-size: 1.35rem; font-weight: 500; color: #202124; margin: 0; line-height: 1.3; }
+        .email-inbox-tag { background: #e8eaed; color: #3c4043; font-size: 0.72rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 4px; display: inline-flex; align-items: center; }
+        .email-sender-profile-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+        .email-sender-avatar { width: 40px; height: 40px; border-radius: 50%; background: #e8eaed; color: #5f6368; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 700; flex-shrink: 0; }
+        .email-sender-info { flex: 1; min-width: 0; }
+        .email-sender-name-line { display: flex; align-items: baseline; gap: 0.4rem; flex-wrap: wrap; }
+        .email-sender-name { font-weight: 700; color: #202124; font-size: 0.95rem; }
+        .email-sender-email { color: #5f6368; font-size: 0.82rem; }
+        .email-recipient-line { color: #5f6368; font-size: 0.8rem; margin-top: 0.15rem; display: flex; align-items: center; gap: 0.25rem; }
+        .email-content-date { font-size: 0.78rem; color: #5f6368; white-space: nowrap; }
+        .email-action-pills-container { padding: 1.5rem 2.5rem 2.5rem; background: #fff; display: flex; align-items: center; gap: 0.75rem; border-top: none; }
+        .email-pill-btn { background: #fff; color: #3c4043; border: 1px solid #dadce0; padding: 0.55rem 1.4rem; border-radius: 999px; font-weight: 600; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-family: inherit; transition: background 0.15s, border-color 0.15s, box-shadow 0.15s; }
+        .email-pill-btn:hover { background: #f8f9fa; border-color: #c6c9cc; box-shadow: 0 1px 2px rgba(60,64,67,0.15); }
+        .email-pill-btn i { width: 16px; height: 16px; stroke-width: 2.2; }
         .email-reply-btn { background: #059669 !important; color: #ffffff !important; }
         .email-action-icon { width: 17px; height: 17px; stroke-width: 2.4; flex-shrink: 0; }
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
@@ -3938,31 +3949,62 @@
                 ? getDemoInboxDate(demoDisplayIndex).toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + getDemoInboxDate(demoDisplayIndex).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})
                 : fullDate;
 
-            let replyBtnHtml = '';
+            // Compute sender display name, clean address, and initial
+            let senderDisplayName = displayAddress;
+            let senderEmailAddress = displayAddress;
+            if (isDemoInboxView() && !isOutbound && demoDisplayIndex < DEMO_SENDERS.length) {
+                senderDisplayName = DEMO_SENDERS[demoDisplayIndex].name;
+                senderEmailAddress = DEMO_SENDERS[demoDisplayIndex].email;
+            } else {
+                const namePartMatch = displayAddress.match(/^([^<]+)/);
+                if (namePartMatch && namePartMatch[1].trim()) senderDisplayName = namePartMatch[1].trim();
+                const emailPartMatch = displayAddress.match(/<([^>]+)>/);
+                if (emailPartMatch) senderEmailAddress = emailPartMatch[1].trim();
+            }
+            const avatarInitial = (senderDisplayName || 'R').charAt(0).toUpperCase();
+
+            let replyPillsHtml = '';
             if (!isOutbound) {
-                replyBtnHtml = `
-                    <div style="padding: 1.5rem; border-top: 1px solid var(--border); background: #fafafa; display: flex; justify-content: flex-end;">
-                        <button class="email-reply-btn" onclick="openReplyComposer(${index})" style="background: #059669; color: #fff; border: none; padding: 0.75rem 1.5rem; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.9rem; transition: background 0.2s;">
-                            <i data-lucide="reply" class="email-action-icon"></i> Reply to Recruiter
+                replyPillsHtml = `
+                    <div class="email-action-pills-container">
+                        <button class="email-pill-btn" onclick="openReplyComposer(${index})">
+                            <i data-lucide="reply"></i> Reply
+                        </button>
+                        <button class="email-pill-btn" onclick="openReplyComposer(${index})">
+                            <i data-lucide="forward"></i> Forward
                         </button>
                     </div>
                 `;
             }
 
             pane.innerHTML = `
-                <div style="display: flex; flex-direction: column; height: 100%;">
+                <div style="display: flex; flex-direction: column; height: 100%; background: #fff; overflow-y: auto;">
                     <div class="email-content-header">
-                        <button class="email-content-back-btn" onclick="closeMobileEmailDetail()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Inbox</button>
-                        <div class="email-content-subject">${escapeHtml(displaySubject)}</div>
-                        <div class="email-content-meta">
-                            <div class="email-content-sender">${escapeHtml(icon + directionLabel)} <span style="font-weight:700;">${escapeHtml(demoDetailSender || displayAddress)}</span></div>
+                        <div style="margin-bottom: 0.85rem;">
+                            <button class="email-content-back-btn" onclick="closeMobileEmailDetail()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Inbox</button>
+                        </div>
+                        <div class="email-content-subject-row">
+                            <h2 class="email-content-subject">${escapeHtml(displaySubject)}</h2>
+                            <span class="email-inbox-tag">Inbox</span>
+                        </div>
+                        <div class="email-sender-profile-row">
+                            <div class="email-sender-avatar">${escapeHtml(avatarInitial)}</div>
+                            <div class="email-sender-info">
+                                <div class="email-sender-name-line">
+                                    <span class="email-sender-name">${escapeHtml(senderDisplayName)}</span>
+                                    <span class="email-sender-email">&lt;${escapeHtml(senderEmailAddress)}&gt;</span>
+                                </div>
+                                <div class="email-recipient-line">
+                                    to me <i data-lucide="chevron-down" style="width: 12px; height: 12px; display: inline-block; vertical-align: middle;"></i>
+                                </div>
+                            </div>
                             <div class="email-content-date">${displayFullDate}</div>
                         </div>
                     </div>
-                    <div class="email-iframe-container" style="flex: 1;">
+                    <div class="email-iframe-container" style="flex: 1; min-height: 400px;">
                         <iframe id="email-body-iframe" class="email-iframe" sandbox=""></iframe>
                     </div>
-                    ${replyBtnHtml}
+                    ${replyPillsHtml}
                 </div>
             `;
             if (typeof lucide !== 'undefined') lucide.createIcons();
