@@ -3667,11 +3667,19 @@
                 'Next step: schedule your recruiter screen'
             ];
             const previews = [
-                'Good news - the hiring team would like to meet with you for an interview.',
-                'We reviewed your application and would like to invite you to the next round.',
-                'Please choose a time for a first-round conversation with the team.',
-                'Your profile stood out, and we would like to schedule an interview.',
-                'Thanks for applying. The next step is a short interview conversation.'
+                'Good news - the hiring team would like to meet...',
+                'We reviewed your application and would like to invite you...',
+                'Please choose a time for a first-round conversation...',
+                'Your profile stood out, and we would like to schedule...',
+                'Thanks for applying. The next step is a short conversation...',
+                'Hi Jordan, we were impressed with your background and experience...',
+                'The team would love to set up an introductory call...',
+                'We are moving forward with your candidacy for this position...',
+                'Are you available for a brief 20-minute screen this week?...',
+                'Excited to connect! Please share your availability for next steps...',
+                'Following up on your application with great news regarding interview...',
+                'We would like to invite you for an initial chat...',
+                'Thank you for your interest. Let\'s schedule our next conversation...'
             ];
             const selected = Math.max(0, index) % subjects.length;
             const createdAt = email && email.created_at ? email.created_at : new Date().toISOString();
