@@ -485,7 +485,7 @@
         .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-color); display: flex; justify-content: space-between; align-items: center; }
         .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
         .email-mailbox-main { display: flex; flex: 1; min-height: 0; }
-        .email-folder-nav { width: 215px; flex: 0 0 215px; padding: 0.8rem; border-right: 1px solid var(--border); background: #fafafa; overflow-y: auto; }
+        .email-folder-nav { width: 215px; min-width: 215px; flex: 0 0 215px; padding: 0.8rem; border-right: 1px solid var(--border); background: #fafafa; overflow-y: auto; box-sizing: border-box; }
         .email-folder-label { margin: 0.35rem 0.7rem 0.65rem; color: #71717a; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
         .email-folder-btn { width: 100%; display: flex; align-items: center; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
         .email-folder-btn:hover { background: #f1f5f4; color: #111827; }
@@ -521,16 +521,18 @@
         .email-client-container.list-only .email-preview { grid-column: 2; grid-row: 2; margin: 0; }
         .email-client-container.list-only .email-time { grid-column: 3; grid-row: 1 / span 2; position: static; justify-self: end; }
         @media (max-width: 768px) {
-            .email-mailbox-main { flex-direction: column; }
-            .email-folder-nav { display: flex; width: 100%; flex: 0 0 auto; gap: 0.25rem; padding: 0.55rem 0.75rem; border-right: 0; border-bottom: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; }
-            .email-folder-label, .email-folder-divider { display: none; }
-            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.7rem; font-size: 0.78rem; white-space: nowrap; }
-            .email-folder-btn i { width: 14px; height: 14px; }
             .email-client-container.list-only .email-item { display: block; padding: 1rem 3.6rem 1rem 0.95rem; }
             .email-client-container.list-only .email-sender,
             .email-client-container.list-only .email-subject,
             .email-client-container.list-only .email-preview { margin-bottom: 0.25rem; }
             .email-client-container.list-only .email-time { position: absolute; top: 1.25rem; right: 1.25rem; }
+        }
+        @media (max-width: 520px) {
+            .email-mailbox-main { flex-direction: column; }
+            .email-folder-nav { display: flex; width: 100%; min-width: 100%; flex: 0 0 auto; gap: 0.25rem; padding: 0.55rem 0.75rem; border-right: 0; border-bottom: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
+            .email-folder-label, .email-folder-divider { display: none; }
+            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.7rem; font-size: 0.78rem; white-space: nowrap; }
+            .email-folder-btn i { width: 14px; height: 14px; }
         }
         .email-content-header { padding: 1.5rem 2rem; border-bottom: 1px solid var(--border); }
         .email-content-subject { font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem; }
