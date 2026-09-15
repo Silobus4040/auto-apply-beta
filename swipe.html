@@ -530,6 +530,8 @@
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            flex: 1;
+            min-width: 0;
         }
         .email-client-container.list-only .email-time {
             width: 85px;
@@ -3667,19 +3669,19 @@
                 'Next step: schedule your recruiter screen'
             ];
             const previews = [
-                'Good news - the hiring team would like to meet...',
-                'We reviewed your application and would like to invite you...',
-                'Please choose a time for a first-round conversation...',
-                'Your profile stood out, and we would like to schedule...',
-                'Thanks for applying. The next step is a short conversation...',
-                'Hi Jordan, we were impressed with your background and experience...',
-                'The team would love to set up an introductory call...',
-                'We are moving forward with your candidacy for this position...',
-                'Are you available for a brief 20-minute screen this week?...',
-                'Excited to connect! Please share your availability for next steps...',
-                'Following up on your application with great news regarding interview...',
-                'We would like to invite you for an initial chat...',
-                'Thank you for your interest. Let\'s schedule our next conversation...'
+                'Good news - the hiring team would like to schedule a first-round conversation to learn more about your background, experience, and goals for the role.',
+                'We reviewed your application and would like to invite you to the next round of discussions with our engineering leads.',
+                'Please choose a time for a first-round conversation with our team this week so we can discuss the position in more detail.',
+                'Your profile stood out, and we would like to schedule a quick introductory screen to go over next steps.',
+                'Thanks for applying. The next step is a short introductory conversation with our hiring manager.',
+                'Hi Jordan, we were impressed with your background and experience and would love to set up a preliminary call.',
+                'The team would love to set up an introductory call to discuss how your skill set aligns with our current openings.',
+                'We are moving forward with your candidacy for this position and want to coordinate a convenient time for your interview.',
+                'Are you available for a brief 20-minute screen this week? We are looking forward to learning more about your background.',
+                'Excited to connect! Please share your availability for next steps so we can lock in a time on the calendar.',
+                'Following up on your application with great news regarding interview availability and next round scheduling.',
+                'We would like to invite you for an initial chat to go through the scope of the role and answer any questions you have.',
+                'Thank you for your interest in joining us. Let\'s schedule our next conversation at your earliest convenience.'
             ];
             const selected = Math.max(0, index) % subjects.length;
             const createdAt = email && email.created_at ? email.created_at : new Date().toISOString();
