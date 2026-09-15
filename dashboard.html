@@ -1424,12 +1424,15 @@
     <!-- Email Client Modal -->
     <div class="modal-overlay" id="email-client-modal" style="padding: 0;">
         <div class="email-client-container" style="position: relative;">
-            <button class="close-modal" onclick="closeEmailClient()" style="z-index: 10; top: 1rem; right: 1rem; background: rgba(0,0,0,0.05); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</button>
-            
             <div class="email-sidebar">
                 <div class="email-sidebar-header">
-                    <h3 style="display: flex; align-items: center; gap: 0.4rem;"><i data-lucide="inbox" style="width: 16px; height: 16px;"></i> Rover Inbox</h3>
-                    <button onclick="fetchEmails()" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000000; transition: background 0.15s;" title="Refresh" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i></button>
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <img src="assets/role_rover_logo.png" alt="Role Rover" style="height: 24px; width: auto; display: block;" />
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button onclick="fetchEmails()" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000000; transition: background 0.15s;" title="Refresh" onmouseover="this.style.background='#f4f4f5'" onmouseout="this.style.background='none'"><i data-lucide="refresh-cw" style="width: 14px; height: 14px;"></i></button>
+                        <button onclick="closeEmailClient()" style="background: none; border: 1px solid var(--border); border-radius: 6px; padding: 0.4rem; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #000000; transition: background 0.15s; font-size: 1rem; line-height: 1; width: 28px; height: 28px;" title="Close" onmouseover="this.style.background='#fee2e2'; this.style.borderColor='#fca5a5'" onmouseout="this.style.background='none'; this.style.borderColor='var(--border)'"><i data-lucide="x" style="width: 15px; height: 15px;"></i></button>
+                    </div>
                 </div>
                 <div class="email-mailbox-main">
                     <nav class="email-folder-nav" aria-label="Rover Inbox folders">
