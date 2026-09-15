@@ -506,10 +506,10 @@
         .email-time { font-size: 0.7rem; color: #a1a1aa; font-weight: 600; position: absolute; top: 1.25rem; right: 1.25rem; }
         
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
-        .email-client-container.list-only .email-sidebar { width: 100%; flex: 1; border-right: none; }
-        .email-client-container.list-only .email-content { display: none; }
-        .email-client-container.show-detail .email-sidebar { display: none; }
-        .email-client-container.show-detail .email-content { display: flex; flex: 1; width: 100%; }
+        .email-client-container.list-only .email-sidebar { display: flex !important; width: 100% !important; flex: 1 !important; border-right: none !important; }
+        .email-client-container.list-only .email-content { display: none !important; }
+        .email-client-container.show-detail .email-sidebar { display: none !important; }
+        .email-client-container.show-detail .email-content { display: flex !important; flex: 1 !important; width: 100% !important; min-height: 0 !important; }
         .email-client-container.list-only .email-item {
             display: flex;
             align-items: center;
