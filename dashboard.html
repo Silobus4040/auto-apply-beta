@@ -490,6 +490,18 @@
         .email-folder-btn { width: 100%; flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-start; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
         .email-folder-btn:hover { background: #f1f5f4; color: #111827; }
         .email-folder-btn.active { background: rgba(16, 185, 129, 0.12); color: #111827; font-weight: 800; }
+        /* Per-tab active state - consistent brand green matching Invites */
+        #tab-interviews.active, #tab-inbox.active,
+        #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active {
+            background: rgba(5, 150, 105, 0.12);
+            color: #059669;
+        }
+        @media (max-width: 768px) {
+            #tab-interviews.active, #tab-inbox.active,
+            #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active {
+                border-bottom: 2px solid #059669;
+            }
+        }
         .email-folder-btn i { width: 16px; height: 16px; }
         .email-folder-divider { height: 1px; margin: 0.65rem 0.45rem; background: var(--border); }
         .folder-label-mobile { display: none; }
@@ -596,11 +608,13 @@
             #tab-sent { order: 4; }
             #tab-inbox { order: 5; }
             #tab-codes { order: 6; }
-            .email-client-container.list-only .email-item { display: block; padding: 1rem 3.6rem 1rem 0.95rem; }
-            .email-client-container.list-only .email-sender,
-            .email-client-container.list-only .email-subject,
-            .email-client-container.list-only .email-preview { margin-bottom: 0.25rem; }
-            .email-client-container.list-only .email-time { position: absolute; top: 1.25rem; right: 1.25rem; }
+            /* Mobile: keep single-line Gmail-style flex row, tuned for narrow screens */
+            .email-client-container.list-only .email-item { display: flex !important; align-items: center !important; height: 44px !important; min-height: 44px !important; padding: 0 0.6rem 0 1.5rem !important; gap: 0.6rem !important; }
+            .email-client-container.list-only .email-sender { width: 110px; min-width: 110px; font-size: 0.8rem; }
+            .email-client-container.list-only .email-body-line { font-size: 0.8rem; }
+            .email-client-container.list-only .email-time { width: 66px; min-width: 66px; font-size: 0.73rem; position: static; }
+            /* Inbox tab hidden on mobile */
+            #tab-inbox { display: none !important; }
         }
                 .email-content-header { padding: 1.25rem 2.5rem 1rem; border-bottom: 1px solid #f1f3f4; background: #fff; }
         .email-content-subject-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
