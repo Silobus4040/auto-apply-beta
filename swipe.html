@@ -482,6 +482,8 @@
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
         .email-client-container.list-only .email-sidebar { width: 100%; flex: 1; border-right: none; }
         .email-client-container.list-only .email-content { display: none; }
+        .email-client-container.show-detail .email-sidebar { display: none; }
+        .email-client-container.show-detail .email-content { display: flex; flex: 1; width: 100%; }
         .email-client-container.list-only .email-item {
             display: flex;
             align-items: center;
@@ -583,7 +585,25 @@
         .email-action-icon { width: 17px; height: 17px; stroke-width: 2.4; flex-shrink: 0; }
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
         .email-iframe { width: 100%; height: 100%; border: none; }
-        .email-content-back-btn { display: none; }
+        .email-content-back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: none;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            color: #202124;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            padding: 0.35rem 0.75rem;
+            margin-bottom: 1rem;
+            transition: background 0.15s, border-color 0.15s;
+        }
+        .email-content-back-btn:hover {
+            background: #f1f5f4;
+            border-color: #cbd5e1;
+        }
         .email-empty-state { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; color: #a1a1aa; }
         .email-list.intro-gated { display: none; }
         .email-intro-dismiss-btn {
@@ -3546,9 +3566,9 @@
         
         async function openEmailClient() {
             document.getElementById('email-client-modal').classList.add('active');
-            // Always start on the list view, not wherever mobile detail view
-            // was left open from a previous visit.
-            document.querySelector('.email-client-container').classList.remove('mobile-show-content', 'is-composing');
+            const container = document.querySelector('.email-client-container');
+            container.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
+            container.classList.add('list-only');
             renderInboxIntro();
             await fetchEmails();
         }
@@ -3558,7 +3578,9 @@
         }
 
         function closeMobileEmailDetail() {
-            document.querySelector('.email-client-container').classList.remove('mobile-show-content');
+            const container = document.querySelector('.email-client-container');
+            container.classList.remove('mobile-show-content', 'show-detail');
+            container.classList.add('list-only');
         }
 
         function getInboxIntroHtml() {
@@ -3768,7 +3790,8 @@
             });
             
             const emailClient = document.querySelector('.email-client-container');
-            emailClient.classList.remove('mobile-show-content', 'is-composing');
+            emailClient.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
+            emailClient.classList.add('list-only');
             renderInboxIntro();
             await fetchEmails();
         }
@@ -3929,7 +3952,7 @@
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%;">
                     <div class="email-content-header">
-                        <button class="email-content-back-btn" onclick="closeMobileEmailDetail()">&larr; Back to Inbox</button>
+                        <button class="email-content-back-btn" onclick="closeMobileEmailDetail()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Inbox</button>
                         <div class="email-content-subject">${escapeHtml(displaySubject)}</div>
                         <div class="email-content-meta">
                             <div class="email-content-sender">${escapeHtml(icon + directionLabel)} <span style="font-weight:700;">${escapeHtml(demoDetailSender || displayAddress)}</span></div>
