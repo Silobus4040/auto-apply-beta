@@ -483,18 +483,65 @@
         .email-client-container.list-only .email-sidebar { width: 100%; flex: 1; border-right: none; }
         .email-client-container.list-only .email-content { display: none; }
         .email-client-container.list-only .email-item {
-            display: grid;
-            grid-template-columns: minmax(210px, 300px) minmax(260px, 1fr) 90px;
-            grid-template-rows: auto auto;
-            column-gap: 1.25rem;
-            row-gap: 0.15rem;
+            display: flex;
             align-items: center;
-            padding: 0.9rem 1.5rem;
+            height: 38px;
+            min-height: 38px;
+            box-sizing: border-box;
+            padding: 0 1.25rem 0 1.75rem;
+            gap: 1.25rem;
         }
-        .email-client-container.list-only .email-sender { grid-column: 1; grid-row: 1 / span 2; margin: 0; }
-        .email-client-container.list-only .email-subject { grid-column: 2; grid-row: 1; margin: 0; }
-        .email-client-container.list-only .email-preview { grid-column: 2; grid-row: 2; margin: 0; }
-        .email-client-container.list-only .email-time { grid-column: 3; grid-row: 1 / span 2; position: static; justify-self: end; }
+        .email-client-container.list-only .email-item.unread::before {
+            top: 50%;
+            transform: translateY(-50%);
+            left: 0.6rem;
+        }
+        .email-client-container.list-only .email-sender {
+            width: 180px;
+            min-width: 180px;
+            flex-shrink: 0;
+            margin: 0;
+            font-size: 0.88rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .email-client-container.list-only .email-body-line {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            align-items: baseline;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.88rem;
+        }
+        .email-client-container.list-only .email-subject {
+            font-weight: 700;
+            color: #202124;
+            margin: 0;
+            flex-shrink: 0;
+        }
+        .email-client-container.list-only .email-preview {
+            color: #5f6368;
+            margin: 0;
+            margin-left: 0.35rem;
+            font-size: 0.88rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .email-client-container.list-only .email-time {
+            width: 85px;
+            min-width: 85px;
+            flex-shrink: 0;
+            text-align: right;
+            position: static;
+            margin: 0;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #5f6368;
+        }
         @media (max-width: 768px) {
             .email-mailbox-main { flex-direction: column; }
             .email-list { order: 1; min-height: 0; }
@@ -3768,8 +3815,10 @@
                 // here or it would parse as real markup on this second insertion).
                 el.innerHTML = `
                     <div class="email-sender">${escapeHtml(icon + prefix + displayName)}</div>
-                    <div class="email-subject">${escapeHtml(displaySubject)}</div>
-                    <div class="email-preview">${escapeHtml(displayPreview)}</div>
+                    <div class="email-body-line">
+                        <span class="email-subject">${escapeHtml(displaySubject)}</span>
+                        <span class="email-preview">&nbsp;-&nbsp;${escapeHtml(displayPreview)}</span>
+                    </div>
                     <div class="email-time">${displayTime}</div>
                 `;
                 listEl.appendChild(el);
