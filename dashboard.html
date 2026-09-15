@@ -485,9 +485,9 @@
         .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-color); display: flex; justify-content: space-between; align-items: center; }
         .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
         .email-mailbox-main { display: flex; flex: 1; min-width: 0; min-height: 0; }
-        .email-folder-nav { width: 215px; min-width: 215px; flex: 0 0 215px; padding: 0.8rem; border-right: 1px solid var(--border); background: #fafafa; overflow-y: auto; box-sizing: border-box; }
+        .email-folder-nav { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; position: static; top: auto; z-index: auto; width: 215px; min-width: 215px; flex: 0 0 215px; padding: 0.8rem; border: 0; border-right: 1px solid var(--border); background: #fafafa; backdrop-filter: none; overflow-y: auto; box-sizing: border-box; }
         .email-folder-label { margin: 0.35rem 0.7rem 0.65rem; color: #71717a; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
-        .email-folder-btn { width: 100%; display: flex; align-items: center; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
+        .email-folder-btn { width: 100%; flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-start; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
         .email-folder-btn:hover { background: #f1f5f4; color: #111827; }
         .email-folder-btn.active { background: rgba(16, 185, 129, 0.12); color: #111827; font-weight: 800; }
         .email-folder-btn i { width: 16px; height: 16px; }
@@ -3008,13 +3008,13 @@
                         <br><br>
                         <span style="color:var(--secondary); font-weight:700;">PS:</span> Reply from Rover Inbox to keep everything organized. Recruiter messages are also forwarded to your personal email as a backup, so you never miss anything.
                     </p>
-                    <button class="email-intro-dismiss-btn" onclick="dismissJobHuntIntro()">Got it</button>
+                    <button class="email-intro-dismiss-btn" onclick="dismissJobHuntIntro()">I understand</button>
                 </div>
             `;
         }
 
         function jobHuntIntroSeenKey() {
-            const uid = (typeof cachedUserId !== 'undefined' && cachedUserId) ? cachedUserId : 'anon';
+            const uid = (typeof userProfile !== 'undefined' && userProfile?.id) || ((typeof cachedUserId !== 'undefined' && cachedUserId) ? cachedUserId : 'anon');
             return `rr_job_hunt_intro_seen_${uid}`;
         }
 
