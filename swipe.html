@@ -1047,6 +1047,21 @@
         .swipe-card-tag.fit-gap-static {
             display: inline-flex; align-items: center; border: 1px solid #FECACA;
         }
+        .gap-toast {
+            position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 12px);
+            background: #111827; color: #fff; padding: 0.65rem 1.1rem; border-radius: 999px;
+            font-size: 0.85rem; font-weight: 650; box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+            opacity: 0; pointer-events: none; transition: opacity 0.25s ease, transform 0.25s ease;
+            z-index: 9999; max-width: 90vw; text-align: center;
+        }
+        .gap-toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+        @keyframes gapPillPulse {
+            0% { background: #FEF2F2; }
+            35% { background: #ECFDF5; border-color: #A7F3D0; color: #047857; }
+            100% { background: #FFFBEB; }
+        }
+        .swipe-card-gap-summary.gap-pill-pulse { animation: gapPillPulse 900ms ease; }
+        .swipe-card-fit-tags-wrap.is-clearing { transition: opacity 0.4s ease, max-height 0.4s ease; opacity: 0; max-height: 0; overflow: hidden; }
         /* Qualification gaps invite review; they are not an error or a failed state. */
         .swipe-card-gap-summary {
             display: inline-flex; align-items: center; gap: 0.35rem;
@@ -1444,6 +1459,9 @@
             <div class="full-text" id="modal-text">Loading...</div>
         </div>
     </div>
+
+    <!-- Gap-confirmed toast -->
+    <div id="gap-toast" class="gap-toast"></div>
 
     <!-- Email Client Modal -->
     <div class="modal-overlay" id="email-client-modal" style="padding: 0;">
@@ -2643,7 +2661,9 @@
                 // needing a full page reload.
                 if (Array.isArray(result.missing_skills)) {
                     job.fit_missing_skills = result.missing_skills;
+                    updateGapSummaryAfterConfirm(jobIndex, result.missing_skills.length);
                 }
+                showGapToast((String(skill || '').trim() || 'Skill') + ' confirmed — that\'s one less gap for this role.');
             })();
 
             pendingSkillWrites.set(pendingKey, writePromise);
@@ -2663,6 +2683,34 @@
         function addConfirmedSkillFromChip(btn, jobIndex) {
             if (!btn || btn.disabled) return;
             addConfirmedSkill(jobIndex, btn.dataset.skillLabel || '', btn.dataset.gapCategory || 'skill').catch(() => {});
+        }
+
+        let gapToastTimer = null;
+        function showGapToast(message) {
+            const toast = document.getElementById('gap-toast');
+            if (!toast) return;
+            toast.textContent = message;
+            toast.classList.add('is-visible');
+            clearTimeout(gapToastTimer);
+            gapToastTimer = setTimeout(() => toast.classList.remove('is-visible'), 2600);
+        }
+
+        // Updates the "N gaps" pill on the card in place (no full
+        // renderSwipeStack, which would reset the top card's drag
+        // transform mid-gesture). Never shows a fabricated score --
+        // just the real, already-reduced count from the webhook.
+        function updateGapSummaryAfterConfirm(jobIndex, remainingCount) {
+            const pill = document.getElementById('gap-summary-' + jobIndex);
+            if (!pill) return;
+            if (remainingCount > 0) {
+                pill.innerHTML = remainingCount + ' ' + (remainingCount === 1 ? 'gap' : 'gaps') + ' <span aria-hidden="true">→</span>';
+                pill.classList.remove('gap-pill-pulse');
+                void pill.offsetWidth; // restart the animation if it's already mid-run
+                pill.classList.add('gap-pill-pulse');
+            } else {
+                const wrap = pill.closest('.swipe-card-fit-tags-wrap');
+                if (wrap) wrap.classList.add('is-clearing');
+            }
         }
 
         function updateGapChipState(jobId, normalized, state) {
@@ -2732,7 +2780,7 @@
             // the existing modal, where it is always readable.
             const gapSummary = missing.length ? `
                 <div class="swipe-card-gap-group">
-                    <button type="button" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${missing.length} ${missing.length === 1 ? 'gap' : 'gaps'} <span aria-hidden="true">→</span></button>
+                    <button type="button" id="gap-summary-${jobIndex}" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${missing.length} ${missing.length === 1 ? 'gap' : 'gaps'} <span aria-hidden="true">→</span></button>
                 </div>` : '';
 
             const rawReason = job.fit_reason || '';
