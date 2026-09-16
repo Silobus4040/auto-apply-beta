@@ -1047,6 +1047,35 @@
         .swipe-card-tag.fit-gap-static {
             display: inline-flex; align-items: center; border: 1px solid #FECACA;
         }
+        .fit-gap-item {
+            display: inline-flex; align-items: center; gap: 0.5rem;
+            background: #FEF2F2; border: 1px solid #FECACA; border-radius: 999px;
+            padding: 0.35rem 0.4rem 0.35rem 0.85rem; transition: background 0.2s ease, border-color 0.2s ease;
+        }
+        .fit-gap-item.is-added { background: #ECFDF5; border-color: #A7F3D0; }
+        .fit-gap-label { color: #DC2626; font-weight: 700; font-size: 0.85rem; }
+        .fit-gap-item.is-added .fit-gap-label { color: #047857; }
+        .fit-gap-add-btn {
+            background: #fff; border: 1px solid #FCA5A5; color: #B91C1C;
+            font: inherit; font-weight: 800; font-size: 0.72rem; letter-spacing: 0.2px;
+            padding: 0.28rem 0.65rem; border-radius: 999px; cursor: pointer; white-space: nowrap;
+            transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+        }
+        .fit-gap-add-btn:hover { background: #DC2626; color: #fff; border-color: #DC2626; }
+        .fit-gap-add-btn.is-saving { background: #F4F4F5; border-color: var(--border); color: #71717A; cursor: wait; }
+        .fit-gap-add-btn.is-added { background: #ECFDF5; border-color: #A7F3D0; color: #047857; cursor: default; }
+        .fit-gap-add-btn.is-error { background: #FEF2F2; border-color: #EF4444; color: #B91C1C; }
+        .gap-ats-alert {
+            background: #FEF2F2; border: 1px solid #FECACA; border-radius: 14px;
+            padding: 0.85rem 1rem; margin-bottom: 0.25rem;
+        }
+        .gap-ats-alert-title { color: #B91C1C; font-weight: 800; font-size: 0.95rem; line-height: 1.35; margin-bottom: 0.3rem; }
+        .gap-ats-alert-sub { color: #7F1D1D; font-size: 0.82rem; font-weight: 600; }
+        .gap-section-note { margin-top: 0.5rem; color: #71717A; font-size: 0.78rem; font-style: italic; line-height: 1.5; }
+        .gap-guarantee-note {
+            color: #71717A; font-size: 0.78rem; line-height: 1.5; text-align: center;
+            border-top: 1px solid var(--border); padding-top: 0.85rem; margin-top: 0.25rem;
+        }
         .gap-toast {
             position: fixed; left: 50%; bottom: 32px; transform: translate(-50%, 12px);
             background: #111827; color: #fff; padding: 0.65rem 1.1rem; border-radius: 999px;
@@ -2715,18 +2744,20 @@
 
         function updateGapChipState(jobId, normalized, state) {
             document.querySelectorAll(`[data-job-id="${CSS.escape(jobId || '')}"][data-gap-skill="${CSS.escape(normalized)}"]`).forEach(btn => {
+                const item = btn.closest('.fit-gap-item');
                 btn.classList.toggle('is-saving', state === 'saving');
                 btn.classList.toggle('is-added', state === 'added');
                 btn.classList.toggle('is-error', state === 'error');
+                if (item) item.classList.toggle('is-added', state === 'added');
                 if (state === 'saving') {
                     btn.disabled = true;
-                    btn.textContent = `${btn.dataset.skillLabel} ...`;
+                    btn.textContent = '...';
                 } else if (state === 'added') {
                     btn.disabled = true;
-                    btn.textContent = `${btn.dataset.skillLabel} added`;
+                    btn.textContent = '\u2713 Added';
                 } else if (state === 'error') {
                     btn.disabled = false;
-                    btn.textContent = `${btn.dataset.skillLabel} retry`;
+                    btn.textContent = 'Retry';
                 }
             });
         }
@@ -2954,11 +2985,22 @@
                                 return `<span class="swipe-card-tag fit-gap fit-gap-static" style="padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`;
                             }
                             const normalized = normalizeSkillName(gap.label);
-                            return `<button type="button" class="swipe-card-tag fit-gap fit-gap-action" style="padding: 0.5rem 0.85rem;" data-job-id="${escapeHtml(String(job.id || ''))}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(gap.label)}" data-gap-category="${escapeHtml(gap.category)}" onclick="addConfirmedSkillFromChip(this, ${jobIndex})">${escapeHtml(gap.label)} <span aria-hidden="true">+ I have this</span></button>`;
+                            return `<span class="fit-gap-item">
+                                <span class="fit-gap-label">${escapeHtml(gap.label)}</span>
+                                <button type="button" class="fit-gap-add-btn" data-job-id="${escapeHtml(String(job.id || ''))}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(gap.label)}" data-gap-category="${escapeHtml(gap.category)}" onclick="addConfirmedSkillFromChip(this, ${jobIndex})" title="I have this -- add it to my resume and cover letter for this job">+ Add</button>
+                            </span>`;
                         }).join('')}
                     </div>
+                    ${group.category === 'experience' ? '<div class="gap-section-note">Experience can\'t be self-confirmed -- Rover speaks to these directly in your cover letter.</div>' : ''}
                 </section>
             `).join('');
+            const atsAlert = `
+                <div class="gap-ats-alert">
+                    <div class="gap-ats-alert-title">ATS may rank you below other candidates based on these gaps</div>
+                    <div class="gap-ats-alert-sub">Add if you can learn on the job or defend it in an interview.</div>
+                </div>`;
+            const guaranteeNote = `
+                <div class="gap-guarantee-note">A perfect 100% match is rare. Whatever's left, Rover addresses it persuasively in your cover letter -- that's the guarantee.</div>`;
             document.getElementById('modal-title').innerText = job.title || 'Role';
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
             const modalText = document.getElementById('modal-text');
@@ -2967,10 +3009,9 @@
             // layout inline at open-time so no inherited prose/height rule can
             // distribute categories across the available viewport.
             modalText.style.cssText = 'display:grid;grid-auto-rows:max-content;align-content:start;gap:1rem;white-space:normal;max-width:none;min-height:0;height:auto;margin:0;padding:0;line-height:normal;';
-            modalText.innerHTML = html || 'No gaps found.';
+            modalText.innerHTML = (html ? (atsAlert + html + guaranteeNote) : 'No gaps found.');
             document.getElementById('desc-modal').classList.add('active');
         }
-
         function openSwipeJobDescription(index) {
             const job = pooledJobs[index];
             if (!job) return;
