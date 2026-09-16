@@ -2263,6 +2263,7 @@
         let emptyStatePollTimer = null;
         const pendingSkillWrites = new Map();
         const SWIPE_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/swipe-apply';
+        const CONFIRM_SKILL_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/confirm-job-skill';
 
         // Bump this whenever the cached shape/semantics of deckJobs_/deckIndex_
         // change in a way that makes an old cache wrong to trust blindly -- e.g.
@@ -2609,23 +2610,40 @@
             const writePromise = (async () => {
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 if (!user) throw new Error('No signed-in user');
-                const { error } = await supabaseClient
-                    .from('profile_confirmed_skills')
-                    .upsert({
+                // Calls the real Confirm Job Skill webhook instead of writing
+                // profile_confirmed_skills directly: that table write alone
+                // never touched the cached job_fit_scores.missing_skills row,
+                // so a confirmed gap kept showing up in the "N gaps" pill and
+                // the swipe deck's own gap count until an unrelated backend
+                // process happened to refresh it. The webhook does both the
+                // upsert and the missing_skills reduction in one call and
+                // hands back the already-updated list.
+                const res = await fetch(CONFIRM_SKILL_WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
                         user_id: user.id,
-                        skill_name: String(skill || '').trim(),
-                        normalized_skill_name: normalized,
-                        source: 'swipe_gap_chip',
                         job_pool_id: job.id,
+                        skill_name: String(skill || '').trim(),
                         gap_category: gapCategory
-                    }, { onConflict: 'user_id,job_pool_id,normalized_skill_name' });
-                if (error) throw error;
+                    })
+                });
+                if (!res.ok) throw new Error('Confirm skill webhook failed: ' + res.status);
+                const result = await res.json();
+                if (!result || result.ok !== true) throw new Error('Confirm skill webhook returned an error');
                 job.confirmed_claims = getJobConfirmedClaims(job).filter(claim => claim.normalized_skill_name !== normalized);
                 job.confirmed_claims.push({
                     skill_name: String(skill || '').trim(),
                     normalized_skill_name: normalized,
                     gap_category: gapCategory
                 });
+                // Keep the in-memory gap list in sync with the server's
+                // now-reduced list so a re-opened gaps modal (or a re-render
+                // of the "N gaps" pill) reflects the confirmation without
+                // needing a full page reload.
+                if (Array.isArray(result.missing_skills)) {
+                    job.fit_missing_skills = result.missing_skills;
+                }
             })();
 
             pendingSkillWrites.set(pendingKey, writePromise);
@@ -2882,7 +2900,14 @@
                 <section class="gap-section" style="margin:0; min-height:0;">
                     <div class="gap-section-label">${escapeHtml(GAP_CATEGORY_LABELS[group.category])}</div>
                     <div class="gap-section-items">
-                        ${group.gaps.map(gap => `<span class="swipe-card-tag fit-gap fit-gap-static" style="padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`).join('')}
+                        ${group.gaps.map(gap => {
+                            const confirmable = gap.category === 'skill' || gap.category === 'tool';
+                            if (!confirmable) {
+                                return `<span class="swipe-card-tag fit-gap fit-gap-static" style="padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`;
+                            }
+                            const normalized = normalizeSkillName(gap.label);
+                            return `<button type="button" class="swipe-card-tag fit-gap fit-gap-action" style="padding: 0.5rem 0.85rem;" data-job-id="${escapeHtml(String(job.id || ''))}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(gap.label)}" data-gap-category="${escapeHtml(gap.category)}" onclick="addConfirmedSkillFromChip(this, ${jobIndex})">${escapeHtml(gap.label)} <span aria-hidden="true">+ I have this</span></button>`;
+                        }).join('')}
                     </div>
                 </section>
             `).join('');
