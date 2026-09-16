@@ -2991,16 +2991,16 @@
                             </span>`;
                         }).join('')}
                     </div>
-                    ${group.category === 'experience' ? '<div class="gap-section-note">Experience can\'t be self-confirmed -- Rover speaks to these directly in your cover letter.</div>' : ''}
+                    ${group.category === 'experience' ? '<div class="gap-section-note">We won\'t add experience you can\'t verify. Instead, Rover can connect adjacent experience to these requirements and explain it in your cover letter.</div>' : ''}
                 </section>
             `).join('');
             const atsAlert = `
                 <div class="gap-ats-alert">
-                    <div class="gap-ats-alert-title">ATS may rank you below other candidates based on these gaps</div>
-                    <div class="gap-ats-alert-sub">Add if you can learn on the job or defend it in an interview.</div>
+                    <div class="gap-ats-alert-title">The ATS may rank you below other candidates based on these gaps</div>
+                    <div class="gap-ats-alert-sub">Add if you can learn on the job or confidently defend it in an interview. If not, Rover will address the gaps persuasively on your cover letter.</div>
                 </div>`;
             const guaranteeNote = `
-                <div class="gap-guarantee-note">A perfect 100% match is rare. Whatever's left, Rover addresses it persuasively in your cover letter -- that's the guarantee.</div>`;
+                <div class="gap-guarantee-note">A perfect 100% match is rare -- don't let that stop you from applying.</div>`;
             document.getElementById('modal-title').innerText = job.title || 'Role';
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
             const modalText = document.getElementById('modal-text');
