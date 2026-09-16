@@ -1066,12 +1066,21 @@
         .fit-gap-add-btn.is-added { background: #ECFDF5; border-color: #A7F3D0; color: #047857; cursor: default; }
         .fit-gap-add-btn.is-error { background: #FEF2F2; border-color: #EF4444; color: #B91C1C; }
         .gap-ats-alert {
-            background: #FEF2F2; border: 1px solid #FECACA; border-radius: 14px;
+            background: #FFFBEB; border: 1px solid #FDE68A; border-radius: 14px;
             padding: 0.85rem 1rem; margin-bottom: 0.25rem;
         }
-        .gap-ats-alert-title { color: #B91C1C; font-weight: 800; font-size: 0.95rem; line-height: 1.35; margin-bottom: 0.3rem; }
-        .gap-ats-alert-sub { color: #7F1D1D; font-size: 0.82rem; font-weight: 600; }
-        .gap-section-note { margin-top: 0.5rem; color: #71717A; font-size: 0.78rem; font-style: italic; line-height: 1.5; }
+        .gap-ats-alert-eyebrow { color: #B45309; font-size: 0.68rem; font-weight: 800; letter-spacing: 0.6px; text-transform: uppercase; margin-bottom: 0.3rem; }
+        .gap-ats-alert-title { color: #92400E; font-weight: 800; font-size: 0.95rem; line-height: 1.35; margin-bottom: 0.3rem; }
+        .gap-ats-alert-sub { color: #78350F; font-size: 0.82rem; font-weight: 600; }
+        .gap-how-rover-link {
+            background: none; border: none; padding: 0; margin-top: 0.5rem;
+            color: #B45309; font: inherit; font-weight: 700; font-size: 0.78rem; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 0.3rem;
+        }
+        .gap-how-rover-link .gap-how-rover-chevron { display: inline-block; transition: transform 0.15s ease; }
+        .gap-how-rover-link.is-open .gap-how-rover-chevron { transform: rotate(180deg); }
+        .gap-section-note { display: none; margin-top: 0.4rem; color: #71717A; font-size: 0.78rem; line-height: 1.5; }
+        .gap-section-note.is-expanded { display: block; }
         .gap-guarantee-note {
             color: #71717A; font-size: 0.78rem; line-height: 1.5; text-align: center;
             border-top: 1px solid var(--border); padding-top: 0.85rem; margin-top: 0.25rem;
@@ -2991,13 +3000,14 @@
                             </span>`;
                         }).join('')}
                     </div>
-                    ${group.category === 'experience' ? '<div class="gap-section-note">Rover won\'t add experience you can\'t verify. Instead, it can connect your adjacent experience to the role and explain its relevance in your cover letter.</div>' : ''}
+                    ${group.category === 'experience' ? '<button type="button" class="gap-how-rover-link" onclick="event.stopPropagation(); this.classList.toggle(\'is-open\'); this.nextElementSibling.classList.toggle(\'is-expanded\');">How Rover helps <span class="gap-how-rover-chevron" aria-hidden="true">\u25be</span></button><div class="gap-section-note">Rover won\'t add experience you can\'t verify. Instead, it can connect your adjacent experience to the role and explain its relevance in your cover letter.</div>' : ''}
                 </section>
             `).join('');
             const atsAlert = `
                 <div class="gap-ats-alert">
-                    <div class="gap-ats-alert-title">The Applicant Tracking System may rank you below other candidates based on these gaps</div>
-                    <div class="gap-ats-alert-sub">Add it if you’re currently learning, can learn on the job, or can confidently discuss it in an interview. If not, Rover will address the gap persuasively in your cover letter.</div>
+                    <div class="gap-ats-alert-eyebrow">Opportunity</div>
+                    <div class="gap-ats-alert-title">An applicant tracking system may rank you below other candidates if your résumé is missing key requirements.</div>
+                    <div class="gap-ats-alert-sub">Click Add if you’re currently learning, can learn on the job, or can confidently discuss it in an interview and it’ll be tailored on your résumé for this role. Otherwise, leave it as is, and Rover will address the gap persuasively in your cover letter.</div>
                 </div>`;
             const guaranteeNote = `
                 <div class="gap-guarantee-note">A perfect 100% match is rare -- don't let that stop you from applying.</div>`;
