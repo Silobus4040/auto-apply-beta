@@ -3856,7 +3856,7 @@
                 'Please choose a time for a first-round conversation with our team this week so we can discuss the position in more detail.',
                 'Your profile stood out, and we would like to schedule a quick introductory screen to go over next steps.',
                 'Thanks for applying. The next step is a short introductory conversation with our hiring manager.',
-                'Hi Jordan, we were impressed with your background and experience and would love to set up a preliminary call.',
+                'We were impressed with your background and experience and would love to set up a preliminary call.',
                 'The team would love to set up an introductory call to discuss how your skill set aligns with our current openings.',
                 'We are moving forward with your candidacy for this position and want to coordinate a convenient time for your interview.',
                 'Are you available for a brief 20-minute screen this week? We are looking forward to learning more about your background.',
@@ -3867,18 +3867,44 @@
             ];
             const selected = Math.max(0, index) % subjects.length;
             const createdAt = email && email.created_at ? email.created_at : new Date().toISOString();
+            const senderName = (typeof DEMO_SENDERS !== 'undefined' && DEMO_SENDERS[index]) ? DEMO_SENDERS[index].name : 'Recruiting Team';
+            // 7 unique draft bodies for indices 5-13 (no salutation)
+            const newDrafts = [
+                // draft 0
+                '<p>Good news — your application caught our attention and the hiring team would like to move forward.</p><p>We’d love to schedule a first-round conversation to learn more about your background, experience, and what you’re looking for in your next role.</p><p>Please reply with two or three times that work for you this week and we’ll get something confirmed on the calendar.</p>',
+                // draft 1
+                '<p>Thank you for your application. After reviewing your profile, we’d like to invite you to the next stage of our hiring process.</p><p>This will be a 30-minute call with one of our engineering leads to discuss the role in more detail and answer any questions you may have.</p><p>Please use the scheduling link to book a time that works for you.</p>',
+                // draft 2
+                '<p>I’m reaching out because your application has been shortlisted for an interview with our team.</p><p>We’d love to set aside some time this week for a first-round conversation — a chance for us to walk you through the role and for you to share a bit more about your experience.</p><p>Could you share a few windows of availability? We’ll send a calendar invite right away.</p>',
+                // draft 3
+                '<p>Your profile stood out from the pool and our team wants to connect.</p><p>I’d like to schedule a quick 20–25 minute introductory screen so we can go over the role expectations, discuss your background, and see if there’s a strong mutual fit.</p><p>What does your availability look like this week or early next week?</p>',
+                // draft 4
+                '<p>We’ve reviewed your application and we’d love to move things forward.</p><p>The next step is a short introductory conversation with our hiring manager — usually about 20 minutes and a great opportunity to ask questions about the team and the day-to-day.</p><p>Reply here or use the scheduling link and we’ll lock something in.</p>',
+                // draft 5
+                '<p>Congratulations — we’re excited to let you know that you’ve been selected to move forward in our interview process.</p><p>Our team was impressed with your experience and we’d like to schedule a call to discuss the opportunity in more depth. You’ll have a chance to meet one of our hiring leads and ask any questions about the role.</p><p>Please share your availability and we’ll coordinate from there.</p>',
+                // draft 6
+                '<p>I hope this finds you well! We reviewed your application and were genuinely impressed.</p><p>We’d love to set up an introductory call to discuss how your skill set aligns with what we’re building and where you’d fit within the team.</p><p>Let me know what works best for you and I’ll send over a calendar invite.</p>'
+            ];
+            // draft index map for senders at indices 5-13:
+            // Recruiting Team(5)=d0, Sofia(6)=d0, Ethan(7)=d1, Naomi(8)=d2,
+            // Liam(9)=d3, Chloe(10)=d4, Samuel(11)=d5, Rachel(12)=d6, Natalie(13)=d0
+            const draftMap = [0, 0, 1, 2, 3, 4, 5, 6, 0];
+            let html;
+            if (index === 0) {
+                // D. Brooks — only email with "Hi Siloko,"
+                html = `<div style="max-width:640px;margin:0 auto;"><p>Hi Siloko,</p><p>Good news - your application has moved to the interview stage.</p><p>The hiring team would like to schedule a first-round conversation to learn more about your background, experience, and goals for the role.</p><p>Please reply with a few times that work for you this week, and we will confirm the interview slot.</p><p>Best,<br>${senderName}</p></div>`;
+            } else if (index < 5) {
+                // Recruiter, Olivia Grant, Marcus, Priya — existing style, no salutation
+                html = `<div style="max-width:640px;margin:0 auto;"><p>Good news - your application has moved to the interview stage.</p><p>The hiring team would like to schedule a first-round conversation to learn more about your background, experience, and goals for the role.</p><p>Please reply with a few times that work for you this week, and we will confirm the interview slot.</p><p>Best,<br>${senderName}</p></div>`;
+            } else {
+                // Senders 6-14 — new unique draft bodies
+                const di = draftMap[Math.min(index - 5, draftMap.length - 1)];
+                html = `<div style="max-width:640px;margin:0 auto;">${newDrafts[di]}<p>Best,<br>${senderName}</p></div>`;
+            }
             return {
                 subject: subjects[selected],
                 preview: previews[selected],
-                html: `
-                    <div style="max-width: 640px; margin: 0 auto;">
-                        <p>Hi Jordan,</p>
-                        <p>Good news - your application has moved to the interview stage.</p>
-                        <p>The hiring team would like to schedule a first-round conversation to learn more about your background, experience, and goals for the role.</p>
-                        <p>Please reply with a few times that work for you this week, and we will confirm the interview slot.</p>
-                        <p>Best,<br>Recruiting Team</p>
-                    </div>
-                `,
+                html,
                 created_at: createdAt
             };
         }
