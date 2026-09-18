@@ -1505,6 +1505,9 @@
                 if (phoneCode) {
                     cleanPhone = cleanPhone.replace(/^\+\d{1,3}[\s.-]*/, '').trim();
                 }
+                if (/^0[1-9]/.test(cleanPhone)) {
+                    cleanPhone = cleanPhone.replace(/^0/, '');
+                }
                 filled += fillIfBlank('phone', cleanPhone) ? 1 : 0;
                 const phoneCodeSelect = document.getElementById('phone-code');
                 if (phoneCode && phoneCodeSelect && !phoneCodeSelect.value) {
@@ -2066,6 +2069,9 @@
             let cleanPhone = phoneRaw.replace(/^\+/, '').trim();
             if (phoneCode && cleanPhone.startsWith(phoneCode)) {
                 cleanPhone = cleanPhone.slice(phoneCode.length).replace(/^[\s.-]+/, '').trim();
+            }
+            if (/^0[1-9]/.test(cleanPhone)) {
+                cleanPhone = cleanPhone.replace(/^0/, '');
             }
             const phone = cleanPhone ? `+${phoneCode} ${cleanPhone}` : (phoneRaw ? `+${phoneCode} ${phoneRaw}` : '');
             const linkedin = document.getElementById('linkedin').value.trim();
