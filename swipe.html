@@ -2988,7 +2988,7 @@
                     <div class="gap-section-label">${escapeHtml(GAP_CATEGORY_LABELS[group.category])}</div>
                     <div class="gap-section-items">
                         ${group.gaps.map(gap => {
-                            const confirmable = gap.category === 'skill' || gap.category === 'tool';
+                            const confirmable = gap.category === 'skill' || gap.category === 'tool' || gap.category === 'experience';
                             if (!confirmable) {
                                 return `<span class="swipe-card-tag fit-gap fit-gap-static" style="padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`;
                             }
@@ -2999,7 +2999,6 @@
                             </span>`;
                         }).join('')}
                     </div>
-                    ${group.category === 'experience' ? '<button type="button" class="gap-how-rover-link" onclick="event.stopPropagation(); this.classList.toggle(\'is-open\'); this.nextElementSibling.classList.toggle(\'is-expanded\');">How Rover helps <span class="gap-how-rover-chevron" aria-hidden="true">\u25be</span></button><div class="gap-section-note">Rover won\'t add experience you can\'t verify. Instead, it can connect your adjacent experience to the role and explain its relevance in your cover letter.</div>' : ''}
                 </section>
             `).join('');
             const atsAlert = `
