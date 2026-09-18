@@ -2635,18 +2635,41 @@
                 .filter(Boolean);
         }
 
+        let userConfirmedSkills = [];
         async function loadConfirmedSkills(userId) {
-            return;
+            if (!userId) return;
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profile_confirmed_skills')
+                    .select('id, skill_name, normalized_skill_name, gap_category, job_pool_id')
+                    .eq('user_id', userId);
+                if (!error && Array.isArray(data)) {
+                    userConfirmedSkills = data;
+                }
+            } catch (e) {
+                console.error('Failed to load profile confirmed skills', e);
+            }
         }
 
         function getJobConfirmedClaims(job) {
-            return (job && Array.isArray(job.confirmed_claims) ? job.confirmed_claims : [])
-                .map(claim => ({
-                    skill_name: String(claim.skill_name || claim || '').trim(),
-                    normalized_skill_name: claim.normalized_skill_name || normalizeSkillName(claim.skill_name || claim),
-                    gap_category: normalizeGapCategory(claim.gap_category || 'skill')
-                }))
-                .filter(claim => claim.skill_name && claim.normalized_skill_name);
+            const jobSpecificClaims = (job && Array.isArray(job.confirmed_claims) ? job.confirmed_claims : []);
+            const fromUserConfirmed = (job && job.id && Array.isArray(userConfirmedSkills))
+                ? userConfirmedSkills.filter(c => c.job_pool_id === job.id || !c.job_pool_id)
+                : (Array.isArray(userConfirmedSkills) ? userConfirmedSkills : []);
+            const all = [...jobSpecificClaims, ...fromUserConfirmed];
+            const map = new Map();
+            all.forEach(claim => {
+                const skillName = String(claim.skill_name || claim || '').trim();
+                const normalized = claim.normalized_skill_name || normalizeSkillName(skillName);
+                if (skillName && normalized && !map.has(normalized)) {
+                    map.set(normalized, {
+                        skill_name: skillName,
+                        normalized_skill_name: normalized,
+                        gap_category: normalizeGapCategory(claim.gap_category || 'skill')
+                    });
+                }
+            });
+            return Array.from(map.values());
         }
 
         function getJobConfirmedClaimNames(job) {
@@ -2686,20 +2709,36 @@
                 if (!res.ok) throw new Error('Confirm skill webhook failed: ' + res.status);
                 const result = await res.json();
                 if (!result || result.ok !== true) throw new Error('Confirm skill webhook returned an error');
-                job.confirmed_claims = getJobConfirmedClaims(job).filter(claim => claim.normalized_skill_name !== normalized);
-                job.confirmed_claims.push({
+                
+                const newClaim = {
                     skill_name: String(skill || '').trim(),
                     normalized_skill_name: normalized,
-                    gap_category: gapCategory
-                });
+                    gap_category: gapCategory,
+                    job_pool_id: job.id
+                };
+                job.confirmed_claims = getJobConfirmedClaims(job).filter(claim => claim.normalized_skill_name !== normalized);
+                job.confirmed_claims.push(newClaim);
+                userConfirmedSkills.push(newClaim);
+
                 // Keep the in-memory gap list in sync with the server's
                 // now-reduced list so a re-opened gaps modal (or a re-render
                 // of the "N gaps" pill) reflects the confirmation without
                 // needing a full page reload.
                 if (Array.isArray(result.missing_skills)) {
                     job.fit_missing_skills = result.missing_skills;
-                    updateGapSummaryAfterConfirm(jobIndex, result.missing_skills.length);
                 }
+
+                const confirmedNames = getJobConfirmedClaimNames(job);
+                const allGaps = normalizeFitGaps(job.fit_missing_skills);
+                const remainingUnconfirmedCount = allGaps.filter(g => !confirmedNames.has(normalizeSkillName(g.label))).length;
+
+                updateGapSummaryAfterConfirm(jobIndex, remainingUnconfirmedCount);
+
+                // Persist updated jobs & claims into local storage immediately
+                if (cachedUserId) {
+                    cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
+                }
+
                 showGapToast((String(skill || '').trim() || 'Skill') + ' confirmed — that\'s one less gap for this role.');
             })();
 
@@ -2753,10 +2792,20 @@
         function updateGapChipState(jobId, normalized, state) {
             document.querySelectorAll(`[data-job-id="${CSS.escape(jobId || '')}"][data-gap-skill="${CSS.escape(normalized)}"]`).forEach(btn => {
                 const item = btn.closest('.fit-gap-item');
+                const label = item ? item.querySelector('.fit-gap-label') : null;
                 btn.classList.toggle('is-saving', state === 'saving');
                 btn.classList.toggle('is-added', state === 'added');
                 btn.classList.toggle('is-error', state === 'error');
                 if (item) item.classList.toggle('is-added', state === 'added');
+                if (label) {
+                    if (state === 'added') {
+                        label.style.textDecoration = 'line-through';
+                        label.style.opacity = '0.7';
+                    } else {
+                        label.style.textDecoration = '';
+                        label.style.opacity = '';
+                    }
+                }
                 if (state === 'saving') {
                     btn.disabled = true;
                     btn.textContent = '...';
@@ -2814,12 +2863,14 @@
             // a lower score shouldn't also read as a red-flag warning color.
             const colorClass = 'fit-high';
             const missing = normalizeFitGaps(job.fit_missing_skills);
-            // A full sentence in a fixed-width red tag was routinely clipped.
+            const confirmedNames = getJobConfirmedClaimNames(job);
+            const remainingCount = missing.filter(gap => !confirmedNames.has(normalizeSkillName(gap.label))).length;
+
             // Summarize the review work here and keep the complete breakdown in
             // the existing modal, where it is always readable.
-            const gapSummary = missing.length ? `
+            const gapSummary = remainingCount ? `
                 <div class="swipe-card-gap-group">
-                    <button type="button" id="gap-summary-${jobIndex}" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${missing.length} ${missing.length === 1 ? 'gap' : 'gaps'} <span aria-hidden="true">→</span></button>
+                    <button type="button" id="gap-summary-${jobIndex}" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${remainingCount} ${remainingCount === 1 ? 'gap' : 'gaps'} <span aria-hidden="true">→</span></button>
                 </div>` : '';
 
             const rawReason = job.fit_reason || '';
@@ -2979,6 +3030,7 @@
         function showFitGapsModal(jobIndex) {
             const job = pooledJobs[jobIndex];
             if (!job) return;
+            const confirmedNames = getJobConfirmedClaimNames(job);
             const missing = normalizeFitGaps(job.fit_missing_skills);
             const grouped = Object.keys(GAP_CATEGORY_LABELS)
                 .map(category => ({ category, gaps: missing.filter(gap => gap.category === category) }))
@@ -2993,9 +3045,10 @@
                                 return `<span class="swipe-card-tag fit-gap fit-gap-static" style="padding: 0.5rem 0.85rem;">${escapeHtml(gap.label)}</span>`;
                             }
                             const normalized = normalizeSkillName(gap.label);
-                            return `<span class="fit-gap-item">
-                                <span class="fit-gap-label">${escapeHtml(gap.label)}</span>
-                                <button type="button" class="fit-gap-add-btn" data-job-id="${escapeHtml(String(job.id || ''))}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(gap.label)}" data-gap-category="${escapeHtml(gap.category)}" onclick="addConfirmedSkillFromChip(this, ${jobIndex})" title="I have this -- add it to my resume and cover letter for this job">+ Add</button>
+                            const isAdded = confirmedNames.has(normalized);
+                            return `<span class="fit-gap-item ${isAdded ? 'is-added' : ''}">
+                                <span class="fit-gap-label" style="${isAdded ? 'text-decoration: line-through; opacity: 0.7;' : ''}">${escapeHtml(gap.label)}</span>
+                                <button type="button" class="fit-gap-add-btn ${isAdded ? 'is-added' : ''}" ${isAdded ? 'disabled' : ''} data-job-id="${escapeHtml(String(job.id || ''))}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(gap.label)}" data-gap-category="${escapeHtml(gap.category)}" onclick="addConfirmedSkillFromChip(this, ${jobIndex})" title="I have this -- add it to my resume and cover letter for this job">${isAdded ? '✓ Added' : '+ Add'}</button>
                             </span>`;
                         }).join('')}
                     </div>
