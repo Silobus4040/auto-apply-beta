@@ -927,6 +927,11 @@
             #stats-bar[style*="flex"] { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; margin-bottom: 1rem !important; }
             .stat { min-width: 0; padding: 0.8rem 0.9rem !important; border-radius: 14px; }
             .stats-bar .stat:first-child { grid-column: 1 / -1; gap: 0.45rem !important; }
+        @media (min-width: 769px) {
+            .card-back-cell { display: none !important; }
+        }
+
+        @media (max-width: 768px) {
             .stats-bar .stat:first-child > div { display: grid !important; grid-template-columns: 1fr; gap: 0.55rem; align-items: start !important; }
             .stats-bar .stat:first-child .stat-view-btn { width: 100%; justify-content: center; min-height: 42px; }
             .stat-number { font-size: 1.55rem !important; }
@@ -942,25 +947,127 @@
             #job-filter-bar .field label { font-size: 0.78rem; letter-spacing: 0.2px; text-transform: none; }
             #job-filter-bar .field input, #job-filter-bar .field select { min-height: 48px; width: 100%; }
 
-            /* Compact mobile card (redesigned): company eyebrow + role headline,
-               status pill, then a tight inline row of action buttons -- instead of
-               the old mechanically-stacked table cells that ran a full screen tall.
-               The desktop table (>768px) is completely untouched. */
+            /* Compact mobile card (redesigned): 3D Card Flip on Custom Resume/Cover Letter */
             .jobs-table-container { overflow-x: visible; border: none; box-shadow: none; background: transparent; }
             .jobs-table, .jobs-table thead, .jobs-table tbody, .jobs-table tr, .jobs-table td { display: block; width: 100%; }
             .jobs-table thead { position: absolute; left: -9999px; top: -9999px; }
 
             .jobs-table tr:not(.skeleton-row) {
-                display: flex;
-                flex-wrap: wrap;
-                align-items: center;
-                gap: 0.45rem 0.55rem;
-                background: var(--surface-color);
-                border: 1px solid var(--border);
+                display: block !important;
+                perspective: 1000px;
+                transform-style: preserve-3d;
+                transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1), min-height 0.3s ease;
+                position: relative;
                 border-radius: 14px;
-                margin-bottom: 0.85rem;
+                border: 1px solid var(--border);
+                background: var(--surface-color);
                 padding: 0.9rem 1rem;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+                margin-bottom: 0.85rem;
+            }
+
+            .jobs-table tr.is-flipped {
+                transform: rotateY(180deg);
+                min-height: 340px;
+            }
+
+            .jobs-table tr:not(.skeleton-row) > td:not(.card-back-cell) {
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+            }
+
+            .card-back-cell {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                height: 100%;
+                transform: rotateY(180deg);
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                border-radius: 14px;
+                background: var(--surface-color);
+                padding: 0.8rem 0.9rem;
+                display: flex;
+                flex-direction: column;
+                z-index: 10;
+                overflow: hidden;
+                box-sizing: border-box;
+            }
+
+            .card-back-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid var(--border);
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.6rem;
+                flex-shrink: 0;
+            }
+
+            .card-back-title-group {
+                display: flex;
+                flex-direction: column;
+                min-width: 0;
+            }
+
+            .card-back-title {
+                font-size: 0.78rem;
+                font-weight: 850;
+                color: var(--text-heading);
+                text-transform: uppercase;
+                letter-spacing: 0.3px;
+            }
+
+            .card-back-company {
+                font-size: 0.72rem;
+                color: var(--text-body);
+                font-weight: 600;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                max-width: 160px;
+            }
+
+            .card-flip-back-btn {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.3rem;
+                background: #ffffff;
+                border: 1px solid var(--border);
+                border-radius: 20px;
+                padding: 0.3rem 0.75rem;
+                font-size: 0.75rem;
+                font-weight: 800;
+                color: #000000;
+                cursor: pointer;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+                transition: all 0.2s;
+                flex-shrink: 0;
+            }
+
+            .card-flip-back-btn:hover {
+                background: #f4f4f5;
+                border-color: #000000;
+            }
+
+            .card-back-body {
+                flex: 1;
+                min-height: 220px;
+                border-radius: 8px;
+                background: #ffffff;
+                border: 1px solid var(--border);
+                overflow: hidden;
+            }
+
+            .card-back-body iframe {
+                width: 100%;
+                height: 100%;
+                min-height: 220px;
+                border: none;
+                display: block;
             }
             /* No zebra striping on cards: that's a TABLE convention (it helps the
                eye track across long horizontal rows). Cards are already separated
@@ -2828,7 +2935,7 @@
                 const retryingNote = job.status === 'Needs Human Review' ? `<div class="status-note">This role closed before Rover could finish. You weren't charged.</div>` : '';
 
                 html += `
-                    <tr>
+                    <tr id="job-row-${index}">
                         <td data-label="Company / Role">
                             <div class="table-company-name" style="margin-top: 0; font-size: 1rem;">${job.companyName}</div>
                             <div class="table-role-title" style="margin-top: 0.35rem; font-size: 0.95rem;">${job.title}</div>
@@ -2849,6 +2956,7 @@
                                 ${retryingNote}
                             </div>
                         </td>
+                        <td class="card-back-cell" id="card-back-${index}"></td>
                     </tr>
                 `;
             });
@@ -2898,6 +3006,37 @@
 
         async function openDocument(index, type) {
             const job = currentJobs[index];
+            const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
+            const docTitle = type === 'coverLetter' ? `Cover Letter` : `Custom Resume`;
+            const filename = extractFilenameFromUrl(docUrl);
+
+            // On mobile devices (screen width <= 768px), flip card 180deg in 3D right in place
+            if (window.innerWidth <= 768) {
+                const backCell = document.getElementById(`card-back-${index}`);
+                const cardRow = document.getElementById(`job-row-${index}`);
+                
+                if (backCell && cardRow) {
+                    backCell.innerHTML = `
+                        <div class="card-back-header">
+                            <div class="card-back-title-group">
+                                <div class="card-back-title">${docTitle}</div>
+                                <div class="card-back-company">${job.companyName}</div>
+                            </div>
+                            <div style="display: flex; gap: 0.4rem; align-items: center;">
+                                <a href="${docUrl}" target="_blank" download="${filename}" class="table-btn table-btn-sm" style="font-size: 0.7rem; padding: 0.25rem 0.55rem; text-decoration: none;">Download</a>
+                                <button class="card-flip-back-btn" onclick="flipCardBack(${index})">↶ Flip Back</button>
+                            </div>
+                        </div>
+                        <div class="card-back-body">
+                            <iframe id="card-iframe-${index}" src="${docUrl}" class="card-back-iframe" title="${docTitle}"></iframe>
+                        </div>
+                    `;
+                    cardRow.classList.add('is-flipped');
+                    return;
+                }
+            }
+
+            // On desktop (> 768px), use standard full preview modal
             document.getElementById('resume-modal-title').innerText = type === 'coverLetter' ? `Cover Letter for ${job.title}` : `Resume for ${job.title}`;
             document.getElementById('resume-modal-company').innerText = job.companyName;
 
@@ -2907,8 +3046,6 @@
             iframe.src = '';
             document.getElementById('resume-modal').classList.add('active');
 
-            const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
-            const filename = extractFilenameFromUrl(docUrl);
             document.getElementById('resume-modal-filename').innerText = filename;
             const downloadLink = document.getElementById('resume-modal-download');
             downloadLink.setAttribute('download', filename);
@@ -2922,6 +3059,13 @@
             } catch (error) {
                 iframe.src = docUrl;
                 downloadLink.href = docUrl;
+            }
+        }
+
+        function flipCardBack(index) {
+            const cardRow = document.getElementById(`job-row-${index}`);
+            if (cardRow) {
+                cardRow.classList.remove('is-flipped');
             }
         }
 
