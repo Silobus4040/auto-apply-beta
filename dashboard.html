@@ -603,9 +603,9 @@
         @media (max-width: 768px) {
             .email-mailbox-main { flex-direction: column; }
             .email-mailbox-main > div { order: 1; min-height: 0; }
-            .email-folder-nav { order: 2; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.25rem; padding: 0.55rem 0.7rem max(0.55rem, env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
+            .email-folder-nav { order: 0 !important; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.35rem; padding: 0.65rem 0.75rem; background: var(--surface-color); border: 0; border-bottom: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
             .email-folder-label, .email-folder-divider { display: none; }
-            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.6rem; font-size: 0.78rem; white-space: nowrap; }
+            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.7rem; font-size: 0.8rem; white-space: nowrap; }
             .folder-label-desktop { display: none; }
             .folder-label-mobile { display: inline; }
             #tab-interviews { order: 1; }
@@ -684,14 +684,14 @@
            detail view with a back button, same pattern as the app sidebar. */
         @media (max-width: 768px) {
             #email-client-modal { padding: 0; }
-            .email-client-container { flex-direction: column; height: 100vh; border-radius: 0; }
+            .email-client-container { flex-direction: column; height: 100vh; height: 100dvh; border-radius: 0; }
             /* flex-direction:column means the sidebar no longer auto-stretches
                to the container's height (that's a row-axis default) -- without
                flex+min-height:0 here it just sizes to its content, so the list
                below never gets a bounded height to scroll within and anything
                past the fold is simply clipped, unreachable, not just hidden. */
             .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex: 1; min-height: 0; }
-            .email-list { min-height: 0; }
+            .email-list { min-height: 0; padding-bottom: max(3rem, calc(1.5rem + env(safe-area-inset-bottom, 0px))); }
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
             /* Missing the same flex+min-height:0 fix already applied to
@@ -1327,22 +1327,10 @@
                 <button class="sidebar-nav-item" onclick="document.getElementById('feedback-modal').classList.add('active'); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="message-circle" class="sidebar-nav-icon"></i> Feedback
                 </button>
-                <div class="sidebar-account-menu-wrapper">
-                    <button class="sidebar-nav-item" onclick="toggleAccountMenu(event)" id="sidebar-account-trigger">
-                        <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
-                        Account
-                    </button>
-                    <div class="sidebar-account-popover" id="sidebar-account-popover">
-                        <div class="account-popover-label">Appearance</div>
-                        <div class="theme-toggle-group">
-                            <button class="theme-option" data-theme-choice="light" onclick="setTheme('light')">Light</button>
-                            <button class="theme-option" data-theme-choice="dark" onclick="setTheme('dark')">Dark</button>
-                            <button class="theme-option" data-theme-choice="system" onclick="setTheme('system')">System</button>
-                        </div>
-                        <div class="account-popover-divider"></div>
-                        <button class="account-popover-logout" onclick="logout()">Log Out</button>
-                    </div>
-                </div>
+                <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
+                    <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
+                    Log Out
+                </button>
             </div>
         </aside>
 

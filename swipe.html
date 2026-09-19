@@ -571,9 +571,9 @@
         @media (max-width: 768px) {
             .email-mailbox-main { flex-direction: column; }
             .email-list { order: 1; min-height: 0; }
-            .email-folder-nav { order: 2; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.25rem; padding: 0.55rem 0.7rem max(0.55rem, env(safe-area-inset-bottom)); border: 0; border-top: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; }
+            .email-folder-nav { order: 0 !important; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.35rem; padding: 0.65rem 0.75rem; background: var(--surface-color); border: 0; border-bottom: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
             .email-folder-label, .email-folder-divider { display: none; }
-            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.6rem; font-size: 0.78rem; white-space: nowrap; }
+            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.7rem; font-size: 0.8rem; white-space: nowrap; }
             .folder-label-desktop { display: none; }
             .folder-label-mobile { display: inline; }
             #tab-interviews { order: 1; }
@@ -778,9 +778,9 @@
                including the flex+min-height:0 fix that page needed for the
                opened email's iframe to actually get a real height on mobile. */
             #email-client-modal { padding: 0; }
-            .email-client-container { flex-direction: column; height: 100vh; border-radius: 0; }
+            .email-client-container { flex-direction: column; height: 100vh; height: 100dvh; border-radius: 0; }
             .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex: 1; min-height: 0; }
-            .email-list { min-height: 0; }
+            .email-list { min-height: 0; padding-bottom: max(3rem, calc(1.5rem + env(safe-area-inset-bottom, 0px))); }
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
             .email-client-container.mobile-show-content .email-content { display: flex; flex: 1; min-height: 0; }
