@@ -32,8 +32,43 @@
         p { margin-bottom: 1.2rem; font-size: 0.98rem; color: var(--text-body); line-height: 1.65; }
         ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
         li { margin-bottom: 0.5rem; color: var(--text-body); font-size: 0.98rem; line-height: 1.65; }
-        a.back-btn { display: inline-block; margin-top: 2rem; color: var(--text-heading); font-weight: 800; text-decoration: none; text-transform: uppercase; font-size: 0.85rem; padding: 0.6rem 1.2rem; border: 1px solid var(--border); border-radius: 8px; transition: all 0.2s; }
-        a.back-btn:hover { background: #f4f4f5; border-color: #000000; }
+        .top-nav-bar {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 1rem 3rem;
+            margin: -3rem -3rem 1.5rem -3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+            border-top-left-radius: 20px;
+            border-top-right-radius: 20px;
+            z-index: 100;
+        }
+        .cancel-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            color: #000000;
+            font-weight: 800;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            text-decoration: none;
+            padding: 0.45rem 1rem;
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            background: #ffffff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            transition: all 0.2s ease;
+        }
+        .cancel-btn:hover {
+            background: #f4f4f5;
+            border-color: #000000;
+            transform: translateY(-1px);
+        }
     </style>
     <!-- Cloudflare Web Analytics -->
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e283f8a57d564d11a0e493125628363a"}'></script>
@@ -47,7 +82,10 @@
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="logo"><img src="assets/role_rover_logo.png" alt="Role Rover" style="height: 32px; width: auto; display: inline-block; vertical-align: middle;" /></a>
+        <div class="top-nav-bar">
+            <a href="index.html" class="logo"><img src="assets/role_rover_logo.png" alt="Role Rover" style="height: 32px; width: auto; display: inline-block; vertical-align: middle;" /></a>
+            <a href="index.html" class="cancel-btn">✕ Cancel</a>
+        </div>
         <h1>Refund Policy</h1>
         <div class="date">Last Updated: June 24, 2026</div>
 
@@ -66,14 +104,12 @@
         <h3>3. How to Request a Refund</h3>
         <p>To request a refund for unused credits:</p>
         <ol style="margin-bottom: 1.5rem; padding-left: 1.5rem;">
-            <li style="margin-bottom: 0.5rem; color: #D1D5DB;">Email <strong>billing@myrolerover.com</strong> from the email address associated with your account.</li>
-            <li style="margin-bottom: 0.5rem; color: #D1D5DB;">Include your purchase receipt or transaction reference.</li>
-            <li style="margin-bottom: 0.5rem; color: #D1D5DB;">Our billing team will verify that no applications have been submitted and process your refund within 3–5 business days.</li>
+            <li style="margin-bottom: 0.5rem; color: var(--text-body);">Email <strong>billing@myrolerover.com</strong> from the email address associated with your account.</li>
+            <li style="margin-bottom: 0.5rem; color: var(--text-body);">Include your purchase receipt or transaction reference.</li>
+            <li style="margin-bottom: 0.5rem; color: var(--text-body);">Our billing team will verify that no applications have been submitted and process your refund within 3–5 business days.</li>
         </ol>
 
         <p>Refunds will be credited back to your original payment method. If you paid in Naira (NGN), you will receive the exact Naira amount paid. For foreign currency transactions, exchange rate fees or bank conversion differences may apply and are determined by your card issuer.</p>
-
-        <a href="index.html" class="back-btn">&larr; Back to Home</a>
     </div>
 </body>
 </html>
