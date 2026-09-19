@@ -10,21 +10,12 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         :root {
-            --bg-color: #64748b;
-            --surface-color: #ffffff;
-            --text-heading: #0f172a;
-            --text-body: #475569;
-            --border: #cbd5e1;
-            --primary: #059669;
-        }
-
-        [data-theme="dark"] {
-            --bg-color: #0f172a;
-            --surface-color: #1e293b;
+            --bg-color: #0b0f19;
+            --surface-color: #161e2e;
             --text-heading: #f8fafc;
             --text-body: #94a3b8;
-            --border: #334155;
-            --primary: #10b981;
+            --border: #243044;
+            --primary: #059669;
         }
 
         * {
@@ -59,7 +50,7 @@
             padding: 0 1rem;
             flex-shrink: 0;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
 
         .brand-group {
@@ -72,8 +63,8 @@
         }
 
         .brand-badge {
-            background: #000000;
-            color: #ffffff;
+            background: #ffffff;
+            color: #000000;
             padding: 0.22rem 0.55rem;
             border-radius: 6px;
             font-size: 0.78rem;
@@ -117,22 +108,6 @@
             margin-top: 0.1rem;
         }
 
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .page-badge {
-            font-size: 0.72rem;
-            font-weight: 750;
-            background: rgba(0,0,0,0.06);
-            color: var(--text-body);
-            padding: 0.25rem 0.65rem;
-            border-radius: 12px;
-            white-space: nowrap;
-        }
-
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -145,14 +120,13 @@
             font-weight: 800;
             color: #000000;
             text-decoration: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
             transition: all 0.2s;
             flex-shrink: 0;
         }
 
         .back-btn:hover {
-            background: #f4f4f5;
-            border-color: #000000;
+            background: #e2e8f0;
         }
 
         .viewer-body {
@@ -163,28 +137,29 @@
             background: var(--bg-color);
             overflow-y: auto;
             overflow-x: auto;
-            padding: 1.25rem 0.75rem 2.5rem;
+            padding: 1.5rem 0.75rem 3rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Physical PDF Paper Sheet Styling */
+        /* Physical PDF Paper Sheet Styling without height clipping */
         .paper-page {
             background: #ffffff !important;
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.25) !important;
             border-radius: 4px;
-            margin-bottom: 1.5rem;
-            position: relative;
-            overflow: hidden;
+            margin-bottom: 1.75rem;
             display: block;
+            width: 100%;
+            max-width: 840px;
         }
 
         .paper-page canvas {
             display: block;
             width: 100% !important;
             height: auto !important;
+            border-radius: 4px;
         }
 
         .loading-state {
@@ -197,7 +172,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: var(--surface-color);
+            background: var(--bg-color);
             z-index: 10;
             gap: 0.75rem;
             color: var(--text-body);
@@ -220,9 +195,8 @@
 
         @media (max-width: 640px) {
             .brand-title { display: none; }
-            .back-text { display: none; }
             .viewer-header { padding: 0 0.75rem; }
-            .viewer-body { padding: 1rem 0.5rem 2rem; }
+            .viewer-body { padding: 1.25rem 0.5rem 2.5rem; }
         }
     </style>
 </head>
@@ -239,12 +213,9 @@
                 <div class="doc-subtitle-text" id="doc-company"></div>
             </div>
 
-            <div class="header-actions">
-                <div class="page-badge" id="page-count-badge">PDF</div>
-                <a href="dashboard.html" class="back-btn">
-                    ← <span class="back-text">Back to </span>Applications
-                </a>
-            </div>
+            <a href="dashboard.html" class="back-btn">
+                ← Dashboard
+            </a>
         </header>
 
         <main class="viewer-body" id="pdf-paper-container">
@@ -273,7 +244,6 @@
             const companyElem = document.getElementById('doc-company');
             const container = document.getElementById('pdf-paper-container');
             const spinner = document.getElementById('loading-spinner');
-            const pageBadge = document.getElementById('page-count-badge');
 
             if (title) titleElem.innerText = title;
             if (company) companyElem.innerText = company;
@@ -289,21 +259,18 @@
                 const pdf = await loadingTask.promise;
                 spinner.style.display = 'none';
 
-                pageBadge.innerText = `1 of ${pdf.numPages}`;
-
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     const page = await pdf.getPage(pageNum);
 
-                    // Compute device pixel ratio and responsive scale to fit paper width cleanly
+                    // Compute rendering scale using high-resolution output scale to prevent clipping or blur
                     const viewportUnscaled = page.getViewport({ scale: 1.0 });
-                    const containerWidth = Math.min(window.innerWidth - 24, 820);
+                    const containerWidth = Math.min(window.innerWidth - 24, 840);
                     const scale = containerWidth / viewportUnscaled.width;
                     const viewport = page.getViewport({ scale: scale });
 
                     const pageWrapper = document.createElement('div');
                     pageWrapper.className = 'paper-page';
-                    pageWrapper.style.width = `${viewport.width}px`;
-                    pageWrapper.style.height = `${viewport.height}px`;
+                    pageWrapper.style.maxWidth = `${viewport.width}px`;
 
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
@@ -311,8 +278,6 @@
                     const outputScale = window.devicePixelRatio || 1;
                     canvas.width = Math.floor(viewport.width * outputScale);
                     canvas.height = Math.floor(viewport.height * outputScale);
-                    canvas.style.width = `${viewport.width}px`;
-                    canvas.style.height = `${viewport.height}px`;
 
                     const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
 
