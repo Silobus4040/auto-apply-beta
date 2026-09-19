@@ -907,6 +907,9 @@
             .app-main { padding-bottom: max(2.5rem, calc(1.5rem + env(safe-area-inset-bottom, 0px))); }
             .container { padding: 1rem 1rem max(3.5rem, calc(2rem + env(safe-area-inset-bottom, 0px))); }
             .sidebar-nav {
+                display: flex;
+                flex-direction: column;
+                flex: 1;
                 min-height: 0;
                 padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
                 overflow-y: auto;
@@ -916,7 +919,7 @@
                 position: static;
                 margin-top: 0.65rem;
             }
-            .sidebar-nav-item.sidebar-nav-logout { margin-top: 1rem; }
+            .sidebar-nav-item.sidebar-nav-logout { margin-top: auto !important; margin-bottom: max(1rem, env(safe-area-inset-bottom, 0px)); padding-top: 1rem; border-top: 1px solid var(--border); }
 
             /* The mobile top bar already names the screen. Keep the content
                header for account controls only, so "Dashboard" isn't said twice. */
