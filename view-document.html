@@ -41,71 +41,16 @@
         }
 
         .viewer-header {
-            height: 62px;
+            height: 56px;
             background: var(--surface-color);
             border-bottom: 1px solid var(--border);
             display: flex;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-end;
             padding: 0 1rem;
             flex-shrink: 0;
             z-index: 100;
             box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-
-        .brand-group {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            text-decoration: none;
-            color: var(--text-heading);
-            font-weight: 900;
-        }
-
-        .brand-badge {
-            background: #ffffff;
-            color: #000000;
-            padding: 0.22rem 0.55rem;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            font-weight: 900;
-            letter-spacing: 0.5px;
-        }
-
-        .brand-title {
-            font-size: 0.95rem;
-            font-weight: 800;
-        }
-
-        .doc-info {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            text-align: center;
-            min-width: 0;
-            flex: 1;
-            margin: 0 0.75rem;
-        }
-
-        .doc-title-text {
-            font-size: 0.85rem;
-            font-weight: 850;
-            color: var(--text-heading);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-        }
-
-        .doc-subtitle-text {
-            font-size: 0.73rem;
-            color: var(--text-body);
-            font-weight: 600;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 100%;
-            margin-top: 0.1rem;
         }
 
         .back-btn {
@@ -115,12 +60,12 @@
             background: #ffffff;
             border: 1px solid var(--border);
             border-radius: 20px;
-            padding: 0.4rem 0.9rem;
-            font-size: 0.78rem;
-            font-weight: 800;
+            padding: 0.4rem 1rem;
+            font-size: 0.82rem;
+            font-weight: 850;
             color: #000000;
             text-decoration: none;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
             transition: all 0.2s;
             flex-shrink: 0;
         }
@@ -132,34 +77,61 @@
         .viewer-body {
             flex: 1;
             width: 100%;
-            height: calc(100vh - 62px);
+            height: calc(100vh - 56px);
             position: relative;
             background: var(--bg-color);
             overflow-y: auto;
             overflow-x: auto;
-            padding: 1.5rem 0.75rem 3rem;
+            padding: 1rem 0.5rem 3rem;
             display: flex;
             flex-direction: column;
             align-items: center;
             -webkit-overflow-scrolling: touch;
         }
 
-        /* Physical PDF Paper Sheet Styling without height clipping */
-        .paper-page {
-            background: #ffffff !important;
-            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.5), 0 3px 10px rgba(0, 0, 0, 0.25) !important;
-            border-radius: 4px;
-            margin-bottom: 1.75rem;
-            display: block;
+        /* Continuous PDF Document Container */
+        .pdf-document-paper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.6rem;
             width: 100%;
             max-width: 840px;
+        }
+
+        /* Physical PDF Paper Sheet Styling with continuous paper flow */
+        .paper-page {
+            background: #ffffff !important;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), 0 2px 6px rgba(0, 0, 0, 0.2) !important;
+            border-radius: 2px;
+            display: block;
+            width: 100%;
         }
 
         .paper-page canvas {
             display: block;
             width: 100% !important;
             height: auto !important;
-            border-radius: 4px;
+            border-radius: 2px;
+        }
+
+        .floating-page-indicator {
+            position: fixed;
+            bottom: 1.25rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(15, 23, 42, 0.88);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            z-index: 99;
+            border: 1px solid rgba(255,255,255,0.12);
+            display: none;
         }
 
         .loading-state {
@@ -194,36 +166,30 @@
         }
 
         @media (max-width: 640px) {
-            .brand-title { display: none; }
             .viewer-header { padding: 0 0.75rem; }
-            .viewer-body { padding: 1.25rem 0.5rem 2.5rem; }
+            .viewer-body { padding: 0.75rem 0.35rem 2.5rem; }
+            .pdf-document-paper { gap: 0.5rem; }
         }
     </style>
 </head>
 <body>
     <div class="viewer-container">
         <header class="viewer-header">
-            <a href="dashboard.html" class="brand-group">
-                <span class="brand-badge">ROVER</span>
-                <span class="brand-title">Role Rover</span>
-            </a>
-
-            <div class="doc-info">
-                <div class="doc-title-text" id="doc-title">Loading Document...</div>
-                <div class="doc-subtitle-text" id="doc-company"></div>
-            </div>
-
             <a href="dashboard.html" class="back-btn">
                 ← Dashboard
             </a>
         </header>
 
-        <main class="viewer-body" id="pdf-paper-container">
+        <main class="viewer-body" id="viewer-scroll-body">
             <div class="loading-state" id="loading-spinner">
                 <div class="spinner"></div>
-                <div>Rendering PDF Paper...</div>
+                <div>Rendering Document...</div>
             </div>
+
+            <div class="pdf-document-paper" id="pdf-paper-container"></div>
         </main>
+
+        <div class="floating-page-indicator" id="page-indicator">Page 1 of 1</div>
     </div>
 
     <script>
@@ -233,21 +199,18 @@
             const params = new URLSearchParams(window.location.search);
             return {
                 url: params.get('url'),
-                title: params.get('title') || 'Document',
-                company: params.get('company') || ''
+                title: params.get('title') || 'Document'
             };
         }
 
         async function renderPDFPaper() {
-            const { url, title, company } = getQueryParams();
-            const titleElem = document.getElementById('doc-title');
-            const companyElem = document.getElementById('doc-company');
+            const { url, title } = getQueryParams();
             const container = document.getElementById('pdf-paper-container');
             const spinner = document.getElementById('loading-spinner');
+            const pageIndicator = document.getElementById('page-indicator');
+            const scrollBody = document.getElementById('viewer-scroll-body');
 
-            if (title) titleElem.innerText = title;
-            if (company) companyElem.innerText = company;
-            document.title = `${title} - Role Rover`;
+            if (title) document.title = `${title} - Role Rover`;
 
             if (!url) {
                 spinner.innerHTML = '<div style="color: #ef4444; font-weight: 700;">Document URL not provided.</div>';
@@ -259,18 +222,24 @@
                 const pdf = await loadingTask.promise;
                 spinner.style.display = 'none';
 
+                if (pdf.numPages > 1) {
+                    pageIndicator.innerText = `Page 1 of ${pdf.numPages}`;
+                    pageIndicator.style.display = 'block';
+                }
+
+                const pageElements = [];
+
                 for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
                     const page = await pdf.getPage(pageNum);
 
-                    // Compute rendering scale using high-resolution output scale to prevent clipping or blur
                     const viewportUnscaled = page.getViewport({ scale: 1.0 });
-                    const containerWidth = Math.min(window.innerWidth - 24, 840);
+                    const containerWidth = Math.min(window.innerWidth - 16, 840);
                     const scale = containerWidth / viewportUnscaled.width;
                     const viewport = page.getViewport({ scale: scale });
 
                     const pageWrapper = document.createElement('div');
                     pageWrapper.className = 'paper-page';
-                    pageWrapper.style.maxWidth = `${viewport.width}px`;
+                    pageWrapper.dataset.pageNum = pageNum;
 
                     const canvas = document.createElement('canvas');
                     const context = canvas.getContext('2d');
@@ -283,6 +252,7 @@
 
                     pageWrapper.appendChild(canvas);
                     container.appendChild(pageWrapper);
+                    pageElements.push(pageWrapper);
 
                     const renderContext = {
                         canvasContext: context,
@@ -292,6 +262,21 @@
 
                     await page.render(renderContext).promise;
                 }
+
+                // Update floating page indicator on scroll
+                if (pdf.numPages > 1) {
+                    scrollBody.addEventListener('scroll', () => {
+                        let currentPage = 1;
+                        pageElements.forEach((el, idx) => {
+                            const rect = el.getBoundingClientRect();
+                            if (rect.top <= window.innerHeight / 2) {
+                                currentPage = idx + 1;
+                            }
+                        });
+                        pageIndicator.innerText = `Page ${currentPage} of ${pdf.numPages}`;
+                    });
+                }
+
             } catch (error) {
                 console.error('PDF.js render error:', error);
                 spinner.innerHTML = `
