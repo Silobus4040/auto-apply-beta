@@ -4,6 +4,7 @@
     <script>if (window.location.hostname === 'jobs.leadscompass.ai') window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search);</script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light">
     <title>AutoApply AI | Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <meta name="robots" content="noindex,nofollow">
@@ -833,10 +834,10 @@
     <!-- End PostHog -->
 
     <script>
+        // Force fixed brand light mode regardless of phone OS dark mode settings
         (function() {
-            const saved = localStorage.getItem('theme_preference') || 'system';
-            const resolved = saved === 'system' ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light') : saved;
-            if (resolved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+            try { localStorage.removeItem('theme_preference'); } catch(e) {}
+            document.documentElement.removeAttribute('data-theme');
         })();
     </script>
 </head>
