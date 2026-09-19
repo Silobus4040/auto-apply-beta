@@ -929,9 +929,12 @@
             .stats-bar .stat:first-child { grid-column: 1 / -1; gap: 0.45rem !important; }
         @media (min-width: 769px) {
             .card-back-cell { display: none !important; }
+            .mobile-qa-cell { display: none !important; }
+            .qa-btn-desktop { display: block; }
         }
 
         @media (max-width: 768px) {
+            .qa-btn-desktop { display: none !important; }
             .stats-bar .stat:first-child > div { display: grid !important; grid-template-columns: 1fr; gap: 0.55rem; align-items: start !important; }
             .stats-bar .stat:first-child .stat-view-btn { width: 100%; justify-content: center; min-height: 42px; }
             .stat-number { font-size: 1.55rem !important; }
@@ -1094,21 +1097,21 @@
                 color: var(--text-heading) !important; margin-top: 0.15rem !important; line-height: 1.3;
             }
 
-            /* Status pill & view submitted form button on their own row */
+            /* Status pill on its own line under title (Order 2) */
             .jobs-table td[data-label="Status"] { width: 100%; order: 2; }
-            .jobs-table td[data-label="Status"] .table-status-cell {
-                display: flex !important; flex-direction: column !important; align-items: flex-start !important; gap: 0.45rem !important;
-            }
 
-            /* View Posting button on its own line */
+            /* View Posting button on its own line (Order 3) */
             .jobs-table td[data-label="Career Page"] { width: 100%; order: 3; }
 
-            /* Resume & Cover Letter buttons side by side at bottom */
+            /* Resume & Cover Letter buttons side by side (Order 4) */
             .jobs-table td[data-label="Resume & Cover Letter"] { width: 100%; order: 4; }
             .jobs-table td[data-label="Resume & Cover Letter"] > div {
                 display: flex !important; flex-direction: row !important; flex-wrap: wrap; gap: 0.55rem;
             }
             .jobs-table td[data-label="Resume & Cover Letter"] .table-btn { margin-top: 0 !important; }
+
+            /* View Submitted Form button at the very bottom (Order 5) */
+            .jobs-table td[data-label="Submitted Form"].mobile-qa-cell { width: 100%; order: 5; display: block !important; }
 
             /* Button hierarchy. Previously all four buttons rendered at identical
                weight, which read as a flat grey wall under the title and left the
@@ -1416,7 +1419,7 @@
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
                 <div style="display: flex; align-items: baseline; justify-content: space-between; width: 100%; gap: 0.5rem;">
                     <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
-                    <a class="stat-view-btn" href="swipe.html" style="text-decoration: none;">Open Deck</a>
+                    <a class="stat-view-btn" href="swipe.html" style="text-decoration: none;">View Jobs</a>
                 </div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
@@ -2946,7 +2949,7 @@
                         <td data-label="Status">
                             <div class="table-status-cell">
                                 <div class="status-pill ${statusClass}" style="display: inline-flex; width: fit-content;">${statusLabel}</div>
-                                ${qaButton}
+                                <div class="qa-btn-desktop">${qaButton}</div>
                                 ${retryingNote}
                             </div>
                         </td>
@@ -2958,6 +2961,9 @@
                                 ${resumeButton}
                                 ${coverLetterButton}
                             </div>
+                        </td>
+                        <td data-label="Submitted Form" class="mobile-qa-cell">
+                            ${qaButton}
                         </td>
                         <td class="card-back-cell" id="card-back-${index}"></td>
                     </tr>
