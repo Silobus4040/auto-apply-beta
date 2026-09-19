@@ -1310,7 +1310,6 @@
                 flex-direction: column !important;
                 flex: 1 1 auto !important;
                 min-height: 0 !important;
-                height: 100% !important;
                 margin: 0 !important;
                 overflow: hidden !important;
                 width: 100% !important;
@@ -1321,22 +1320,19 @@
             }
             .swipe-stack {
                 position: relative !important;
-                flex: 1 1 auto !important;
-                min-height: 0 !important;
-                height: 100% !important;
-                max-height: none !important;
+                flex: 0 0 auto !important;
+                height: clamp(260px, calc(100dvh - 300px), 430px) !important;
                 overflow: hidden !important;
-                margin: 0 !important;
+                margin: 0 0 0.5rem 0 !important;
             }
             .swipe-card {
                 position: absolute !important;
                 inset: 0 !important;
                 height: 100% !important;
-                border-radius: 20px 20px 0 0 !important;
+                border-radius: 20px !important;
                 padding: 1rem 1.15rem !important;
                 overflow-y: auto !important;
                 -webkit-overflow-scrolling: touch;
-                border-bottom: 1px solid var(--border) !important;
             }
             .swipe-actions {
                 display: grid !important;
@@ -1344,22 +1340,20 @@
                 gap: 0.5rem !important;
                 width: 100% !important;
                 flex: 0 0 auto !important;
-                margin: 0 !important;
-                padding: 0.65rem 0.75rem max(3.5rem, calc(2.2rem + env(safe-area-inset-bottom, 20px))) !important;
-                background: var(--surface-color) !important;
-                border: 0 !important;
-                border-top: 1px solid var(--border) !important;
-                box-shadow: 0 -4px 16px rgba(0,0,0,0.06) !important;
-                border-radius: 0 0 20px 20px !important;
+                margin: 0 0 max(2.5rem, calc(1.5rem + env(safe-area-inset-bottom, 20px))) 0 !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
                 position: relative !important;
                 bottom: 0 !important;
                 z-index: 100 !important;
             }
             .swipe-btn {
-                height: 46px !important;
+                height: 48px !important;
                 min-width: 0 !important;
                 padding: 0 0.5rem !important;
-                font-size: 0.75rem !important;
+                font-size: 0.78rem !important;
             }
         }
     </style>
