@@ -7,33 +7,33 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0a0a0a;
-            --surface-color: #121212;
-            --primary: #D4FF33;
-            --text-heading: #FFFFFF;
-            --text-body: #A1A1AA;
-            --border: #27272A;
+            --bg-color: #f8fafc;
+            --surface-color: #ffffff;
+            --primary: #00b38f;
+            --text-heading: #000000;
+            --text-body: #3f3f46;
+            --border: #e4e4e7;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; padding: 2rem 5%; }
+        body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; padding: 2rem 5%; position: relative; }
         
         body::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
-            background-image: linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 40px 40px; opacity: 0.3;
+            background-image: linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+            background-size: 40px 40px; opacity: 0.5; pointer-events: none;
         }
 
-        .container { max-width: 800px; margin: 4rem auto; background: var(--surface-color); border: 2px solid var(--border); padding: 3rem; position: relative; }
-        h1 { color: var(--text-heading); font-size: 2.5rem; font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem; border-bottom: 2px solid var(--border); padding-bottom: 1rem; }
+        .container { max-width: 800px; margin: 2rem auto 4rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 3rem; position: relative; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.03); }
+        h1 { color: var(--text-heading); font-size: 2.2rem; font-weight: 900; text-transform: uppercase; margin-bottom: 0.5rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; letter-spacing: -1px; }
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; margin-bottom: 2rem; text-transform: uppercase; text-decoration: none; display: inline-block; }
         .logo span { color: var(--primary); }
-        .date { font-size: 0.9rem; color: var(--primary); font-weight: 700; text-transform: uppercase; margin-bottom: 2rem; }
-        h3 { color: var(--text-heading); font-size: 1.25rem; font-weight: 800; text-transform: uppercase; margin: 2rem 0 1rem; border-left: 3px solid var(--primary); padding-left: 0.75rem; }
-        p { margin-bottom: 1.2rem; font-size: 1rem; color: #D1D5DB; }
+        .date { font-size: 0.85rem; color: #71717a; font-weight: 700; text-transform: uppercase; margin-bottom: 2rem; }
+        h3 { color: var(--text-heading); font-size: 1.2rem; font-weight: 850; text-transform: uppercase; margin: 2rem 0 1rem; border-left: 3px solid var(--primary); padding-left: 0.75rem; letter-spacing: -0.5px; }
+        p { margin-bottom: 1.2rem; font-size: 0.98rem; color: var(--text-body); line-height: 1.65; }
         ul { margin-bottom: 1.5rem; padding-left: 1.5rem; }
-        li { margin-bottom: 0.5rem; color: #D1D5DB; }
-        a.back-btn { display: inline-block; margin-top: 2rem; color: var(--primary); font-weight: 700; text-decoration: none; text-transform: uppercase; font-size: 0.9rem; }
-        a.back-btn:hover { text-decoration: underline; }
+        li { margin-bottom: 0.5rem; color: var(--text-body); font-size: 0.98rem; line-height: 1.65; }
+        a.back-btn { display: inline-block; margin-top: 2rem; color: var(--text-heading); font-weight: 800; text-decoration: none; text-transform: uppercase; font-size: 0.85rem; padding: 0.6rem 1.2rem; border: 1px solid var(--border); border-radius: 8px; transition: all 0.2s; }
+        a.back-btn:hover { background: #f4f4f5; border-color: #000000; }
     </style>
     <!-- Cloudflare Web Analytics -->
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e283f8a57d564d11a0e493125628363a"}'></script>
@@ -47,7 +47,7 @@
 </head>
 <body>
     <div class="container">
-        <a href="index.html" class="logo">APPLY<span>/BOT</span></a>
+        <a href="index.html" class="logo"><img src="assets/role_rover_logo.png" alt="Role Rover" style="height: 32px; width: auto; display: inline-block; vertical-align: middle;" /></a>
         <h1>Refund Policy</h1>
         <div class="date">Last Updated: June 24, 2026</div>
 
