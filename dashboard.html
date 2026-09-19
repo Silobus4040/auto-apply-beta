@@ -3008,6 +3008,32 @@
             }
         }
 
+        async function openInAppDocumentViewer(docUrl, title, company, filename) {
+            document.getElementById('resume-modal-title').innerText = title;
+            document.getElementById('resume-modal-company').innerText = company;
+
+            if (currentResumeObjectUrl) URL.revokeObjectURL(currentResumeObjectUrl);
+
+            const iframe = document.getElementById('resume-iframe');
+            iframe.src = '';
+            document.getElementById('resume-modal').classList.add('active');
+
+            document.getElementById('resume-modal-filename').innerText = filename || '';
+            const downloadLink = document.getElementById('resume-modal-download');
+            if (downloadLink) downloadLink.setAttribute('download', filename || 'document.pdf');
+
+            try {
+                const response = await fetch(docUrl);
+                const blob = await response.blob();
+                currentResumeObjectUrl = URL.createObjectURL(blob);
+                iframe.src = currentResumeObjectUrl;
+                if (downloadLink) downloadLink.href = currentResumeObjectUrl;
+            } catch (error) {
+                iframe.src = docUrl;
+                if (downloadLink) downloadLink.href = docUrl;
+            }
+        }
+
         async function openDocument(index, type) {
             const job = currentJobs[index];
             const docUrl = type === 'coverLetter' ? job.coverLetterUrl : job.resumeUrl;
@@ -3033,7 +3059,7 @@
                             <div style="font-size: 2.5rem; line-height: 1;">📄</div>
                             <div style="font-size: 0.82rem; font-weight: 750; color: var(--text-heading); word-break: break-all; max-width: 90%; line-height: 1.3;">${filename}</div>
                             <div style="display: flex; flex-direction: column; gap: 0.55rem; width: 100%; max-width: 260px; margin-top: 0.4rem;">
-                                <button onclick="window.open('${docUrl}', '_blank')" class="table-btn table-btn-posting" style="width: 100%; justify-content: center; font-weight: 800; padding: 0.75rem 1rem; font-size: 0.85rem; border-radius: 8px;">
+                                <button onclick="openInAppDocumentViewer('${docUrl}', '${docTitle} for ${job.title}', '${job.companyName}', '${filename}')" class="table-btn table-btn-posting" style="width: 100%; justify-content: center; font-weight: 800; padding: 0.75rem 1rem; font-size: 0.85rem; border-radius: 8px;">
                                     ${actionBtnText}
                                 </button>
                             </div>
@@ -3045,29 +3071,7 @@
             }
 
             // On desktop (> 768px), use standard full preview modal
-            document.getElementById('resume-modal-title').innerText = type === 'coverLetter' ? `Cover Letter for ${job.title}` : `Resume for ${job.title}`;
-            document.getElementById('resume-modal-company').innerText = job.companyName;
-
-            if (currentResumeObjectUrl) URL.revokeObjectURL(currentResumeObjectUrl);
-
-            const iframe = document.getElementById('resume-iframe');
-            iframe.src = '';
-            document.getElementById('resume-modal').classList.add('active');
-
-            document.getElementById('resume-modal-filename').innerText = filename;
-            const downloadLink = document.getElementById('resume-modal-download');
-            downloadLink.setAttribute('download', filename);
-
-            try {
-                const response = await fetch(docUrl);
-                const blob = await response.blob();
-                currentResumeObjectUrl = URL.createObjectURL(blob);
-                iframe.src = currentResumeObjectUrl;
-                downloadLink.href = currentResumeObjectUrl;
-            } catch (error) {
-                iframe.src = docUrl;
-                downloadLink.href = docUrl;
-            }
+            openInAppDocumentViewer(docUrl, type === 'coverLetter' ? `Cover Letter for ${job.title}` : `Resume for ${job.title}`, job.companyName, filename);
         }
 
         function flipCardBack(index) {
