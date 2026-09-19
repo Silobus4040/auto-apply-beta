@@ -570,11 +570,11 @@
             color: #1a1a1a;
         }
         @media (max-width: 768px) {
-            .email-mailbox-main { flex-direction: column; flex: 1; min-height: 0; }
-            .email-list { order: 1; flex: 1; min-height: 0; }
-            .email-folder-nav { order: 2 !important; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.35rem; padding: 0.65rem 0.75rem max(1.25rem, calc(0.65rem + env(safe-area-inset-bottom, 0px))); background: var(--surface-color); border: 0; border-top: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
+            .email-mailbox-main { display: flex !important; flex-direction: column !important; flex: 1 1 auto !important; height: 100% !important; min-height: 0 !important; overflow: hidden !important; }
+            .email-mailbox-main > div { order: 1 !important; flex: 1 1 auto !important; height: 100% !important; min-height: 0 !important; display: flex !important; flex-direction: column !important; }
+            .email-folder-nav { order: 2 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; width: 100% !important; min-width: 0 !important; flex: 0 0 auto !important; gap: 0.35rem !important; padding: 0.65rem 0.75rem max(1.25rem, calc(0.65rem + env(safe-area-inset-bottom, 0px))) !important; background: var(--surface-color) !important; border: 0 !important; border-top: 1px solid var(--border) !important; overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap !important; position: sticky !important; bottom: 0 !important; z-index: 100 !important; box-shadow: 0 -4px 16px rgba(0,0,0,0.06) !important; touch-action: pan-x !important; }
             .email-folder-label, .email-folder-divider { display: none; }
-            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.75rem; font-size: 0.8rem; white-space: nowrap; }
+            .email-folder-btn { touch-action: manipulation !important; -webkit-tap-highlight-color: transparent !important; user-select: none !important; width: auto; flex: 0 0 auto; padding: 0.55rem 0.75rem; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
             .folder-label-desktop { display: none; }
             .folder-label-mobile { display: inline; }
             #tab-interviews { order: 1; }
