@@ -771,7 +771,7 @@
                phones show it's too generous. */
             #stats-bar { display: none !important; }
             .page-header { display: none; }
-            #swipe-deck-section { --deck-chrome: 320px; margin-bottom: max(3.5rem, calc(2rem + env(safe-area-inset-bottom, 0px))); }
+            #swipe-deck-section { --deck-chrome: 360px !important; margin-bottom: max(4.5rem, calc(2.5rem + env(safe-area-inset-bottom, 0px))) !important; }
 
             /* Email client had NO mobile handling at all here (unlike the
                identical UI on dashboard.html, which already stacks these
@@ -1246,7 +1246,7 @@
            bar (pure chrome) and drop --deck-chrome to hand those pixels back to
            the card, then tighten the card's own type/padding. */
         @media (max-height: 720px) {
-            #swipe-deck-section { --deck-chrome: 240px; }
+            #swipe-deck-section { --deck-chrome: 360px !important; margin-bottom: max(4.5rem, calc(2.5rem + env(safe-area-inset-bottom, 0px))) !important; }
             .swipe-card { padding: 1rem 1.25rem; }
             .swipe-card-title { font-size: 1.1rem; margin-bottom: 0.4rem; }
             .swipe-card-info { gap: 0.35rem; }
