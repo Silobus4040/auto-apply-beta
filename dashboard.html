@@ -601,11 +601,11 @@
             color: #1a1a1a;
         }
         @media (max-width: 768px) {
-            .email-mailbox-main { flex-direction: column; }
-            .email-mailbox-main > div { order: 1; min-height: 0; }
-            .email-folder-nav { order: 0 !important; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.35rem; padding: 0.65rem 0.75rem; background: var(--surface-color); border: 0; border-bottom: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; position: sticky; top: 0; z-index: 10; }
+            .email-mailbox-main { flex-direction: column; flex: 1; min-height: 0; }
+            .email-mailbox-main > div { order: 1; flex: 1; min-height: 0; }
+            .email-folder-nav { order: 2 !important; display: flex; flex-direction: row; align-items: center; justify-content: flex-start; width: 100%; min-width: 0; flex: 0 0 auto; gap: 0.35rem; padding: 0.65rem 0.75rem max(1.25rem, calc(0.65rem + env(safe-area-inset-bottom, 0px))); background: var(--surface-color); border: 0; border-top: 1px solid var(--border); overflow-x: auto; overflow-y: hidden; white-space: nowrap; position: sticky; bottom: 0; z-index: 100; box-shadow: 0 -4px 16px rgba(0,0,0,0.06); }
             .email-folder-label, .email-folder-divider { display: none; }
-            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.7rem; font-size: 0.8rem; white-space: nowrap; }
+            .email-folder-btn { width: auto; flex: 0 0 auto; padding: 0.55rem 0.75rem; font-size: 0.8rem; white-space: nowrap; }
             .folder-label-desktop { display: none; }
             .folder-label-mobile { display: inline; }
             #tab-interviews { order: 1; }
