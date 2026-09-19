@@ -322,16 +322,22 @@
             border-radius: 4px;
         }
         .status-pill { padding: 0.22rem 0.62rem; border-radius: 20px; font-size: 0.72rem; font-weight: 700; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; letter-spacing: 0.35px; border: 1px solid transparent; }
-        /* Same neutral black-on-gray styling for every status -- the label
-           text itself (Applied/In Queue/Interview/...) is the differentiator,
-           it doesn't need a color code on top of it (same reasoning already
-           applied to the fit-score badge). */
-        .status-queued, .status-applied, .status-interview, .status-failed, .status-blocked, .status-hired, .status-rejected {
-            background: rgba(0, 0, 0, 0.05); color: #000000; border-color: rgba(0, 0, 0, 0.1);
-        }
-        [data-theme="dark"] .status-queued, [data-theme="dark"] .status-applied, [data-theme="dark"] .status-interview, [data-theme="dark"] .status-failed, [data-theme="dark"] .status-blocked, [data-theme="dark"] .status-hired, [data-theme="dark"] .status-rejected {
-            background: rgba(255, 255, 255, 0.1); color: var(--text-heading); border-color: rgba(255, 255, 255, 0.2);
-        }
+        /* Soft, modern status pill color tinting */
+        .status-applied { background: #ecfdf5; color: #047857; border-color: #a7f3d0; }
+        .status-interview { background: #eff6ff; color: #1d4ed8; border-color: #bfdbfe; }
+        .status-hired { background: #f0fdf4; color: #15803d; border-color: #bbf7d0; }
+        .status-queued { background: #fef3c7; color: #b45309; border-color: #fde68a; }
+        .status-blocked { background: #ffedd5; color: #c2410c; border-color: #fed7aa; }
+        .status-rejected { background: #ffe4e6; color: #be123c; border-color: #fecdd3; }
+        .status-failed { background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+
+        [data-theme="dark"] .status-applied { background: rgba(16, 185, 129, 0.15); color: #34d399; border-color: rgba(16, 185, 129, 0.3); }
+        [data-theme="dark"] .status-interview { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border-color: rgba(59, 130, 246, 0.3); }
+        [data-theme="dark"] .status-hired { background: rgba(34, 197, 94, 0.15); color: #4ade80; border-color: rgba(34, 197, 94, 0.3); }
+        [data-theme="dark"] .status-queued { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+        [data-theme="dark"] .status-blocked { background: rgba(249, 115, 22, 0.15); color: #fb923c; border-color: rgba(249, 115, 22, 0.3); }
+        [data-theme="dark"] .status-rejected { background: rgba(244, 63, 94, 0.15); color: #fb7185; border-color: rgba(244, 63, 94, 0.3); }
+        [data-theme="dark"] .status-failed { background: rgba(148, 163, 184, 0.15); color: #cbd5e1; border-color: rgba(148, 163, 184, 0.3); }
         [data-theme="dark"] .sidebar-nav-item { color: #d4d4d8; }
         [data-theme="dark"] .stat-label,
         [data-theme="dark"] .info-strip-label,
@@ -2932,10 +2938,10 @@
                 const statusLabel = job.status === 'applied' ? 'Applied' : job.status === 'interview' ? 'Interview' : job.status === 'hired' ? 'Hired' : job.status === 'rejected' ? 'Rejected' : job.status === 'Needs Human Review' ? 'No Longer Available' : job.status === 'blocked' ? 'Needs you' : 'In Queue';
 
                 const jobUrl = (job.applyUrl && job.applyUrl !== '#') ? job.applyUrl : (job.link && job.link !== '#') ? job.link : '#';
-                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm table-btn-posting">View Posting</a>` : '';
-                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">Custom Resume</button>` : '';
-                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'coverLetter')">Custom Cover Letter</button>` : '';
-                const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm table-btn-submitted" onclick="openQAModal(${index})">View Submitted Form</button>` : '';
+                const jobLinkButton = jobUrl !== '#' ? `<a href="${jobUrl}" target="_blank" class="table-btn table-btn-sm table-btn-posting">View Posting ↗</a>` : '';
+                const resumeButton = job.resumeUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'resume')">📄 Custom Resume</button>` : '';
+                const coverLetterButton = job.coverLetterUrl ? `<button class="table-btn table-btn-sm" onclick="openDocument(${index}, 'coverLetter')">✉️ Custom Cover Letter</button>` : '';
+                const qaButton = job.status === 'applied' ? `<button class="table-btn table-btn-sm table-btn-submitted" onclick="openQAModal(${index})">📋 View Submitted Form</button>` : '';
                 // Reassure the user Rover is handling this, not asking them to -- see
                 // memory: "Needs Review" implied a human reviewer that doesn't exist.
                 const retryingNote = job.status === 'Needs Human Review' ? `<div class="status-note">This role closed before Rover could finish. You weren't charged.</div>` : '';
