@@ -7,22 +7,23 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <style>
         :root {
-            --bg-color: #f8fafc;
+            --bg-color: #64748b;
             --surface-color: #ffffff;
             --text-heading: #0f172a;
             --text-body: #475569;
-            --border: #e2e8f0;
+            --border: #cbd5e1;
             --primary: #059669;
         }
 
         [data-theme="dark"] {
-            --bg-color: #0b0f17;
-            --surface-color: #151c28;
+            --bg-color: #0f172a;
+            --surface-color: #1e293b;
             --text-heading: #f8fafc;
             --text-body: #94a3b8;
-            --border: #1e293b;
+            --border: #334155;
             --primary: #10b981;
         }
 
@@ -58,7 +59,7 @@
             padding: 0 1rem;
             flex-shrink: 0;
             z-index: 100;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
 
         .brand-group {
@@ -116,6 +117,22 @@
             margin-top: 0.1rem;
         }
 
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .page-badge {
+            font-size: 0.72rem;
+            font-weight: 750;
+            background: rgba(0,0,0,0.06);
+            color: var(--text-body);
+            padding: 0.25rem 0.65rem;
+            border-radius: 12px;
+            white-space: nowrap;
+        }
+
         .back-btn {
             display: inline-flex;
             align-items: center;
@@ -143,15 +160,31 @@
             width: 100%;
             height: calc(100vh - 62px);
             position: relative;
-            background: #f1f5f9;
+            background: var(--bg-color);
+            overflow-y: auto;
+            overflow-x: auto;
+            padding: 1.25rem 0.75rem 2.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-overflow-scrolling: touch;
         }
 
-        .doc-iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
+        /* Physical PDF Paper Sheet Styling */
+        .paper-page {
+            background: #ffffff !important;
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.28), 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+            border-radius: 4px;
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
             display: block;
-            background: #ffffff;
+        }
+
+        .paper-page canvas {
+            display: block;
+            width: 100% !important;
+            height: auto !important;
         }
 
         .loading-state {
@@ -189,6 +222,7 @@
             .brand-title { display: none; }
             .back-text { display: none; }
             .viewer-header { padding: 0 0.75rem; }
+            .viewer-body { padding: 1rem 0.5rem 2rem; }
         }
     </style>
 </head>
@@ -205,22 +239,24 @@
                 <div class="doc-subtitle-text" id="doc-company"></div>
             </div>
 
-            <a href="dashboard.html" class="back-btn">
-                ← <span class="back-text">Back to </span>Applications
-            </a>
+            <div class="header-actions">
+                <div class="page-badge" id="page-count-badge">PDF</div>
+                <a href="dashboard.html" class="back-btn">
+                    ← <span class="back-text">Back to </span>Applications
+                </a>
+            </div>
         </header>
 
-        <main class="viewer-body">
+        <main class="viewer-body" id="pdf-paper-container">
             <div class="loading-state" id="loading-spinner">
                 <div class="spinner"></div>
-                <div>Opening Document...</div>
+                <div>Rendering PDF Paper...</div>
             </div>
-            <iframe id="doc-iframe" class="doc-iframe" title="Document Preview"></iframe>
         </main>
     </div>
 
     <script>
-        let currentObjectUrl = null;
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
@@ -231,12 +267,13 @@
             };
         }
 
-        async function loadDocument() {
+        async function renderPDFPaper() {
             const { url, title, company } = getQueryParams();
             const titleElem = document.getElementById('doc-title');
             const companyElem = document.getElementById('doc-company');
-            const iframe = document.getElementById('doc-iframe');
+            const container = document.getElementById('pdf-paper-container');
             const spinner = document.getElementById('loading-spinner');
+            const pageBadge = document.getElementById('page-count-badge');
 
             if (title) titleElem.innerText = title;
             if (company) companyElem.innerText = company;
@@ -248,27 +285,60 @@
             }
 
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error('Fetch failed');
-                const blob = await response.blob();
-                currentObjectUrl = URL.createObjectURL(blob);
-                iframe.src = currentObjectUrl;
-            } catch (err) {
-                iframe.src = url;
-            } finally {
-                iframe.onload = () => {
-                    spinner.style.display = 'none';
-                };
-                setTimeout(() => {
-                    spinner.style.display = 'none';
-                }, 1200);
+                const loadingTask = pdfjsLib.getDocument(url);
+                const pdf = await loadingTask.promise;
+                spinner.style.display = 'none';
+
+                pageBadge.innerText = `1 of ${pdf.numPages}`;
+
+                for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+                    const page = await pdf.getPage(pageNum);
+
+                    // Compute device pixel ratio and responsive scale to fit paper width cleanly
+                    const viewportUnscaled = page.getViewport({ scale: 1.0 });
+                    const containerWidth = Math.min(window.innerWidth - 24, 820);
+                    const scale = containerWidth / viewportUnscaled.width;
+                    const viewport = page.getViewport({ scale: scale });
+
+                    const pageWrapper = document.createElement('div');
+                    pageWrapper.className = 'paper-page';
+                    pageWrapper.style.width = `${viewport.width}px`;
+                    pageWrapper.style.height = `${viewport.height}px`;
+
+                    const canvas = document.createElement('canvas');
+                    const context = canvas.getContext('2d');
+
+                    const outputScale = window.devicePixelRatio || 1;
+                    canvas.width = Math.floor(viewport.width * outputScale);
+                    canvas.height = Math.floor(viewport.height * outputScale);
+                    canvas.style.width = `${viewport.width}px`;
+                    canvas.style.height = `${viewport.height}px`;
+
+                    const transform = outputScale !== 1 ? [outputScale, 0, 0, outputScale, 0, 0] : null;
+
+                    pageWrapper.appendChild(canvas);
+                    container.appendChild(pageWrapper);
+
+                    const renderContext = {
+                        canvasContext: context,
+                        transform: transform,
+                        viewport: viewport
+                    };
+
+                    await page.render(renderContext).promise;
+                }
+            } catch (error) {
+                console.error('PDF.js render error:', error);
+                spinner.innerHTML = `
+                    <div style="color: var(--text-body); text-align: center; padding: 1rem;">
+                        <p style="margin-bottom: 0.75rem; font-weight: 700;">Unable to render PDF paper preview directly.</p>
+                        <a href="${url}" target="_blank" style="display: inline-block; background: var(--primary); color: #fff; text-decoration: none; padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 800; font-size: 0.85rem;">Open Raw Document Stream</a>
+                    </div>
+                `;
             }
         }
 
-        window.addEventListener('DOMContentLoaded', loadDocument);
-        window.addEventListener('beforeunload', () => {
-            if (currentObjectUrl) URL.revokeObjectURL(currentObjectUrl);
-        });
+        window.addEventListener('DOMContentLoaded', renderPDFPaper);
     </script>
 </body>
 </html>
