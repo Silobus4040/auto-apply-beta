@@ -181,8 +181,8 @@
         .profile-only #step-indicator, .details-only #step-indicator { display: none; }
         .profile-only .num, .details-only .num { display: none; }
         .profile-only .header-section { margin-bottom: 1.5rem; }
-        .profile-only .header-section h1 { max-width: 620px; margin-left: auto; margin-right: auto; font-size: clamp(1.5rem, 4.25vw, 1.8rem); }
         .profile-only .card { padding-top: 1.75rem; }
+        .profile-only .profile-review .card-title { margin-top: 0 !important; }
         /* The first page is intentionally a compact scan confirmation, not a
            second résumé editor. Detailed extraction stays in the backend. */
         #resume-sections, #extracted-skills, #extraction-grid, .profile-stats { display: none !important; }
@@ -298,6 +298,8 @@
                             </button>
 
                             <div class="profile-review" id="profile-review">
+                            <div class="card-title" style="font-size: 0.95rem; margin-top: 1.5rem;"><div class="num" style="background:#F4F4F5;">2</div> Set Your Job Preferences</div>
+
                             <div class="form-group">
                                 <label>Target Job Titles & Experience <span style="color: #FF6B4A;">*</span></label>
                                 <div id="job-titles-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
