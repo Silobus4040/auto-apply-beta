@@ -2065,7 +2065,7 @@
                     pooledJobIndex = cachedDeck.index;
                     hideDeckLoading();
                     const section = document.getElementById('swipe-deck-section');
-                    if (section) section.style.display = 'flex';
+                    if (section) section.style.display = 'block';
                     renderSwipeStack();
                 } else if (profile.deck_ready || poolAvailableCount > 0) {
                     // Jobs exist on server but no cache (new device). Hide the
@@ -2508,7 +2508,7 @@
                             userProfile.deck_ready = true;
                         }
                         hideDeckLoading();
-                        if (section) section.style.display = 'flex';
+                        if (section) section.style.display = 'block';
                         if (emptyState) emptyState.style.display = 'none';
                         renderSwipeStack();
                         if (userProfile && userProfile.auto_apply_enabled) await autoApplySweepAndFilter(userId);
@@ -3037,7 +3037,7 @@
             const emptyStateEl = document.getElementById('deck-empty-state');
             if (emptyStateEl) emptyStateEl.style.display = 'none';
             const deckSection = document.getElementById('swipe-deck-section');
-            if (deckSection) deckSection.style.display = 'flex';
+            if (deckSection) deckSection.style.display = 'block';
 
             // Render up to 3 cards stacked, current one on top and interactive.
             const visible = pooledJobs.slice(pooledJobIndex, pooledJobIndex + 3).reverse();
