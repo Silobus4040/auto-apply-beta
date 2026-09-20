@@ -63,7 +63,7 @@
 
         .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); margin-bottom: 1.5rem; }
         .card-title { color: #000000; font-size: 1.25rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; text-transform: uppercase; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-        .card-title .num { background: #D4FF33; color: #000; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; border-radius: 50%; }
+        .card-title .num { background: #00FFCC; color: #000; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; border-radius: 50%; }
 
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; color: #52525B; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -113,7 +113,7 @@
         .info-box p { color: #27272A; font-size: 0.93rem; line-height: 1.65; margin-bottom: 0.6rem; font-weight: 500; }
         .info-box strong { color: #000000; }
 
-        .btn { padding: 1.1rem 2rem; border-radius: 50px; font-size: 1.05rem; font-weight: 800; cursor: pointer; border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.5px; }
+        .btn { padding: 0.8rem 1.6rem; border-radius: 50px; font-size: 0.88rem; font-weight: 800; cursor: pointer; border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.4px; }
         
         /* Modern Liquid Motion Button */
         @keyframes liquid-gradient {
@@ -121,9 +121,9 @@
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        .btn-primary { background: #D4FF33; color: #000000; border: none; box-shadow: 0 10px 30px rgba(212, 255, 51, 0.3); position: relative; }
-        .btn-primary:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 15px 40px rgba(212, 255, 51, 0.5); }
-        .btn-compact { width: min(100%, 360px); margin-left: auto; margin-right: auto; padding: 0.95rem 1.75rem; font-size: 1rem; }
+        .btn-primary { background: #00FFCC; color: #000000; border: none; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.25); position: relative; }
+        .btn-primary:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.35); background: #00e6b8; }
+        .btn-compact { width: min(100%, 320px); margin-left: auto; margin-right: auto; padding: 0.75rem 1.5rem; font-size: 0.85rem; }
         
         .btn-secondary { background: #ffffff; color: #52525B; border: 1px solid var(--border); margin-bottom: 1rem; border-radius: 50px; }
         .btn-secondary:hover { color: #FF6B4A; border-color: #FF6B4A; }
@@ -134,7 +134,7 @@
         .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1.25rem 0 0; border-top: 1px solid rgba(0, 255, 204, 0.25); background: transparent; }
         .resume-extraction-panel.is-visible { display: block; }
         .extraction-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; color: #000; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
-        .extraction-badge { padding: 0.25rem 0.55rem; border-radius: 999px; background: #D4FF33; font-size: 0.68rem; white-space: nowrap; }
+        .extraction-badge { padding: 0.25rem 0.55rem; border-radius: 999px; background: #00FFCC; font-size: 0.68rem; white-space: nowrap; }
         .extraction-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
         .extraction-item { min-width: 0; padding: 0.6rem 0.7rem; border-radius: 10px; background: rgba(255,255,255,0.82); border: 1px solid rgba(0,0,0,0.06); }
         .extraction-label { display: block; margin-bottom: 0.2rem; color: #71717A; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
@@ -145,7 +145,7 @@
         .extraction-stage.active { color: #00695C; }
         .extraction-stage.active::before { background: #00FFCC; box-shadow: 0 0 0 4px rgba(0,255,204,0.14); }
         .extraction-stage.complete { color: #27272A; }
-        .extraction-stage.complete::before { content: '✓'; width: 16px; height: 16px; flex-basis: 16px; color: #00695C; background: #D4FF33; font-size: 0.65rem; font-weight: 900; text-align: center; line-height: 16px; }
+        .extraction-stage.complete::before { content: '✓'; width: 16px; height: 16px; flex-basis: 16px; color: #00695C; background: #00FFCC; font-size: 0.65rem; font-weight: 900; text-align: center; line-height: 16px; }
         .extraction-profile { display: none; padding: 0.25rem 0 0.8rem; }
         .extraction-profile.is-visible { display: block; }
         .profile-identity { display: flex; align-items: center; gap: 0.7rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
