@@ -69,18 +69,19 @@
 
         .form-group { margin-bottom: 1.5rem; }
         .form-group label { display: block; margin-bottom: 0.5rem; color: #52525B; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="url"], .form-group select { width: 100%; padding: 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem; transition: all 0.2s; -webkit-appearance: none; appearance: none; }
-        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
+        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="url"], .form-group input[type="tel"], .form-group input[type="date"], .job-title-input { width: 100%; height: 50px; padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+        .form-group input:focus, .job-title-input:focus { outline: none !important; border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
-        .form-group input[type="file"]:hover { border-color: #00FFCC; }
+        .form-group input[type="file"]:hover { border-color: #A1A1AA; }
         .form-group input[type="file"]::file-selector-button { margin-right: 0.75rem; padding: 0.7rem 1rem; border: 0; border-radius: 8px; background: #111111; color: #ffffff; font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer; }
+        
+        .field-error, .select-wrapper.field-error select, .form-group input.field-error { border-color: #EF4444 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important; }
+        
         .choices { width: 100% !important; max-width: 100% !important; }
         .choices__inner { position: relative !important; border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.4rem 2.2rem 0.4rem 0.6rem !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
         .choices__inner::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; }
         .choices.is-focused .choices__inner { border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
         .choices__list--multiple .choices__item { position: relative !important; display: inline-block !important; max-width: min(100%, 220px) !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; vertical-align: middle !important; background-color: #F4F4F5 !important; border: 1px solid #D4D4D8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 0.82rem !important; padding: 0.35rem 1.6rem 0.35rem 0.65rem !important; margin: 0.2rem 0.35rem 0.2rem 0 !important; line-height: 1.3 !important; }
-        /* Keep multi-select menus focused on the option names. The library's
-           helper copy adds a divider and repeats the same instruction in every tab. */
         .choices__item--selectable::after { display: none !important; }
         .choices__list--multiple .choices__button { position: absolute !important; top: 50% !important; right: 0.35rem !important; transform: translateY(-50%) !important; --choices-icon-cross: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; width: 14px !important; min-width: 14px !important; height: 14px !important; background-size: 10px !important; margin: 0 !important; padding: 0 !important; border: 0 !important; opacity: 0.8 !important; }
         .choices__list--multiple .choices__button:hover { opacity: 0.6 !important; }
@@ -96,21 +97,21 @@
         .category-guardrail button { display: block; width: auto; margin-top: 0.7rem; padding: 0.55rem 0.85rem; border: 1px solid #D97706; border-radius: 8px; background: #FFFFFF; color: #92400E; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 800; }
         .category-guardrail button:hover { background: #FEF3C7; }
 
-        .select-wrapper { position: relative; }
-        /* Use the browser's familiar native select control instead of the decorative
-           orange caret. This keeps dropdowns accessible and consistent on mobile. */
-        .select-wrapper::after { display: none; }
-        .select-wrapper select { -webkit-appearance: auto; appearance: auto; }
+        .select-wrapper { position: relative; width: 100%; display: block; }
+        .select-wrapper::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; z-index: 2; }
+        .select-wrapper select, .job-level-select { width: 100%; height: 50px; padding: 0.85rem 2.5rem 0.85rem 1rem !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; border-radius: 12px !important; color: #000000 !important; font-size: 1rem !important; font-family: inherit !important; line-height: 1.4 !important; box-sizing: border-box !important; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; }
+        .select-wrapper select:focus, .job-level-select:focus { outline: none !important; border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
 
-        .industry-combobox { position: relative; }
-        .industry-combobox #industry { padding-right: 3.25rem; }
-        .industry-toggle { position: absolute; top: 0; right: 0; width: 3.25rem; height: 100%; border: 0; background: transparent; color: #6B7280; cursor: pointer; font-size: 0.8rem; border-radius: 0 12px 12px 0; }
-        .industry-options { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; z-index: 50; max-height: 260px; overflow-y: auto; padding: 0.4rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 18px 45px rgba(0, 0, 0, 0.14); }
+        .industry-combobox { position: relative; width: 100%; }
+        .industry-combobox #industry { padding-right: 3rem; }
+        .industry-toggle { position: absolute; top: 0; right: 0; width: 3rem; height: 100%; border: 0; background: transparent; cursor: pointer; border-radius: 0 12px 12px 0; display: flex; align-items: center; justify-content: center; }
+        .industry-toggle::after { content: ''; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-25%) rotate(45deg); pointer-events: none; }
+        .industry-options { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; z-index: 50; max-height: 260px; overflow-y: auto; padding: 0.4rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12); }
         .industry-options[hidden] { display: none; }
-        .industry-option { display: block; width: 100%; padding: 0.8rem 0.9rem; border: 0; border-radius: 8px; background: transparent; color: #27272A; cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 600; line-height: 1.35; text-align: left; }
+        .industry-option { display: block; width: 100%; padding: 0.75rem 0.9rem; border: 0; border-radius: 8px; background: transparent; color: #27272A; cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 600; line-height: 1.35; text-align: left; transition: background 0.15s ease; }
         .industry-option[hidden] { display: none; }
-        .industry-option:hover, .industry-option.is-active { background: rgba(0, 255, 204, 0.13); color: #000000; }
-        .industry-option[aria-selected="true"] { color: #008066; }
+        .industry-option:hover, .industry-option.is-active { background: #F4F4F5; color: #000000; }
+        .industry-option[aria-selected="true"] { background: #E4E4E7; color: #000000; font-weight: 700; }
 
         .info-box { background: rgba(0, 255, 204, 0.04); border: 1px solid rgba(0, 255, 204, 0.2); border-left: 4px solid #00FFCC; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-radius: 12px; }
         .info-box p { color: #27272A; font-size: 0.93rem; line-height: 1.65; margin-bottom: 0.6rem; font-weight: 500; }
@@ -413,10 +414,10 @@
 
                             <div class="form-group">
                                 <label>Phone Number <span style="color: #FF6B4A;">*</span></label>
-                                <div style="display: flex; gap: 0.5rem;">
-                                    <div style="position: relative; flex-shrink: 0; width: 140px;">
-                                        <select id="phone-code" required style="width: 100%; padding: 0.8rem 1rem; border: 1px solid var(--border); border-radius: 8px; font-family: inherit; font-size: 0.95rem; background: #ffffff; appearance: auto;">
-                                            <option value="">Select</option>
+                                <div style="display: flex; gap: 0.75rem; align-items: stretch;">
+                                    <div class="select-wrapper" style="width: 160px; flex-shrink: 0;">
+                                        <select id="phone-code" required>
+                                            <option value="">Country</option>
                                             <option value="93">Afghanistan (+93)</option>
                                             <option value="355">Albania (+355)</option>
                                             <option value="213">Algeria (+213)</option>
@@ -588,7 +589,7 @@
                                             <option value="263">Zimbabwe (+263)</option>
                                         </select>
                                     </div>
-                                    <input type="tel" id="phone" autocomplete="tel-national" required placeholder="(555) 000-0000" style="flex-grow: 1;">
+                                    <input type="tel" id="phone" autocomplete="tel-national" required placeholder="(555) 000-0000" style="flex: 1; min-width: 0;">
                                 </div>
                             </div>
                             <div class="form-group">
@@ -657,7 +658,7 @@
                             <label>What industry do you work in? <span style="color: #FF6B4A;">*</span></label>
                             <div class="industry-combobox" id="industry-combobox">
                                 <input type="text" id="industry" placeholder="e.g. Technology / SaaS" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="industries-list">
-                                <button type="button" class="industry-toggle" id="industry-toggle" aria-label="Show industry options" aria-controls="industries-list" tabindex="-1">▼</button>
+                                <button type="button" class="industry-toggle" id="industry-toggle" aria-label="Show industry options" aria-controls="industries-list" tabindex="-1"></button>
                                 <div id="industries-list" class="industry-options" role="listbox" hidden>
                                     <button type="button" class="industry-option" role="option" data-value="Technology / SaaS">Technology / SaaS</button>
                                     <button type="button" class="industry-option" role="option" data-value="Financial Services / Fintech">Financial Services / Fintech</button>
@@ -711,14 +712,14 @@
                             </div>
                             <div class="form-group">
                                 <label>Earliest Available Start Date <span style="color: #FF6B4A;">*</span></label>
-                                <input type="date" id="start-date" required style="width: 100%; padding: 0.95rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem;">
+                                <input type="date" id="start-date" required>
                             </div>
                         </div>
 
                         <!-- EEO Demographics Section - US-specific EEOC self-identification
                              categories, only relevant for US-residence applications. Shown/hidden by updateEeoVisibility() based on Country of Residence. -->
                         <div id="eeo-section" style="border-top: 1px solid var(--border); margin: 2rem 0; padding-top: 1.5rem;">
-                            <h3 style="color: white; font-size: 1rem; margin-bottom: 0.4rem; text-transform: uppercase;">EEO Demographics</h3>
+                            <h3 style="color: #000000; font-size: 1rem; font-weight: 800; margin-bottom: 0.4rem; text-transform: uppercase;">EEO Demographics</h3>
                             <p class="form-hint" style="margin-bottom: 1.1rem;">Shown because your country of residence is United States — these are voluntary self-identification questions used on US job applications.</p>
 
                             <div class="row-grid">
@@ -1871,16 +1872,6 @@
             }
             if (profileMode) {
                 markCoveredFields();
-                // Only hide the country-code picker once we actually know it
-                // got a value -- from the DB, localStorage, or the resume
-                // re-fetch above, all of which have finished by this point.
-                // Leaving it hidden unconditionally meant a user whose phone
-                // number had no detectable country code got stuck on a
-                // required field with no visible way to fill it in.
-                const phoneCodeEl = document.getElementById('phone-code');
-                if (phoneCodeEl && phoneCodeEl.value) {
-                    phoneCodeEl.parentElement?.classList.add('profile-page-hidden');
-                }
             }
         })();
 
@@ -1903,6 +1894,7 @@
             const row = document.createElement('div');
             row.style.display = 'flex';
             row.style.gap = '0.5rem';
+            row.style.alignItems = 'center';
             row.className = 'job-title-row';
             
             const input = document.createElement('input');
@@ -1912,9 +1904,12 @@
             input.style.flex = '2';
             input.value = title;
             
+            const selectWrapper = document.createElement('div');
+            selectWrapper.className = 'select-wrapper';
+            selectWrapper.style.flex = '1';
+
             const select = document.createElement('select');
             select.className = 'job-level-select';
-            select.style.flex = '1';
             // These exact values match the Apify "Seniority Levels" dropdown
             const levels = ['Entry Level', 'Mid Level', 'Senior Level', 'Executive'];
             levels.forEach(l => {
@@ -1925,8 +1920,9 @@
                 select.appendChild(opt);
             });
             
+            selectWrapper.appendChild(select);
             row.appendChild(input);
-            row.appendChild(select);
+            row.appendChild(selectWrapper);
             container.appendChild(row);
             updateAddRoleButtonState();
         }
@@ -1949,13 +1945,6 @@
             document.getElementById('resume-extraction-panel')?.classList.add('profile-page-hidden');
             document.getElementById('btn-finish-later')?.classList.add('profile-page-hidden');
             document.querySelector('.form-step:first-child > .card > .card-title')?.classList.add('profile-page-hidden');
-            // phone-code's visibility is decided later, once we know whether
-            // it actually got auto-filled (see the end of init() below) --
-            // hiding it unconditionally here left users with no way to pick
-            // a country code at all when auto-detection didn't find one,
-            // while the mandatory-fields check still required it.
-            if (document.getElementById('phone-code')) document.getElementById('phone-code').required = false;
-            if (document.getElementById('phone')) document.getElementById('phone').required = false;
             document.getElementById('step-indicator').textContent = 'Step 2 of 2';
             document.querySelector('.header-section h1').textContent = detailsOnly ? 'Complete Profile Details' : 'Select Your Job Search Preferences';
             // Job search preferences is now the last step (right before
@@ -1979,13 +1968,22 @@
 
         btnNext.addEventListener('click', async () => {
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
-            const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v).join(', ');
+            const validJobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(Boolean);
+            const jobTitles = validJobTitles.join(', ');
             const roleFamilies = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             const workplaces = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
-            const file = document.getElementById('resume-file').files[0];
+            const file = document.getElementById('resume-file')?.files?.[0];
             const savedResumeUrl = localStorage.getItem('onb_resume_url');
 
-            if (!jobTitles || roleFamilies.length === 0 || workplaces.length === 0) {
+            // On Step 1 (initial upload), resume is required unless user chose 'Continue without a resume for now'
+            if (!profileOnly && !file && !savedResumeUrl) {
+                errorMsg.textContent = "Please upload your resume before continuing, or click 'Continue without a resume for now'.";
+                errorMsg.style.display = 'block';
+                document.getElementById('resume-file')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+
+            if (validJobTitles.length === 0 || roleFamilies.length === 0 || workplaces.length === 0) {
                 errorMsg.textContent = "Please add at least one target role, job category, and workplace type before continuing.";
                 errorMsg.style.display = 'block';
                 return;
@@ -1993,13 +1991,6 @@
 
             if (!checkCategorySelection(jobTitles, roleFamilies)) {
                 return;
-            }
-
-            if (!file && !savedResumeUrl) {
-                const status = document.getElementById('resume-status');
-                status.textContent = 'You can review the next step now, but a resume (PDF, DOC, or DOCX) is required before setup can be completed.';
-                status.style.color = '#A16207';
-                status.style.display = 'block';
             }
 
             if (file) {
@@ -2051,13 +2042,24 @@
             localStorage.setItem('onb_step', '1');
         });
 
-        // Auto-Save Form State
+        // Auto-Save Form State & Realtime Error Clearing
         const formInputs = document.querySelectorAll('#onboarding-form input[type="text"], #onboarding-form input[type="email"], #onboarding-form input[type="number"], #onboarding-form input[type="date"], #onboarding-form input[type="tel"], #onboarding-form select:not([multiple])');
         formInputs.forEach(input => {
             if (input.id) {
                 const saved = localStorage.getItem('onb_' + input.id);
                 if (saved) input.value = saved;
-                input.addEventListener('input', () => localStorage.setItem('onb_' + input.id, input.value));
+                ['input', 'change'].forEach(evt => {
+                    input.addEventListener(evt, () => {
+                        localStorage.setItem('onb_' + input.id, input.value);
+                        if (input.value.trim()) {
+                            input.classList.remove('field-error');
+                            input.closest('.select-wrapper')?.classList.remove('field-error');
+                            if (!document.querySelector('.field-error')) {
+                                errorMsg.style.display = 'none';
+                            }
+                        }
+                    });
+                });
             }
         });
         if (profileMode) {
@@ -2071,9 +2073,58 @@
             window.location.href = 'onboarding.html?step=details';
         }
 
-        // Details-page "Continue": this card holds first name/city/state/
-        // country/phone, so it validates them before moving on to the
-        // (now last) job search preferences step.
+        function validateStep2RequiredFields() {
+            const requiredFields = [
+                { id: 'first-name', label: 'First Name' },
+                { id: 'city', label: 'City' },
+                { id: 'state', label: 'State' },
+                { id: 'country', label: 'Country of Residence' },
+                { id: 'nationality', label: 'Nationality' },
+                { id: 'phone-code', label: 'Country Code' },
+                { id: 'phone', label: 'Phone Number' },
+                { id: 'industry', label: 'Industry' },
+                { id: 'notice-period', label: 'Availability / Notice Period' },
+                { id: 'start-date', label: 'Earliest Available Start Date' }
+            ];
+
+            const missing = [];
+            let firstMissingEl = null;
+
+            requiredFields.forEach(f => {
+                const el = document.getElementById(f.id);
+                if (el) {
+                    el.classList.remove('field-error');
+                    el.closest('.select-wrapper')?.classList.remove('field-error');
+                }
+            });
+
+            requiredFields.forEach(f => {
+                const el = document.getElementById(f.id);
+                const val = el ? el.value.trim() : '';
+                if (!val) {
+                    missing.push(f.label);
+                    if (el) {
+                        el.classList.add('field-error');
+                        el.closest('.select-wrapper')?.classList.add('field-error');
+                        if (!firstMissingEl) firstMissingEl = el;
+                    }
+                }
+            });
+
+            if (missing.length > 0) {
+                errorMsg.textContent = `Please fill out all required fields (*): ${missing.join(', ')}.`;
+                errorMsg.style.display = 'block';
+                if (firstMissingEl) {
+                    firstMissingEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstMissingEl.focus?.();
+                }
+                return false;
+            }
+
+            return true;
+        }
+
+        // Details-page "Continue": validates all required fields before moving on to preferences step
         document.getElementById('submit-btn').addEventListener('click', () => {
             errorMsg.style.display = 'none';
 
@@ -2084,22 +2135,7 @@
                 return;
             }
 
-            const phoneCode = document.getElementById('phone-code').value.trim();
-            if (!phoneCode) {
-                errorMsg.textContent = "Please select your country code.";
-                errorMsg.style.display = 'block';
-                return;
-            }
-
-            const firstName = document.getElementById('first-name').value.trim();
-            const city = document.getElementById('city').value.trim();
-            const state = document.getElementById('state').value.trim();
-            const country = document.getElementById('country').value.trim();
-            const phoneRaw = document.getElementById('phone').value.trim();
-
-            if (!firstName || !city || !state || !country || !phoneRaw) {
-                errorMsg.textContent = "Please fill out all mandatory fields: First Name, City, State, Country, and Phone Number.";
-                errorMsg.style.display = 'block';
+            if (!validateStep2RequiredFields()) {
                 return;
             }
 
@@ -2120,14 +2156,16 @@
                 return;
             }
 
-            const phoneCode = document.getElementById('phone-code').value.trim();
-            const phoneRaw = document.getElementById('phone').value.trim();
-
-            if (!phoneCode) {
-                errorMsg.textContent = "Please select your country code.";
-                errorMsg.style.display = 'block';
+            if (!validateStep2RequiredFields()) {
+                if (profileOnly) {
+                    errorMsg.textContent = "Some required profile details are missing. Please complete all fields.";
+                    setTimeout(() => { window.location.href = 'onboarding.html?step=details'; }, 1500);
+                }
                 return;
             }
+
+            const phoneCode = document.getElementById('phone-code').value.trim();
+            const phoneRaw = document.getElementById('phone').value.trim();
 
             let cleanPhone = phoneRaw.replace(/^\+/, '').trim();
             if (phoneCode && cleanPhone.startsWith(phoneCode)) {
@@ -2147,12 +2185,10 @@
             const city = document.getElementById('city').value.trim();
             const state = document.getElementById('state').value.trim();
             const country = document.getElementById('country').value.trim();
-
-            if (!firstName || !city || !state || !country || !phoneRaw) {
-                errorMsg.textContent = "Please fill out all mandatory fields: First Name, City, State, Country, and Phone Number.";
-                errorMsg.style.display = 'block';
-                return;
-            }
+            const nationality = document.getElementById('nationality').value.trim();
+            const industry = document.getElementById('industry').value.trim();
+            const noticePeriod = document.getElementById('notice-period').value;
+            const startDate = document.getElementById('start-date').value;
 
             let targetCurrency = document.getElementById('target-currency').value;
             if (targetCurrency === 'CUSTOM') {
@@ -2188,6 +2224,9 @@
                 // Keeping workplace_type in the job_pool vocabulary is what lets the
                 // matching query keep comparing the two directly.
                 const workplaceChecked = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
+                if (workplaceChecked.length === 0) {
+                    throw new Error('Please select your workplace type(s).');
+                }
                 const wantsRemoteLocal = workplaceChecked.includes('Remote Local');
                 const wantsRemoteGlobal = workplaceChecked.includes('Remote Global');
                 const workplaceTypes = [];
@@ -2202,6 +2241,10 @@
                 if (selectedRoleFamilies.length === 0) {
                     throw new Error('Please select at least one job category.');
                 }
+                const finalJobTitles = localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(Boolean).join(', ');
+                if (!finalJobTitles) {
+                    throw new Error('Please enter at least one target job title.');
+                }
 
                 // Update Profile with ALL data
                 loadingText.textContent = "Saving Profile...";
@@ -2209,7 +2252,7 @@
                     id: currentUserId,
                     remote_scope: remoteScope,
                     target_role_family: selectedRoleFamilies[0],
-                    target_job_titles: localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(v => v).join(', '),
+                    target_job_titles: finalJobTitles,
                     experience_level_bucket: localStorage.getItem('onb_job-levels') || Array.from(document.querySelectorAll('.job-level-select')).map(s => s.value).join(', '),
                     target_location: country,
                     workplace_type: workplaceTypes.join(', '),
