@@ -866,77 +866,116 @@
         // Use distinctive phrases only. This helps catch accidental category
         // choices without guessing a person's intended career direction.
         const roleFamilyPhraseHints = {
-            'Sales & Account Management': ['account executive', 'account manager', 'sales representative', 'sales manager', 'business development'],
-            'Administrative & Executive Support': ['administrative assistant', 'executive assistant', 'office administrator'],
-            'AI & Machine Learning': ['machine learning engineer', 'machine learning scientist', 'ai engineer', 'research scientist'],
-            'Backend Engineering': ['backend engineer', 'backend developer', 'server-side engineer'],
-            'Content & Technical Writing': ['technical writer', 'content writer', 'copywriter', 'editor', 'academic writer'],
-            'Customer Success & Support': ['customer success manager', 'customer support specialist', 'support engineer'],
-            'Cybersecurity & Security Operations': ['security engineer', 'cybersecurity analyst', 'penetration tester', 'soc analyst'],
-            'Data & Analytics': ['data analyst', 'business analyst', 'analytics manager', 'market researcher'],
-            'Data Engineering': ['data engineer', 'analytics engineer', 'etl developer'],
+            'Sales & Account Management': ['account executive', 'account manager', 'sales representative', 'sales manager', 'business development', 'sales', 'bdr', 'sdr'],
+            'Administrative & Executive Support': ['administrative assistant', 'executive assistant', 'office administrator', 'admin assistant', 'receptionist', 'administrative'],
+            'AI & Machine Learning': ['machine learning engineer', 'machine learning scientist', 'ai engineer', 'research scientist', 'machine learning', 'deep learning'],
+            'Backend Engineering': ['backend engineer', 'backend developer', 'server-side engineer', 'backend'],
+            'Content & Technical Writing': ['technical writer', 'content writer', 'copywriter', 'editor', 'academic writer', 'content creator'],
+            'Customer Success & Support': ['customer success manager', 'customer support specialist', 'support engineer', 'customer success', 'customer support', 'client success'],
+            'Cybersecurity & Security Operations': ['security engineer', 'cybersecurity analyst', 'penetration tester', 'soc analyst', 'cybersecurity', 'information security'],
+            'Data & Analytics': ['data analyst', 'business analyst', 'analytics manager', 'market researcher', 'analytics', 'bi analyst'],
+            'Data Engineering': ['data engineer', 'analytics engineer', 'etl developer', 'data platform'],
             'Data Entry & Transcription': ['data entry', 'transcriptionist', 'transcriber'],
-            'Education & Training': ['teacher', 'instructor', 'learning designer', 'training specialist'],
-            'Engineering Leadership': ['engineering manager', 'head of engineering', 'vp engineering'],
-            'Finance & Accounting': ['accountant', 'financial analyst', 'bookkeeper', 'finance manager'],
-            'AI Training & Evaluation': ['ai trainer', 'ai evaluator', 'prompt evaluator', 'rlhf'],
-            'Frontend & Mobile Engineering': ['frontend engineer', 'front-end engineer', 'frontend developer', 'mobile engineer', 'ios developer', 'android developer', 'react developer'],
-            'Full Stack Engineering': ['full stack engineer', 'full-stack engineer', 'full stack developer', 'full-stack developer'],
-            'Human Resources': ['hr manager', 'human resources', 'people operations'],
-            'Marketing & Growth': ['marketing manager', 'growth marketer', 'digital marketer', 'seo specialist'],
-            'Motion Design & VFX': ['motion designer', 'visual effects', 'vfx artist', '3d animator'],
-            'Operations & Supply Chain': ['operations manager', 'supply chain', 'logistics manager', 'procurement specialist'],
-            'Platform & DevOps Engineering': ['devops engineer', 'site reliability engineer', 'platform engineer', 'cloud engineer'],
-            'Product Design': ['product designer', 'ux designer', 'ui designer', 'user experience designer'],
-            'Product Management': ['product manager', 'product owner', 'technical product manager'],
-            'Project & Program Management': ['project manager', 'program manager', 'scrum master'],
-            'Quantitative Finance & Trading': ['quantitative analyst', 'quant trader', 'trading analyst', 'portfolio manager'],
-            'Software Engineering': ['software engineer', 'software developer', 'application developer'],
-            'Solutions Engineering & Pre-Sales': ['solutions engineer', 'sales engineer', 'pre-sales engineer', 'presales engineer'],
-            'Talent Acquisition & Recruiting': ['recruiter', 'talent acquisition', 'recruiting coordinator']
+            'Education & Training': ['teacher', 'instructor', 'learning designer', 'training specialist', 'curriculum developer'],
+            'Engineering Leadership': ['engineering manager', 'head of engineering', 'vp engineering', 'director of engineering', 'cto'],
+            'Finance & Accounting': ['accountant', 'financial analyst', 'bookkeeper', 'finance manager', 'accounting', 'finance'],
+            'AI Training & Evaluation': ['ai trainer', 'ai evaluator', 'prompt evaluator', 'rlhf', 'prompt engineer'],
+            'Frontend & Mobile Engineering': ['frontend engineer', 'front-end engineer', 'frontend developer', 'mobile engineer', 'ios developer', 'android developer', 'react developer', 'frontend', 'mobile developer'],
+            'Full Stack Engineering': ['full stack engineer', 'full-stack engineer', 'full stack developer', 'full-stack developer', 'full stack', 'fullstack'],
+            'Human Resources': ['hr manager', 'human resources', 'people operations', 'hr specialist', 'people partner', 'hr generalist'],
+            'Marketing & Growth': ['marketing manager', 'growth marketer', 'digital marketer', 'seo specialist', 'marketing', 'growth manager', 'social media manager'],
+            'Motion Design & VFX': ['motion designer', 'visual effects', 'vfx artist', '3d animator', 'animator'],
+            'Operations & Supply Chain': ['operations manager', 'supply chain', 'logistics manager', 'procurement specialist', 'operations', 'logistics'],
+            'Platform & DevOps Engineering': ['devops engineer', 'site reliability engineer', 'platform engineer', 'cloud engineer', 'devops', 'sre', 'cloud architect'],
+            'Product Design': ['product designer', 'ux designer', 'ui designer', 'user experience designer', 'ui/ux', 'ux researcher', 'interaction designer'],
+            'Product Management': ['product manager', 'product owner', 'technical product manager', 'group product manager', 'associate product manager'],
+            'Project & Program Management': ['project manager', 'program manager', 'scrum master', 'agile coach', 'pmo', 'delivery manager'],
+            'Quantitative Finance & Trading': ['quantitative analyst', 'quant trader', 'trading analyst', 'portfolio manager', 'quant developer'],
+            'Software Engineering': ['software engineer', 'software developer', 'application developer', 'software architect', 'swe', 'programmer'],
+            'Solutions Engineering & Pre-Sales': ['solutions engineer', 'sales engineer', 'pre-sales engineer', 'presales engineer', 'solutions architect'],
+            'Talent Acquisition & Recruiting': ['recruiter', 'talent acquisition', 'recruiting coordinator', 'headhunter', 'technical recruiter']
         };
         const categoryGuardrailEl = document.getElementById('category-guardrail');
-        let categoryConflictConfirmation = '';
 
-        function suggestedRoleFamilies(jobTitles) {
-            const normalizedTitles = (jobTitles || '').toLowerCase();
-            if (!normalizedTitles) return [];
-            return Object.entries(roleFamilyPhraseHints)
-                .filter(([, phrases]) => phrases.some(phrase => normalizedTitles.includes(phrase)))
-                .map(([family]) => family);
-        }
-
-        function categorySelectionSignature(jobTitles, selectedFamilies) {
-            return `${jobTitles.toLowerCase()}|${[...selectedFamilies].sort().join('|')}`;
+        function escapeGuardrailHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/[&<>"']/g, m => ({
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            }[m]));
         }
 
         function clearCategoryGuardrail() {
-            categoryConflictConfirmation = '';
             categoryGuardrailEl.classList.remove('is-visible');
             categoryGuardrailEl.replaceChildren();
         }
 
+        function getMissingRoleCategories(jobTitlesList, selectedFamilies) {
+            const missing = [];
+            const selectedSet = new Set(selectedFamilies || []);
+
+            jobTitlesList.forEach(rawRole => {
+                const role = rawRole.trim();
+                const norm = role.toLowerCase();
+                if (!norm) return;
+
+                const matchedFamilies = Object.entries(roleFamilyPhraseHints)
+                    .filter(([, phrases]) => phrases.some(phrase => {
+                        const p = phrase.toLowerCase();
+                        return norm.includes(p);
+                    }))
+                    .map(([family]) => family);
+
+                if (matchedFamilies.length > 0) {
+                    const isCovered = matchedFamilies.some(f => selectedSet.has(f));
+                    if (!isCovered) {
+                        missing.push({
+                            role: role,
+                            suggested: matchedFamilies
+                        });
+                    }
+                }
+            });
+            return missing;
+        }
+
         function checkCategorySelection(jobTitles, selectedFamilies) {
-            const suggestions = suggestedRoleFamilies(jobTitles);
-            const signature = categorySelectionSignature(jobTitles, selectedFamilies);
-            if (!suggestions.length || suggestions.some(family => selectedFamilies.includes(family))) {
+            const roles = typeof jobTitles === 'string'
+                ? jobTitles.split(',').map(r => r.trim()).filter(Boolean)
+                : (Array.isArray(jobTitles) ? jobTitles : []);
+
+            const missing = getMissingRoleCategories(roles, selectedFamilies);
+            if (missing.length === 0) {
                 clearCategoryGuardrail();
                 return true;
             }
-            if (categoryConflictConfirmation === signature) return true;
 
             categoryGuardrailEl.replaceChildren();
             const message = document.createElement('div');
-            message.innerHTML = `<strong>Please check your job categories.</strong> Your target role${suggestions.length > 1 ? 's look' : ' looks'} most like ${suggestions.join(' or ')}, but none of those ${suggestions.length > 1 ? 'categories are' : 'category is'} selected. If your choices are intentional, confirm to continue.`;
-            const confirmButton = document.createElement('button');
-            confirmButton.type = 'button';
-            confirmButton.textContent = 'My selections are intentional';
-            confirmButton.addEventListener('click', () => {
-                categoryConflictConfirmation = signature;
-                categoryGuardrailEl.classList.remove('is-visible');
-                btnNext.click();
+
+            let listHtml = '';
+            missing.forEach(item => {
+                const suggestionNames = item.suggested.map(s => escapeGuardrailHtml(s)).join(' or ');
+                listHtml += `<li style="margin-bottom: 0.35rem;"><strong>"${escapeGuardrailHtml(item.role)}"</strong> &rarr; please select <strong>${suggestionNames}</strong></li>`;
             });
-            categoryGuardrailEl.append(message, confirmButton);
+
+            message.innerHTML = `
+                <div style="font-size: 0.88rem; line-height: 1.45;">
+                    <strong style="color: #92400E; display: block; margin-bottom: 0.4rem; font-size: 0.92rem;">
+                        ⚠️ Please select matching job categories for your roles:
+                    </strong>
+                    <ul style="margin: 0.35rem 0 0.5rem 1.2rem; padding: 0;">
+                        ${listHtml}
+                    </ul>
+                    <p style="margin: 0.45rem 0 0; font-size: 0.82rem; color: #78350F; font-weight: 500;">
+                        Select the matching category in the dropdown above to continue.
+                    </p>
+                </div>
+            `;
+            categoryGuardrailEl.append(message);
             categoryGuardrailEl.classList.add('is-visible');
             categoryGuardrailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
             return false;
@@ -945,9 +984,30 @@
         roleFamilySelectEl.addEventListener('change', () => {
             const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             localStorage.setItem('onb_target-role-families', JSON.stringify(selected));
-            clearCategoryGuardrail();
+            const jobTitleInputs = document.querySelectorAll('.job-title-input');
+            const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v);
+            if (jobTitles.length > 0) {
+                const missing = getMissingRoleCategories(jobTitles, selected);
+                if (missing.length === 0) {
+                    clearCategoryGuardrail();
+                }
+            } else {
+                clearCategoryGuardrail();
+            }
         });
-        document.getElementById('job-titles-container').addEventListener('input', clearCategoryGuardrail);
+        document.getElementById('job-titles-container').addEventListener('input', () => {
+            const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
+            const jobTitleInputs = document.querySelectorAll('.job-title-input');
+            const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v);
+            if (jobTitles.length > 0) {
+                const missing = getMissingRoleCategories(jobTitles, selected);
+                if (missing.length === 0) {
+                    clearCategoryGuardrail();
+                }
+            } else {
+                clearCategoryGuardrail();
+            }
+        });
 
         const commitmentSelectEl = document.getElementById('commitment-select');
         const commitmentChoices = new Choices(commitmentSelectEl, {
