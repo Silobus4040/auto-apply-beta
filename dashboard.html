@@ -3550,7 +3550,16 @@
                 'Invitation to schedule your interview',
                 'Your application has been selected for interview',
                 'Interview request for your recent application',
-                'Next step: schedule your recruiter screen'
+                'Next step: schedule your recruiter screen',
+                'Connecting regarding your recent application',
+                'First round discussion: Role & team overview',
+                'Quick chat regarding your background & fit',
+                'Phone screen availability for this week?',
+                'Hiring Manager conversation - Next steps',
+                'Next stage: Team walkthrough & role fit',
+                'Follow-up on your candidacy: Interview booking',
+                'Impressed by your profile - Introductory call',
+                'Preliminary interview & team introduction'
             ];
             const previews = [
                 'Good news - the hiring team would like to schedule a first-round conversation to learn more about your background, experience, and goals for the role.',
@@ -3558,39 +3567,40 @@
                 'Please choose a time for a first-round conversation with our team this week so we can discuss the position in more detail.',
                 'Your profile stood out, and we would like to schedule a quick introductory screen to go over next steps.',
                 'Thanks for applying. The next step is a short introductory conversation with our hiring manager.',
-                'We were impressed with your background and experience and would love to set up a preliminary call.',
-                'The team would love to set up an introductory call to discuss how your skill set aligns with our current openings.',
-                'We are moving forward with your candidacy for this position and want to coordinate a convenient time for your interview.',
-                'Are you available for a brief 20-minute screen this week? We are looking forward to learning more about your background.',
-                'Excited to connect! Please share your availability for next steps so we can lock in a time on the calendar.',
-                'Following up on your application with great news regarding interview availability and next round scheduling.',
-                'We would like to invite you for an initial chat to go through the scope of the role and answer any questions you have.',
-                'Thank you for your interest in joining us. Let\'s schedule our next conversation at your earliest convenience.'
+                'We’ve reviewed your profile and would love to arrange a preliminary discussion to speak through the role expectations.',
+                'The team was impressed with your experience and wants to coordinate a 30-minute introductory conversation.',
+                'I’d love to find 20 minutes this week to connect on your experience and share more details on our roadmap.',
+                'Could you share your availability for a brief call over the next few days? We are excited about your background.',
+                'Our hiring manager reviewed your candidacy and requested we coordinate an initial screening call.',
+                'Congratulations on being shortlisted — we would like to schedule the next phase of our interview process.',
+                'Following up regarding your application with an invite to book a conversation with our engineering lead.',
+                'We genuinely enjoyed reviewing your background and would love to set up some time on the calendar.',
+                'I would like to coordinate a convenient time for an introductory discussion with our talent team.'
             ];
-            const selected = Math.max(0, index) % subjects.length;
+            const selected = Math.min(Math.max(0, index), subjects.length - 1);
             const createdAt = email && email.created_at ? email.created_at : new Date().toISOString();
-            const senderName = (typeof DEMO_SENDERS !== 'undefined' && DEMO_SENDERS[index]) ? DEMO_SENDERS[index].name : 'Recruiting Team';
-            // 7 unique draft bodies for indices 5-13 (no salutation)
+            const senderName = (typeof DEMO_SENDERS !== 'undefined' && DEMO_SENDERS[selected]) ? DEMO_SENDERS[selected].name : 'Recruiting Team';
+            // 9 unique draft bodies for indices 5-13 (no salutation)
             const newDrafts = [
-                // draft 0
+                // draft 0 (index 5 - Recruiting Team)
                 '<p>Good news — your application caught our attention and the hiring team would like to move forward.</p><p>We’d love to schedule a first-round conversation to learn more about your background, experience, and what you’re looking for in your next role.</p><p>Please reply with two or three times that work for you this week and we’ll get something confirmed on the calendar.</p>',
-                // draft 1
+                // draft 1 (index 6 - Sofia)
                 '<p>Thank you for your application. After reviewing your profile, we’d like to invite you to the next stage of our hiring process.</p><p>This will be a 30-minute call with one of our engineering leads to discuss the role in more detail and answer any questions you may have.</p><p>Please use the scheduling link to book a time that works for you.</p>',
-                // draft 2
+                // draft 2 (index 7 - Ethan)
                 '<p>I’m reaching out because your application has been shortlisted for an interview with our team.</p><p>We’d love to set aside some time this week for a first-round conversation — a chance for us to walk you through the role and for you to share a bit more about your experience.</p><p>Could you share a few windows of availability? We’ll send a calendar invite right away.</p>',
-                // draft 3
+                // draft 3 (index 8 - Naomi)
                 '<p>Your profile stood out from the pool and our team wants to connect.</p><p>I’d like to schedule a quick 20–25 minute introductory screen so we can go over the role expectations, discuss your background, and see if there’s a strong mutual fit.</p><p>What does your availability look like this week or early next week?</p>',
-                // draft 4
+                // draft 4 (index 9 - Liam)
                 '<p>We’ve reviewed your application and we’d love to move things forward.</p><p>The next step is a short introductory conversation with our hiring manager — usually about 20 minutes and a great opportunity to ask questions about the team and the day-to-day.</p><p>Reply here or use the scheduling link and we’ll lock something in.</p>',
-                // draft 5
+                // draft 5 (index 10 - Chloe)
                 '<p>Congratulations — we’re excited to let you know that you’ve been selected to move forward in our interview process.</p><p>Our team was impressed with your experience and we’d like to schedule a call to discuss the opportunity in more depth. You’ll have a chance to meet one of our hiring leads and ask any questions about the role.</p><p>Please share your availability and we’ll coordinate from there.</p>',
-                // draft 6
-                '<p>I hope this finds you well! We reviewed your application and were genuinely impressed.</p><p>We’d love to set up an introductory call to discuss how your skill set aligns with what we’re building and where you’d fit within the team.</p><p>Let me know what works best for you and I’ll send over a calendar invite.</p>'
+                // draft 6 (index 11 - Samuel)
+                '<p>I hope this finds you well! We reviewed your application and were genuinely impressed.</p><p>We’d love to set up an introductory call to discuss how your skill set aligns with what we’re building and where you’d fit within the team.</p><p>Let me know what works best for you and I’ll send over a calendar invite.</p>',
+                // draft 7 (index 12 - Rachel)
+                '<p>Thank you for taking the time to apply. We are excited about what you bring to the table and want to move quickly.</p><p>We would love to get an initial conversation scheduled with our talent team to discuss your background and what you are looking for next.</p><p>Please let us know your availability over the coming days.</p>',
+                // draft 8 (index 13 - Natalie Hunter)
+                '<p>Our team reviewed your candidacy and we believe there is strong alignment with our current mission.</p><p>We would like to invite you for a preliminary interview to discuss the scope of the position and walk through your background.</p><p>Please send over a couple of time slots that work best for your schedule.</p>'
             ];
-            // draft index map for senders at indices 5-13:
-            // Recruiting Team(5)=d0, Sofia(6)=d0, Ethan(7)=d1, Naomi(8)=d2,
-            // Liam(9)=d3, Chloe(10)=d4, Samuel(11)=d5, Rachel(12)=d6, Natalie(13)=d0
-            const draftMap = [0, 0, 1, 2, 3, 4, 5, 6, 0];
             let html;
             if (index === 0) {
                 // D. Brooks — only email with "Hi Siloko,"
@@ -3599,8 +3609,8 @@
                 // Recruiter, Olivia Grant, Marcus, Priya — existing style, no salutation
                 html = `<div style="max-width:640px;margin:0 auto;"><p>Good news - your application has moved to the interview stage.</p><p>The hiring team would like to schedule a first-round conversation to learn more about your background, experience, and goals for the role.</p><p>Please reply with a few times that work for you this week, and we will confirm the interview slot.</p><p>Best,<br>${senderName}</p></div>`;
             } else {
-                // Senders 6-14 — new unique draft bodies
-                const di = draftMap[Math.min(index - 5, draftMap.length - 1)];
+                // Senders 5-13 — each has a unique draft body
+                const di = Math.min(index - 5, newDrafts.length - 1);
                 html = `<div style="max-width:640px;margin:0 auto;">${newDrafts[di]}<p>Best,<br>${senderName}</p></div>`;
             }
             return {
@@ -3695,7 +3705,7 @@
             const listEl = document.getElementById('email-list');
             
             const selectedCategory = mailboxCategoryByTab[currentEmailTab] || 'inbox';
-            const filteredEmails = currentEmails.filter(email => {
+            let filteredEmails = currentEmails.filter(email => {
                 const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
                 if (currentEmailTab === 'inbox') {
                     if (isOutbound) return false;
@@ -3703,6 +3713,11 @@
                 }
                 return (email.category || 'inbox') === selectedCategory;
             });
+            
+            // DEMO UI override: delete rows 14 & 15 so only the 14 defined demo interview emails (0..13) display
+            if (isDemoInboxView() && (currentEmailTab === 'inbox' || currentEmailTab === 'interviews')) {
+                filteredEmails = filteredEmails.slice(0, 14);
+            }
             
             if (filteredEmails.length === 0) {
                 listEl.innerHTML = `<div style="padding: 3rem 1.5rem; text-align: center; color: #a1a1aa; font-size: 0.95rem;">No emails here yet.</div>`;
