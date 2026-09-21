@@ -480,17 +480,18 @@
         .email-folder-btn i { width: 16px; height: 16px; }
         .email-folder-divider { height: 1px; margin: 0.65rem 0.45rem; background: var(--border); }
         .folder-label-mobile { display: none; }
-        .email-list { flex: 1; min-width: 0; overflow-y: auto; }
-        .email-item { padding: 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; position: relative; }
+        .email-list { flex: 1; min-width: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y; }
+        .email-item { padding: 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; position: relative; touch-action: pan-y; }
         .email-item:hover { background: #f4f4f5; }
         .email-item.active { background: rgba(0, 255, 204, 0.1); border-left: 4px solid var(--secondary); padding-left: calc(1.25rem - 4px); }
         .email-item.unread::before { content: ''; position: absolute; top: 1.25rem; left: 0.5rem; width: 8px; height: 8px; background: var(--secondary); border-radius: 50%; }
+        .email-item:not(.unread)::before { display: none !important; }
         .email-item.unread { padding-left: 1.5rem; }
         .email-item.active.unread { padding-left: calc(1.5rem - 4px); }
-        .email-sender { font-size: 0.9rem; font-weight: 700; color: #000; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .email-subject { font-size: 0.85rem; font-weight: 600; color: #3f3f46; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .email-sender { font-size: 0.9rem; font-weight: 500; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .email-subject { font-size: 0.85rem; font-weight: 450; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .email-preview { font-size: 0.8rem; color: #71717a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .email-time { font-size: 0.7rem; color: #a1a1aa; font-weight: 600; position: absolute; top: 1.25rem; right: 1.25rem; }
+        .email-time { font-size: 0.7rem; color: #71717a; font-weight: 450; position: absolute; top: 1.25rem; right: 1.25rem; }
         
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
         .email-client-container.list-only .email-sidebar { display: flex !important; width: 100% !important; flex: 1 !important; border-right: none !important; }
@@ -522,8 +523,8 @@
             flex-shrink: 0;
             margin: 0;
             font-size: 0.94rem;
-            font-weight: 800;
-            color: #1a1a1a;
+            font-weight: 500;
+            color: #52525b;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
@@ -540,14 +541,14 @@
             font-size: 0.94rem;
         }
         .email-client-container.list-only .email-subject {
-            font-weight: 800;
-            color: #1a1a1a;
+            font-weight: 450;
+            color: #52525b;
             margin: 0;
             flex-shrink: 0;
             letter-spacing: -0.2px;
         }
         .email-client-container.list-only .email-preview {
-            color: #5f6368;
+            color: #71717a;
             margin: 0;
             margin-left: 0.35rem;
             font-size: 0.92rem;
@@ -566,30 +567,89 @@
             position: static;
             margin: 0;
             font-size: 0.8rem;
-            font-weight: 750;
-            color: #1a1a1a;
+            font-weight: 450;
+            color: #71717a;
         }
+
+        /* Unread: bold black typography with unread dot */
+        .email-client-container.list-only .email-item.unread .email-sender,
+        .email-item.unread .email-sender {
+            font-weight: 800 !important;
+            color: #000000 !important;
+        }
+        .email-client-container.list-only .email-item.unread .email-subject,
+        .email-item.unread .email-subject {
+            font-weight: 800 !important;
+            color: #000000 !important;
+        }
+        .email-client-container.list-only .email-item.unread .email-preview,
+        .email-item.unread .email-preview {
+            color: #52525b !important;
+        }
+        .email-client-container.list-only .email-item.unread .email-time,
+        .email-item.unread .email-time {
+            font-weight: 750 !important;
+            color: #000000 !important;
+        }
+
+        /* Read/Opened: softer, normal non-bold typography, no dot */
+        .email-client-container.list-only .email-item:not(.unread) .email-sender,
+        .email-item:not(.unread) .email-sender {
+            font-weight: 500 !important;
+            color: #52525b !important;
+        }
+        .email-client-container.list-only .email-item:not(.unread) .email-subject,
+        .email-item:not(.unread) .email-subject {
+            font-weight: 450 !important;
+            color: #52525b !important;
+        }
+        .email-client-container.list-only .email-item:not(.unread) .email-preview,
+        .email-item:not(.unread) .email-preview {
+            color: #71717a !important;
+        }
+        .email-client-container.list-only .email-item:not(.unread) .email-time,
+        .email-item:not(.unread) .email-time {
+            font-weight: 450 !important;
+            color: #71717a !important;
+        }
+
+        /* Dark mode overrides */
+        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-sender,
+        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-subject,
+        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-time {
+            color: #ffffff !important;
+        }
+        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-sender,
+        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-subject {
+            color: #a1a1aa !important;
+        }
+        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-preview,
+        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-time {
+            color: #71717a !important;
+        }
+
         @media (max-width: 768px) {
-            .email-mailbox-main { display: flex !important; flex-direction: column !important; flex: 1 1 auto !important; height: 100% !important; min-height: 0 !important; overflow: hidden !important; }
-            .email-mailbox-main > div { order: 1 !important; flex: 1 1 auto !important; height: 100% !important; min-height: 0 !important; display: flex !important; flex-direction: column !important; }
-            .email-folder-nav { order: 2 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; width: 100% !important; min-width: 0 !important; flex: 0 0 auto !important; gap: 0.35rem !important; padding: 0.65rem 0.75rem max(1.25rem, calc(0.65rem + env(safe-area-inset-bottom, 0px))) !important; background: var(--surface-color) !important; border: 0 !important; border-top: 1px solid var(--border) !important; overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap !important; position: sticky !important; bottom: 0 !important; z-index: 100 !important; box-shadow: 0 -4px 16px rgba(0,0,0,0.06) !important; touch-action: pan-x !important; }
+            .email-mailbox-main { display: flex !important; flex-direction: column !important; flex: 1 1 0% !important; height: auto !important; min-height: 0 !important; overflow: hidden !important; }
+            .email-mailbox-main > div { order: 1 !important; flex: 1 1 0% !important; height: auto !important; min-height: 0 !important; display: flex !important; flex-direction: column !important; overflow: hidden !important; }
+            .email-folder-nav { order: 2 !important; display: flex !important; flex-direction: row !important; align-items: center !important; justify-content: flex-start !important; width: 100% !important; min-width: 0 !important; flex: 0 0 auto !important; gap: 0.35rem !important; padding: 0.65rem 0.75rem max(1.25rem, calc(0.65rem + env(safe-area-inset-bottom, 0px))) !important; background: var(--surface-color) !important; border: 0 !important; border-top: 1px solid var(--border) !important; overflow-x: auto !important; overflow-y: hidden !important; white-space: nowrap !important; position: sticky !important; bottom: 0 !important; z-index: 100 !important; box-shadow: 0 -4px 16px rgba(0,0,0,0.06) !important; touch-action: pan-x !important; -webkit-overflow-scrolling: touch !important; }
             .email-folder-label, .email-folder-divider { display: none; }
             .email-folder-btn { touch-action: manipulation !important; -webkit-tap-highlight-color: transparent !important; user-select: none !important; width: auto; flex: 0 0 auto; padding: 0.55rem 0.75rem; font-size: 0.8rem; white-space: nowrap; cursor: pointer; }
             .folder-label-desktop { display: none; }
             .folder-label-mobile { display: inline; }
             #tab-interviews { order: 1; }
-            #tab-rejections { order: 2; }
-            #tab-offers { order: 3; }
+            #tab-offers { order: 2; }
+            #tab-rejections { order: 3; }
             #tab-sent { order: 4; }
             #tab-inbox { order: 5; }
             #tab-codes { order: 6; }
             /* Mobile: keep single-line Gmail-style flex row, tuned for narrow screens */
-            .email-client-container.list-only .email-item { display: flex !important; align-items: center !important; height: 44px !important; min-height: 44px !important; padding: 0 0.6rem 0 1.5rem !important; gap: 0.6rem !important; }
+            .email-client-container.list-only .email-item { display: flex !important; align-items: center !important; height: 44px !important; min-height: 44px !important; padding: 0 0.6rem 0 1.5rem !important; gap: 0.6rem !important; touch-action: pan-y !important; -webkit-tap-highlight-color: rgba(0, 0, 0, 0.04); }
             .email-client-container.list-only .email-sender { width: 110px; min-width: 110px; font-size: 0.8rem; }
             .email-client-container.list-only .email-body-line { font-size: 0.8rem; }
             .email-client-container.list-only .email-time { width: 66px; min-width: 66px; font-size: 0.73rem; position: static; }
             /* Inbox tab hidden on mobile */
             #tab-inbox { display: none !important; }
+            .email-list { flex: 1 1 0% !important; height: auto !important; min-height: 0 !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important; overscroll-behavior-y: contain !important; touch-action: pan-y !important; padding-bottom: 2rem !important; }
         }
                 .email-content-header { padding: 1.25rem 2.5rem 1rem; border-bottom: 1px solid #f1f3f4; background: #fff; }
         .email-content-subject-row { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
@@ -788,13 +848,55 @@
                Same list-then-full-screen-detail pattern as dashboard.html,
                including the flex+min-height:0 fix that page needed for the
                opened email's iframe to actually get a real height on mobile. */
-            #email-client-modal { padding: 0; }
-            .email-client-container { flex-direction: column; height: 100vh; height: 100dvh; border-radius: 0; }
-            .email-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border); flex: 1; min-height: 0; }
-            .email-list { min-height: 0; padding-bottom: max(3rem, calc(1.5rem + env(safe-area-inset-bottom, 0px))); }
+            #email-client-modal {
+                position: fixed !important;
+                inset: 0 !important;
+                width: 100vw !important;
+                height: 100dvh !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow: hidden !important;
+                touch-action: none;
+                z-index: 2000 !important;
+            }
+            .email-client-container {
+                position: fixed !important;
+                inset: 0 !important;
+                flex-direction: column !important;
+                width: 100vw !important;
+                height: 100dvh !important;
+                max-height: 100dvh !important;
+                border-radius: 0 !important;
+                overflow: hidden !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .email-sidebar {
+                width: 100% !important;
+                height: 100% !important;
+                max-height: 100% !important;
+                border-right: none !important;
+                border-bottom: none !important;
+                flex: 1 1 0% !important;
+                min-height: 0 !important;
+                display: flex !important;
+                flex-direction: column !important;
+                overflow: hidden !important;
+            }
+            .email-list {
+                flex: 1 1 0% !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow-y: auto !important;
+                overflow-x: hidden !important;
+                -webkit-overflow-scrolling: touch !important;
+                overscroll-behavior-y: contain !important;
+                touch-action: pan-y !important;
+                padding-bottom: max(3rem, calc(1.5rem + env(safe-area-inset-bottom, 0px))) !important;
+            }
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
-            .email-client-container.mobile-show-content .email-content { display: flex; flex: 1; min-height: 0; }
+            .email-client-container.mobile-show-content .email-content { display: flex !important; flex: 1 1 0% !important; min-height: 0 !important; height: 100% !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; overscroll-behavior-y: contain !important; }
             .email-content-back-btn {
                 display: inline-flex; align-items: center; gap: 0.3rem;
                 background: none; border: none; color: #000; font-weight: 700;
@@ -3745,7 +3847,11 @@
             }
         }
 
-        function closeModal(id) { document.getElementById(id).classList.remove('active'); }
+        function closeModal(id) {
+            if (id === 'email-client-modal') { document.body.style.overflow = ''; }
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('active');
+        }
 
         async function logout() {
             await supabaseClient.auth.signOut();
@@ -3856,6 +3962,7 @@
         let currentEmails = [];
         
         async function openEmailClient() {
+            document.body.style.overflow = 'hidden';
             document.getElementById('email-client-modal').classList.add('active');
             const container = document.querySelector('.email-client-container');
             container.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
@@ -3865,6 +3972,7 @@
         }
 
         function closeEmailClient() {
+            document.body.style.overflow = '';
             document.getElementById('email-client-modal').classList.remove('active');
         }
 
@@ -4113,6 +4221,26 @@
             await fetchEmails();
         }
 
+        function getLocallyReadEmailIds() {
+            try {
+                const stored = localStorage.getItem('rover_read_email_ids');
+                return stored ? JSON.parse(stored) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function markEmailAsReadLocally(emailId) {
+            if (!emailId) return;
+            try {
+                const ids = getLocallyReadEmailIds();
+                if (!ids.includes(emailId)) {
+                    ids.push(emailId);
+                    localStorage.setItem('rover_read_email_ids', JSON.stringify(ids));
+                }
+            } catch (e) {}
+        }
+
         function renderEmailList() {
             const listEl = document.getElementById('email-list');
             
@@ -4131,18 +4259,27 @@
                 return;
             }
             
+            const localReadIds = new Set(getLocallyReadEmailIds());
             listEl.innerHTML = '';
             filteredEmails.forEach((email, displayIndex) => {
                 const originalIndex = currentEmails.findIndex(e => e.id === email.id);
                 const el = document.createElement('div');
-                el.className = `email-item ${email.is_read ? '' : 'unread'}`;
-                el.onclick = () => showEmailContent(originalIndex, displayIndex);
                 
                 let isOutbound = false;
                 if (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email) {
                     isOutbound = true;
                 }
 
+                const emailKey = email.id || `demo-${currentEmailTab}-${displayIndex}`;
+                if (localReadIds.has(emailKey) || (email.id && localReadIds.has(email.id))) {
+                    email.is_read = true;
+                }
+
+                const isUnread = !email.is_read && !isOutbound;
+                el.className = `email-item ${isUnread ? 'unread' : ''}`;
+                el.dataset.emailId = emailKey;
+                el.onclick = () => showEmailContent(originalIndex, displayIndex);
+                
                 // If outbound, we show who it was sent TO (the recipient)
                 const displayAddress = isOutbound ? (email.recipient || 'Unknown Recipient') : email.sender;
                 
@@ -4203,11 +4340,18 @@
             });
             
             const email = currentEmails[index];
+            if (!email) return;
+
+            const emailKey = email.id || `demo-${currentEmailTab}-${demoDisplayIndex}`;
             
             // Mark as read if not already
             if (!email.is_read) {
                 email.is_read = true;
-                document.querySelectorAll('.email-item')[index].classList.remove('unread');
+                markEmailAsReadLocally(emailKey);
+                if (email.id) markEmailAsReadLocally(email.id);
+                
+                const itemEl = document.querySelector(`.email-item[data-email-id="${emailKey}"]`) || document.querySelectorAll('.email-item')[demoDisplayIndex];
+                if (itemEl) itemEl.classList.remove('unread');
                 
                 const badge = document.getElementById('inbox-badge');
                 const sidebarBadge = document.getElementById('sidebar-inbox-badge');
@@ -4221,7 +4365,9 @@
                 }
                 
                 // Update DB asynchronously
-                supabaseClient.from('emails').update({ is_read: true }).eq('id', email.id).then();
+                if (email.id && typeof supabaseClient !== 'undefined') {
+                    supabaseClient.from('emails').update({ is_read: true }).eq('id', email.id).then();
+                }
             }
             
             const emailClient = document.querySelector('.email-client-container');
