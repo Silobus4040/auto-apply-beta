@@ -723,11 +723,25 @@
             border-color: #cbd5e1;
         }
         .email-intro-dismiss-btn {
-            display: inline-flex; margin-top: 1rem; background: #000; color: #fff;
-            border: none; padding: 0.6rem 1.5rem; border-radius: 8px; font-weight: 700;
-            font-size: 0.85rem; cursor: pointer; font-family: inherit;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 1.25rem;
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 0.75rem 2.25rem;
+            border-radius: 9999px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+            font-family: inherit;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+            transition: all 0.15s ease;
         }
-        .email-list.intro-gated { display: none; }
+        .email-intro-dismiss-btn:hover { background: #27272a; }
+        .email-intro-dismiss-btn:active { transform: scale(0.97); }
+        .email-list.intro-gated { display: none !important; }
         /* Desktop shows the "Your Job Hunt Email is Active" intro inside the
            always-visible content pane. On mobile that pane is hidden until an
            email is tapped, which was silently hiding the intro entirely -- so
@@ -797,8 +811,35 @@
             .email-content { display: none; }
             .email-client-container.mobile-show-content .email-sidebar { display: none; }
             .email-client-container.mobile-show-content .email-content { display: flex !important; flex: 1 1 0% !important; min-height: 0 !important; height: 100% !important; overflow-y: auto !important; -webkit-overflow-scrolling: touch !important; overscroll-behavior-y: contain !important; }
-            .email-mobile-intro { display: block; padding: 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-color); max-height: 45vh; overflow-y: auto; flex-shrink: 0; -webkit-overflow-scrolling: touch !important; }
-            .email-mobile-intro .email-empty-state { color: #71717A; }
+            .email-mobile-intro {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex: 1 1 0% !important;
+                width: 100% !important;
+                height: 100% !important;
+                min-height: 0 !important;
+                max-height: none !important;
+                padding: 1.5rem 1.25rem !important;
+                border-bottom: none !important;
+                background: var(--surface-color);
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch !important;
+                box-sizing: border-box !important;
+            }
+            .email-mobile-intro:empty { display: none !important; }
+            .email-mobile-intro .email-empty-state {
+                display: flex !important;
+                flex-direction: column !important;
+                align-items: center !important;
+                justify-content: center !important;
+                text-align: center !important;
+                width: 100% !important;
+                max-width: 440px !important;
+                margin: auto 0 !important;
+                color: #52525b;
+            }
             .email-content-back-btn {
                 display: inline-flex; align-items: center; gap: 0.3rem;
                 background: none; border: none; color: #000; font-weight: 700;
@@ -1332,8 +1373,11 @@
                 padding: 0.85rem 1rem !important;
             }
             .email-mobile-intro {
-                max-height: 30vh;
-                padding: 1rem !important;
+                max-height: none !important;
+                flex: 1 1 0% !important;
+                height: 100% !important;
+                border-bottom: none !important;
+                padding: 1.5rem 1.25rem !important;
             }
             .email-mobile-intro p {
                 overflow-wrap: anywhere;
@@ -3393,13 +3437,13 @@
                 : 'Generating your dedicated email...';
             return `
                 <div class="email-empty-state">
-                    <div style="margin-bottom: 1rem; color: #000;"><i data-lucide="inbox" style="width: 40px; height: 40px;"></i></div>
-                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.5rem;">Your Rover Inbox is Active</h3>
+                    <div style="margin-bottom: 0.85rem; color: #000;"><i data-lucide="inbox" style="width: 44px; height: 44px;"></i></div>
+                    <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.4rem; letter-spacing: -0.02em;">Your Rover Inbox is Active</h3>
                     <div style="font-weight: 800; color: #000; font-size: 1rem; margin-bottom: 1rem; word-break: break-all;">${email}</div>
-                    <p style="max-width: 400px; text-align: center; line-height: 1.5;">
+                    <p style="max-width: 380px; text-align: center; line-height: 1.5; font-size: 0.88rem; color: #52525b; margin: 0 auto;">
                         Your Rover Inbox keeps the job-search noise out of your personal email. Auto-replies, sign-up codes, "thank you for applying" messages, and interview invites are captured here, so your main inbox stays clean.
                         <br><br>
-                        <span style="color:var(--secondary); font-weight:700;">PS:</span> Reply from Rover Inbox to keep everything organized. Recruiter messages are also forwarded to your personal email as a backup, so you never miss anything.
+                        <span style="color: #059669; font-weight: 700;">PS:</span> Reply from Rover Inbox to keep everything organized. Recruiter messages are also forwarded to your personal email as a backup, so you never miss anything.
                     </p>
                     <button class="email-intro-dismiss-btn" onclick="dismissJobHuntIntro()">I understand</button>
                 </div>
