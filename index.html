@@ -572,6 +572,43 @@
             border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
+        /* Floating Video Sound / Mute Toggle Button */
+        .video-mute-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.22);
+            color: #ffffff;
+            border-radius: 30px;
+            padding: 0.38rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 750;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
+        .video-mute-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            border-color: #00FFCC;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 255, 204, 0.3);
+        }
+        .video-mute-btn svg {
+            width: 15px;
+            height: 15px;
+            fill: currentColor;
+            display: block;
+        }
+
         /* Notable companies marquee */
         .logo-marquee-wrap { max-width: 1400px; margin: 3rem auto 0; padding: 0 5%; }
         .logo-marquee-eyebrow { text-align: center; font-size: 0.85rem; color: #52525B; text-transform: uppercase; letter-spacing: 1px; font-weight: 600; margin-bottom: 1.5rem; }
@@ -751,12 +788,12 @@
             </p>
         </div>
         <div class="hero-right">
-            <div class="hero-video-card" onclick="openVideoModal()" onkeydown="if(event.key==='Enter'||event.key===' ')openVideoModal()" role="button" tabindex="0" aria-label="Watch the 37-second demo">
+            <div class="hero-video-card" onclick="openVideoModal()" onkeydown="if(event.key==='Enter'||event.key===' ')openVideoModal()" role="button" tabindex="0" aria-label="Watch the demo">
                 <div class="hero-video-inner">
                     <img src="assets/demo_thumbnail.jpg" alt="Role Rover mobile app preview" class="hero-video-thumb" />
                     <div class="hero-video-badge">
                         <span class="badge-dot"></span>
-                        <span>37s Walkthrough</span>
+                        <span>Full Walkthrough</span>
                     </div>
                     <div class="hero-video-overlay-center">
                         <div class="hero-play-btn" aria-hidden="true">
@@ -764,7 +801,7 @@
                         </div>
                         <div class="hero-video-label-bar">
                             <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
-                            <span>Watch the 37-second demo</span>
+                            <span>Watch the demo</span>
                         </div>
                     </div>
                 </div>
@@ -822,22 +859,27 @@
         <div class="how-it-works-header">
             <span class="section-badge">Product Tour</span>
             <h2 class="section-title">See RoleRover in action</h2>
-            <p class="section-sub">From résumé upload to matching roles, tailored applications, and your career inbox—see the full flow in 37 seconds.</p>
+            <p class="section-sub">From résumé upload to matching roles, tailored applications, and your career inbox—see the full flow in action.</p>
         </div>
 
         <!-- Inline portrait video player inside sleek phone shell -->
         <div class="inline-video-wrap">
             <div class="inline-phone-shell">
                 <div class="inline-video-container">
+                    <button id="inline-mute-btn" class="video-mute-btn" onclick="toggleVideoMute('inline-video', 'inline-mute-btn', event)" aria-label="Toggle sound">
+                        <svg class="sound-on-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                        <svg class="sound-off-icon" style="display:none;" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                        <span class="mute-text">Sound</span>
+                    </button>
                     <video id="inline-video" class="inline-video-player" playsinline controls preload="none" poster="assets/demo_thumbnail.jpg">
                         <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
                     <div class="inline-video-play-overlay" id="inline-video-overlay" onclick="playInlineVideo()">
-                        <button class="inline-play-btn" aria-label="Play 37-second demo video">
+                        <button class="inline-play-btn" aria-label="Play demo video">
                             <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
                         </button>
-                        <span class="inline-play-label">Watch the 37-second demo</span>
+                        <span class="inline-play-label">Watch the demo</span>
                     </div>
                 </div>
             </div>
@@ -1568,17 +1610,22 @@
         })();
     </script>
     <!-- Video Modal Overlay (Desktop) -->
-    <div id="video-modal" class="video-modal-overlay" onclick="handleVideoModalBackdropClick(event)" aria-modal="true" role="dialog" aria-label="Role Rover 37-second demo video">
+    <div id="video-modal" class="video-modal-overlay" onclick="handleVideoModalBackdropClick(event)" aria-modal="true" role="dialog" aria-label="Role Rover demo video">
         <div class="video-modal-glow"></div>
         <div class="video-modal-dialog">
             <button class="video-modal-close" onclick="closeVideoModal()" aria-label="Close demo">&times;</button>
-            <div class="video-modal-phone">
+            <div class="video-modal-phone" style="position: relative;">
+                <button id="modal-mute-btn" class="video-mute-btn" onclick="toggleVideoMute('modal-video', 'modal-mute-btn', event)" aria-label="Toggle sound">
+                    <svg class="sound-on-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    <svg class="sound-off-icon" style="display:none;" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                    <span class="mute-text">Sound</span>
+                </button>
                 <video id="modal-video" class="video-modal-player" playsinline controls preload="none" poster="assets/demo_thumbnail.jpg">
                     <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
                     Your browser does not support the video tag.
                 </video>
             </div>
-            <p class="video-modal-caption">Role Rover Mobile Demo • 37s Walkthrough</p>
+            <p class="video-modal-caption">Role Rover Mobile Demo • Full Walkthrough</p>
         </div>
     </div>
 
@@ -1586,6 +1633,33 @@
         function toggleMobileNav() {
             document.getElementById('mobile-nav-panel').classList.toggle('active');
             document.getElementById('mobile-nav-overlay').classList.toggle('active');
+        }
+
+        function updateMuteButtonUI(btnId, isMuted) {
+            var btn = document.getElementById(btnId);
+            if (!btn) return;
+            var onIcon = btn.querySelector('.sound-on-icon');
+            var offIcon = btn.querySelector('.sound-off-icon');
+            var text = btn.querySelector('.mute-text');
+            if (isMuted) {
+                if (onIcon) onIcon.style.display = 'none';
+                if (offIcon) offIcon.style.display = 'block';
+                if (text) text.textContent = 'Muted';
+                btn.setAttribute('aria-label', 'Unmute sound');
+            } else {
+                if (onIcon) onIcon.style.display = 'block';
+                if (offIcon) offIcon.style.display = 'none';
+                if (text) text.textContent = 'Sound';
+                btn.setAttribute('aria-label', 'Mute sound');
+            }
+        }
+
+        function toggleVideoMute(videoId, btnId, e) {
+            if (e) e.stopPropagation();
+            var video = document.getElementById(videoId);
+            if (!video) return;
+            video.muted = !video.muted;
+            updateMuteButtonUI(btnId, video.muted);
         }
 
         function openVideoModal() {
@@ -1633,6 +1707,15 @@
                     }
                 });
             }
+            ['inline-video', 'modal-video'].forEach(function(vidId) {
+                var v = document.getElementById(vidId);
+                var btnId = vidId === 'inline-video' ? 'inline-mute-btn' : 'modal-mute-btn';
+                if (v) {
+                    v.addEventListener('volumechange', function() {
+                        updateMuteButtonUI(btnId, v.muted || v.volume === 0);
+                    });
+                }
+            });
             window.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') {
                     closeVideoModal();
