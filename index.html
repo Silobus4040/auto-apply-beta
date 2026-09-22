@@ -60,6 +60,7 @@
             --text-body: #27272A;
             --border: #e4e4e7;
         }
+        html { scroll-behavior: smooth; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-body); overflow-x: hidden; line-height: 1.6; position: relative; }
         
@@ -231,43 +232,344 @@
         .mockup-btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; border-radius: 4px; }
         @keyframes rover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     
-        /* ===== Hero split layout with live agent animation ===== */
-        .hero-grid { display: grid; grid-template-columns: 1fr; gap: 2rem; align-items: start; max-width: 1400px; margin: 5rem auto 2rem; padding: 0 5%; }
+        /* ===== Hero Layout & Video Preview ===== */
+        .hero-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; max-width: 1400px; margin: 4.5rem auto 2rem; padding: 0 5%; }
+        @media (min-width: 901px) {
+            .hero-grid { grid-template-columns: 1.15fr 0.85fr; gap: clamp(2.5rem, 5vw, 5rem); }
+        }
         .hero-left { display: flex; flex-direction: column; align-items: flex-start; }
         .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 30px; padding: 0.4rem 1rem; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #18181b; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
         .hero-eyebrow .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; animation: mockup-pulse 1.5s infinite; }
 
-        /* Animated stack of application cards */
-        .agent-visual { position: relative; min-height: 460px; display: flex; flex-direction: column; justify-content: center; gap: 1.1rem; }
-        .agent-visual-label { display: flex; align-items: center; gap: 0.5rem; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #71717a; margin-bottom: 0.25rem; }
-        .agent-card { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 1.25rem 1.5rem; box-shadow: 0 12px 30px rgba(0,0,0,0.05); opacity: 0; animation: agent-card-cycle 12s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-        .agent-card:nth-child(2) { animation-delay: 0s; }
-        .agent-card:nth-child(3) { animation-delay: 4s; }
-        .agent-card:nth-child(4) { animation-delay: 8s; }
-        @keyframes agent-card-cycle {
-            0% { opacity: 0; transform: translateY(24px) scale(0.97); }
-            4%, 92% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-8px) scale(0.98); }
+        /* Hero Right: Vertical Video Preview (Desktop only) */
+        .hero-right { display: flex; justify-content: center; align-items: center; width: 100%; }
+        .hero-video-card {
+            position: relative;
+            width: 270px;
+            max-width: 100%;
+            aspect-ratio: 9 / 18.5;
+            background: #09090b;
+            border-radius: 32px;
+            padding: 8px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.08);
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            user-select: none;
         }
-        .agent-card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; margin-bottom: 0.85rem; }
-        .agent-card-company { font-weight: 850; color: #000; font-size: 1rem; letter-spacing: -0.3px; }
-        .agent-card-role { color: #52525B; font-size: 0.85rem; font-weight: 600; margin-top: 0.1rem; }
-        .agent-card-salary { color: #10B981; font-weight: 700; font-size: 0.8rem; background: rgba(16,185,129,0.07); border: 1px solid rgba(16,185,129,0.15); padding: 0.2rem 0.6rem; border-radius: 5px; white-space: nowrap; }
-        .agent-progress-label { font-size: 0.72rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.8px; color: #b45309; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.45rem; animation: agent-label-swap 12s linear infinite; }
-        .agent-progress-track { width: 100%; height: 6px; background: #F4F4F5; border-radius: 10px; overflow: hidden; margin-bottom: 0.85rem; }
-        .agent-progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, #D4FF33, #00FFCC); border-radius: 10px; animation: agent-progress 12s cubic-bezier(0.4, 0, 0.2, 1) infinite; }
-        .agent-card:nth-child(3) .agent-progress-fill, .agent-card:nth-child(3) .agent-applied-pill { animation-delay: 4s; }
-        .agent-card:nth-child(4) .agent-progress-fill, .agent-card:nth-child(4) .agent-applied-pill { animation-delay: 8s; }
-        @keyframes agent-progress {
-            0%, 5% { width: 0%; }
-            22% { width: 100%; }
-            92%, 100% { width: 100%; }
+        .hero-video-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 35px 70px rgba(0, 0, 0, 0.18), 0 0 35px rgba(212, 255, 51, 0.18);
         }
-        .agent-applied-pill { display: inline-flex; align-items: center; gap: 0.35rem; background: rgba(16,185,129,0.08); color: #047857; border: 1px solid rgba(16,185,129,0.2); padding: 0.28rem 0.8rem; border-radius: 20px; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0; animation: agent-applied-pop 12s cubic-bezier(0.34, 1.56, 0.64, 1) infinite; }
-        @keyframes agent-applied-pop {
-            0%, 23% { opacity: 0; transform: scale(0.6); }
-            27%, 92% { opacity: 1; transform: scale(1); }
-            100% { opacity: 0; }
+        .hero-video-card:focus-visible {
+            outline: 3px solid #00FFCC;
+            outline-offset: 4px;
+        }
+        .hero-video-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 24px;
+            overflow: hidden;
+            background: #18181b;
+        }
+        .hero-video-thumb {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            transition: transform 0.4s ease;
+        }
+        .hero-video-card:hover .hero-video-thumb {
+            transform: scale(1.03);
+        }
+        .hero-video-badge {
+            position: absolute;
+            top: 14px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-size: 0.72rem;
+            font-weight: 750;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            padding: 0.35rem 0.85rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            white-space: nowrap;
+            z-index: 2;
+        }
+        .hero-video-badge .badge-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #00FFCC;
+            box-shadow: 0 0 6px #00FFCC;
+        }
+        .hero-video-overlay-center {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.72) 100%);
+            z-index: 2;
+            padding: 1.25rem;
+        }
+        .hero-play-btn {
+            width: 62px;
+            height: 62px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #D4FF33, #00FFCC);
+            color: #000000;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.4);
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-bottom: auto;
+            margin-top: auto;
+        }
+        .hero-video-card:hover .hero-play-btn {
+            transform: scale(1.1);
+        }
+        .hero-play-btn svg {
+            margin-left: 3px;
+        }
+        .hero-video-label-bar {
+            margin-top: auto;
+            width: 100%;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.65);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 14px;
+            padding: 0.6rem 0.8rem;
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 750;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        /* ===== Video Modal Overlay (Desktop) ===== */
+        .video-modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: rgba(9, 9, 11, 0.82);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .video-modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+        .video-modal-glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(212, 255, 51, 0.18) 0%, rgba(0, 255, 204, 0.12) 40%, transparent 70%);
+            pointer-events: none;
+        }
+        .video-modal-dialog {
+            position: relative;
+            width: min(390px, 92vw);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            animation: modal-pop 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 1;
+        }
+        @keyframes modal-pop {
+            0% { transform: scale(0.92); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .video-modal-phone {
+            width: 100%;
+            background: #000000;
+            border-radius: 36px;
+            padding: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.7), 0 0 50px rgba(0, 255, 204, 0.15);
+            overflow: hidden;
+        }
+        .video-modal-player {
+            width: 100%;
+            aspect-ratio: 9 / 19.5;
+            border-radius: 28px;
+            display: block;
+            background: #000000;
+            object-fit: cover;
+        }
+        .video-modal-close {
+            position: absolute;
+            top: -48px;
+            right: 0;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .video-modal-close:hover {
+            background: rgba(255, 255, 255, 0.25);
+            transform: scale(1.08);
+        }
+        .video-modal-caption {
+            color: #a1a1aa;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-top: 1rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+        }
+
+        /* ===== How It Works & Inline Demo Section ===== */
+        .how-it-works {
+            max-width: 1400px;
+            margin: 6rem auto 0;
+            padding: 0 5%;
+            scroll-margin-top: 5.5rem;
+        }
+        .how-it-works-header {
+            text-align: center;
+            max-width: 760px;
+            margin: 0 auto 3.5rem;
+        }
+        .section-badge {
+            display: inline-block;
+            background: #ffffff;
+            border: 1px solid rgba(0,0,0,0.1);
+            color: #18181b;
+            font-weight: 800;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            padding: 0.35rem 0.9rem;
+            border-radius: 30px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+            margin-bottom: 1.25rem;
+        }
+        .how-it-works-header .section-title {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+        .how-it-works-header .section-sub {
+            font-size: 1.05rem;
+            color: #52525B;
+            line-height: 1.6;
+            font-weight: 500;
+        }
+        .inline-video-wrap {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 4.5rem;
+            width: 100%;
+        }
+        .inline-phone-shell {
+            position: relative;
+            width: 100%;
+            max-width: 380px;
+            background: #09090b;
+            border-radius: 36px;
+            padding: 10px;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.1), 0 0 35px rgba(212, 255, 51, 0.1);
+        }
+        .inline-video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 9 / 19.5;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #18181b;
+        }
+        .inline-video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 28px;
+        }
+        .inline-video-play-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.75) 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+            border-radius: 28px;
+            z-index: 3;
+        }
+        .inline-video-play-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .inline-play-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #D4FF33, #00FFCC);
+            color: #000;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.5);
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            margin-bottom: 1.25rem;
+        }
+        .inline-video-play-overlay:hover .inline-play-btn {
+            transform: scale(1.12);
+        }
+        .inline-play-btn svg {
+            margin-left: 3px;
+        }
+        .inline-play-label {
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 750;
+            letter-spacing: 0.3px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            padding: 0.45rem 1.1rem;
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
 
         /* Notable companies marquee */
@@ -336,13 +638,12 @@
         .reveal.revealed { opacity: 1; transform: none; }
         @media (prefers-reduced-motion: reduce) {
             .reveal { opacity: 1; transform: none; transition: none; }
-            .agent-card, .agent-progress-fill, .agent-applied-pill, .btn-primary { animation: none !important; opacity: 1; }
-            .agent-progress-fill { width: 100%; }
+            .btn-primary { animation: none !important; }
         }
 
         @media (max-width: 900px) {
             .hero-grid { grid-template-columns: 1fr; gap: 3rem; }
-            .agent-visual { min-height: 0; }
+            .hero-right { display: none !important; }
         }
 
         @media (max-width: 1100px) {
@@ -353,6 +654,8 @@
 
         @media (max-width: 768px) {
             .hero { padding-top: 0; margin-top: 1.5rem; }
+            .inline-phone-shell { max-width: 340px; padding: 8px; border-radius: 30px; }
+            .inline-video-container, .inline-video-player, .inline-video-play-overlay { border-radius: 22px; }
             h1 { font-size: 2.8rem; }
             .section-title { font-size: 2rem; }
             table { min-width: 700px !important; }
@@ -447,11 +750,26 @@
                 <span>✓ Free to start</span> <span>✓ No credit card required</span> <span>✓ Set up in 2 minutes</span>
             </p>
         </div>
-        <!-- Removed 2026-08-29 (explicit request): this was a fabricated
-             "live demo" -- fake companies, fake progress bars, fake "Applied
-             for you" pills, none of it real data or a real product screen.
-             Left empty on purpose rather than replaced with anything else
-             that isn't the real dashboard. -->
+        <div class="hero-right">
+            <div class="hero-video-card" onclick="openVideoModal()" onkeydown="if(event.key==='Enter'||event.key===' ')openVideoModal()" role="button" tabindex="0" aria-label="Watch the 37-second demo">
+                <div class="hero-video-inner">
+                    <img src="assets/demo_thumbnail.jpg" alt="Role Rover mobile app preview" class="hero-video-thumb" />
+                    <div class="hero-video-badge">
+                        <span class="badge-dot"></span>
+                        <span>37s Walkthrough</span>
+                    </div>
+                    <div class="hero-video-overlay-center">
+                        <div class="hero-play-btn" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                        </div>
+                        <div class="hero-video-label-bar">
+                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                            <span>Watch the 37-second demo</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </section>
 
     <!-- Notable companies marquee -->
@@ -497,6 +815,62 @@
         <!-- Removed 2026-08-29 (explicit request): "<3s from job posted to
              applied" was a fabricated/unverifiable claim, not a real measured
              number from the actual pipeline. -->
+    </section>
+
+    <!-- How It Works & Demo Video Section -->
+    <section id="how-it-works" class="how-it-works reveal">
+        <div class="how-it-works-header">
+            <span class="section-badge">Product Tour</span>
+            <h2 class="section-title">See RoleRover in action</h2>
+            <p class="section-sub">From résumé upload to matching roles, tailored applications, and your career inbox—see the full flow in 37 seconds.</p>
+        </div>
+
+        <!-- Inline portrait video player inside sleek phone shell -->
+        <div class="inline-video-wrap">
+            <div class="inline-phone-shell">
+                <div class="inline-video-container">
+                    <video id="inline-video" class="inline-video-player" playsinline controls preload="none" poster="assets/demo_thumbnail.jpg">
+                        <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div class="inline-video-play-overlay" id="inline-video-overlay" onclick="playInlineVideo()">
+                        <button class="inline-play-btn" aria-label="Play 37-second demo video">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                        </button>
+                        <span class="inline-play-label">Watch the 37-second demo</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <h3>Sourcing Jobs 24/7</h3>
+                <p>Rover monitors company career pages 24/7. The second a role matching your target title is posted, it is captured instantly—ensuring you are always first in line.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <h3>ATS-Friendly Resume</h3>
+                <p>Automatically aligns your skills, achievements, and formatting with the job's critical keywords to score high and clear automated screening filters.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <h3>Custom Cover Letter</h3>
+                <p>Generates natural, persuasive cover letters that connect your real experience to the job description and explain any gaps without robotic buzzwords or generic fluff.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">04</div>
+                <h3>Smart Auto-Fill</h3>
+                <p>Handles the entire application form. It uploads documents, answers standard and custom questions smartly, and registers candidate profiles on job application portals requiring signups.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">05</div>
+                <span style="position: absolute; top: 1.25rem; right: 1.5rem; z-index: 2; background: #000; color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Coming Soon</span>
+                <h3>Recruiter Follow-Ups</h3>
+                <p>To ensure your application doesn't get lost in the pile, our agent automatically drafts and sends a professional follow-up email directly to the hiring manager to get you noticed.</p>
+            </div>
+        </div>
     </section>
 
     <!-- While you sleep narrative -->
@@ -876,38 +1250,6 @@
         </div>
     </section>
 
-    <section id="how-it-works" class="how-it-works" style="margin-top: 4rem;">
-        <h2 class="section-title" style="margin-bottom: 1rem;">How It Works</h2>
-        <p style="font-size: 0.95rem; color: #52525B; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">You build your profile once. Our AI job application assistant handles job matching, resume tailoring, cover letters, and application tracking.</p>
-        <div class="steps-grid">
-            <div class="step-card">
-                <div class="step-num">01</div>
-                <h3>Sourcing Jobs 24/7</h3>
-                <p>Rover monitors company career pages 24/7. The second a role matching your target title is posted, it is captured instantly—ensuring you are always first in line.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num">02</div>
-                <h3>ATS-Friendly Resume</h3>
-                <p>Automatically aligns your skills, achievements, and formatting with the job's critical keywords to score high and clear automated screening filters.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num">03</div>
-                <h3>Custom Cover Letter</h3>
-                <p>Generates natural, persuasive cover letters that connect your real experience to the job description and explain any gaps without robotic buzzwords or generic fluff.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num">04</div>
-                <h3>Smart Auto-Fill</h3>
-                <p>Handles the entire application form. It uploads documents, answers standard and custom questions smartly, and registers candidate profiles on job application portals requiring signups.</p>
-            </div>
-            <div class="step-card">
-                <div class="step-num">05</div>
-                <span style="position: absolute; top: 1.25rem; right: 1.5rem; z-index: 2; background: #000; color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Coming Soon</span>
-                <h3>Recruiter Follow-Ups</h3>
-                <p>To ensure your application doesn't get lost in the pile, our agent automatically drafts and sends a professional follow-up email directly to the hiring manager to get you noticed.</p>
-            </div>
-        </div>
-    </section>
 
     <section id="countries" class="countries" style="max-width: 1400px; margin: 8rem auto; padding: 0 5%;">
         <h2 class="section-title">Supported Countries</h2>
@@ -1225,11 +1567,78 @@
             els.forEach(el => observer.observe(el));
         })();
     </script>
+    <!-- Video Modal Overlay (Desktop) -->
+    <div id="video-modal" class="video-modal-overlay" onclick="handleVideoModalBackdropClick(event)" aria-modal="true" role="dialog" aria-label="Role Rover 37-second demo video">
+        <div class="video-modal-glow"></div>
+        <div class="video-modal-dialog">
+            <button class="video-modal-close" onclick="closeVideoModal()" aria-label="Close demo">&times;</button>
+            <div class="video-modal-phone">
+                <video id="modal-video" class="video-modal-player" playsinline controls preload="none" poster="assets/demo_thumbnail.jpg">
+                    <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <p class="video-modal-caption">Role Rover Mobile Demo • 37s Walkthrough</p>
+        </div>
+    </div>
+
     <script>
         function toggleMobileNav() {
             document.getElementById('mobile-nav-panel').classList.toggle('active');
             document.getElementById('mobile-nav-overlay').classList.toggle('active');
         }
+
+        function openVideoModal() {
+            var modal = document.getElementById('video-modal');
+            var video = document.getElementById('modal-video');
+            if (!modal || !video) return;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            video.currentTime = 0;
+            video.play().catch(function() {});
+        }
+
+        function closeVideoModal() {
+            var modal = document.getElementById('video-modal');
+            var video = document.getElementById('modal-video');
+            if (!modal) return;
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+            if (video) {
+                video.pause();
+            }
+        }
+
+        function handleVideoModalBackdropClick(e) {
+            if (e.target.id === 'video-modal') {
+                closeVideoModal();
+            }
+        }
+
+        function playInlineVideo() {
+            var video = document.getElementById('inline-video');
+            var overlay = document.getElementById('inline-video-overlay');
+            if (!video) return;
+            if (overlay) overlay.classList.add('hidden');
+            video.play().catch(function() {});
+        }
+
+        (function() {
+            var inlineVid = document.getElementById('inline-video');
+            var inlineOverlay = document.getElementById('inline-video-overlay');
+            if (inlineVid && inlineOverlay) {
+                inlineVid.addEventListener('pause', function() {
+                    if (inlineVid.ended) {
+                        inlineOverlay.classList.remove('hidden');
+                    }
+                });
+            }
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeVideoModal();
+                }
+            });
+        })();
     </script>
 </body>
 </html>
