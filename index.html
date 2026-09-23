@@ -232,11 +232,148 @@
         .mockup-btn-sm { padding: 0.3rem 0.65rem; font-size: 0.78rem; border-radius: 4px; }
         @keyframes rover-spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
     
-        /* ===== Hero Layout ===== */
-        .hero-grid { display: grid; grid-template-columns: 1fr; max-width: 900px; margin: 4.5rem auto 2rem; padding: 0 5%; }
+        /* ===== Hero Layout & Video Preview ===== */
+        .hero-grid { display: grid; grid-template-columns: 1fr; gap: 2.5rem; align-items: center; max-width: 1400px; margin: 4.5rem auto 2rem; padding: 0 5%; }
+        @media (min-width: 901px) {
+            .hero-grid { grid-template-columns: 1.15fr 0.85fr; gap: clamp(2.5rem, 5vw, 5rem); }
+        }
         .hero-left { display: flex; flex-direction: column; align-items: flex-start; }
         .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 30px; padding: 0.4rem 1rem; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #18181b; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
         .hero-eyebrow .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; animation: mockup-pulse 1.5s infinite; }
+
+        /* Hero Right: Vertical Video Preview Phone */
+        .hero-right { display: flex; justify-content: center; align-items: center; width: 100%; }
+        .hero-phone-shell {
+            position: relative;
+            width: 100%;
+            max-width: 300px;
+            aspect-ratio: 9 / 18.5;
+            background: #09090b;
+            border-radius: 36px;
+            padding: 8px;
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.14), 0 0 40px rgba(212, 255, 51, 0.12);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            user-select: none;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hero-phone-shell:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 32px 70px rgba(0, 0, 0, 0.18), 0 0 45px rgba(0, 255, 204, 0.18);
+        }
+        .hero-phone-screen {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border-radius: 28px;
+            overflow: hidden;
+            background: #18181b;
+            cursor: pointer;
+        }
+        .hero-video-player {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 28px;
+        }
+        .hero-video-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.28);
+            z-index: 2;
+            padding: 1.25rem;
+            border-radius: 28px;
+            transition: opacity 0.25s ease, background 0.25s ease;
+        }
+        .hero-video-overlay.playing {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .hero-phone-screen:hover .hero-video-overlay.playing {
+            opacity: 0.85;
+            pointer-events: auto;
+            background: rgba(0, 0, 0, 0.45);
+        }
+        .hero-play-btn {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #D4FF33, #00FFCC);
+            color: #000000;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 25px rgba(0, 255, 204, 0.45);
+            cursor: pointer;
+            transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hero-phone-screen:hover .hero-play-btn {
+            transform: scale(1.1);
+        }
+        .hero-play-btn svg {
+            margin-left: 3px;
+        }
+        .hero-play-tag {
+            background: rgba(0, 0, 0, 0.82);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 0.4rem 1.1rem;
+            color: #ffffff;
+            font-size: 0.82rem;
+            font-weight: 750;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            white-space: nowrap;
+        }
+        .video-mute-btn {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            color: #ffffff;
+            border-radius: 30px;
+            padding: 0.35rem 0.8rem;
+            font-size: 0.74rem;
+            font-weight: 750;
+            letter-spacing: 0.3px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            z-index: 10;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            user-select: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+        }
+        .video-mute-btn:hover {
+            background: rgba(0, 0, 0, 0.95);
+            border-color: #00FFCC;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 255, 204, 0.35);
+        }
+        .video-mute-btn svg {
+            width: 14px;
+            height: 14px;
+            fill: currentColor;
+            display: block;
+        }
 
         /* ===== How It Works & Inline Demo Section ===== */
         .how-it-works {
@@ -453,6 +590,27 @@
             <p style="font-size: 0.8rem; color: #71717A; margin-top: 0.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
                 <span>✓ Free to start</span> <span>✓ No credit card required</span> <span>✓ Set up in 2 minutes</span>
             </p>
+        </div>
+        <div class="hero-right">
+            <div class="hero-phone-shell">
+                <button id="hero-mute-btn" class="video-mute-btn" onclick="toggleHeroVideoMute(event)" aria-label="Toggle sound">
+                    <svg class="sound-off-icon" style="display:none;" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
+                    <svg class="sound-on-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+                    <span class="mute-text">Sound</span>
+                </button>
+                <div class="hero-phone-screen" onclick="toggleHeroVideoPlay()">
+                    <video id="hero-demo-video" class="hero-video-player" playsinline webkit-playsinline preload="metadata" poster="assets/demo_thumbnail.jpg">
+                        <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                    <div id="hero-video-overlay" class="hero-video-overlay">
+                        <div class="hero-play-btn" aria-label="Play demo video">
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                        </div>
+                        <span class="hero-play-tag">Watch Demo (38s)</span>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -1238,6 +1396,72 @@
             document.getElementById('mobile-nav-panel').classList.toggle('active');
             document.getElementById('mobile-nav-overlay').classList.toggle('active');
         }
+
+        function updateHeroMuteUI(isMuted) {
+            var btn = document.getElementById('hero-mute-btn');
+            if (!btn) return;
+            var onIcon = btn.querySelector('.sound-on-icon');
+            var offIcon = btn.querySelector('.sound-off-icon');
+            var text = btn.querySelector('.mute-text');
+            if (isMuted) {
+                if (onIcon) onIcon.style.display = 'none';
+                if (offIcon) offIcon.style.display = 'block';
+                if (text) text.textContent = 'Muted';
+                btn.setAttribute('aria-label', 'Unmute sound');
+            } else {
+                if (onIcon) onIcon.style.display = 'block';
+                if (offIcon) offIcon.style.display = 'none';
+                if (text) text.textContent = 'Sound';
+                btn.setAttribute('aria-label', 'Mute sound');
+            }
+        }
+
+        function toggleHeroVideoMute(e) {
+            if (e) e.stopPropagation();
+            var video = document.getElementById('hero-demo-video');
+            if (!video) return;
+            video.muted = !video.muted;
+            updateHeroMuteUI(video.muted);
+        }
+
+        function toggleHeroVideoPlay() {
+            var video = document.getElementById('hero-demo-video');
+            var overlay = document.getElementById('hero-video-overlay');
+            if (!video) return;
+            if (video.paused) {
+                video.play().then(function() {
+                    if (overlay) overlay.classList.add('playing');
+                }).catch(function() {
+                    video.muted = true;
+                    updateHeroMuteUI(true);
+                    video.play().then(function() {
+                        if (overlay) overlay.classList.add('playing');
+                    });
+                });
+            } else {
+                video.pause();
+                if (overlay) overlay.classList.remove('playing');
+            }
+        }
+
+        (function() {
+            var video = document.getElementById('hero-demo-video');
+            var overlay = document.getElementById('hero-video-overlay');
+            if (video && overlay) {
+                video.addEventListener('play', function() {
+                    overlay.classList.add('playing');
+                });
+                video.addEventListener('pause', function() {
+                    overlay.classList.remove('playing');
+                });
+                video.addEventListener('ended', function() {
+                    overlay.classList.remove('playing');
+                });
+                video.addEventListener('volumechange', function() {
+                    updateHeroMuteUI(video.muted || video.volume === 0);
+                });
+            }
+        })();
     </script>
 </body>
 </html>
