@@ -1895,7 +1895,7 @@
     <script>
         // ─── Upgrade / checkout link ───────────────────────────────────────
         let localCurrency = 'USD';
-        let localUnitPrice = 0.20; // $0.20 per job
+        let localUnitPrice = 0.15; // $0.15 per job
 
         function renderAccountBadge(email) {
             if (!email) return;
@@ -1936,7 +1936,7 @@
                     localUnitPrice = 200; // ₦200 per job
                 } else {
                     localCurrency = 'USD';
-                    localUnitPrice = 0.20; // $0.20 per job
+                    localUnitPrice = 0.15; // $0.15 per job
                 }
             } catch (err) {
                 console.error("Location detection failed", err);
