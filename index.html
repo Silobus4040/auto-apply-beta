@@ -285,34 +285,6 @@
         .hero-video-card:hover .hero-video-thumb {
             transform: scale(1.03);
         }
-        .hero-video-badge {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            background: rgba(0, 0, 0, 0.78);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: #ffffff;
-            font-size: 0.7rem;
-            font-weight: 750;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-            padding: 0.35rem 0.85rem;
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            white-space: nowrap;
-            z-index: 2;
-        }
-        .hero-video-badge .badge-dot {
-            width: 6px;
-            height: 6px;
-            border-radius: 50%;
-            background: #00FFCC;
-            box-shadow: 0 0 6px #00FFCC;
-        }
         .hero-video-overlay-center {
             position: absolute;
             inset: 0;
@@ -320,13 +292,18 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(180deg, rgba(0,0,0,0.12) 0%, rgba(0,0,0,0.25) 50%, rgba(0,0,0,0.72) 100%);
+            gap: 14px;
+            background: rgba(0, 0, 0, 0.28);
             z-index: 2;
             padding: 1.25rem;
+            transition: background 0.25s ease;
+        }
+        .hero-video-card:hover .hero-video-overlay-center {
+            background: rgba(0, 0, 0, 0.42);
         }
         .hero-play-btn {
-            width: 62px;
-            height: 62px;
+            width: 66px;
+            height: 66px;
             border-radius: 50%;
             background: linear-gradient(135deg, #D4FF33, #00FFCC);
             color: #000000;
@@ -337,8 +314,6 @@
             box-shadow: 0 10px 25px rgba(0, 255, 204, 0.4);
             cursor: pointer;
             transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-            margin-bottom: auto;
-            margin-top: auto;
         }
         .hero-video-card:hover .hero-play-btn {
             transform: scale(1.1);
@@ -346,23 +321,22 @@
         .hero-play-btn svg {
             margin-left: 3px;
         }
-        .hero-video-label-bar {
-            margin-top: auto;
-            width: 100%;
-            text-align: center;
-            background: rgba(0, 0, 0, 0.65);
+        .hero-play-tag {
+            background: rgba(0, 0, 0, 0.78);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 14px;
-            padding: 0.6rem 0.8rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 0.45rem 1.1rem;
             color: #ffffff;
-            font-size: 0.82rem;
+            font-size: 0.8rem;
             font-weight: 750;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            justify-content: center;
             gap: 6px;
+            letter-spacing: 0.3px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
+            white-space: nowrap;
         }
 
         /* ===== Video Modal Overlay (Desktop) ===== */
@@ -813,21 +787,14 @@
             </p>
         </div>
         <div class="hero-right">
-            <div class="hero-video-card" onclick="openVideoModal()" onkeydown="if(event.key==='Enter'||event.key===' ')openVideoModal()" role="button" tabindex="0" aria-label="Watch the demo">
+            <div class="hero-video-card" onclick="handleHeroDemoClick()" onkeydown="if(event.key==='Enter'||event.key===' ')handleHeroDemoClick()" role="button" tabindex="0" aria-label="Watch the 38-second demo in How It Works">
                 <div class="hero-video-inner">
                     <img src="assets/demo_thumbnail.jpg" alt="Role Rover mobile app preview" class="hero-video-thumb" />
-                    <div class="hero-video-badge">
-                        <span class="badge-dot"></span>
-                        <span>Full Walkthrough</span>
-                    </div>
                     <div class="hero-video-overlay-center">
                         <div class="hero-play-btn" aria-hidden="true">
-                            <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
                         </div>
-                        <div class="hero-video-label-bar">
-                            <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
-                            <span>Watch the demo</span>
-                        </div>
+                        <span class="hero-play-tag">Watch Demo (38s) &darr;</span>
                     </div>
                 </div>
             </div>
@@ -1718,6 +1685,16 @@
         function handleVideoModalBackdropClick(e) {
             if (e.target.id === 'video-modal') {
                 closeVideoModal();
+            }
+        }
+
+        function handleHeroDemoClick() {
+            var target = document.getElementById('how-it-works');
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(function() {
+                    playInlineVideo();
+                }, 600);
             }
         }
 

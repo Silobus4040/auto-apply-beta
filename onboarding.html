@@ -51,9 +51,9 @@
         .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
         .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
 
-        .container { width: 100%; max-width: 700px; margin: 2rem auto 4rem; padding: 0 5%; position: relative; z-index: 1; box-sizing: border-box; }
+        .container { width: 100%; max-width: 760px; margin: 2.5rem auto 4rem; padding: 0 1.5rem; position: relative; z-index: 1; box-sizing: border-box; }
         @media (max-width: 600px) {
-            .container { margin: 1.25rem auto 3rem; }
+            .container { margin: 1.25rem auto 3rem; padding: 0 1rem; }
         }
 
         .header-section { display: none !important; }
@@ -63,7 +63,10 @@
         .form-step { width: 100%; padding: 0; box-sizing: border-box; }
         .form-step:last-child { display: none; }
 
-        .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); margin-bottom: 1.5rem; }
+        .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 3rem 2.75rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); margin-bottom: 1.5rem; }
+        @media (max-width: 600px) {
+            .card { padding: 1.5rem; border-radius: 20px; }
+        }
         .card-title { color: #000000; font-size: 1.06rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
         .card-title .num { background: #00FFCC; color: #000; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; border-radius: 50%; }
 
@@ -71,6 +74,13 @@
         .form-group label { display: block; margin-bottom: 0.5rem; color: #52525B; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
         .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="url"], .form-group input[type="tel"], .form-group input[type="date"], .job-title-input { width: 100%; height: 50px; padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; -webkit-appearance: none; appearance: none; }
         .form-group input:focus, .job-title-input:focus { outline: none !important; border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
+
+        .job-title-row { display: flex; gap: 0.75rem; align-items: center; width: 100%; }
+        @media (max-width: 600px) {
+            .job-title-row { flex-direction: column; align-items: stretch !important; gap: 0.5rem; }
+            .job-title-row .job-title-input { width: 100% !important; flex: 1 1 auto !important; }
+            .job-title-row .select-wrapper { width: 100% !important; min-width: 0 !important; flex: 1 1 auto !important; }
+        }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #A1A1AA; }
         .form-group input[type="file"]::file-selector-button { margin-right: 0.75rem; padding: 0.7rem 1rem; border: 0; border-radius: 8px; background: #111111; color: #ffffff; font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer; }
@@ -401,7 +411,8 @@
                             </div>
                         </div>
 
-<div class="form-group">
+                        <div class="row-grid">
+                            <div class="form-group">
                                 <label>Country of Residence <span style="color: #FF6B4A;">*</span></label>
                                 <input type="text" id="country" required placeholder="United States">
                             </div>
@@ -410,12 +421,13 @@
                                 <label>Nationality <span style="color: #FF6B4A;">*</span></label>
                                 <input type="text" id="nationality" required placeholder="American">
                             </div>
+                        </div>
 
-
+                        <div class="row-grid">
                             <div class="form-group">
                                 <label>Phone Number <span style="color: #FF6B4A;">*</span></label>
-                                <div style="display: flex; gap: 0.75rem; align-items: stretch;">
-                                    <div class="select-wrapper" style="width: 160px; flex-shrink: 0;">
+                                <div style="display: flex; gap: 0.5rem; align-items: stretch;">
+                                    <div class="select-wrapper" style="width: 140px; flex-shrink: 0;">
                                         <select id="phone-code" required>
                                             <option value="">Country</option>
                                             <option value="93">Afghanistan (+93)</option>
@@ -867,8 +879,15 @@
 
         // Use distinctive phrases only. This helps catch accidental category
         // choices without guessing a person's intended career direction.
+        // Keep this in sync with the backend's public.role_semantic_aliases
+        // table (Supabase) -- that table is the source of truth for which
+        // family a title belongs to (e.g. "Revenue Operations"/"RevOps" ->
+        // Sales & Account Management, not Operations & Supply Chain). This
+        // list drifting out of sync with it is what caused a real bug: any
+        // "X Operations" title fell through to Operations & Supply Chain's
+        // bare 'operations' catch-all instead of its real family.
         const roleFamilyPhraseHints = {
-            'Sales & Account Management': ['account executive', 'account manager', 'sales representative', 'sales manager', 'business development', 'sales', 'bdr', 'sdr'],
+            'Sales & Account Management': ['account executive', 'account manager', 'sales representative', 'sales manager', 'business development', 'sales', 'bdr', 'sdr', 'revenue operations', 'revops', 'sales operations'],
             'Administrative & Executive Support': ['administrative assistant', 'executive assistant', 'office administrator', 'admin assistant', 'receptionist', 'administrative'],
             'AI & Machine Learning': ['machine learning engineer', 'machine learning scientist', 'ai engineer', 'research scientist', 'machine learning', 'deep learning'],
             'Backend Engineering': ['backend engineer', 'backend developer', 'server-side engineer', 'backend'],
@@ -885,7 +904,7 @@
             'Frontend & Mobile Engineering': ['frontend engineer', 'front-end engineer', 'frontend developer', 'mobile engineer', 'ios developer', 'android developer', 'react developer', 'frontend', 'mobile developer'],
             'Full Stack Engineering': ['full stack engineer', 'full-stack engineer', 'full stack developer', 'full-stack developer', 'full stack', 'fullstack'],
             'Human Resources': ['hr manager', 'human resources', 'people operations', 'hr specialist', 'people partner', 'hr generalist'],
-            'Marketing & Growth': ['marketing manager', 'growth marketer', 'digital marketer', 'seo specialist', 'marketing', 'growth manager', 'social media manager'],
+            'Marketing & Growth': ['marketing manager', 'growth marketer', 'digital marketer', 'seo specialist', 'marketing', 'growth manager', 'social media manager', 'marketing operations'],
             'Motion Design & VFX': ['motion designer', 'visual effects', 'vfx artist', '3d animator', 'animator'],
             'Operations & Supply Chain': ['operations manager', 'supply chain', 'logistics manager', 'procurement specialist', 'operations', 'logistics'],
             'Platform & DevOps Engineering': ['devops engineer', 'site reliability engineer', 'platform engineer', 'cloud engineer', 'devops', 'sre', 'cloud architect'],
@@ -1407,18 +1426,54 @@
                 });
         }
 
-        function setExtractedRole(role) {
+        function setExtractedRole(role, rawText = '') {
             if (!role) return false;
             const firstRole = document.querySelector('.job-title-input');
             if (!firstRole || firstRole.value.trim()) return false;
-            firstRole.value = role;
-            firstRole.dispatchEvent(new Event('input', { bubbles: true }));
-            const level = document.querySelector('.job-level-select');
-            if (level) {
-                level.value = /\b(director|head|vp|vice president|chief)\b/i.test(role) ? 'Executive'
-                    : /\b(senior|lead|principal|staff)\b/i.test(role) ? 'Senior Level'
-                    : 'Mid Level';
-                level.dispatchEvent(new Event('change', { bubbles: true }));
+
+            let cleanedRole = role.trim();
+            // If the role starts with "Principal, ", "Senior, ", "Lead, ", strip prefix and comma so title isn't polluted
+            let prefixLevel = null;
+            if (/^principal\s*,\s*/i.test(cleanedRole)) {
+                prefixLevel = 'Senior Level';
+                cleanedRole = cleanedRole.replace(/^principal\s*,\s*/i, '');
+            } else if (/^senior\s*,\s*/i.test(cleanedRole)) {
+                prefixLevel = 'Senior Level';
+                cleanedRole = cleanedRole.replace(/^senior\s*,\s*/i, '');
+            } else if (/^director\s*,\s*/i.test(cleanedRole)) {
+                prefixLevel = 'Executive';
+                cleanedRole = cleanedRole.replace(/^director\s*,\s*/i, '');
+            } else if (/^lead\s*,\s*/i.test(cleanedRole)) {
+                prefixLevel = 'Senior Level';
+                cleanedRole = cleanedRole.replace(/^lead\s*,\s*/i, '');
+            }
+
+            firstRole.value = cleanedRole;
+
+            const fullContext = (role + ' ' + cleanedRole + ' ' + (rawText || window.lastResumeText || '')).slice(0, 5000);
+            let inferredLevel = prefixLevel;
+            if (!inferredLevel) {
+                if (/\b(director|head\s+of|vp|vice\s+president|chief|c-level|executive)\b/i.test(fullContext) || /\b(1[0-9]|20)\+?\s*years?\b/i.test(fullContext)) {
+                    inferredLevel = 'Executive';
+                } else if (/\b(senior|principal|lead|staff)\b/i.test(role) || /\b([5-9]|\d{2})\+?\s*years?\b/i.test(fullContext)) {
+                    inferredLevel = 'Senior Level';
+                } else if (/\b(entry|junior|associate|intern)\b/i.test(role) || /\b(0|1)\s*years?\b/i.test(fullContext)) {
+                    inferredLevel = 'Entry Level';
+                } else {
+                    inferredLevel = 'Mid Level';
+                }
+            }
+
+            const levelSelect = document.querySelector('.job-level-select');
+            if (levelSelect) {
+                levelSelect.value = inferredLevel;
+            }
+
+            if (typeof saveCurrentJobRoles === 'function') {
+                saveCurrentJobRoles();
+            } else {
+                firstRole.dispatchEvent(new Event('input', { bubbles: true }));
+                levelSelect?.dispatchEvent(new Event('change', { bubbles: true }));
             }
             return true;
         }
@@ -1604,7 +1659,7 @@
             const nationalityMatch = text.match(/\b(?:nationality|citizenship)\s*[:\-]\s*([A-Za-z][A-Za-z .'-]{1,40})/i)
                 || text.match(/\b([A-Za-z]{3,20})\s+(?:citizen|national)\b/i);
             if (nationalityMatch) filled += fillIfBlank('nationality', nationalityMatch[1].trim()) ? 1 : 0;
-            filled += setExtractedRole(inferResumeRole(lines)) ? 1 : 0;
+            filled += setExtractedRole(inferResumeRole(lines), text) ? 1 : 0;
             return filled;
         }
 
@@ -1833,42 +1888,65 @@
             // BULLETPROOF JOB TITLE RESTORE
             const savedJobTitles = localStorage.getItem('onb_job-titles') || (profile ? profile.target_job_titles : null);
             const savedJobLevels = localStorage.getItem('onb_job-levels') || (profile ? profile.experience_level_bucket : null);
+            const savedRolesJson = localStorage.getItem('onb_job_roles_json');
             
             const container = document.getElementById('job-titles-container');
             if (container) {
                 container.innerHTML = '';
-                if (savedJobTitles) {
-                    const titles = savedJobTitles.split(', ');
-                    const levels = savedJobLevels ? savedJobLevels.split(', ') : [];
+                let restored = false;
+                if (savedRolesJson) {
+                    try {
+                        const parsed = JSON.parse(savedRolesJson);
+                        if (Array.isArray(parsed) && parsed.length > 0) {
+                            parsed.forEach(r => {
+                                if (r && r.title && r.title.trim()) {
+                                    addJobTitleField(r.title.trim(), r.level || 'Mid Level');
+                                    restored = true;
+                                }
+                            });
+                        }
+                    } catch (e) {}
+                }
+                if (!restored && savedJobTitles) {
+                    const titles = savedJobTitles.includes(' | ') ? savedJobTitles.split(' | ') : savedJobTitles.split(', ');
+                    const levels = savedJobLevels ? (savedJobLevels.includes(', ') ? savedJobLevels.split(', ') : [savedJobLevels]) : [];
                     titles.forEach((title, index) => {
                         if (!title.trim()) return;
-                        addJobTitleField(title.trim(), levels[index] ? levels[index].trim() : 'Entry Level');
+                        addJobTitleField(title.trim(), levels[index] ? levels[index].trim() : 'Mid Level');
+                        restored = true;
                     });
-                } else {
-                    addJobTitleField();
+                }
+                if (!restored) {
+                    addJobTitleField('', 'Mid Level');
                 }
             }
             
             // BULLETPROOF AUTO-SAVE FOR JOB TITLES
-            if (container) {
-                container.addEventListener('input', () => {
-                    const inputs = document.querySelectorAll('.job-title-input');
-                    const selects = document.querySelectorAll('.job-level-select');
-                    const titles = Array.from(inputs).map(i => i.value.trim());
-                    const levels = Array.from(selects).map(s => s.value);
-                    
-                    const validTitles = [];
-                    const validLevels = [];
-                    titles.forEach((t, i) => {
-                        if(t) {
-                            validTitles.push(t);
-                            validLevels.push(levels[i]);
-                        }
-                    });
-                    
-                    localStorage.setItem('onb_job-titles', validTitles.join(', '));
-                    localStorage.setItem('onb_job-levels', validLevels.join(', '));
+            window.saveCurrentJobRoles = function() {
+                const inputs = document.querySelectorAll('.job-title-input');
+                const selects = document.querySelectorAll('.job-level-select');
+                const validTitles = [];
+                const validLevels = [];
+                const rolePairs = [];
+                
+                inputs.forEach((input, i) => {
+                    const t = input.value.trim();
+                    if (t) {
+                        const lvl = selects[i] ? selects[i].value : 'Mid Level';
+                        validTitles.push(t);
+                        validLevels.push(lvl);
+                        rolePairs.push({ title: t, level: lvl });
+                    }
                 });
+                
+                localStorage.setItem('onb_job_roles_json', JSON.stringify(rolePairs));
+                localStorage.setItem('onb_job-titles', validTitles.join(' | '));
+                localStorage.setItem('onb_job-levels', validLevels.join(', '));
+            };
+
+            if (container) {
+                container.addEventListener('input', window.saveCurrentJobRoles);
+                container.addEventListener('change', window.saveCurrentJobRoles);
             }
             if (profileMode) {
                 markCoveredFields();
@@ -1887,26 +1965,29 @@
             addBtn.textContent = atMax ? `Maximum ${MAX_JOB_TITLES} roles reached` : '+ Add Another Role';
         }
 
-        function addJobTitleField(title = '', level = 'Entry Level') {
+        function addJobTitleField(title = '', level = 'Mid Level') {
             const container = document.getElementById('job-titles-container');
             if (container.children.length >= MAX_JOB_TITLES) { updateAddRoleButtonState(); return; }
 
             const row = document.createElement('div');
-            row.style.display = 'flex';
-            row.style.gap = '0.5rem';
-            row.style.alignItems = 'center';
             row.className = 'job-title-row';
+            row.style.display = 'flex';
+            row.style.gap = '0.75rem';
+            row.style.alignItems = 'center';
+            row.style.width = '100%';
             
             const input = document.createElement('input');
             input.type = 'text';
             input.className = 'job-title-input';
-            input.placeholder = 'e.g. Product Manager';
-            input.style.flex = '2';
+            input.placeholder = 'e.g. Revenue Operations Manager';
+            input.style.flex = '1 1 65%';
+            input.style.minWidth = '0';
             input.value = title;
             
             const selectWrapper = document.createElement('div');
             selectWrapper.className = 'select-wrapper';
-            selectWrapper.style.flex = '1';
+            selectWrapper.style.flex = '0 0 35%';
+            selectWrapper.style.minWidth = '160px';
 
             const select = document.createElement('select');
             select.className = 'job-level-select';
@@ -1916,7 +1997,7 @@
                 const opt = document.createElement('option');
                 opt.value = l;
                 opt.text = l;
-                if(l === level) opt.selected = true;
+                if (l === level) opt.selected = true;
                 select.appendChild(opt);
             });
             
@@ -1989,7 +2070,7 @@
                 return;
             }
 
-            if (!checkCategorySelection(jobTitles, roleFamilies)) {
+            if (!checkCategorySelection(validJobTitles, roleFamilies)) {
                 return;
             }
 
@@ -2016,7 +2097,11 @@
                 btnNext.innerHTML = originalText;
             }
 
-            localStorage.setItem('onb_job-titles', jobTitles);
+            if (typeof window.saveCurrentJobRoles === 'function') {
+                window.saveCurrentJobRoles();
+            } else {
+                localStorage.setItem('onb_job-titles', validJobTitles.join(' | '));
+            }
             errorMsg.style.display = 'none';
             if (!profileOnly) {
                 window.location.href = 'onboarding.html?step=details';
@@ -2241,7 +2326,7 @@
                 if (selectedRoleFamilies.length === 0) {
                     throw new Error('Please select at least one job category.');
                 }
-                const finalJobTitles = localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(Boolean).join(', ');
+                const finalJobTitles = localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(Boolean).join(' | ');
                 if (!finalJobTitles) {
                     throw new Error('Please enter at least one target job title.');
                 }
