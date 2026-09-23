@@ -241,18 +241,18 @@
         .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 30px; padding: 0.4rem 1rem; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #18181b; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
         .hero-eyebrow .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; animation: mockup-pulse 1.5s infinite; }
 
-        /* Hero Right: Vertical Video Preview Phone */
+        /* Hero Right: Video Container (Video already has native phone frame) */
         .hero-right { display: flex; justify-content: center; align-items: center; width: 100%; }
         .hero-phone-shell {
             position: relative;
             width: 100%;
             max-width: 300px;
             aspect-ratio: 9 / 18.5;
-            background: #09090b;
-            border-radius: 36px;
-            padding: 8px;
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.14), 0 0 40px rgba(212, 255, 51, 0.12);
+            background: transparent;
+            border-radius: 40px;
+            padding: 0;
+            border: none;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
             overflow: hidden;
             display: flex;
             flex-direction: column;
@@ -261,15 +261,15 @@
         }
         .hero-phone-shell:hover {
             transform: translateY(-4px);
-            box-shadow: 0 32px 70px rgba(0, 0, 0, 0.18), 0 0 45px rgba(0, 255, 204, 0.18);
+            box-shadow: 0 28px 65px rgba(0, 0, 0, 0.18);
         }
         .hero-phone-screen {
             position: relative;
             width: 100%;
             height: 100%;
-            border-radius: 28px;
+            border-radius: 40px;
             overflow: hidden;
-            background: #18181b;
+            background: transparent;
             cursor: pointer;
         }
         .hero-video-player {
@@ -277,7 +277,7 @@
             height: 100%;
             object-fit: cover;
             display: block;
-            border-radius: 28px;
+            border-radius: 40px;
         }
         .hero-video-overlay {
             position: absolute;
@@ -290,7 +290,7 @@
             background: rgba(0, 0, 0, 0.28);
             z-index: 2;
             padding: 1.25rem;
-            border-radius: 28px;
+            border-radius: 40px;
             transition: opacity 0.25s ease, background 0.25s ease;
         }
         .hero-video-overlay.playing {
