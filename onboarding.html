@@ -2365,15 +2365,15 @@
                     throw new Error('Please enter at least one target job title.');
                 }
 
-                // Atomically reserve one of the limited launch places before
-                // completing onboarding. A waitlisted account must never
-                // reach the sourcing/deck triggers.
+                // Atomically reserve one of the limited launch places. The
+                // answers below are saved either way so a waitlisted user
+                // never loses them; only onboarding_complete depends on
+                // access. Sourcing/deck work stays off for the waitlisted:
+                // it needs onboarding_complete (dashboard) or is_activated
+                // (deck fills, set only by invite codes).
                 const { data: launchAccess, error: launchAccessError } = await supabaseClient.rpc('claim_launch_access');
                 if (launchAccessError) throw launchAccessError;
-                if (!launchAccess || !launchAccess[0]?.activated) {
-                    window.location.href = 'waitlist.html';
-                    return;
-                }
+                const hasLaunchAccess = !!launchAccess?.[0]?.activated;
 
                 // Update Profile with ALL data
                 loadingText.textContent = "Saving Profile...";
@@ -2413,7 +2413,7 @@
                     resume_url: resumeUrl,
                     // The app claims the one-time initial scrape after this save.
                     // scraper_status changes only immediately before its webhook.
-                    onboarding_complete: true,
+                    onboarding_complete: hasLaunchAccess,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'id' });
 
@@ -2434,6 +2434,11 @@
                     .from('profile_role_families')
                     .insert(roleFamilyRows);
                 if (roleFamiliesError) throw roleFamiliesError;
+
+                if (!hasLaunchAccess) {
+                    window.location.href = 'waitlist.html';
+                    return;
+                }
 
                 // PostHog: onboarding finished — the key activation funnel step
                 if (window.posthog) posthog.capture('onboarding_completed');
