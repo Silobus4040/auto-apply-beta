@@ -76,10 +76,13 @@
         .form-group input:focus, .job-title-input:focus { outline: none !important; border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
 
         .job-title-row { display: flex; gap: 0.75rem; align-items: center; width: 100%; }
+        .job-title-remove { flex: 0 0 auto; width: 44px; height: 50px; padding: 0; border: 1px solid var(--border); border-radius: 12px; background: #ffffff; color: #52525B; font-size: 1.35rem; line-height: 1; cursor: pointer; }
+        .job-title-remove:hover { background: #F4F4F5; color: #000000; }
         @media (max-width: 600px) {
             .job-title-row { flex-direction: column; align-items: stretch !important; gap: 0.5rem; }
             .job-title-row .job-title-input { width: 100% !important; flex: 1 1 auto !important; }
             .job-title-row .select-wrapper { width: 100% !important; min-width: 0 !important; flex: 1 1 auto !important; }
+            .job-title-row .job-title-remove { align-self: flex-end; height: 40px; }
         }
         .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #A1A1AA; }
@@ -1949,6 +1952,11 @@
 
         function updateAddRoleButtonState() {
             const container = document.getElementById('job-titles-container');
+            if (container) {
+                // At least one role is required, so the lone row can't be removed.
+                const onlyOne = container.children.length <= 1;
+                container.querySelectorAll('.job-title-remove').forEach(btn => { btn.style.display = onlyOne ? 'none' : ''; });
+            }
             const addBtn = document.querySelector('button[onclick="addJobTitleField()"]');
             if (!container || !addBtn) return;
             const atMax = container.children.length >= MAX_JOB_TITLES;
@@ -1993,8 +2001,23 @@
             });
             
             selectWrapper.appendChild(select);
+
+            const removeBtn = document.createElement('button');
+            removeBtn.type = 'button';
+            removeBtn.className = 'job-title-remove';
+            removeBtn.setAttribute('aria-label', 'Remove this role');
+            removeBtn.title = 'Remove this role';
+            removeBtn.textContent = '×';
+            removeBtn.addEventListener('click', () => {
+                row.remove();
+                updateAddRoleButtonState();
+                // Re-runs the role autosave, the category-suggestion reset, and the suggestion re-check.
+                container.dispatchEvent(new Event('input', { bubbles: true }));
+            });
+
             row.appendChild(input);
             row.appendChild(selectWrapper);
+            row.appendChild(removeBtn);
             container.appendChild(row);
             updateAddRoleButtonState();
         }
