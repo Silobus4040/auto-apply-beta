@@ -237,6 +237,83 @@
         @media (min-width: 901px) {
             .hero-grid { grid-template-columns: 1.15fr 0.85fr; gap: clamp(2.5rem, 5vw, 5rem); }
         }
+        @media (max-width: 900px) {
+            .hero-right { display: none !important; }
+        }
+
+        /* ===== Inline Video in How It Works (mobile only) ===== */
+        .hiw-video-wrap {
+            display: none;
+            justify-content: center;
+            margin: 0 auto 3rem;
+        }
+        @media (max-width: 900px) {
+            .hiw-video-wrap { display: flex; }
+        }
+        .hiw-phone-shell {
+            position: relative;
+            width: 100%;
+            max-width: 280px;
+            aspect-ratio: 9 / 18.5;
+            background: transparent;
+            border-radius: 40px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
+        }
+        .hiw-phone-shell video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+            border-radius: 40px;
+        }
+        .hiw-video-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            background: rgba(0, 0, 0, 0.28);
+            z-index: 2;
+            border-radius: 40px;
+            transition: opacity 0.25s ease;
+        }
+        .hiw-video-overlay.playing {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .hiw-play-btn {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: none;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .hiw-play-btn:hover { transform: scale(1.08); background: rgba(0, 0, 0, 0.88); }
+        .hiw-play-tag {
+            background: rgba(0, 0, 0, 0.78);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 30px;
+            padding: 0.38rem 1rem;
+            color: #ffffff;
+            font-size: 0.8rem;
+            font-weight: 750;
+            letter-spacing: 0.3px;
+            white-space: nowrap;
+        }
         .hero-left { display: flex; flex-direction: column; align-items: flex-start; }
         .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 30px; padding: 0.4rem 1rem; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #18181b; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
         .hero-eyebrow .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; animation: mockup-pulse 1.5s infinite; }
@@ -798,6 +875,21 @@
             <span class="section-badge">How It Works</span>
             <h2 class="section-title">Four steps to automated applications</h2>
             <p class="section-sub">Here’s how Rover takes you from uploading your résumé to submitting tailored applications 24/7.</p>
+        </div>
+
+        <!-- Mobile-only inline demo video -->
+        <div class="hiw-video-wrap">
+            <div class="hiw-phone-shell">
+                <video id="hiw-demo-video" playsinline webkit-playsinline preload="metadata" poster="assets/demo_thumbnail.jpg" onclick="toggleHiwVideo()">
+                    <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
+                </video>
+                <div id="hiw-video-overlay" class="hiw-video-overlay" onclick="toggleHiwVideo()">
+                    <button class="hiw-play-btn" aria-label="Play demo video">
+                        <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                    </button>
+                    <span class="hiw-play-tag">Watch Demo (38s)</span>
+                </div>
+            </div>
         </div>
 
         <div class="steps-grid">
@@ -1529,6 +1621,34 @@
             document.getElementById('mobile-nav-panel').classList.toggle('active');
             document.getElementById('mobile-nav-overlay').classList.toggle('active');
         }
+
+        function toggleHiwVideo() {
+            var video = document.getElementById('hiw-demo-video');
+            var overlay = document.getElementById('hiw-video-overlay');
+            if (!video) return;
+            if (video.paused) {
+                video.play().then(function() {
+                    if (overlay) overlay.classList.add('playing');
+                }).catch(function() {
+                    video.muted = true;
+                    video.play().then(function() {
+                        if (overlay) overlay.classList.add('playing');
+                    });
+                });
+            } else {
+                video.pause();
+                if (overlay) overlay.classList.remove('playing');
+            }
+        }
+        (function() {
+            var hiwVid = document.getElementById('hiw-demo-video');
+            var hiwOverlay = document.getElementById('hiw-video-overlay');
+            if (hiwVid && hiwOverlay) {
+                hiwVid.addEventListener('ended', function() {
+                    hiwOverlay.classList.remove('playing');
+                });
+            }
+        })();
 
         function updateHeroMuteUI(isMuted) {
             var btn = document.getElementById('hero-mute-btn');
