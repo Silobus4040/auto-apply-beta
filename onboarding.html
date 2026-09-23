@@ -1426,54 +1426,30 @@
                 });
         }
 
-        function setExtractedRole(role, rawText = '') {
+        function setExtractedRole(role) {
             if (!role) return false;
             const firstRole = document.querySelector('.job-title-input');
             if (!firstRole || firstRole.value.trim()) return false;
 
             let cleanedRole = role.trim();
             // If the role starts with "Principal, ", "Senior, ", "Lead, ", strip prefix and comma so title isn't polluted
-            let prefixLevel = null;
             if (/^principal\s*,\s*/i.test(cleanedRole)) {
-                prefixLevel = 'Senior Level';
                 cleanedRole = cleanedRole.replace(/^principal\s*,\s*/i, '');
             } else if (/^senior\s*,\s*/i.test(cleanedRole)) {
-                prefixLevel = 'Senior Level';
                 cleanedRole = cleanedRole.replace(/^senior\s*,\s*/i, '');
             } else if (/^director\s*,\s*/i.test(cleanedRole)) {
-                prefixLevel = 'Executive';
                 cleanedRole = cleanedRole.replace(/^director\s*,\s*/i, '');
             } else if (/^lead\s*,\s*/i.test(cleanedRole)) {
-                prefixLevel = 'Senior Level';
                 cleanedRole = cleanedRole.replace(/^lead\s*,\s*/i, '');
             }
 
             firstRole.value = cleanedRole;
 
-            const fullContext = (role + ' ' + cleanedRole + ' ' + (rawText || window.lastResumeText || '')).slice(0, 5000);
-            let inferredLevel = prefixLevel;
-            if (!inferredLevel) {
-                if (/\b(director|head\s+of|vp|vice\s+president|chief|c-level|executive)\b/i.test(fullContext) || /\b(1[0-9]|20)\+?\s*years?\b/i.test(fullContext)) {
-                    inferredLevel = 'Executive';
-                } else if (/\b(senior|principal|lead|staff)\b/i.test(role) || /\b([5-9]|\d{2})\+?\s*years?\b/i.test(fullContext)) {
-                    inferredLevel = 'Senior Level';
-                } else if (/\b(entry|junior|associate|intern)\b/i.test(role) || /\b(0|1)\s*years?\b/i.test(fullContext)) {
-                    inferredLevel = 'Entry Level';
-                } else {
-                    inferredLevel = 'Mid Level';
-                }
-            }
-
-            const levelSelect = document.querySelector('.job-level-select');
-            if (levelSelect) {
-                levelSelect.value = inferredLevel;
-            }
-
+            // Let user select their experience level themselves without guessing
             if (typeof saveCurrentJobRoles === 'function') {
                 saveCurrentJobRoles();
             } else {
                 firstRole.dispatchEvent(new Event('input', { bubbles: true }));
-                levelSelect?.dispatchEvent(new Event('change', { bubbles: true }));
             }
             return true;
         }
@@ -1659,7 +1635,7 @@
             const nationalityMatch = text.match(/\b(?:nationality|citizenship)\s*[:\-]\s*([A-Za-z][A-Za-z .'-]{1,40})/i)
                 || text.match(/\b([A-Za-z]{3,20})\s+(?:citizen|national)\b/i);
             if (nationalityMatch) filled += fillIfBlank('nationality', nationalityMatch[1].trim()) ? 1 : 0;
-            filled += setExtractedRole(inferResumeRole(lines), text) ? 1 : 0;
+            filled += setExtractedRole(inferResumeRole(lines)) ? 1 : 0;
             return filled;
         }
 
