@@ -944,8 +944,11 @@
                 const norm = role.toLowerCase();
                 if (!norm) return;
 
+                // Whole words only (so "cto" doesn't match inside "Director"), allowing an
+                // s/es/ing ending so "data engineer" still matches "Data Engineering".
+                const wordHit = p => new RegExp('(^|[^a-z0-9])' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(s|es|ing)?($|[^a-z0-9])').test(norm);
                 const hits = Object.entries(roleFamilyPhraseHints)
-                    .map(([family, phrases]) => [family, phrases.map(p => p.toLowerCase()).filter(p => norm.includes(p))])
+                    .map(([family, phrases]) => [family, phrases.map(p => p.toLowerCase()).filter(wordHit)])
                     .filter(([, matched]) => matched.length);
                 // More specific match wins: drop a family whose only matches sit inside a
                 // longer phrase another family matched ("operations" inside "revenue operations").
