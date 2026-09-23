@@ -1546,21 +1546,10 @@
             </div>
         </div>
 
-        <!-- Activation Gate: shown until a valid invite code is redeemed. No scraping/applying happens before this. -->
         <div id="resume-invalid-banner" style="display: none; background: rgba(239,68,68,0.06); border: 1px solid rgba(239,68,68,0.25); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.75rem;">
             <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase; color: #B91C1C;">We couldn't find a résumé in your upload</h2>
             <p style="color: #71717A; font-size: 0.95rem; margin-bottom: 0.5rem; max-width: 640px;">The file you uploaded doesn't look like a résumé, so Rover hasn't been able to tailor anything for you yet. Reach out to support and we'll get it sorted.</p>
             <p id="resume-invalid-reason" style="color: #B91C1C; font-size: 0.85rem; font-weight: 700;"></p>
-        </div>
-
-        <div id="activation-gate-banner" style="display: none; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.75rem;">
-            <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">Activate Rover</h2>
-            <p style="color: #71717A; font-size: 0.95rem; margin-bottom: 1.25rem; max-width: 640px;">You're all set up — Rover just needs an invite code to start scanning and applying for you. Don't have one yet? You're on the list; we'll email you when it's your turn.</p>
-            <div id="activation-error-msg" style="display:none; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.65rem 1rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 1rem; border-radius: 10px;"></div>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-                <input type="text" id="activation-code-input" placeholder="RR-XXXXXX" autocapitalize="characters" autocomplete="off" style="padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; min-width: 200px;">
-                <button id="activation-code-btn" onclick="activateWithInviteCode()" style="background: var(--primary); color: #000000; border: none; font-size: 0.85rem; padding: 0.85rem 1.5rem; border-radius: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Activate →</button>
-            </div>
         </div>
 
         <!-- Stats Bar (Hero Position) -->
@@ -2176,7 +2165,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, resume_invalid, resume_invalid_reason, target_job_titles, target_location, country, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_completed_first_login, has_seen_inbox_intro')
+                .select('id, onboarding_complete, Application_email, master_resume, resume_invalid, resume_invalid_reason, target_job_titles, target_location, country, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_completed_first_login, has_seen_inbox_intro')
                 .eq('id', user.id)
                 .single();
 
@@ -2186,9 +2175,8 @@
             }
 
             // Welcome / Welcome back greeting -- has_completed_first_login is a
-            // dedicated flag, independent of the invite-code system (which may
-            // be removed later), so "is this genuinely their first time" keeps
-            // working regardless of how activation evolves. Flip it true right
+            // dedicated flag, independent of onboarding completion, so "is this
+            // genuinely their first time" keeps working. Flip it true right
             // after showing "Welcome" so every subsequent load says "Welcome
             // back", forever.
             const greetingEl = document.getElementById('welcome-greeting');
@@ -2340,70 +2328,26 @@
             // adding both calls' real network latency together instead of
             // overlapping them. The cached value (if any) also renders
             // instantly, before either network call returns.
-            if (profile.is_activated) {
-                const cached = getCachedPoolCount();
-                if (cached !== null) {
-                    poolAvailableCount = cached;
-                    applyPoolAvailableToStats();
-                }
-                fetchPoolCount(user.id);
+            const cached = getCachedPoolCount();
+            if (cached !== null) {
+                poolAvailableCount = cached;
+                applyPoolAvailableToStats();
             }
+            fetchPoolCount(user.id);
 
             await fetchUserJobs(user, profile);
             setupRealtime(user.id);
 
-            // The invite code is what actually starts automation - not
-            // signup, not onboarding. If this account hasn't redeemed one
-            // yet, hold the scrape and show the activation gate instead.
             if (profile.resume_invalid) {
                 document.getElementById('resume-invalid-reason').textContent = profile.resume_invalid_reason || '';
                 document.getElementById('resume-invalid-banner').style.display = 'block';
             }
 
-            if (!profile.is_activated) {
-                document.getElementById('activation-gate-banner').style.display = 'block';
-            } else if (localStorage.getItem('trigger_initial_scrape') === 'true') {
+            if (localStorage.getItem('trigger_initial_scrape') === 'true') {
                 localStorage.removeItem('trigger_initial_scrape');
                 triggerInitialScrape(user, profile);
             }
         })();
-
-        async function activateWithInviteCode() {
-            const input = document.getElementById('activation-code-input');
-            const errorEl = document.getElementById('activation-error-msg');
-            const btn = document.getElementById('activation-code-btn');
-            const code = input.value.trim();
-            errorEl.style.display = 'none';
-
-            if (!code) {
-                errorEl.textContent = 'Enter your invite code first.';
-                errorEl.style.display = 'block';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Activating...';
-
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            const { data: redeemed, error } = await supabaseClient.rpc('redeem_invite_code', { p_code: code, p_user_id: user.id });
-
-            if (error || !redeemed) {
-                errorEl.textContent = 'Invalid or already-used invite code. Please check the code and try again.';
-                errorEl.style.display = 'block';
-                btn.disabled = false;
-                btn.textContent = 'Activate →';
-                return;
-            }
-
-            document.getElementById('activation-gate-banner').style.display = 'none';
-            userProfile.is_activated = true;
-            // Activation updates the profile server-side (including the real
-            // credit limit). Reload the page so mobile and desktop browsers
-            // follow the same proven fresh-load path: refetch profile, show
-            // the correct credit balance, and invoke match-pool-jobs.
-            localStorage.setItem('trigger_initial_scrape', 'true');
-            window.location.reload();
-        }
 
         let pollingInterval = null;
         let pollCount = 0;
@@ -2587,7 +2531,7 @@
                 ? Promise.resolve({ data: profile })
                 : supabaseClient
                     .from('profiles')
-                    .select('scraper_status, is_activated, deck_ready')
+                    .select('scraper_status, deck_ready')
                     .eq('id', user.id)
                     .single();
 
@@ -2596,12 +2540,8 @@
 
             if (error) return;
 
-            // Require is_activated directly, not just scraper_status - a
-            // stale/incorrectly-set scraper_status must never be able to
-            // claim a scan is running for an account that was never
-            // actually activated with an invite code.
             const scraperStatus = profile ? profile.scraper_status : 'idle';
-            const isReallyScanning = scraperStatus === 'scanning' && !!(profile && profile.is_activated) && !profile.deck_ready;
+            const isReallyScanning = scraperStatus === 'scanning' && !profile.deck_ready;
 
             if (isReallyScanning) {
                 startPolling();
@@ -3016,14 +2956,6 @@
                                 <li class="scan-rotator-last" style="animation-delay: 7.2s;">Almost there — hang tight.</li>
                             </ul>
                             ${deckCta}
-                        </div>`;
-                } else if (userProfile && !userProfile.is_activated) {
-                    container.innerHTML = `
-                        <div class="empty-state" style="padding: 3.5rem 1.5rem; text-align: center; background: var(--surface-color); border: 1px dashed var(--border); border-radius: 20px; width: 100%;">
-                            <h3 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; color: #000000; text-transform: uppercase; letter-spacing: -0.5px;">Nothing Here Yet</h3>
-                            <p style="font-size: 0.92rem; color: var(--text-body); max-width: 540px; margin: 0 auto; line-height: 1.65; font-weight: 500;">
-                                Enter your invite code above to activate Rover and run your first search.
-                            </p>
                         </div>`;
                 } else if (poolAvailableCount === null) {
                     // We haven't heard back from match-pool-jobs yet -- this is

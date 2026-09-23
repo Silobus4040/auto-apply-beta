@@ -1598,17 +1598,6 @@
             </div>
         </div>
 
-        <!-- Activation Gate: shown until a valid invite code is redeemed. No scraping/applying happens before this. -->
-        <div id="activation-gate-banner" style="display: none; background: #fafafa; border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 1.75rem;">
-            <h2 style="font-size: 1.3rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">🔒 Activate Rover</h2>
-            <p style="color: #71717A; font-size: 0.95rem; margin-bottom: 1.25rem; max-width: 640px;">You're all set up — Rover just needs an invite code to start scanning and applying for you. Don't have one yet? You're on the list; we'll email you when it's your turn.</p>
-            <div id="activation-error-msg" style="display:none; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.65rem 1rem; font-weight: 700; font-size: 0.85rem; margin-bottom: 1rem; border-radius: 10px;"></div>
-            <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; align-items: center;">
-                <input type="text" id="activation-code-input" placeholder="RR-XXXXXX" autocapitalize="characters" autocomplete="off" style="padding: 0.85rem 1rem; border: 1px solid var(--border); border-radius: 10px; font-size: 0.95rem; min-width: 200px;">
-                <button id="activation-code-btn" onclick="activateWithInviteCode()" style="background: var(--primary); color: #000000; border: none; font-size: 0.85rem; padding: 0.85rem 1.5rem; border-radius: 10px; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.3px;">Activate →</button>
-            </div>
-        </div>
-
         <!-- Stats Bar (Hero Position) -->
         <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 0.6rem;">
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
@@ -2079,7 +2068,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, is_activated, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
+                .select('id, onboarding_complete, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
                 .eq('id', user.id)
                 .single();
 
@@ -2183,39 +2172,27 @@
             await loadConfirmedSkills(user.id);
             setupRealtime(user.id);
 
-            // The invite code is what actually starts automation - not
-            // signup, not onboarding. If this account hasn't redeemed one
-            // yet, hold the scrape and show the activation gate instead.
-            if (!profile.is_activated) {
-                document.getElementById('activation-gate-banner').style.display = 'block';
-                // This branch never calls fetchPooledJobs, so nothing would ever
-                // clear the loading skeleton -- it would spin forever behind the
-                // activation gate.
-                hideDeckLoading();
-                const notActivatedPlaceholder = document.getElementById('deck-empty-state');
-                if (notActivatedPlaceholder) notActivatedPlaceholder.style.display = 'none';
-            } else if (localStorage.getItem('trigger_initial_scrape') === 'true') {
+            if (localStorage.getItem('trigger_initial_scrape') === 'true') {
                 localStorage.removeItem('trigger_initial_scrape');
                 triggerInitialScrape(user, profile);
             }
 
-            if (profile.is_activated) {
-                const cached = getCachedPoolCount();
-                if (cached !== null) {
-                    poolAvailableCount = cached;
-                    applyPoolAvailableToStats();
-                }
-                // Restore cached deck jobs for instant render on re-login
-                // -- no loading spinner for returning users.
-                const cachedDeck = loadCachedDeckJobs(user.id);
-                if (cachedDeck && cachedDeck.jobs.length) {
-                    pooledJobs = cachedDeck.jobs;
-                    pooledJobIndex = cachedDeck.index;
-                    hideDeckLoading();
-                    const section = document.getElementById('swipe-deck-section');
-                    if (section) section.style.display = 'block';
-                    renderSwipeStack();
-                } else if (profile.deck_ready || poolAvailableCount > 0) {
+            const cached = getCachedPoolCount();
+            if (cached !== null) {
+                poolAvailableCount = cached;
+                applyPoolAvailableToStats();
+            }
+            // Restore cached deck jobs for instant render on re-login
+            // -- no loading spinner for returning users.
+            const cachedDeck = loadCachedDeckJobs(user.id);
+            if (cachedDeck && cachedDeck.jobs.length) {
+                pooledJobs = cachedDeck.jobs;
+                pooledJobIndex = cachedDeck.index;
+                hideDeckLoading();
+                const section = document.getElementById('swipe-deck-section');
+                if (section) section.style.display = 'block';
+                renderSwipeStack();
+            } else if (profile.deck_ready || poolAvailableCount > 0) {
                     // Jobs exist on server but no cache (new device). Hide the
                     // compass but show a lightweight placeholder in its place --
                     // fetchPooledJobs's real answer can take 5-8s (slow
@@ -2233,7 +2210,7 @@
                         if (h3) h3.textContent = 'Loading your deck...';
                         if (p) p.textContent = 'Fetching your matched roles now.';
                     }
-                } else {
+            } else {
                     // No signal at all yet that this user has any jobs -- no
                     // cache, no deck_ready, no cached pool count. This is the
                     // ONLY branch that shows the "Roving for 3 minutes" compass.
@@ -2244,16 +2221,15 @@
                     if (stillUnknownPlaceholder) stillUnknownPlaceholder.style.display = 'none';
                     const loading = document.getElementById('deck-loading-state');
                     if (loading) loading.style.display = '';
-                }
-                // First-time-only blocking gate. The deck fetch still kicks off
-                // right away behind the modal (fetchPooledJobs already shows its
-                // own skeleton) so the wait isn't wasted -- the user just can't
-                // see/act on cards until they've acknowledged the caveat.
-                if (!profile.has_seen_gap_caveat) {
-                    document.getElementById('gap-caveat-modal').classList.add('active');
-                }
-                fetchPooledJobs(user.id);
             }
+            // First-time-only blocking gate. The deck fetch still kicks off
+            // right away behind the modal (fetchPooledJobs already shows its
+            // own skeleton) so the wait isn't wasted -- the user just can't
+            // see/act on cards until they've acknowledged the caveat.
+            if (!profile.has_seen_gap_caveat) {
+                document.getElementById('gap-caveat-modal').classList.add('active');
+            }
+            fetchPooledJobs(user.id);
         })();
 
         async function acknowledgeGapCaveat() {
@@ -2266,43 +2242,6 @@
                 .update({ has_seen_gap_caveat: true })
                 .eq('id', user.id);
             if (error) console.error('failed to persist gap caveat ack:', error);
-        }
-
-        async function activateWithInviteCode() {
-            const input = document.getElementById('activation-code-input');
-            const errorEl = document.getElementById('activation-error-msg');
-            const btn = document.getElementById('activation-code-btn');
-            const code = input.value.trim();
-            errorEl.style.display = 'none';
-
-            if (!code) {
-                errorEl.textContent = 'Enter your invite code first.';
-                errorEl.style.display = 'block';
-                return;
-            }
-
-            btn.disabled = true;
-            btn.textContent = 'Activating...';
-
-            const { data: { user } } = await supabaseClient.auth.getUser();
-            const { data: redeemed, error } = await supabaseClient.rpc('redeem_invite_code', { p_code: code, p_user_id: user.id });
-
-            if (error || !redeemed) {
-                errorEl.textContent = 'Invalid or already-used invite code. Please check the code and try again.';
-                errorEl.style.display = 'block';
-                btn.disabled = false;
-                btn.textContent = 'Activate →';
-                return;
-            }
-
-            document.getElementById('activation-gate-banner').style.display = 'none';
-            userProfile.is_activated = true;
-            // Activation updates the profile server-side (including the real
-            // credit limit). Reload the page so mobile and desktop browsers
-            // follow the same proven fresh-load path: refetch profile, show
-            // the correct credit balance, and invoke match-pool-jobs.
-            localStorage.setItem('trigger_initial_scrape', 'true');
-            window.location.reload();
         }
 
         let pollingInterval = null;
@@ -2470,16 +2409,12 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('scraper_status, is_activated, deck_ready')
+                .select('scraper_status, deck_ready')
                 .eq('id', user.id)
                 .single();
 
-            // Require is_activated directly, not just scraper_status - a
-            // stale/incorrectly-set scraper_status must never be able to
-            // claim a scan is running for an account that was never
-            // actually activated with an invite code.
             const scraperStatus = profile ? profile.scraper_status : 'idle';
-            const isReallyScanning = scraperStatus === 'scanning' && !!(profile && profile.is_activated) && !profile.deck_ready;
+            const isReallyScanning = scraperStatus === 'scanning' && !profile.deck_ready;
 
             if (isReallyScanning) {
                 startPolling();

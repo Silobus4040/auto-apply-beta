@@ -2282,11 +2282,9 @@
                     disability_status: document.getElementById('disability').value,
                     pronouns: document.getElementById('pronouns').value,
                     resume_url: resumeUrl,
-                    // NOT scraper_status: 'scanning' here - that would falsely claim
-                    // a scan is running before the user has actually activated with
-                    // an invite code. dashboard.html's triggerInitialScrape() is the
-                    // only place that should ever set this, right before the real
-                    // scrape webhook actually fires.
+                    // dashboard.html's triggerInitialScrape() sets scraper_status
+                    // immediately before the real scrape webhook fires.
+                    is_activated: true,
                     onboarding_complete: true,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'id' });
