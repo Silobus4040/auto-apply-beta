@@ -987,8 +987,12 @@
             let listHtml = '';
             missing.forEach(item => {
                 const suggestionNames = item.suggested.map(s => `<strong>${escapeGuardrailHtml(s)}</strong>`).join(' or ');
-                listHtml += `<li style="margin-bottom: 0.35rem;">"${escapeGuardrailHtml(item.role)}" &mdash; you might also want ${suggestionNames}</li>`;
+                const verb = item.suggested.length > 1 ? 'fit' : 'fits';
+                listHtml += `<li style="margin-bottom: 0.35rem;">${suggestionNames} ${verb} your role "${escapeGuardrailHtml(item.role)}" more than the selected option.</li>`;
             });
+            const disclaimer = missing.length > 1
+                ? 'These are automatic suggestions and may not be accurate. You can leave them as-is or modify if you deem fit.'
+                : 'This is an automatic suggestion and may not be accurate. You can leave it as-is or modify if you deem fit.';
 
             message.innerHTML = `
                 <div style="font-size: 0.88rem; line-height: 1.45;">
@@ -999,7 +1003,7 @@
                         ${listHtml}
                     </ul>
                     <p style="margin: 0.45rem 0 0; font-size: 0.82rem; color: #52525B;">
-                        These suggestions are automatic and may not always be right. Add any that fit above, or continue with your current selection.
+                        ${disclaimer}
                     </p>
                 </div>
             `;
@@ -1744,6 +1748,8 @@
                 .select('role_key')
                 .eq('profile_id', currentUserId);
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
+            const { data: launchState } = await supabaseClient.from('profiles').select('launch_waitlisted_at').eq('id', currentUserId).maybeSingle();
+            if (launchState?.launch_waitlisted_at) { window.location.href = 'waitlist.html'; return; }
 
             if (profile && profile.resume_url) {
                 localStorage.setItem('onb_resume_url', profile.resume_url);
@@ -2365,7 +2371,7 @@
                 const { data: launchAccess, error: launchAccessError } = await supabaseClient.rpc('claim_launch_access');
                 if (launchAccessError) throw launchAccessError;
                 if (!launchAccess || !launchAccess[0]?.activated) {
-                    alert('You’re on the RoleRover waitlist. We’re opening access in small groups to keep the service fast and reliable. We’ll email you when a space opens.');
+                    window.location.href = 'waitlist.html';
                     return;
                 }
 
