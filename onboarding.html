@@ -944,11 +944,14 @@
                 const norm = role.toLowerCase();
                 if (!norm) return;
 
-                const matchedFamilies = Object.entries(roleFamilyPhraseHints)
-                    .filter(([, phrases]) => phrases.some(phrase => {
-                        const p = phrase.toLowerCase();
-                        return norm.includes(p);
-                    }))
+                const hits = Object.entries(roleFamilyPhraseHints)
+                    .map(([family, phrases]) => [family, phrases.map(p => p.toLowerCase()).filter(p => norm.includes(p))])
+                    .filter(([, matched]) => matched.length);
+                // More specific match wins: drop a family whose only matches sit inside a
+                // longer phrase another family matched ("operations" inside "revenue operations").
+                const matchedFamilies = hits
+                    .filter(([family, matched]) => matched.some(p => !hits.some(([other, otherMatched]) =>
+                        other !== family && otherMatched.some(o => o.length > p.length && o.includes(p)))))
                     .map(([family]) => family);
 
                 if (matchedFamilies.length > 0) {
