@@ -877,16 +877,17 @@
             try { roleFamilyChoices.setChoiceByValue(JSON.parse(savedRoleFamilies)); } catch(e) {}
         }
 
-        // Use distinctive phrases only. This helps catch accidental category
-        // choices without guessing a person's intended career direction.
-        // Keep this in sync with the backend's public.role_semantic_aliases
-        // table (Supabase) -- that table is the source of truth for which
-        // family a title belongs to (e.g. "Revenue Operations"/"RevOps" ->
-        // Sales & Account Management, not Operations & Supply Chain). This
-        // list drifting out of sync with it is what caused a real bug: any
-        // "X Operations" title fell through to Operations & Supply Chain's
-        // bare 'operations' catch-all instead of its real family.
-        const roleFamilyPhraseHints = {
+        // Hardcoded, last-resort fallback only -- used if the live fetch of
+        // public.role_semantic_aliases below fails (offline, RLS change,
+        // etc.). The real list now comes from that table at runtime instead
+        // of being hand-maintained here, because keeping a second copy of
+        // the taxonomy in the browser in sync with the backend by hand is
+        // exactly what caused a real bug: this list didn't know "Revenue
+        // Operations"/"RevOps" belongs under Sales & Account Management (the
+        // backend's role_semantic_aliases table already had it right), so
+        // any "X Operations" title fell through to Operations & Supply
+        // Chain's bare 'operations' catch-all instead of its real family.
+        const FALLBACK_ROLE_FAMILY_PHRASE_HINTS = {
             'Sales & Account Management': ['account executive', 'account manager', 'sales representative', 'sales manager', 'business development', 'sales', 'bdr', 'sdr', 'revenue operations', 'revops', 'sales operations'],
             'Administrative & Executive Support': ['administrative assistant', 'executive assistant', 'office administrator', 'admin assistant', 'receptionist', 'administrative'],
             'AI & Machine Learning': ['machine learning engineer', 'machine learning scientist', 'ai engineer', 'research scientist', 'machine learning', 'deep learning'],
@@ -916,6 +917,40 @@
             'Solutions Engineering & Pre-Sales': ['solutions engineer', 'sales engineer', 'pre-sales engineer', 'presales engineer', 'solutions architect'],
             'Talent Acquisition & Recruiting': ['recruiter', 'talent acquisition', 'recruiting coordinator', 'headhunter', 'technical recruiter']
         };
+
+        // Live copy the guardrail actually reads (getMissingRoleCategories
+        // closes over this variable, so reassigning it once the fetch below
+        // resolves is picked up by every caller automatically -- no need to
+        // thread the data through). Starts as the fallback so the guardrail
+        // still works before the fetch completes or if it never does.
+        let roleFamilyPhraseHints = FALLBACK_ROLE_FAMILY_PHRASE_HINTS;
+
+        // Pulls the real taxonomy from public.role_semantic_aliases -- the
+        // same table match-pool-jobs already treats as authoritative -- so
+        // this guardrail can't drift out of sync with actual job matching
+        // again. RLS on that table only allows `authenticated` reads, so
+        // this is called from the auth-guard init() below, after
+        // currentUserId is confirmed, not at page load.
+        async function loadRoleFamilyPhraseHints() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('role_semantic_aliases')
+                    .select('role_key, aliases')
+                    .eq('enabled', true);
+                if (error || !data || !data.length) return;
+                const fromDb = {};
+                data.forEach(row => {
+                    if (!row.role_key || !Array.isArray(row.aliases)) return;
+                    const phrases = row.aliases.map(a => String(a).trim().toLowerCase()).filter(Boolean);
+                    if (phrases.length) fromDb[row.role_key] = phrases;
+                });
+                if (Object.keys(fromDb).length) roleFamilyPhraseHints = fromDb;
+            } catch (e) {
+                // Network hiccup, RLS change, etc -- keep the fallback list
+                // rather than breaking the guardrail entirely.
+            }
+        }
+
         const categoryGuardrailEl = document.getElementById('category-guardrail');
 
         function escapeGuardrailHtml(str) {
@@ -1708,6 +1743,7 @@
             if (!session) { window.location.href = 'login.html'; return; }
             currentUserId = session.user.id;
             currentUserEmail = session.user.email;
+            loadRoleFamilyPhraseHints(); // fire-and-forget; guardrail uses the fallback list until this resolves
             const signedInAsEl = document.getElementById('signed-in-as-status');
             if (signedInAsEl && currentUserEmail) {
                 signedInAsEl.textContent = `Signed in as ${currentUserEmail}`;
