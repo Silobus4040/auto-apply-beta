@@ -2068,7 +2068,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
+                .select('id, onboarding_complete, initial_scrape_requested_at, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
                 .eq('id', user.id)
                 .single();
 
@@ -2172,10 +2172,7 @@
             await loadConfirmedSkills(user.id);
             setupRealtime(user.id);
 
-            if (localStorage.getItem('trigger_initial_scrape') === 'true') {
-                localStorage.removeItem('trigger_initial_scrape');
-                triggerInitialScrape(user, profile);
-            }
+            claimAndTriggerInitialScrape(user, profile);
 
             const cached = getCachedPoolCount();
             if (cached !== null) {
@@ -2231,6 +2228,32 @@
             }
             fetchPooledJobs(user.id);
         })();
+
+        // Claim the first resume/sourcing request in the database so a reload
+        // or a second device cannot lose it or start a duplicate run.
+        async function claimAndTriggerInitialScrape(user, profile) {
+            if (profile.initial_scrape_requested_at) return false;
+
+            const claimedAt = new Date().toISOString();
+            const { data: claimed, error } = await supabaseClient
+                .from('profiles')
+                .update({ initial_scrape_requested_at: claimedAt, scraper_status: 'scanning' })
+                .eq('id', user.id)
+                .is('initial_scrape_requested_at', null)
+                .select('id')
+                .maybeSingle();
+
+            if (error) {
+                console.error('Failed to claim initial scrape:', error);
+                return false;
+            }
+            if (!claimed) return false;
+
+            profile.initial_scrape_requested_at = claimedAt;
+            profile.scraper_status = 'scanning';
+            triggerInitialScrape(user, profile, claimedAt);
+            return true;
+        }
 
         async function acknowledgeGapCaveat() {
             document.getElementById('gap-caveat-modal').classList.remove('active');
@@ -2318,7 +2341,7 @@
             }
         }
 
-        async function triggerInitialScrape(user, profile) {
+        async function triggerInitialScrape(user, profile, claimAt) {
             const roles = profile.target_job_titles || '';
             const country = profile.country || profile.target_location || 'United States';
             
@@ -2344,7 +2367,7 @@
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 const jwt = session ? session.access_token : '';
 
-                fetch('https://n8n.leadscompass.ai/webhook/onboarding-resume', {
+                const response = await fetch('https://n8n.leadscompass.ai/webhook/onboarding-resume', {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -2357,10 +2380,18 @@
                         workplaceTypes: workplaceTypes,
                         resumeText: resumeText
                     })
-                }).catch(err => console.error('Failed to trigger initial scrape webhook', err));
+                });
+                if (!response.ok) throw new Error(`Initial scrape webhook returned ${response.status}`);
                 localStorage.removeItem('pending_resume_text');
             } catch (err) {
                 console.error('Error triggering initial scrape:', err);
+                // Release a failed claim so a future app visit can retry it.
+                if (claimAt) {
+                    await supabaseClient.from('profiles')
+                        .update({ initial_scrape_requested_at: null, scraper_status: 'idle' })
+                        .eq('id', user.id)
+                        .eq('initial_scrape_requested_at', claimAt);
+                }
             }
         }
 

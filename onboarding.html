@@ -2282,9 +2282,8 @@
                     disability_status: document.getElementById('disability').value,
                     pronouns: document.getElementById('pronouns').value,
                     resume_url: resumeUrl,
-                    // dashboard.html's triggerInitialScrape() sets scraper_status
-                    // immediately before the real scrape webhook fires.
-                    is_activated: true,
+                    // The app claims the one-time initial scrape after this save.
+                    // scraper_status changes only immediately before its webhook.
                     onboarding_complete: true,
                     updated_at: new Date().toISOString()
                 }, { onConflict: 'id' });
@@ -2312,9 +2311,6 @@
 
                 // Clear cached data on success
                 Object.keys(localStorage).forEach(key => { if (key.startsWith('onb_')) localStorage.removeItem(key); });
-
-                // Set a flag to trigger the initial scrape on the dashboard
-                localStorage.setItem('trigger_initial_scrape', 'true');
 
                 loadingText.textContent = "Setup Complete!";
                 setTimeout(() => { window.location.href = 'dashboard.html'; }, 1000);
