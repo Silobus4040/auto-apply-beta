@@ -2246,6 +2246,16 @@
                     throw new Error('Please enter at least one target job title.');
                 }
 
+                // Atomically reserve one of the limited launch places before
+                // completing onboarding. A waitlisted account must never
+                // reach the sourcing/deck triggers.
+                const { data: launchAccess, error: launchAccessError } = await supabaseClient.rpc('claim_launch_access');
+                if (launchAccessError) throw launchAccessError;
+                if (!launchAccess || !launchAccess[0]?.activated) {
+                    alert('You’re on the RoleRover waitlist. We’re opening access in small groups to keep the service fast and reliable. We’ll email you when a space opens.');
+                    return;
+                }
+
                 // Update Profile with ALL data
                 loadingText.textContent = "Saving Profile...";
                 const { error: profileError } = await supabaseClient.from('profiles').upsert({

@@ -2068,7 +2068,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, initial_scrape_requested_at, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
+                .select('id, onboarding_complete, launch_waitlisted_at, initial_scrape_requested_at, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
                 .eq('id', user.id)
                 .single();
 
@@ -2168,6 +2168,11 @@
                 if (sidebarEmailEl) sidebarEmailEl.innerHTML = `📧 ${profile.Application_email}`;
             }
 
+            if (profile.launch_waitlisted_at) {
+                document.getElementById('deck-empty-state').style.display = '';
+                document.getElementById('deck-empty-state').innerHTML = '<h3>You’re on the waitlist</h3><p>We’ll email you when the next access space opens.</p>';
+                return;
+            }
             await fetchUserJobs();
             await loadConfirmedSkills(user.id);
             setupRealtime(user.id);
@@ -2232,6 +2237,7 @@
         // Claim the first resume/sourcing request in the database so a reload
         // or a second device cannot lose it or start a duplicate run.
         async function claimAndTriggerInitialScrape(user, profile) {
+            if (profile.launch_waitlisted_at) return false;
             if (profile.initial_scrape_requested_at) return false;
 
             const claimedAt = new Date().toISOString();

@@ -2165,7 +2165,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, initial_scrape_requested_at, Application_email, master_resume, resume_invalid, resume_invalid_reason, target_job_titles, target_location, country, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_completed_first_login, has_seen_inbox_intro')
+                .select('id, onboarding_complete, launch_waitlisted_at, initial_scrape_requested_at, Application_email, master_resume, resume_invalid, resume_invalid_reason, target_job_titles, target_location, country, workplace_type, remote_scope, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_completed_first_login, has_seen_inbox_intro')
                 .eq('id', user.id)
                 .single();
 
@@ -2333,7 +2333,7 @@
                 poolAvailableCount = cached;
                 applyPoolAvailableToStats();
             }
-            fetchPoolCount(user.id);
+            if (!profile.launch_waitlisted_at) fetchPoolCount(user.id);
 
             await fetchUserJobs(user, profile);
             setupRealtime(user.id);
@@ -2343,7 +2343,7 @@
                 document.getElementById('resume-invalid-banner').style.display = 'block';
             }
 
-            claimAndTriggerInitialScrape(user, profile);
+            if (!profile.launch_waitlisted_at) claimAndTriggerInitialScrape(user, profile);
         })();
 
         // The first resume/sourcing request must survive a reload or a switch
@@ -2351,6 +2351,7 @@
         // a browser-only localStorage flag. The conditional update means only
         // one open tab can send the initial request.
         async function claimAndTriggerInitialScrape(user, profile) {
+            if (profile.launch_waitlisted_at) return false;
             if (profile.initial_scrape_requested_at) return false;
 
             const claimedAt = new Date().toISOString();
