@@ -101,11 +101,9 @@
         .choices[data-type*="select-one"] .choices__button { --choices-icon-cross-inverse: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; opacity: 1 !important; margin-right: 1.5rem !important; }
         .choices[data-type*="select-one"] .choices__button:hover { opacity: 0.6 !important; }
         .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
-        .category-guardrail { display: none; margin-top: 0.8rem; padding: 0.9rem 1rem; border: 1px solid #FCD34D; border-radius: 12px; background: #FFFBEB; color: #78350F; font-size: 0.85rem; font-weight: 600; line-height: 1.5; }
+        .category-guardrail { display: none; margin-top: 0.8rem; padding: 0.9rem 1rem; border: 1px solid rgba(0, 255, 204, 0.45); border-left: 4px solid #00FFCC; border-radius: 12px; background: #F0FFFC; color: #27272A; font-size: 0.85rem; font-weight: 500; line-height: 1.5; }
         .category-guardrail.is-visible { display: block; }
-        .category-guardrail strong { color: #92400E; }
-        .category-guardrail button { display: block; width: auto; margin-top: 0.7rem; padding: 0.55rem 0.85rem; border: 1px solid #D97706; border-radius: 8px; background: #FFFFFF; color: #92400E; cursor: pointer; font: inherit; font-size: 0.8rem; font-weight: 800; }
-        .category-guardrail button:hover { background: #FEF3C7; }
+        .category-guardrail strong { color: #000000; }
 
         .select-wrapper { position: relative; width: 100%; display: block; }
         .select-wrapper::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; z-index: 2; }
@@ -351,7 +349,7 @@
                                     <option value="Solutions Engineering & Pre-Sales">Solutions Engineering &amp; Pre-Sales</option>
                                     <option value="Talent Acquisition & Recruiting">Talent Acquisition &amp; Recruiting</option>
                                 </select>
-                                <div id="category-guardrail" class="category-guardrail" role="alert" aria-live="polite"></div>
+                                <div id="category-guardrail" class="category-guardrail" role="status" aria-live="polite"></div>
                             </div>
 
                             <div class="form-group">
@@ -979,20 +977,20 @@
 
             let listHtml = '';
             missing.forEach(item => {
-                const suggestionNames = item.suggested.map(s => escapeGuardrailHtml(s)).join(' or ');
-                listHtml += `<li style="margin-bottom: 0.35rem;"><strong>"${escapeGuardrailHtml(item.role)}"</strong> &rarr; please select <strong>${suggestionNames}</strong></li>`;
+                const suggestionNames = item.suggested.map(s => `<strong>${escapeGuardrailHtml(s)}</strong>`).join(' or ');
+                listHtml += `<li style="margin-bottom: 0.35rem;">"${escapeGuardrailHtml(item.role)}" &mdash; you might also want ${suggestionNames}</li>`;
             });
 
             message.innerHTML = `
                 <div style="font-size: 0.88rem; line-height: 1.45;">
-                    <strong style="color: #92400E; display: block; margin-bottom: 0.4rem; font-size: 0.92rem;">
-                        ⚠️ Please select matching job categories for your roles:
+                    <strong style="display: block; margin-bottom: 0.4rem; font-size: 0.92rem;">
+                        Suggested categories for your roles
                     </strong>
                     <ul style="margin: 0.35rem 0 0.5rem 1.2rem; padding: 0;">
                         ${listHtml}
                     </ul>
-                    <p style="margin: 0.45rem 0 0; font-size: 0.82rem; color: #78350F; font-weight: 500;">
-                        Select the matching category in the dropdown above to continue.
+                    <p style="margin: 0.45rem 0 0; font-size: 0.82rem; color: #52525B;">
+                        These suggestions are automatic and may not always be right. Add any that fit above, or continue with your current selection.
                     </p>
                 </div>
             `;
@@ -1002,7 +1000,23 @@
             return false;
         }
 
+        // Suggestions never block: the first Continue shows them and relabels
+        // the button "Continue anyway"; a second click on the same roles +
+        // categories proceeds with whatever the user picked. The keyword
+        // matching behind this isn't confident enough to enforce.
+        let categorySuggestionShownKey = null;
+        let btnNextLabelBeforeSuggestion = null;
+
+        function resetCategorySuggestionAck() {
+            categorySuggestionShownKey = null;
+            if (btnNextLabelBeforeSuggestion !== null) {
+                document.getElementById('btn-next').innerHTML = btnNextLabelBeforeSuggestion;
+                btnNextLabelBeforeSuggestion = null;
+            }
+        }
+
         roleFamilySelectEl.addEventListener('change', () => {
+            resetCategorySuggestionAck();
             const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             localStorage.setItem('onb_target-role-families', JSON.stringify(selected));
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
@@ -1017,6 +1031,7 @@
             }
         });
         document.getElementById('job-titles-container').addEventListener('input', () => {
+            resetCategorySuggestionAck();
             const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             const jobTitleInputs = document.querySelectorAll('.job-title-input');
             const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v);
@@ -2046,8 +2061,16 @@
                 return;
             }
 
-            if (!checkCategorySelection(validJobTitles, roleFamilies)) {
+            const suggestionKey = JSON.stringify([validJobTitles, [...roleFamilies].sort()]);
+            if (!checkCategorySelection(validJobTitles, roleFamilies) && categorySuggestionShownKey !== suggestionKey) {
+                categorySuggestionShownKey = suggestionKey;
+                btnNextLabelBeforeSuggestion = btnNext.innerHTML;
+                btnNext.innerHTML = 'Continue anyway &rarr;';
                 return;
+            }
+            if (btnNextLabelBeforeSuggestion !== null) {
+                btnNext.innerHTML = btnNextLabelBeforeSuggestion;
+                btnNextLabelBeforeSuggestion = null;
             }
 
             if (file) {
