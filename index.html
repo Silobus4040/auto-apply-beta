@@ -375,6 +375,114 @@
             display: block;
         }
 
+        /* Player Controls Bottom Bar */
+        .hero-player-controls {
+            position: absolute;
+            bottom: 12px;
+            left: 12px;
+            right: 12px;
+            background: rgba(9, 9, 11, 0.88);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 20px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 15;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            user-select: none;
+            transition: opacity 0.25s ease;
+        }
+        .player-ctrl-btn {
+            background: transparent;
+            border: none;
+            color: #ffffff;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+            padding: 0;
+        }
+        .player-ctrl-btn:hover {
+            color: #00FFCC;
+            transform: scale(1.12);
+        }
+        .player-ctrl-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+        .player-scrub-bar {
+            flex: 1;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        .player-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #D4FF33, #00FFCC);
+            border-radius: 4px;
+            transition: width 0.1s linear;
+        }
+        .player-time {
+            color: #e4e4e7;
+            font-size: 0.72rem;
+            font-weight: 700;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+
+        /* Center Overlay Skip Buttons */
+        .overlay-controls-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .overlay-skip-btn {
+            background: rgba(0, 0, 0, 0.72);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            border-radius: 50%;
+            width: 44px;
+            height: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
+            font-size: 0.62rem;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+            padding: 0;
+        }
+        .overlay-skip-btn:hover {
+            background: rgba(0, 0, 0, 0.9);
+            color: #00FFCC;
+            border-color: #00FFCC;
+            transform: scale(1.1);
+        }
+        .overlay-skip-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+            margin-bottom: -1px;
+        }
+
         /* ===== How It Works & Inline Demo Section ===== */
         .how-it-works {
             max-width: 1400px;
@@ -483,8 +591,8 @@
         }
 
         @media (max-width: 900px) {
-            .hero-grid { grid-template-columns: 1fr; gap: 3rem; }
-            .hero-right { display: none !important; }
+            .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+            .hero-right { display: flex !important; width: 100%; justify-content: center; margin: 1.5rem auto 0; }
         }
 
         @media (max-width: 1100px) {
@@ -598,16 +706,44 @@
                     <svg class="sound-on-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
                     <span class="mute-text">Sound</span>
                 </button>
-                <div class="hero-phone-screen" onclick="toggleHeroVideoPlay()">
-                    <video id="hero-demo-video" class="hero-video-player" playsinline webkit-playsinline preload="metadata" poster="assets/demo_thumbnail.jpg">
+                <div class="hero-phone-screen">
+                    <video id="hero-demo-video" class="hero-video-player" playsinline webkit-playsinline preload="metadata" poster="assets/demo_thumbnail.jpg" onclick="toggleHeroVideoPlay(event)">
                         <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
                         Your browser does not support the video tag.
                     </video>
-                    <div id="hero-video-overlay" class="hero-video-overlay">
-                        <div class="hero-play-btn" aria-label="Play demo video">
-                            <svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                    <div id="hero-video-overlay" class="hero-video-overlay" onclick="toggleHeroVideoPlay(event)">
+                        <div class="overlay-controls-group">
+                            <button class="overlay-skip-btn" onclick="skipHeroVideo(-5, event)" aria-label="Rewind 5s" title="Rewind 5s">
+                                <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                                <span>-5s</span>
+                            </button>
+                            <button class="hero-play-btn" onclick="toggleHeroVideoPlay(event)" aria-label="Play demo video">
+                                <svg class="hero-play-icon" viewBox="0 0 24 24" width="28" height="28" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
+                                <svg class="hero-pause-icon" style="display:none;" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                            </button>
+                            <button class="overlay-skip-btn" onclick="skipHeroVideo(5, event)" aria-label="Forward 5s" title="Forward 5s">
+                                <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
+                                <span>+5s</span>
+                            </button>
                         </div>
                         <span class="hero-play-tag">Watch Demo (38s)</span>
+                    </div>
+                    <!-- Bottom Player Controls Bar -->
+                    <div id="hero-player-controls" class="hero-player-controls">
+                        <button class="player-ctrl-btn" onclick="toggleHeroVideoPlay(event)" aria-label="Play or pause">
+                            <svg class="ctrl-play-icon" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg>
+                            <svg class="ctrl-pause-icon" style="display:none;" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+                        </button>
+                        <button class="player-ctrl-btn" onclick="skipHeroVideo(-5, event)" aria-label="Rewind 5 seconds" title="Rewind 5s">
+                            <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
+                        </button>
+                        <div class="player-scrub-bar" onclick="seekHeroVideo(event)" title="Seek">
+                            <div id="player-progress" class="player-progress"></div>
+                        </div>
+                        <button class="player-ctrl-btn" onclick="skipHeroVideo(5, event)" aria-label="Forward 5 seconds" title="Forward 5s">
+                            <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
+                        </button>
+                        <span id="player-time" class="player-time">0:00 / 0:38</span>
                     </div>
                 </div>
             </div>
@@ -1424,39 +1560,107 @@
             updateHeroMuteUI(video.muted);
         }
 
-        function toggleHeroVideoPlay() {
+        function formatTime(seconds) {
+            var s = Math.floor(seconds || 0);
+            var m = Math.floor(s / 60);
+            var remS = s % 60;
+            return m + ':' + (remS < 10 ? '0' : '') + remS;
+        }
+
+        function updatePlayerProgress() {
             var video = document.getElementById('hero-demo-video');
+            var bar = document.getElementById('player-progress');
+            var timeDisplay = document.getElementById('player-time');
+            if (!video) return;
+            var current = video.currentTime || 0;
+            var total = video.duration || 38.2;
+            var pct = (current / total) * 100;
+            if (bar) bar.style.width = pct + '%';
+            if (timeDisplay) timeDisplay.textContent = formatTime(current) + ' / ' + formatTime(total);
+        }
+
+        function syncPlayerPlayUI(isPlaying) {
             var overlay = document.getElementById('hero-video-overlay');
+            var ctrlPlayIcon = document.querySelector('.ctrl-play-icon');
+            var ctrlPauseIcon = document.querySelector('.ctrl-pause-icon');
+            var heroPlayIcon = document.querySelector('.hero-play-icon');
+            var heroPauseIcon = document.querySelector('.hero-pause-icon');
+            var playTag = document.querySelector('.hero-play-tag');
+
+            if (isPlaying) {
+                if (overlay) overlay.classList.add('playing');
+                if (ctrlPlayIcon) ctrlPlayIcon.style.display = 'none';
+                if (ctrlPauseIcon) ctrlPauseIcon.style.display = 'block';
+                if (heroPlayIcon) heroPlayIcon.style.display = 'none';
+                if (heroPauseIcon) heroPauseIcon.style.display = 'block';
+                if (playTag) playTag.textContent = 'Pause';
+            } else {
+                if (overlay) overlay.classList.remove('playing');
+                if (ctrlPlayIcon) ctrlPlayIcon.style.display = 'block';
+                if (ctrlPauseIcon) ctrlPauseIcon.style.display = 'none';
+                if (heroPlayIcon) heroPlayIcon.style.display = 'block';
+                if (heroPauseIcon) heroPauseIcon.style.display = 'none';
+                if (playTag) playTag.textContent = 'Watch Demo (38s)';
+            }
+        }
+
+        function toggleHeroVideoPlay(e) {
+            if (e) e.stopPropagation();
+            var video = document.getElementById('hero-demo-video');
             if (!video) return;
             if (video.paused) {
                 video.play().then(function() {
-                    if (overlay) overlay.classList.add('playing');
+                    syncPlayerPlayUI(true);
                 }).catch(function() {
                     video.muted = true;
                     updateHeroMuteUI(true);
                     video.play().then(function() {
-                        if (overlay) overlay.classList.add('playing');
+                        syncPlayerPlayUI(true);
                     });
                 });
             } else {
                 video.pause();
-                if (overlay) overlay.classList.remove('playing');
+                syncPlayerPlayUI(false);
             }
+        }
+
+        function skipHeroVideo(seconds, e) {
+            if (e) e.stopPropagation();
+            var video = document.getElementById('hero-demo-video');
+            if (!video) return;
+            var maxDur = video.duration || 38.2;
+            video.currentTime = Math.max(0, Math.min(maxDur, video.currentTime + seconds));
+            updatePlayerProgress();
+        }
+
+        function seekHeroVideo(e) {
+            if (e) e.stopPropagation();
+            var video = document.getElementById('hero-demo-video');
+            var scrub = e.currentTarget;
+            if (!video || !scrub) return;
+            var total = video.duration || 38.2;
+            var rect = scrub.getBoundingClientRect();
+            var clickX = e.clientX - rect.left;
+            var pct = Math.max(0, Math.min(1, clickX / rect.width));
+            video.currentTime = pct * total;
+            updatePlayerProgress();
         }
 
         (function() {
             var video = document.getElementById('hero-demo-video');
-            var overlay = document.getElementById('hero-video-overlay');
-            if (video && overlay) {
+            if (video) {
                 video.addEventListener('play', function() {
-                    overlay.classList.add('playing');
+                    syncPlayerPlayUI(true);
                 });
                 video.addEventListener('pause', function() {
-                    overlay.classList.remove('playing');
+                    syncPlayerPlayUI(false);
                 });
                 video.addEventListener('ended', function() {
-                    overlay.classList.remove('playing');
+                    syncPlayerPlayUI(false);
+                    updatePlayerProgress();
                 });
+                video.addEventListener('timeupdate', updatePlayerProgress);
+                video.addEventListener('loadedmetadata', updatePlayerProgress);
                 video.addEventListener('volumechange', function() {
                     updateHeroMuteUI(video.muted || video.volume === 0);
                 });
