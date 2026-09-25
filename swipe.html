@@ -3756,7 +3756,8 @@
             if (poolAvailableCount === null) return;
             const el = document.getElementById('stat-total');
             if (!el) return;
-            const displayCount = poolAvailableCount;
+            // Demo-only display override, mosco's account only (explicit request 2026-09-25).
+            const displayCount = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') ? 158 : poolAvailableCount;
             el.textContent = displayCount.toLocaleString();
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
@@ -3777,12 +3778,12 @@
             const rejected = rows.filter(j => j.status === 'rejected').length;
             // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
             const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
-            // Applied is NOT inflated -- it reflects the real live count (same
-            // source as the Status dropdown) so real swipes/applications
-            // increment it. Only the outcome stats below stay manufactured.
-            const displayApplied = applied;
-            const displayInterviewing = isDemoAccount ? 14 : interviewing;
-            const displayOffer = isDemoAccount ? 2 : onOffer;
+            // For every other account Applied is the real live count. Mosco's
+            // demo figures (explicit request 2026-09-25): Applied 40,
+            // Interview ("in review") 2, Offer 0. Display only -- no DB rows change.
+            const displayApplied = isDemoAccount ? 40 : applied;
+            const displayInterviewing = isDemoAccount ? 2 : interviewing;
+            const displayOffer = isDemoAccount ? 0 : onOffer;
             const displayRejected = isDemoAccount ? 21 : rejected;
 
             if (rows.length === 0 && poolAvailableCount === null && getCachedPoolCount() === null) {
