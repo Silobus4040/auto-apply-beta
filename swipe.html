@@ -1892,7 +1892,7 @@
             </div>
             <h2 style="font-size: 1.35rem; font-weight: 900; margin-bottom: 0.6rem; letter-spacing: -0.4px;">You're out of credit</h2>
             <p id="limit-reached-modal-body" style="color: #52525B; font-size: 0.92rem; line-height: 1.5; margin-bottom: 1.75rem;">You've used every application included in your plan.</p>
-            <button class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800; margin-bottom: 0.75rem;" onclick="closeModal('limit-reached-modal'); openUpgradeModal();">Add More Credit &rarr;</button>
+            <button class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000; font-size: 0.9rem; padding: 0.95rem; font-weight: 800; margin-bottom: 0.75rem;" onclick="logUpgradeEvent('upgrade_click', { via: 'limit_reached_modal' }); closeModal('limit-reached-modal'); openUpgradeModal();">Add More Credit &rarr;</button>
             <button style="width: 100%; background: none; border: none; color: #71717A; font-size: 0.85rem; font-weight: 700; cursor: pointer; padding: 0.5rem;" onclick="closeModal('limit-reached-modal')">Maybe later</button>
         </div>
     </div>
@@ -1932,7 +1932,17 @@
             updateUpgradePrice();
         }
 
+        // Upgrade funnel log (our own table, upgrade_events; PostHog is not queryable by our tools).
+        // Fire-and-forget: a failure here can never block the upgrade flow.
+        const UPGRADE_LOG_SOURCE = 'swipe';
+        function logUpgradeEvent(event, meta) {
+            try {
+                supabaseClient.rpc('log_upgrade_event', { p_event: event, p_source: UPGRADE_LOG_SOURCE, p_meta: meta || {} }).then(function () {}, function () {});
+            } catch (e) {}
+        }
+
         function openUpgradeModal() {
+            logUpgradeEvent('upgrade_modal_open', {});
             const slider = document.getElementById('upgrade-slider');
             const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
             const titleEl = document.getElementById('upgrade-modal-title');
@@ -1971,6 +1981,7 @@
             const btn = document.getElementById('upgrade-checkout-btn');
             btn.disabled = true;
             btn.textContent = 'Preparing checkout...';
+            logUpgradeEvent('checkout_start', { jobs: jobs, currency: localCurrency });
 
             try {
                 const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
@@ -1998,14 +2009,18 @@
 
                 const data = await res.json();
                 if (!res.ok) {
+                    logUpgradeEvent('checkout_error', { status: res.status });
                     alert(data.error || 'Failed to initialize checkout.');
                     btn.disabled = false;
                     btn.textContent = 'Proceed to Checkout →';
                     return;
                 }
 
+                logUpgradeEvent('checkout_created', { jobs: jobs, currency: localCurrency });
+                await new Promise(function (r) { setTimeout(r, 300); }); // let the log request leave before the page navigates away
                 window.location.href = data.checkout_url;
             } catch (err) {
+                logUpgradeEvent('checkout_error', { status: 0, message: 'network' });
                 console.error('Checkout error:', err);
                 alert('Connection error. Please try again.');
                 btn.disabled = false;
@@ -2039,7 +2054,7 @@
         function applyUpgradeLink(btn) {
             if (!btn) return;
             btn.href = 'javascript:void(0)';
-            btn.onclick = () => openUpgradeModal();
+            btn.onclick = () => { logUpgradeEvent('upgrade_click', { via: 'nav_button', label: (btn.textContent || '').trim() }); openUpgradeModal(); };
             btn.classList.add('nav-upgrade-primary');
             btn.removeAttribute('style');
         }
@@ -3695,6 +3710,7 @@
         // routes straight into the existing Upgrade/checkout flow instead of
         // being a dead end.
         function showLimitReachedModal(applicationsLimit) {
+            logUpgradeEvent('limit_reached_shown', { limit: applicationsLimit || null });
             const body = document.getElementById('limit-reached-modal-body');
             if (body) {
                 const limit = applicationsLimit || (userProfile && userProfile.applications_limit) || 0;

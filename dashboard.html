@@ -1944,7 +1944,17 @@
             updateUpgradePrice();
         }
 
+        // Upgrade funnel log (our own table, upgrade_events; PostHog is not queryable by our tools).
+        // Fire-and-forget: a failure here can never block the upgrade flow.
+        const UPGRADE_LOG_SOURCE = 'dashboard';
+        function logUpgradeEvent(event, meta) {
+            try {
+                supabaseClient.rpc('log_upgrade_event', { p_event: event, p_source: UPGRADE_LOG_SOURCE, p_meta: meta || {} }).then(function () {}, function () {});
+            } catch (e) {}
+        }
+
         function openUpgradeModal() {
+            logUpgradeEvent('upgrade_modal_open', {});
             const slider = document.getElementById('upgrade-slider');
             const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
             const titleEl = document.getElementById('upgrade-modal-title');
@@ -1983,6 +1993,7 @@
             const btn = document.getElementById('upgrade-checkout-btn');
             btn.disabled = true;
             btn.textContent = 'Preparing checkout...';
+            logUpgradeEvent('checkout_start', { jobs: jobs, currency: localCurrency });
 
             try {
                 const isPremium = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
@@ -2010,14 +2021,18 @@
 
                 const data = await res.json();
                 if (!res.ok) {
+                    logUpgradeEvent('checkout_error', { status: res.status });
                     alert(data.error || 'Failed to initialize checkout.');
                     btn.disabled = false;
                     btn.textContent = 'Proceed to Checkout →';
                     return;
                 }
 
+                logUpgradeEvent('checkout_created', { jobs: jobs, currency: localCurrency });
+                await new Promise(function (r) { setTimeout(r, 300); }); // let the log request leave before the page navigates away
                 window.location.href = data.checkout_url;
             } catch (err) {
+                logUpgradeEvent('checkout_error', { status: 0, message: 'network' });
                 console.error('Checkout error:', err);
                 alert('Connection error. Please try again.');
                 btn.disabled = false;
@@ -2135,7 +2150,7 @@
         function applyUpgradeLink(btn) {
             if (!btn) return;
             btn.href = 'javascript:void(0)';
-            btn.onclick = () => openUpgradeModal();
+            btn.onclick = () => { logUpgradeEvent('upgrade_click', { via: 'nav_button', label: (btn.textContent || '').trim() }); openUpgradeModal(); };
             btn.classList.add('nav-upgrade-primary');
             btn.removeAttribute('style');
         }
