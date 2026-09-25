@@ -2562,6 +2562,10 @@
             } catch (e) {}
         }
         function loadCachedDeckJobs(userId) {
+            // Demo account only: never trust the browser-saved deck, always load
+            // the real deck from the server. A saved deck survives sign-out and
+            // kept showing the old cards after the demo profile was changed.
+            if (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') return null;
             try {
                 const versionRaw = localStorage.getItem(`deckCacheVersion_${userId}`);
                 if (parseInt(versionRaw, 10) !== DECK_CACHE_VERSION) return null;
