@@ -838,6 +838,36 @@
 
         let currentUserId = null;
         let currentUserEmail = null;
+
+        // Progress mirror: copies the onboarding answers kept in localStorage
+        // (onb_*) to the server so we can see where people stop and so they can
+        // resume on another device. Every call is wrapped so a failure here can
+        // never block onboarding.
+        let onbMirrorEnabled = false;
+        let onbMirrorTimer = null;
+        function onbPageName() { return profileOnly ? 'preferences' : (detailsOnly ? 'details' : 'resume_roles'); }
+        function onbCollect() {
+            const d = {};
+            try { Object.keys(localStorage).forEach(k => { if (k.startsWith('onb_')) d[k] = localStorage.getItem(k); }); } catch (e) {}
+            return d;
+        }
+        async function onbMirror(page) {
+            if (!onbMirrorEnabled) return;
+            try { await supabaseClient.rpc('save_onboarding_progress', { p_page: page || onbPageName(), p_data: onbCollect() }); } catch (e) {}
+        }
+        function onbMirrorSoon() {
+            if (!onbMirrorEnabled) return;
+            clearTimeout(onbMirrorTimer);
+            onbMirrorTimer = setTimeout(() => onbMirror(), 1500);
+        }
+        try {
+            const origSetItem = Storage.prototype.setItem;
+            Storage.prototype.setItem = function (k, v) {
+                origSetItem.call(this, k, v);
+                try { if (this === window.localStorage && String(k).indexOf('onb_') === 0) onbMirrorSoon(); } catch (e) {}
+            };
+        } catch (e) {}
+
         let selectedResumeFile = null;
         let extractionStageTimer = null;
 
@@ -1751,6 +1781,27 @@
             const { data: launchState } = await supabaseClient.from('profiles').select('launch_waitlisted_at').eq('id', currentUserId).maybeSingle();
             if (launchState?.launch_waitlisted_at) { window.location.href = 'waitlist.html'; return; }
 
+            // Progress mirror (unfinished signups only). If this browser has no saved
+            // answers but the server does (new device / cleared browser), restore them
+            // and reload once so the page picks them up.
+            if (!(profile && profile.onboarding_complete)) {
+                try {
+                    const hasLocal = Object.keys(localStorage).some(k => k.startsWith('onb_'));
+                    if (!hasLocal && !sessionStorage.getItem('rr_onb_restored')) {
+                        const { data: saved } = await supabaseClient.from('onboarding_progress').select('data, furthest_page').eq('user_id', currentUserId).maybeSingle();
+                        if (saved && saved.furthest_page !== 'finished' && saved.data && Object.keys(saved.data).length > 0) {
+                            sessionStorage.setItem('rr_onb_restored', '1');
+                            Object.keys(saved.data).forEach(k => { if (k.startsWith('onb_')) localStorage.setItem(k, saved.data[k]); });
+                            window.location.reload();
+                            return;
+                        }
+                    }
+                } catch (e) {}
+                onbMirrorEnabled = true;
+                onbMirror();
+                try { if (window.posthog) posthog.capture('onboarding_page_viewed', { page: onbPageName() }); } catch (e) {}
+            }
+
             if (profile && profile.resume_url) {
                 localStorage.setItem('onb_resume_url', profile.resume_url);
                 const resumeStatus = document.getElementById('resume-status');
@@ -2442,6 +2493,11 @@
 
                 // PostHog: onboarding finished — the key activation funnel step
                 if (window.posthog) posthog.capture('onboarding_completed');
+
+                // Mark finished on the server (snapshot is taken synchronously), then stop mirroring
+                clearTimeout(onbMirrorTimer);
+                onbMirror('finished');
+                onbMirrorEnabled = false;
 
                 // Clear cached data on success
                 Object.keys(localStorage).forEach(key => { if (key.startsWith('onb_')) localStorage.removeItem(key); });
