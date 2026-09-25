@@ -1786,13 +1786,20 @@
             // and reload once so the page picks them up.
             if (!(profile && profile.onboarding_complete)) {
                 try {
-                    const hasLocal = Object.keys(localStorage).some(k => k.startsWith('onb_'));
+                    // onb_owner is a marker the site sets on every browser, so it doesn't count as saved answers
+                    const hasLocal = Object.keys(localStorage).some(k => k.startsWith('onb_') && k !== 'onb_owner');
                     if (!hasLocal && !sessionStorage.getItem('rr_onb_restored')) {
                         const { data: saved } = await supabaseClient.from('onboarding_progress').select('data, furthest_page').eq('user_id', currentUserId).maybeSingle();
-                        if (saved && saved.furthest_page !== 'finished' && saved.data && Object.keys(saved.data).length > 0) {
+                        const savedKeys = saved && saved.data ? Object.keys(saved.data).filter(k => k.startsWith('onb_') && k !== 'onb_owner') : [];
+                        if (saved && saved.furthest_page !== 'finished' && savedKeys.length > 0) {
                             sessionStorage.setItem('rr_onb_restored', '1');
-                            Object.keys(saved.data).forEach(k => { if (k.startsWith('onb_')) localStorage.setItem(k, saved.data[k]); });
-                            window.location.reload();
+                            savedKeys.forEach(k => localStorage.setItem(k, saved.data[k]));
+                            // Resume at the page they had reached (page 1 has nothing to continue from without the file)
+                            if ((saved.furthest_page === 'details' || saved.furthest_page === 'preferences') && !profileMode) {
+                                window.location.href = 'onboarding.html?step=details';
+                            } else {
+                                window.location.reload();
+                            }
                             return;
                         }
                     }
