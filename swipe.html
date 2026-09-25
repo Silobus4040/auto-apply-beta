@@ -3783,10 +3783,10 @@
             // Demo-only display override, mosco's account only (Nigeria/EMEA pitch demo).
             const isDemoAccount = cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
             // For every other account Applied is the real live count. Mosco's
-            // demo figures (explicit request 2026-09-25): Applied 40,
-            // Interview ("in review") 2, Offer 0. Display only -- no DB rows change.
-            const displayApplied = isDemoAccount ? 40 : applied;
-            const displayInterviewing = isDemoAccount ? 2 : interviewing;
+            // demo figures (explicit request 2026-09-25): Applied 0,
+            // Interview ("in review") 0, Offer 0. Display only -- no DB rows change.
+            const displayApplied = isDemoAccount ? 0 : applied;
+            const displayInterviewing = isDemoAccount ? 0 : interviewing;
             const displayOffer = isDemoAccount ? 0 : onOffer;
             const displayRejected = isDemoAccount ? 21 : rejected;
 
