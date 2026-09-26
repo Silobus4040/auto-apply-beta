@@ -3429,7 +3429,23 @@
             return true;
         }
 
+        // A job can only be in flight once: finishSwipe advances the deck only after several
+        // network calls, so a second swipe on the same card in that window (a double tap, a
+        // manual swipe during the Auto-Apply run, a second tab's event) used to submit the
+        // same application again and charge it again. Ignore repeats until the first finishes.
+        const swipesInFlight = new Set();
         async function finishSwipe(card, job, decision) {
+            const inFlightKey = job && job.id;
+            if (inFlightKey && swipesInFlight.has(inFlightKey)) return true;
+            if (inFlightKey) swipesInFlight.add(inFlightKey);
+            try {
+                return await finishSwipeInner(card, job, decision);
+            } finally {
+                if (inFlightKey) swipesInFlight.delete(inFlightKey);
+            }
+        }
+
+        async function finishSwipeInner(card, job, decision) {
             if (decision === 'apply') {
                 try {
                     await waitForPendingSkillWrites();
@@ -3447,7 +3463,15 @@
                 // couldn't verify pass silently.
                 const { data: { user: gateUser } } = await supabaseClient.auth.getUser();
                 if (!gateUser) return false;
-                const usage = await fetchFreshApplicationUsage(gateUser.id);
+                // apply_slots_left() also counts right swipes still being processed (a credit is only
+                // charged minutes later, when the bot finishes), so a fast swiper cannot get past the
+                // limit. Falls back to the old credit-only check if the function is unavailable.
+                let usage = null;
+                try {
+                    const { data: slots } = await supabaseClient.rpc('apply_slots_left');
+                    if (slots && typeof slots.left === 'number') usage = { used: Number(slots.used) + Number(slots.pending), limit: Number(slots.limit) };
+                } catch (e) {}
+                if (!usage) usage = await fetchFreshApplicationUsage(gateUser.id);
                 if (!usage || usage.used >= usage.limit) {
                     showLimitReachedModal(usage ? usage.limit : null);
                     return false;
