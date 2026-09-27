@@ -2552,7 +2552,10 @@
         // this version (2) fixes a bug where the cached index never advanced
         // past 0 after a swipe, so any cache written by the pre-fix code is
         // stale and must be discarded rather than rendered as-is.
-        const DECK_CACHE_VERSION = 3;
+        // Version 4 (2026-09-27): the server now hides jobs below the relevance
+        // floor and returns the deck best-fit first, so every deck saved by the
+        // old code (weak jobs, newest-first order) is discarded once.
+        const DECK_CACHE_VERSION = 4;
 
         function cacheDeckJobs(userId, jobs, index) {
             try {
