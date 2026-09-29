@@ -2555,7 +2555,10 @@
         // Version 4 (2026-09-27): the server now hides jobs below the relevance
         // floor and returns the deck best-fit first, so every deck saved by the
         // old code (weak jobs, newest-first order) is discarded once.
-        const DECK_CACHE_VERSION = 4;
+        // Version 5 (2026-09-29): the server's final deck check now uses the matching v2
+        // rules (location "unclear" only shows once Jev confirmed it open for the user's
+        // country), so decks saved before that may hold jobs the server no longer sends.
+        const DECK_CACHE_VERSION = 5;
 
         function cacheDeckJobs(userId, jobs, index) {
             try {
@@ -3060,6 +3063,11 @@
         }
 
         function buildGeoBadge(job) {
+            // Set by match-pool-jobs (v71+) when Jev's location check confirmed the job is
+            // open to this user's country -- more specific than the raw classifier scope.
+            if (job.geo_open_verified_for) {
+                return `<div class="swipe-card-geo-badge geo-anywhere">✅ Remote — open to ${escapeHtml(job.geo_open_verified_for)} (checked)</div>`;
+            }
             const scope = job.remote_geo_scope;
             if (!scope || scope === 'not_remote') return '';
             if (scope === 'anywhere') {
