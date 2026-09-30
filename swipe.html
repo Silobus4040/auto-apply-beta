@@ -1795,7 +1795,10 @@
                 <label style="display: block; font-size: 0.75rem; text-transform: uppercase; font-weight: 700; color: #71717A; margin-bottom: 0.5rem;">Workplace Types</label>
                 <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
                     <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
-                        <input type="checkbox" name="set-wp" value="Remote"> Remote
+                        <input type="checkbox" name="set-wp" value="Remote Local"> Remote (my area)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
+                        <input type="checkbox" name="set-wp" value="Remote Global"> Remote (worldwide)
                     </label>
                     <label style="display: flex; align-items: center; gap: 0.5rem; background: rgba(0,0,0,0.03); padding: 0.5rem 1rem; border-radius: 20px; cursor: pointer; border: 1px solid var(--border);">
                         <input type="checkbox" name="set-wp" value="Hybrid"> Hybrid
@@ -3879,13 +3882,26 @@
 
         async function openSettingsModal() {
             const { data: { user } } = await supabaseClient.auth.getUser();
-            const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, country, workplace_type').eq('id', user.id).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, country, workplace_type, remote_scope').eq('id', user.id).single();
             if (profile) {
                 document.getElementById('set-roles').value = profile.target_job_titles || '';
                 document.getElementById('set-countries').value = profile.country || profile.target_location || '';
-                const wps = (profile.workplace_type || '').toLowerCase();
-                document.querySelectorAll('input[name="set-wp"]').forEach(cb => {
-                    cb.checked = wps.includes(cb.value.toLowerCase());
+                const types = (profile.workplace_type || '').split(',').map(t => t.trim());
+                document.querySelectorAll('input[name="set-wp"]').forEach(cb => { cb.checked = false; });
+                // A stored 'Remote' has to be expanded back into the two UI
+                // checkboxes using remote_scope, same as onboarding does --
+                // rows saved before the local/global split have no scope, so
+                // treat those as "open to both" rather than silently
+                // unticking the remote preference the user actually set.
+                if (types.includes('Remote')) {
+                    const scope = profile.remote_scope;
+                    const check = (value) => { const cb = document.querySelector(`input[name="set-wp"][value="${value}"]`); if (cb) cb.checked = true; };
+                    if (scope === 'local') check('Remote Local');
+                    else if (scope === 'global') check('Remote Global');
+                    else { check('Remote Local'); check('Remote Global'); }
+                }
+                ['Hybrid', 'On-site'].forEach(value => {
+                    if (types.includes(value)) { const cb = document.querySelector(`input[name="set-wp"][value="${value}"]`); if (cb) cb.checked = true; }
                 });
             }
             document.getElementById('settings-modal').classList.add('active');
@@ -3898,9 +3914,25 @@
                 const { data: { user } } = await supabaseClient.auth.getUser();
                 const roles = document.getElementById('set-roles').value.trim();
                 const country = document.getElementById('set-countries').value.trim();
-                const wps = Array.from(document.querySelectorAll('input[name="set-wp"]:checked')).map(cb => cb.value).join(', ');
-                
-                let updateData = { target_job_titles: roles, country: country, target_location: country, workplace_type: wps };
+                const wpsChecked = Array.from(document.querySelectorAll('input[name="set-wp"]:checked')).map(cb => cb.value);
+
+                // Same collapse as onboarding: job_pool only stores
+                // workplace_type as Remote | Hybrid | On-site, so the two
+                // remote checkboxes fold back into one 'Remote' entry and
+                // the local-vs-global choice is carried in remote_scope.
+                const wantsRemoteLocal = wpsChecked.includes('Remote Local');
+                const wantsRemoteGlobal = wpsChecked.includes('Remote Global');
+                const workplaceTypes = [];
+                if (wantsRemoteLocal || wantsRemoteGlobal) workplaceTypes.push('Remote');
+                if (wpsChecked.includes('Hybrid')) workplaceTypes.push('Hybrid');
+                if (wpsChecked.includes('On-site')) workplaceTypes.push('On-site');
+                const remoteScope = (wantsRemoteLocal && wantsRemoteGlobal) ? 'both'
+                    : wantsRemoteLocal ? 'local'
+                    : wantsRemoteGlobal ? 'global'
+                    : null;
+                const wps = workplaceTypes.join(', ');
+
+                let updateData = { target_job_titles: roles, country: country, target_location: country, workplace_type: wps, remote_scope: remoteScope };
 
                 const fileInput = document.getElementById('set-resume');
                 if (fileInput.files.length > 0) {
