@@ -2638,10 +2638,16 @@
             const alreadyHasJobs = pooledJobs.length > 0;
             const MAX_RETRIES = 18;
             const RETRY_DELAY = 10000;
+            let lastTotalAvailable = 0;
+            let lastPendingAssigned = 0;
             for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
                 try {
                     const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
                     const { jobs, totalAvailable, pendingAssignedCount } = unwrapPoolResponse(data);
+                    if (!error) {
+                        if (totalAvailable !== null) lastTotalAvailable = totalAvailable;
+                        if (typeof pendingAssignedCount === 'number') lastPendingAssigned = pendingAssignedCount;
+                    }
                     if (totalAvailable !== null) {
                         poolAvailableCount = totalAvailable;
                         applyPoolAvailableToStats();
@@ -2724,6 +2730,13 @@
                     emptyState.style.display = '';
                     const h3 = emptyState.querySelector('h3');
                     const p = emptyState.querySelector('p');
+                    // Matches exist but were not scored in time: say so. "No matching jobs"
+                    // is only true when the server itself reported nothing matched or pending.
+                    if (lastTotalAvailable > 0 || lastPendingAssigned > 0) {
+                        if (h3) h3.textContent = 'Still finishing your matches';
+                        if (p) p.innerHTML = `We found ${lastTotalAvailable || lastPendingAssigned} roles that match your preferences and are still checking how well each one fits you. This is taking longer than usual. <a href="javascript:void(0)" onclick="location.reload()" style="color: var(--secondary); font-weight: 700;">Check again →</a>`;
+                        return;
+                    }
                     if (h3) h3.textContent = 'No Matching Jobs Found Yet';
                     if (p) p.innerHTML = `Rover completed its first scan but didn't find any active listings matching your criteria. It keeps scanning in the background — new matches will appear here the moment they're found.<br><br>Try confirming your country of residence or unchecking a workplace-type filter if you've only selected Remote — our matching already catches title variants, so there's no need to re-add job titles. <a href="javascript:void(0)" onclick="openSettingsModal()" style="color: var(--secondary); font-weight: 700;">Adjust your target settings →</a>`;
                 }
