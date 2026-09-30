@@ -2722,7 +2722,7 @@
                     const h3 = emptyState.querySelector('h3');
                     const p = emptyState.querySelector('p');
                     if (h3) h3.textContent = 'No Matching Jobs Found Yet';
-                    if (p) p.innerHTML = `Rover completed its first scan but didn't find any active listings matching your criteria. It keeps scanning in the background — new matches will appear here the moment they're found.<br><br>Try widening your search: add a few more job titles (including close variations of your role), confirm your country of residence, or uncheck a workplace-type filter if you've only selected Remote. <a href="onboarding.html?edit=true" style="color: var(--secondary); font-weight: 700;">Adjust your target settings →</a>`;
+                    if (p) p.innerHTML = `Rover completed its first scan but didn't find any active listings matching your criteria. It keeps scanning in the background — new matches will appear here the moment they're found.<br><br>Try confirming your country of residence or unchecking a workplace-type filter if you've only selected Remote — our matching already catches title variants, so there's no need to re-add job titles. <a href="javascript:void(0)" onclick="openSettingsModal()" style="color: var(--secondary); font-weight: 700;">Adjust your target settings →</a>`;
                 }
             }
         }
