@@ -1537,43 +1537,51 @@
             const stripLabel = seg => seg.replace(/^(?:current\s+)?(?:location|address|residence|city|based\s+in)\s*:?\s*/i, '').trim();
             const isPlaceLike = seg => seg.length > 0 && seg.length <= 40 && /^[A-Za-z][A-Za-z .'-]*$/.test(seg);
             for (const line of lines) {
-                for (const delimiter of [',', '|']) {
-                    // Split first, validate per-segment after -- a whole-line
-                    // reject on "contains @" would also throw out a valid
-                    // location segment that merely shares a line with an
-                    // email/phone in a different segment (common on a single
-                    // "City, Country | email | phone" contact line).
-                    const segments = line.split(delimiter).map((seg, i) => i === 0 ? stripLabel(seg.trim()) : seg.trim()).filter(Boolean);
-                    if (segments.length < 2) continue;
-                    const countryIndex = segments.findIndex(seg => KNOWN_COUNTRY_NAMES.some(name => name.toLowerCase() === seg.toLowerCase()));
-                    // Only look at a country within the first few segments (city
-                    // [, state] , country) -- trailing segments after it (email,
-                    // phone, job title) are common and shouldn't disqualify the
-                    // line, but a country buried deep in a long line is more
-                    // likely a false positive than a real address.
-                    if (countryIndex < 1 || countryIndex > 2) continue;
-                    const placeSegments = segments.slice(0, countryIndex);
-                    if (!placeSegments.every(isPlaceLike)) continue;
-                    const country = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === segments[countryIndex].toLowerCase());
-                    if (placeSegments.length >= 2) return { city: placeSegments[0], state: placeSegments[1], country };
-                    // A single segment before the country is usually a city
-                    // ("Accra, Ghana") -- but when it names a region outright
-                    // ("Lagos State, Nigeria", "Ashanti Region, Ghana"), put
-                    // it in State instead so City doesn't get a region name.
-                    const REGION_KEYWORD = /\b(?:state|region|province|county|territory|prefecture|governorate|emirate)$/i;
-                    return REGION_KEYWORD.test(placeSegments[0])
-                        ? { city: '', state: placeSegments[0], country }
-                        : { city: placeSegments[0], state: '', country };
-                }
+                // Split on comma AND pipe together, not one delimiter at a
+                // time -- a real header line is often "City, Country | phone
+                // | email" (comma inside one pipe-separated field). Splitting
+                // by only one character at a time never isolates "Country" as
+                // its own segment: the comma-only split leaves it glued to
+                // the phone/email tail, and the pipe-only split leaves it
+                // glued to "City,". That made the country check below miss a
+                // perfectly good header address and fall through to the
+                // unscoped US fallback further down, which could then match a
+                // "City, ST" from an unrelated part of the resume (e.g. an
+                // employer's city in the Experience section) instead.
+                const segments = line.split(/[,|]/).map((seg, i) => i === 0 ? stripLabel(seg.trim()) : seg.trim()).filter(Boolean);
+                if (segments.length < 2) continue;
+                const countryIndex = segments.findIndex(seg => KNOWN_COUNTRY_NAMES.some(name => name.toLowerCase() === seg.toLowerCase()));
+                // Only look at a country within the first few segments (city
+                // [, state] , country) -- trailing segments after it (email,
+                // phone, job title) are common and shouldn't disqualify the
+                // line, but a country buried deep in a long line is more
+                // likely a false positive than a real address.
+                if (countryIndex < 1 || countryIndex > 2) continue;
+                const placeSegments = segments.slice(0, countryIndex);
+                if (!placeSegments.every(isPlaceLike)) continue;
+                const country = KNOWN_COUNTRY_NAMES.find(name => name.toLowerCase() === segments[countryIndex].toLowerCase());
+                if (placeSegments.length >= 2) return { city: placeSegments[0], state: placeSegments[1], country };
+                // A single segment before the country is usually a city
+                // ("Accra, Ghana") -- but when it names a region outright
+                // ("Lagos State, Nigeria", "Ashanti Region, Ghana"), put
+                // it in State instead so City doesn't get a region name.
+                const REGION_KEYWORD = /\b(?:state|region|province|county|territory|prefecture|governorate|emirate)$/i;
+                return REGION_KEYWORD.test(placeSegments[0])
+                    ? { city: '', state: placeSegments[0], country }
+                    : { city: placeSegments[0], state: '', country };
             }
 
             // US fallback: "City, ST" / "City, State Name" without a trailing
-            // country name (very common on US resumes).
+            // country name (very common on US resumes). Scoped to the header
+            // block only (like the lone-state fallback below it) -- an
+            // unscoped scan would just as happily match an employer's city
+            // in the Experience section ("TechGrowth Inc. | San Francisco,
+            // CA") and mistake it for the candidate's own address.
             const cityStatePattern = [
                 new RegExp(`\\b([A-Za-z][A-Za-z .'-]{1,40}),\\s*(${STATE_ABBR_PATTERN})\\b`),
                 new RegExp(`\\b([A-Za-z][A-Za-z .'-]{1,40}),\\s*(${STATE_NAME_PATTERN})\\b`, 'i')
             ];
-            for (const line of lines) {
+            for (const line of lines.slice(0, 10)) {
                 for (const pattern of cityStatePattern) {
                     const match = line.match(pattern);
                     if (match) return { city: match[1], state: match[2], country: 'United States' };
