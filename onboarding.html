@@ -646,7 +646,7 @@
                             <div class="form-group">
                                 <label>Desired Annual Salary</label>
                                 <div style="position: relative;">
-                                    <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem;">$</span>
+                                    <span id="salary-currency-symbol" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem; white-space: nowrap;">$</span>
                                     <input type="text" id="salary" placeholder="120000" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 </div>
                             </div>
@@ -654,15 +654,48 @@
                                 <label>Target Currency</label>
                                 <div class="select-wrapper">
                                     <select id="target-currency">
+                                        <!-- Covers exactly the 38 currencies used across RoleRover's
+                                             50 supported countries (myrolerover.com/#countries) --
+                                             USD/NGN pinned first since most users price in one of
+                                             those two; the rest are alphabetical by code. -->
                                         <option value="USD">USD ($)</option>
                                         <option value="NGN">NGN (₦)</option>
+                                        <option value="AED">AED (AED)</option>
+                                        <option value="AUD">AUD (A$)</option>
+                                        <option value="BGN">BGN (лв)</option>
+                                        <option value="BRL">BRL (R$)</option>
+                                        <option value="CAD">CAD (C$)</option>
+                                        <option value="CHF">CHF (CHF)</option>
+                                        <option value="CNY">CNY (¥)</option>
+                                        <option value="COP">COP (COL$)</option>
+                                        <option value="CRC">CRC (₡)</option>
+                                        <option value="CZK">CZK (Kč)</option>
+                                        <option value="DKK">DKK (kr)</option>
+                                        <option value="EGP">EGP (E£)</option>
                                         <option value="EUR">EUR (€)</option>
                                         <option value="GBP">GBP (£)</option>
-                                        <option value="CAD">CAD (C$)</option>
-                                        <option value="AUD">AUD (A$)</option>
+                                        <option value="HUF">HUF (Ft)</option>
+                                        <option value="IDR">IDR (Rp)</option>
+                                        <option value="ILS">ILS (₪)</option>
                                         <option value="INR">INR (₹)</option>
                                         <option value="JPY">JPY (¥)</option>
+                                        <option value="KRW">KRW (₩)</option>
+                                        <option value="MXN">MXN (MX$)</option>
+                                        <option value="MYR">MYR (RM)</option>
+                                        <option value="NOK">NOK (kr)</option>
+                                        <option value="NZD">NZD (NZ$)</option>
+                                        <option value="PHP">PHP (₱)</option>
+                                        <option value="PKR">PKR (₨)</option>
+                                        <option value="PLN">PLN (zł)</option>
+                                        <option value="RON">RON (lei)</option>
+                                        <option value="SAR">SAR (SAR)</option>
+                                        <option value="SEK">SEK (kr)</option>
                                         <option value="SGD">SGD (S$)</option>
+                                        <option value="THB">THB (฿)</option>
+                                        <option value="TRY">TRY (₺)</option>
+                                        <option value="TWD">TWD (NT$)</option>
+                                        <option value="VND">VND (₫)</option>
+                                        <option value="ZAR">ZAR (R)</option>
                                         <option value="CUSTOM">Other (type currency code)</option>
                                     </select>
                                 </div>
@@ -1112,13 +1145,43 @@
         const currencySelectEl = document.getElementById('target-currency');
         const currencyCustomInput = document.getElementById('target-currency-custom');
         const currencyCustomHint = document.getElementById('currency-custom-hint');
+        const salaryCurrencySymbolEl = document.getElementById('salary-currency-symbol');
+        const salaryInputEl = document.getElementById('salary');
+
+        // Derived from the select's own option text ("NGN (₦)") rather than a
+        // second hardcoded list, so adding/renaming a currency option is the
+        // only place that needs editing -- same pattern as KNOWN_COUNTRY_NAMES
+        // and KNOWN_PHONE_CODES above. The "Other" option has no real symbol
+        // in its parentheses, so it's excluded rather than mapped.
+        const CURRENCY_SYMBOLS = Object.fromEntries(
+            Array.from(currencySelectEl.options)
+                .filter(opt => opt.value && opt.value !== 'CUSTOM')
+                .map(opt => [opt.value, (opt.text.match(/\(([^)]+)\)/) || [, opt.value])[1]])
+        );
+
+        // The salary "$" was previously a static character that never changed
+        // with the selected currency, showing "$" even for NGN/EUR/etc. This
+        // keeps it in sync with whichever currency is actually selected (or
+        // typed into the custom-code field), and widens the input's left
+        // padding to fit symbols longer than one character ("KSh", "CHF").
+        function updateSalaryCurrencySymbol() {
+            if (!salaryCurrencySymbolEl || !salaryInputEl) return;
+            const isCustom = currencySelectEl.value === 'CUSTOM';
+            const symbol = isCustom
+                ? (currencyCustomInput.value.trim().toUpperCase() || '#')
+                : (CURRENCY_SYMBOLS[currencySelectEl.value] || currencySelectEl.value);
+            salaryCurrencySymbolEl.textContent = symbol;
+            salaryInputEl.style.paddingLeft = (salaryCurrencySymbolEl.offsetWidth + 28) + 'px';
+        }
 
         function updateCurrencyCustomVisibility() {
             const isCustom = currencySelectEl.value === 'CUSTOM';
             currencyCustomInput.style.display = isCustom ? 'block' : 'none';
             currencyCustomHint.style.display = isCustom ? 'block' : 'none';
+            updateSalaryCurrencySymbol();
         }
         currencySelectEl.addEventListener('change', updateCurrencyCustomVisibility);
+        currencyCustomInput.addEventListener('input', updateSalaryCurrencySymbol);
         updateCurrencyCustomVisibility();
 
         const industryCombobox = document.getElementById('industry-combobox');
@@ -2281,6 +2344,11 @@
                 });
             }
         });
+        // The loop above restores target-currency/target-currency-custom
+        // straight from localStorage via `input.value = saved`, which doesn't
+        // fire 'change'/'input' -- so the salary symbol needs an explicit
+        // refresh here to match whatever currency was actually restored.
+        updateCurrencyCustomVisibility();
         if (profileMode) {
             // Resume values are restored after async profile initialization. Retry
             // once the values have settled so covered fields are reliably marked.
