@@ -1468,6 +1468,35 @@
         }
         const KNOWN_COUNTRY_NAMES = getKnownCountryNames();
 
+        // Same dropdown, read for its calling-code values instead of its
+        // names -- used to disambiguate a resume's leading "+N" digits from
+        // the local number that follows it (see matchLeadingPhoneCode).
+        function getKnownPhoneCodes() {
+            const select = document.getElementById('phone-code');
+            if (!select) return new Set();
+            return new Set(Array.from(select.options).map(opt => opt.value).filter(Boolean));
+        }
+        const KNOWN_PHONE_CODES = getKnownPhoneCodes();
+
+        // A greedy "grab up to 3 digits after +" can't tell a real 1- or
+        // 2-digit code (US "+1", UK "+44") from an accidental 3-digit read
+        // once any separator between the code and the local number has been
+        // stripped (the bare-phone fallback below does this to reassemble a
+        // PDF-fragmented digit run) -- e.g. "+1 6883753325" with its space
+        // removed becomes "+16883753325", and a blind \d{1,3} grabs "168",
+        // which isn't a real calling code. Checking against the dropdown's
+        // actual codes, longest first, finds the real boundary instead.
+        function matchLeadingPhoneCode(raw) {
+            const match = raw.match(/^\+(\d{1,3})/);
+            if (!match) return null;
+            const digits = match[1];
+            for (let len = digits.length; len >= 1; len--) {
+                const candidate = digits.slice(0, len);
+                if (KNOWN_PHONE_CODES.has(candidate)) return candidate;
+            }
+            return null;
+        }
+
         function inferResumeRole(lines) {
             const roleWords = /\b(analyst|engineer|developer|designer|manager|director|consultant|specialist|coordinator|administrator|scientist|architect|recruiter|writer|marketer|marketing|sales|product|project|operations|accountant|teacher|nurse|attorney)\b/i;
             return lines.slice(0, 16).map(line => line.replace(/^[•\-–|\s]+/, '').trim())
@@ -1662,10 +1691,10 @@
                 filled += fillIfBlank('last-name', parts.slice(1).join(' ')) ? 1 : 0;
             }
             if (phone) {
-                const phoneCode = phone[0].match(/^\+(\d{1,3})/);
+                const phoneCode = matchLeadingPhoneCode(phone[0]);
                 let cleanPhone = phone[0].replace(/\s+/g, ' ').trim();
                 if (phoneCode) {
-                    cleanPhone = cleanPhone.replace(/^\+\d{1,3}[\s.-]*/, '').trim();
+                    cleanPhone = cleanPhone.replace(new RegExp('^\\+' + phoneCode + '[\\s.-]*'), '').trim();
                 }
                 if (/^0[1-9]/.test(cleanPhone)) {
                     cleanPhone = cleanPhone.replace(/^0/, '');
@@ -1673,7 +1702,7 @@
                 filled += fillIfBlank('phone', cleanPhone) ? 1 : 0;
                 const phoneCodeSelect = document.getElementById('phone-code');
                 if (phoneCode && phoneCodeSelect && !phoneCodeSelect.value) {
-                    const option = Array.from(phoneCodeSelect.options).find(item => item.value === phoneCode[1]);
+                    const option = Array.from(phoneCodeSelect.options).find(item => item.value === phoneCode);
                     if (option) { phoneCodeSelect.value = option.value; localStorage.setItem('onb_phone-code', option.value); filled++; }
                 }
             }
