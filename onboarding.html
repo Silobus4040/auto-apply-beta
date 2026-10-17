@@ -312,17 +312,21 @@
                             <div class="card-title" style="font-size: 0.95rem; margin-top: 1.5rem;"><div class="num" style="background:#F4F4F5;">2</div> Set Your Job Preferences</div>
 
                             <div class="form-group">
-                                <label>Target Job Titles & Experience <span style="color: #FF6B4A;">*</span></label>
-                                <div id="job-titles-container" style="display: flex; flex-direction: column; gap: 0.5rem;">
-                                    <!-- Injected via JS -->
+                                <label>Target Roles <span style="color: #FF6B4A;">*</span></label>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Up to 3 roles, pulled from your resume. Each role shows its category alongside it. Edit a role if it's wrong -- it must match one of our real roles.</p>
+                                <div id="role-slots-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                    <!-- Injected via JS: buildRoleSlots() -->
                                 </div>
-                                <button type="button" class="btn btn-secondary" onclick="addJobTitleField()" style="padding: 0.6rem 1rem; font-size: 0.8rem; margin-top: 0.5rem; margin-bottom: 0;">+ Add Another Role</button>
+                                <div id="category-guardrail" class="category-guardrail" role="status" aria-live="polite"></div>
                             </div>
 
-                            <div class="form-group">
-                                <label>Job Categories <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select every category that fits the roles you want.</p>
-                                <select id="target-role-families" multiple required>
+                            <div class="form-group" style="display:none;">
+                                <!-- Retired 2026-10-17: the old free-standing 31-category multiselect. Replaced by the
+                                     per-role family dropdown inside each role slot above, sourced live from
+                                     std_roles.family instead of this hardcoded list. Left here (hidden, unused)
+                                     only so nothing downstream that still queries #target-role-families by id
+                                     breaks before Phase 4 fully retires profile_role_families. -->
+                                <select id="target-role-families" multiple>
                                     <option value="Sales & Account Management">Sales &amp; Account Management</option>
                                     <option value="Administrative & Executive Support">Administrative &amp; Executive Support</option>
                                     <option value="AI & Machine Learning">AI &amp; Machine Learning</option>
@@ -357,7 +361,6 @@
                                     <option value="Communications & Public Affairs">Communications &amp; Public Affairs</option>
                                     <option value="Workflow Automation & Integrations">Workflow Automation &amp; Integrations</option>
                                 </select>
-                                <div id="category-guardrail" class="category-guardrail" role="status" aria-live="polite"></div>
                             </div>
 
                             <div class="form-group">
@@ -934,202 +937,247 @@
             localStorage.setItem('onb_workplace', JSON.stringify(selected));
         });
 
-        const roleFamilySelectEl = document.getElementById('target-role-families');
-        const roleFamilyChoices = new Choices(roleFamilySelectEl, {
-            removeItemButton: true,
-            placeholder: true,
-            placeholderValue: 'Select job categories',
-            searchPlaceholderValue: 'Search job categories...'
-        });
-        const savedRoleFamilies = localStorage.getItem('onb_target-role-families');
-        if (savedRoleFamilies) {
-            try { roleFamilyChoices.setChoiceByValue(JSON.parse(savedRoleFamilies)); } catch(e) {}
+        // --- Role slots (2026-10-17 redesign) ---
+        // Replaces the old free-text job-title inputs + 31-category multiselect with up to 3
+        // role+category pairs, each locked to a real std_roles row. Role comes first (pre-filled
+        // from the resume where possible); category is derived from whichever role is picked,
+        // never an independent choice. An edited role that doesn't match one of our real roles
+        // cannot lock in -- the user must pick from the real suggestions shown instead.
+        const ROLE_SLOT_MAX = 3;
+        const ROLE_SLOT_CONFIDENCE = 0.15; // same real, data-backed threshold used in the Phase 1 migration
+        const roleSlotsContainer = document.getElementById('role-slots-container');
+        let roleSlotState = []; // [{text, stdRoleId, categoryName, level}]
+
+        async function suggestStdRoles(title) {
+            try {
+                const { data, error } = await supabaseClient.functions.invoke('suggest-std-roles', { body: { title } });
+                if (error) throw error;
+                return data?.suggestions || [];
+            } catch (e) {
+                console.error('suggestStdRoles failed', e);
+                return [];
+            }
         }
 
-        // Use distinctive phrases only. This helps catch accidental category
-        // choices without guessing a person's intended career direction.
-        // Keep this in sync with the backend's public.role_semantic_aliases
-        // table (Supabase) -- that table is the source of truth for which
-        // family a title belongs to (e.g. "Revenue Operations"/"RevOps" ->
-        // Sales & Account Management, not Operations & Supply Chain). This
-        // list drifting out of sync with it is what caused a real bug: any
-        // "X Operations" title fell through to Operations & Supply Chain's
-        // bare 'operations' catch-all instead of its real family.
-        const roleFamilyPhraseHints = {
-            'Sales & Account Management': ['account executive', 'account manager', 'sales representative', 'sales manager', 'business development', 'sales', 'bdr', 'sdr', 'revenue operations', 'revops', 'sales operations'],
-            'Administrative & Executive Support': ['administrative assistant', 'executive assistant', 'office administrator', 'admin assistant', 'receptionist', 'administrative'],
-            'AI & Machine Learning': ['machine learning engineer', 'machine learning scientist', 'ai engineer', 'research scientist', 'machine learning', 'deep learning'],
-            'Backend Engineering': ['backend engineer', 'backend developer', 'server-side engineer', 'backend'],
-            'Content & Technical Writing': ['technical writer', 'content writer', 'copywriter', 'editor', 'academic writer', 'content creator'],
-            'Customer Success & Support': ['customer success manager', 'customer support specialist', 'support engineer', 'customer success', 'customer support', 'client success'],
-            'Cybersecurity & Security Operations': ['security engineer', 'cybersecurity analyst', 'penetration tester', 'soc analyst', 'cybersecurity', 'information security'],
-            'Data & Analytics': ['data analyst', 'business analyst', 'analytics manager', 'market researcher', 'analytics', 'bi analyst'],
-            'Data Engineering': ['data engineer', 'analytics engineer', 'etl developer', 'data platform'],
-            'Data Entry & Transcription': ['data entry', 'transcriptionist', 'transcriber'],
-            'Education & Training': ['teacher', 'instructor', 'learning designer', 'training specialist', 'curriculum developer'],
-            'Engineering Leadership': ['engineering manager', 'head of engineering', 'vp engineering', 'director of engineering', 'cto'],
-            'Finance & Accounting': ['accountant', 'financial analyst', 'bookkeeper', 'finance manager', 'accounting', 'finance'],
-            'AI Data Labelling & Evaluation': ['ai trainer', 'ai evaluator', 'prompt evaluator', 'rlhf', 'data annotator', 'data labeling'],
-            'Frontend & Mobile Engineering': ['frontend engineer', 'front-end engineer', 'frontend developer', 'mobile engineer', 'ios developer', 'android developer', 'react developer', 'frontend', 'mobile developer'],
-            'Full Stack Engineering': ['full stack engineer', 'full-stack engineer', 'full stack developer', 'full-stack developer', 'full stack', 'fullstack'],
-            'Hardware & Robotics Engineering': ['hardware engineer', 'robotics engineer', 'embedded hardware engineer', 'pcb design engineer', 'mechatronics engineer', 'controls engineer'],
-            'Human Resources': ['hr manager', 'human resources', 'people operations', 'hr specialist', 'people partner', 'hr generalist'],
-            'Legal & Compliance': ['compliance officer', 'compliance analyst', 'contracts manager', 'legal counsel', 'paralegal', 'legal operations', 'regulatory affairs'],
-            'Marketing & Growth': ['marketing manager', 'growth marketer', 'digital marketer', 'seo specialist', 'marketing', 'growth manager', 'social media manager', 'marketing operations'],
-            'Motion Design & VFX': ['motion designer', 'visual effects', 'vfx artist', '3d animator', 'animator'],
-            'Operations & Supply Chain': ['operations manager', 'supply chain', 'logistics manager', 'procurement specialist', 'operations', 'logistics'],
-            'Platform & DevOps Engineering': ['devops engineer', 'site reliability engineer', 'platform engineer', 'cloud engineer', 'devops', 'sre', 'cloud architect'],
-            'Product Design': ['product designer', 'ux designer', 'ui designer', 'user experience designer', 'ui/ux', 'ux researcher', 'interaction designer'],
-            'Product Management': ['product manager', 'product owner', 'technical product manager', 'group product manager', 'associate product manager'],
-            'Project & Program Management': ['project manager', 'program manager', 'scrum master', 'agile coach', 'pmo', 'delivery manager'],
-            'QA & Testing': ['qa engineer', 'qa analyst', 'quality assurance', 'manual tester', 'automation tester', 'sdet', 'software tester'],
-            'Quantitative Finance & Trading': ['quantitative analyst', 'quant trader', 'trading analyst', 'portfolio manager', 'quant developer'],
-            'Software Engineering': ['software engineer', 'software developer', 'application developer', 'software architect', 'swe', 'programmer'],
-            'Solutions Engineering & Pre-Sales': ['solutions engineer', 'sales engineer', 'pre-sales engineer', 'presales engineer', 'solutions architect'],
-            'Talent Acquisition & Recruiting': ['recruiter', 'talent acquisition', 'recruiting coordinator', 'headhunter', 'technical recruiter'],
-            'Communications & Public Affairs': ['communications manager', 'public relations', 'pr specialist', 'internal communications', 'media relations', 'public affairs'],
-            'Workflow Automation & Integrations': ['workflow automation', 'automation engineer', 'no-code developer', 'revops automation', 'integrations engineer', 'zapier developer', 'n8n developer']
-        };
-        const categoryGuardrailEl = document.getElementById('category-guardrail');
-
-        function escapeGuardrailHtml(str) {
-            if (!str) return '';
-            return String(str).replace(/[&<>"']/g, m => ({
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[m]));
+        function saveRoleSlotState() {
+            localStorage.setItem('onb_role_slots', JSON.stringify(roleSlotState));
         }
 
-        function clearCategoryGuardrail() {
-            categoryGuardrailEl.classList.remove('is-visible');
-            categoryGuardrailEl.replaceChildren();
-        }
+        function renderRoleSlots() {
+            roleSlotsContainer.replaceChildren();
+            roleSlotState.forEach((slot, idx) => {
+                const row = document.createElement('div');
+                row.className = 'role-slot-row';
+                row.style.cssText = 'display:flex; flex-direction:column; gap:0.35rem; padding:0.6rem; border:1px solid rgba(0,0,0,0.08); border-radius:10px;';
 
-        function getMissingRoleCategories(jobTitlesList, selectedFamilies) {
-            const missing = [];
-            const selectedSet = new Set(selectedFamilies || []);
+                const topLine = document.createElement('div');
+                topLine.style.cssText = 'display:flex; gap:0.75rem; align-items:center; width:100%;';
 
-            jobTitlesList.forEach(rawRole => {
-                const role = rawRole.trim();
-                const norm = role.toLowerCase();
-                if (!norm) return;
+                const roleInput = document.createElement('input');
+                roleInput.type = 'text';
+                roleInput.className = 'role-slot-input';
+                roleInput.placeholder = 'e.g. Business Development Manager';
+                roleInput.style.cssText = 'flex:1 1 55%; min-width:0;';
+                roleInput.value = slot.text || '';
 
-                // Whole words only (so "cto" doesn't match inside "Director"), allowing an
-                // s/es/ing ending so "data engineer" still matches "Data Engineering".
-                const wordHit = p => new RegExp('(^|[^a-z0-9])' + p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(s|es|ing)?($|[^a-z0-9])').test(norm);
-                const hits = Object.entries(roleFamilyPhraseHints)
-                    .map(([family, phrases]) => [family, phrases.map(p => p.toLowerCase()).filter(wordHit)])
-                    .filter(([, matched]) => matched.length);
-                // More specific match wins: drop a family whose only matches sit inside a
-                // longer phrase another family matched ("operations" inside "revenue operations").
-                const matchedFamilies = hits
-                    .filter(([family, matched]) => matched.some(p => !hits.some(([other, otherMatched]) =>
-                        other !== family && otherMatched.some(o => o.length > p.length && o.includes(p)))))
-                    .map(([family]) => family);
+                const categoryBadge = document.createElement('div');
+                categoryBadge.className = 'role-slot-category';
+                categoryBadge.style.cssText = 'flex:0 0 30%; min-width:140px; padding:0.6rem 0.75rem; border-radius:8px; background:#F4F4F5; color:#52525B; font-size:0.82rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;';
+                categoryBadge.textContent = slot.categoryName || 'No match yet';
 
-                if (matchedFamilies.length > 0) {
-                    const isCovered = matchedFamilies.some(f => selectedSet.has(f));
-                    if (!isCovered) {
-                        missing.push({
-                            role: role,
-                            suggested: matchedFamilies
+                const selectWrapper = document.createElement('div');
+                selectWrapper.className = 'select-wrapper';
+                selectWrapper.style.cssText = 'flex:0 0 15%; min-width:120px;';
+                const levelSelect = document.createElement('select');
+                levelSelect.className = 'role-slot-level';
+                ['Entry Level', 'Mid Level', 'Senior Level', 'Executive'].forEach((l) => {
+                    const opt = document.createElement('option');
+                    opt.value = l; opt.text = l;
+                    if (l === (slot.level || 'Mid Level')) opt.selected = true;
+                    levelSelect.appendChild(opt);
+                });
+                levelSelect.addEventListener('change', () => { roleSlotState[idx].level = levelSelect.value; saveRoleSlotState(); });
+                selectWrapper.appendChild(levelSelect);
+
+                topLine.appendChild(roleInput);
+                topLine.appendChild(categoryBadge);
+                topLine.appendChild(selectWrapper);
+
+                if (roleSlotState.length > 1) {
+                    const removeBtn = document.createElement('button');
+                    removeBtn.type = 'button';
+                    removeBtn.textContent = '×';
+                    removeBtn.setAttribute('aria-label', 'Remove this role');
+                    removeBtn.style.cssText = 'flex:0 0 auto; background:none; border:none; color:#A1A1AA; font-size:1.3rem; cursor:pointer; line-height:1;';
+                    removeBtn.addEventListener('click', () => {
+                        roleSlotState.splice(idx, 1);
+                        saveRoleSlotState();
+                        renderRoleSlots();
+                    });
+                    topLine.appendChild(removeBtn);
+                }
+
+                row.appendChild(topLine);
+
+                const suggestBox = document.createElement('div');
+                suggestBox.className = 'role-slot-suggestions';
+                suggestBox.style.cssText = 'display:none; flex-wrap:wrap; gap:0.4rem; font-size:0.78rem;';
+                row.appendChild(suggestBox);
+
+                function showNoMatch(suggestions) {
+                    categoryBadge.textContent = suggestions.length ? 'No exact match -- pick one:' : 'No match in our role list';
+                    categoryBadge.style.color = '#B45309';
+                    suggestBox.replaceChildren();
+                    if (suggestions.length) {
+                        suggestBox.style.display = 'flex';
+                        suggestions.slice(0, 5).forEach((s) => {
+                            const chip = document.createElement('button');
+                            chip.type = 'button';
+                            chip.textContent = s.name;
+                            chip.style.cssText = 'padding:0.3rem 0.6rem; border-radius:999px; border:1px solid #D4D4D8; background:#fff; cursor:pointer;';
+                            chip.addEventListener('click', () => {
+                                roleInput.value = s.name;
+                                resolveSlot(s.name, true);
+                            });
+                            suggestBox.appendChild(chip);
                         });
+                    } else {
+                        suggestBox.style.display = 'none';
                     }
                 }
-            });
-            return missing;
-        }
 
-        function checkCategorySelection(jobTitles, selectedFamilies) {
-            const roles = typeof jobTitles === 'string'
-                ? jobTitles.split(',').map(r => r.trim()).filter(Boolean)
-                : (Array.isArray(jobTitles) ? jobTitles : []);
-
-            const missing = getMissingRoleCategories(roles, selectedFamilies);
-            if (missing.length === 0) {
-                clearCategoryGuardrail();
-                return true;
-            }
-
-            categoryGuardrailEl.replaceChildren();
-            const message = document.createElement('div');
-
-            let listHtml = '';
-            missing.forEach(item => {
-                const suggestionNames = item.suggested.map(s => `<strong>${escapeGuardrailHtml(s)}</strong>`).join(' or ');
-                const verb = item.suggested.length > 1 ? 'fit' : 'fits';
-                listHtml += `<li style="margin-bottom: 0.35rem;">${suggestionNames} ${verb} your role "${escapeGuardrailHtml(item.role)}" more than the selected option.</li>`;
-            });
-            const disclaimer = missing.length > 1
-                ? 'These are automatic suggestions and may not be accurate. You can leave them as-is or modify if you deem fit.'
-                : 'This is an automatic suggestion and may not be accurate. You can leave it as-is or modify if you deem fit.';
-
-            message.innerHTML = `
-                <div style="font-size: 0.88rem; line-height: 1.45;">
-                    <strong style="display: block; margin-bottom: 0.4rem; font-size: 0.92rem;">
-                        Suggested categories for your roles
-                    </strong>
-                    <ul style="margin: 0.35rem 0 0.5rem 1.2rem; padding: 0;">
-                        ${listHtml}
-                    </ul>
-                    <p style="margin: 0.45rem 0 0; font-size: 0.82rem; color: #52525B;">
-                        ${disclaimer}
-                    </p>
-                </div>
-            `;
-            categoryGuardrailEl.append(message);
-            categoryGuardrailEl.classList.add('is-visible');
-            categoryGuardrailEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            return false;
-        }
-
-        // Suggestions never block: the first Continue shows them and relabels
-        // the button "Continue anyway"; a second click on the same roles +
-        // categories proceeds with whatever the user picked. The keyword
-        // matching behind this isn't confident enough to enforce.
-        let categorySuggestionShownKey = null;
-        let btnNextLabelBeforeSuggestion = null;
-
-        function resetCategorySuggestionAck() {
-            categorySuggestionShownKey = null;
-            if (btnNextLabelBeforeSuggestion !== null) {
-                document.getElementById('btn-next').innerHTML = btnNextLabelBeforeSuggestion;
-                btnNextLabelBeforeSuggestion = null;
-            }
-        }
-
-        roleFamilySelectEl.addEventListener('change', () => {
-            resetCategorySuggestionAck();
-            const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
-            localStorage.setItem('onb_target-role-families', JSON.stringify(selected));
-            const jobTitleInputs = document.querySelectorAll('.job-title-input');
-            const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v);
-            if (jobTitles.length > 0) {
-                const missing = getMissingRoleCategories(jobTitles, selected);
-                if (missing.length === 0) {
-                    clearCategoryGuardrail();
+                function lockMatch(s) {
+                    roleSlotState[idx].text = s.name;
+                    roleSlotState[idx].stdRoleId = s.role_id;
+                    roleSlotState[idx].categoryName = s.family;
+                    categoryBadge.textContent = s.family;
+                    categoryBadge.style.color = '#52525B';
+                    suggestBox.style.display = 'none';
+                    suggestBox.replaceChildren();
+                    saveRoleSlotState();
                 }
-            } else {
-                clearCategoryGuardrail();
-            }
-        });
-        document.getElementById('job-titles-container').addEventListener('input', () => {
-            resetCategorySuggestionAck();
-            const selected = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
-            const jobTitleInputs = document.querySelectorAll('.job-title-input');
-            const jobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(v => v);
-            if (jobTitles.length > 0) {
-                const missing = getMissingRoleCategories(jobTitles, selected);
-                if (missing.length === 0) {
-                    clearCategoryGuardrail();
+
+                let debounceTimer = null;
+                async function resolveSlot(text, fromChipClick) {
+                    const trimmed = (text || '').trim();
+                    roleSlotState[idx].text = trimmed;
+                    if (!trimmed) {
+                        roleSlotState[idx].stdRoleId = null;
+                        roleSlotState[idx].categoryName = '';
+                        categoryBadge.textContent = 'No match yet';
+                        categoryBadge.style.color = '#52525B';
+                        suggestBox.style.display = 'none';
+                        saveRoleSlotState();
+                        return;
+                    }
+                    categoryBadge.textContent = 'Checking…';
+                    categoryBadge.style.color = '#52525B';
+                    const suggestions = await suggestStdRoles(trimmed);
+                    const top = suggestions[0];
+                    if (top && (top.match_type === 'alias' || Number(top.distance) <= ROLE_SLOT_CONFIDENCE)) {
+                        lockMatch(top);
+                    } else {
+                        roleSlotState[idx].stdRoleId = null;
+                        roleSlotState[idx].categoryName = '';
+                        showNoMatch(suggestions);
+                        saveRoleSlotState();
+                    }
                 }
-            } else {
-                clearCategoryGuardrail();
+
+                roleInput.addEventListener('input', () => {
+                    clearTimeout(debounceTimer);
+                    const val = roleInput.value;
+                    debounceTimer = setTimeout(() => resolveSlot(val), 600);
+                });
+
+                // Slots prefilled from the resume already carry a resolved stdRoleId -- show it
+                // immediately without re-calling the model.
+                if (slot.stdRoleId) {
+                    categoryBadge.textContent = slot.categoryName;
+                } else if (slot.text) {
+                    resolveSlot(slot.text);
+                }
+
+                roleSlotsContainer.appendChild(row);
+            });
+
+            updateAddRoleSlotButton();
+        }
+
+        function updateAddRoleSlotButton() {
+            const btn = document.getElementById('btn-add-role-slot');
+            if (!btn) return;
+            const atMax = roleSlotState.length >= ROLE_SLOT_MAX;
+            btn.disabled = atMax;
+            btn.textContent = atMax ? `Maximum ${ROLE_SLOT_MAX} roles reached` : '+ Add Another Role';
+        }
+
+        function addRoleSlot() {
+            if (roleSlotState.length >= ROLE_SLOT_MAX) return;
+            roleSlotState.push({ text: '', stdRoleId: null, categoryName: '', level: 'Mid Level' });
+            saveRoleSlotState();
+            renderRoleSlots();
+        }
+
+        // Pulls candidate role lines straight from the resume's own extracted work-history
+        // lines (buildResumeExtraction's `experience` array) instead of asking the user to
+        // type a title from scratch. Each line is run through the same suggest-std-roles
+        // matching used everywhere else; only confident, de-duplicated matches get a slot.
+        // Live-tested: this correctly handles messy real lines (company names, dates,
+        // "Senior" prefixes) -- see tonight's verification before this was built.
+        async function prefillRoleSlotsFromResume(extraction) {
+            const lines = (extraction?.experience || []).slice(0, 8);
+            if (lines.length === 0) return;
+            const seenRoleIds = new Set();
+            const prefilled = [];
+            for (const line of lines) {
+                if (prefilled.length >= ROLE_SLOT_MAX) break;
+                const suggestions = await suggestStdRoles(line);
+                const top = suggestions[0];
+                if (!top) continue;
+                if (top.match_type !== 'alias' && Number(top.distance) > ROLE_SLOT_CONFIDENCE) continue;
+                if (seenRoleIds.has(top.role_id)) continue;
+                seenRoleIds.add(top.role_id);
+                prefilled.push({ text: top.name, stdRoleId: top.role_id, categoryName: top.family, level: 'Mid Level' });
             }
-        });
+            if (prefilled.length > 0) {
+                roleSlotState = prefilled;
+                saveRoleSlotState();
+                renderRoleSlots();
+            }
+        }
+
+        // Restore from localStorage (same persistence pattern as the rest of this page's
+        // fields across the multi-step flow) or start with one empty slot.
+        (function initRoleSlots() {
+            const saved = localStorage.getItem('onb_role_slots');
+            if (saved) {
+                try {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) roleSlotState = parsed;
+                } catch (e) {}
+            }
+            if (roleSlotState.length === 0) roleSlotState = [{ text: '', stdRoleId: null, categoryName: '', level: 'Mid Level' }];
+            renderRoleSlots();
+        })();
+
+        const addRoleSlotBtn = document.createElement('button');
+        addRoleSlotBtn.type = 'button';
+        addRoleSlotBtn.id = 'btn-add-role-slot';
+        addRoleSlotBtn.className = 'btn btn-secondary';
+        addRoleSlotBtn.textContent = '+ Add Another Role';
+        addRoleSlotBtn.style.cssText = 'padding:0.6rem 1rem; font-size:0.8rem; margin-top:0.5rem; margin-bottom:0;';
+        addRoleSlotBtn.addEventListener('click', addRoleSlot);
+        roleSlotsContainer.parentElement.insertBefore(addRoleSlotBtn, roleSlotsContainer.nextSibling);
+        updateAddRoleSlotButton();
+
+        // --- end role slots ---
+
+        const roleFamilySelectEl = document.getElementById('target-role-families');
+        const savedRoleFamilies = localStorage.getItem('onb_target-role-families');
+        if (savedRoleFamilies) {
+            try { /* retired selector, state no longer used */ } catch(e) {}
+        }
 
         const commitmentSelectEl = document.getElementById('commitment-select');
         const commitmentChoices = new Choices(commitmentSelectEl, {
@@ -1834,6 +1882,7 @@
                 localStorage.setItem('pending_resume_text', window.lastResumeText);
                 window.resumeExtraction = buildResumeExtraction(window.lastResumeText);
                 prefillFromResume(window.lastResumeText);
+                prefillRoleSlotsFromResume(window.resumeExtraction);
                 finishExtractionAnimation();
                 status.style.display = 'none';
                 renderExtractionSummary();
@@ -2044,6 +2093,12 @@
                     window.lastResumeText = text;
                     localStorage.setItem('pending_resume_text', text);
                     window.resumeExtraction = buildResumeExtraction(text);
+                    // Only prefill from this re-read resume if the user hasn't already
+                    // confirmed any role slots this session -- never silently overwrite a
+                    // real edit they already made and saved to onb_role_slots.
+                    if (!roleSlotState.some((s) => s.stdRoleId)) {
+                        prefillRoleSlotsFromResume(window.resumeExtraction);
+                    }
                     const filledCount = prefillFromResume(text);
                     if (autofillStatus) {
                         autofillStatus.textContent = filledCount > 0
@@ -2242,10 +2297,6 @@
         });
 
         btnNext.addEventListener('click', async () => {
-            const jobTitleInputs = document.querySelectorAll('.job-title-input');
-            const validJobTitles = Array.from(jobTitleInputs).map(i => i.value.trim()).filter(Boolean);
-            const jobTitles = validJobTitles.join(', ');
-            const roleFamilies = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
             const workplaces = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
             const file = document.getElementById('resume-file')?.files?.[0];
             const savedResumeUrl = localStorage.getItem('onb_resume_url');
@@ -2258,22 +2309,21 @@
                 return;
             }
 
-            if (validJobTitles.length === 0 || roleFamilies.length === 0 || workplaces.length === 0) {
-                errorMsg.textContent = "Please add at least one target role, job category, and workplace type before continuing.";
+            // Strict role validation (2026-10-17 redesign): every filled slot must have
+            // resolved to a real std_roles id. A slot with text but no lock (still showing
+            // suggestion chips) blocks continue -- no unconfirmed role reaches the database.
+            const filledSlots = roleSlotState.filter((s) => (s.text || '').trim());
+            const unresolvedSlot = filledSlots.find((s) => !s.stdRoleId);
+            if (filledSlots.length === 0 || workplaces.length === 0) {
+                errorMsg.textContent = "Please add at least one target role and workplace type before continuing.";
                 errorMsg.style.display = 'block';
                 return;
             }
-
-            const suggestionKey = JSON.stringify([validJobTitles, [...roleFamilies].sort()]);
-            if (!checkCategorySelection(validJobTitles, roleFamilies) && categorySuggestionShownKey !== suggestionKey) {
-                categorySuggestionShownKey = suggestionKey;
-                btnNextLabelBeforeSuggestion = btnNext.innerHTML;
-                btnNext.innerHTML = 'Continue anyway &rarr;';
+            if (unresolvedSlot) {
+                errorMsg.textContent = `"${unresolvedSlot.text}" doesn't match one of our roles yet -- pick one of the suggestions shown, or clear that slot.`;
+                errorMsg.style.display = 'block';
+                roleSlotsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
-            }
-            if (btnNextLabelBeforeSuggestion !== null) {
-                btnNext.innerHTML = btnNextLabelBeforeSuggestion;
-                btnNextLabelBeforeSuggestion = null;
             }
 
             if (file) {
@@ -2529,14 +2579,16 @@
                     : wantsRemoteLocal ? 'local'
                     : wantsRemoteGlobal ? 'global'
                     : null;
-                const selectedRoleFamilies = Array.from(roleFamilySelectEl.selectedOptions).map(opt => opt.value);
-                if (selectedRoleFamilies.length === 0) {
-                    throw new Error('Please select at least one job category.');
+                // Role slots (2026-10-17 redesign): only slots that resolved to a real
+                // std_roles id are confirmed -- btnNext's validation already blocked any
+                // unresolved-but-filled slot from reaching this point, so this is just the
+                // final, trusted read of what the user actually locked in.
+                const confirmedRoleSlots = roleSlotState.filter((s) => s.stdRoleId);
+                if (confirmedRoleSlots.length === 0) {
+                    throw new Error('Please add at least one target role.');
                 }
-                const finalJobTitles = localStorage.getItem('onb_job-titles') || Array.from(document.querySelectorAll('.job-title-input')).map(i => i.value.trim()).filter(Boolean).join(' | ');
-                if (!finalJobTitles) {
-                    throw new Error('Please enter at least one target job title.');
-                }
+                const selectedRoleFamilies = [...new Set(confirmedRoleSlots.map((s) => s.categoryName))];
+                const finalJobTitles = confirmedRoleSlots.map((s) => s.text).join(', ');
 
                 // Atomically reserve one of the limited launch places. The
                 // answers below are saved either way so a waitlisted user
@@ -2555,7 +2607,7 @@
                     remote_scope: remoteScope,
                     target_role_family: selectedRoleFamilies[0],
                     target_job_titles: finalJobTitles,
-                    experience_level_bucket: localStorage.getItem('onb_job-levels') || Array.from(document.querySelectorAll('.job-level-select')).map(s => s.value).join(', '),
+                    experience_level_bucket: confirmedRoleSlots.map((s) => s.level || 'Mid Level').join(', '),
                     target_location: country,
                     workplace_type: workplaceTypes.join(', '),
                     commitment_type: Array.from(commitmentSelectEl.selectedOptions).map(opt => opt.value).join(', '),
@@ -2607,6 +2659,27 @@
                     .from('profile_role_families')
                     .insert(roleFamilyRows);
                 if (roleFamiliesError) throw roleFamiliesError;
+
+                // Real source of truth for matching going forward (Role-Taxonomy Unification,
+                // 2026-10-17): one row per confirmed slot, each locked to a real std_roles id.
+                const { error: deleteTargetRolesError } = await supabaseClient
+                    .from('profile_target_roles')
+                    .delete()
+                    .eq('profile_id', currentUserId);
+                if (deleteTargetRolesError) throw deleteTargetRolesError;
+
+                const targetRoleRows = confirmedRoleSlots.map((s, i) => ({
+                    profile_id: currentUserId,
+                    slot: i + 1,
+                    std_role_id: s.stdRoleId
+                }));
+                const { error: targetRolesError } = await supabaseClient
+                    .from('profile_target_roles')
+                    .insert(targetRoleRows);
+                if (targetRolesError) throw targetRolesError;
+
+                // Role slot state is no longer needed once saved to the database.
+                localStorage.removeItem('onb_role_slots');
 
                 if (!hasLaunchAccess) {
                     window.location.href = 'waitlist.html';
