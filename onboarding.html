@@ -1201,8 +1201,19 @@
         // matching used everywhere else; only confident, de-duplicated matches get a slot.
         // Live-tested: this correctly handles messy real lines (company names, dates,
         // "Senior" prefixes) -- see tonight's verification before this was built.
+        //
+        // Structural fix (2026-10-17, real bug found in live testing): `extraction.experience`
+        // is built from ANY line containing a role-word OR a year -- that includes bare skill
+        // bullets like "Revenue Operations" under a "Core Competencies" section, which are NOT
+        // job titles. A real job title in a resume always sits next to its employment dates; a
+        // skill bullet never does. So only lines that actually contain a year are trusted as
+        // real title candidates here -- this isn't a confidence-threshold tweak, it stops
+        // non-title text from ever being sent to the matcher as if it were a title. (Confirmed:
+        // both real titles in the test resume carried a year; the false-positive "Revenue
+        // Operations" skill bullet that caused the "Controller" bug tonight did not.)
+        const RESUME_LINE_HAS_YEAR = /\b(19|20)\d{2}\b/;
         async function prefillRoleSlotsFromResume(extraction) {
-            const lines = (extraction?.experience || []).slice(0, 8);
+            const lines = (extraction?.experience || []).filter((l) => RESUME_LINE_HAS_YEAR.test(l)).slice(0, 8);
             if (lines.length === 0) return;
             const seenRoleIds = new Set();
             const prefilled = [];
