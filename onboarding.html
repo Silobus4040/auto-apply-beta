@@ -993,17 +993,13 @@
                 roleInput.style.cssText = 'flex:1 1 220px; min-width:0;';
                 roleInput.value = slot.text || '';
 
-                const categoryBadge = document.createElement('div');
-                categoryBadge.className = 'role-slot-category';
-                categoryBadge.style.cssText = 'flex:1 1 160px; min-width:140px; padding:0.6rem 0.75rem; border-radius:8px; background:#F4F4F5; color:#52525B; font-size:0.82rem; line-height:1.3; white-space:normal; word-break:break-word;';
-                categoryBadge.textContent = slot.categoryName || 'No match yet';
-                categoryBadge.title = slot.categoryName || '';
-
-                // Direct category override (founder call: let users pick the category
-                // themselves even after auto-detection -- "any user that chooses a wrong
-                // one is their business, they're not kids"). Picking one here lists that
-                // category's real roles as chips; the user still confirms one real role,
-                // std_role_id stays the one source of truth either way.
+                // ONE category control, not two (founder correction 2026-10-17: the auto-detected
+                // category display and the manual-override picker were two separate competing
+                // elements -- consolidated into a single dropdown that both SHOWS the detected
+                // category as its current value and lets the user change it directly. "Any user
+                // that chooses a wrong one is their business, they're not kids." Picking a
+                // category here lists that category's real roles as chips; the user still
+                // confirms one real role, so std_role_id stays the one source of truth.
                 const categorySelectWrapper = document.createElement('div');
                 categorySelectWrapper.className = 'select-wrapper';
                 categorySelectWrapper.style.cssText = 'flex:1 1 170px; min-width:170px;';
@@ -1013,15 +1009,15 @@
                     categorySelect.replaceChildren();
                     const placeholder = document.createElement('option');
                     placeholder.value = '';
-                    placeholder.textContent = 'Or pick a category…';
+                    placeholder.textContent = 'No match yet';
                     categorySelect.appendChild(placeholder);
                     const families = [...new Set((stdRolesCache || []).map((r) => r.family))].sort();
                     families.forEach((f) => {
                         const opt = document.createElement('option');
                         opt.value = f; opt.textContent = f;
-                        if (f === slot.categoryName) opt.selected = true;
                         categorySelect.appendChild(opt);
                     });
+                    categorySelect.value = slot.categoryName || '';
                 }
                 populateCategorySelect();
                 categorySelect.addEventListener('change', () => {
@@ -1030,9 +1026,8 @@
                     const rolesInFamily = (stdRolesCache || []).filter((r) => r.family === fam);
                     roleSlotState[idx].stdRoleId = null;
                     roleSlotState[idx].categoryName = fam;
-                    categoryBadge.textContent = `Pick a role in ${fam}:`;
-                    categoryBadge.title = fam;
-                    categoryBadge.style.color = '#52525B';
+                    statusLine.textContent = `Pick a role in ${fam}:`;
+                    statusLine.style.color = '#52525B';
                     suggestBox.replaceChildren();
                     suggestBox.style.display = 'flex';
                     rolesInFamily.forEach((r) => {
@@ -1065,7 +1060,6 @@
                 selectWrapper.appendChild(levelSelect);
 
                 topLine.appendChild(roleInput);
-                topLine.appendChild(categoryBadge);
                 topLine.appendChild(categorySelectWrapper);
                 topLine.appendChild(selectWrapper);
 
@@ -1085,14 +1079,23 @@
 
                 row.appendChild(topLine);
 
+                // Small status line for transient messages ("Checking...", "pick a role below"),
+                // never a second competing category control -- the dropdown above is the one
+                // place category is shown or changed.
+                const statusLine = document.createElement('div');
+                statusLine.className = 'role-slot-status';
+                statusLine.style.cssText = 'font-size:0.78rem; color:#52525B; min-height:1em;';
+                row.appendChild(statusLine);
+
                 const suggestBox = document.createElement('div');
                 suggestBox.className = 'role-slot-suggestions';
                 suggestBox.style.cssText = 'display:none; flex-wrap:wrap; gap:0.4rem; font-size:0.78rem;';
                 row.appendChild(suggestBox);
 
                 function showNoMatch(suggestions) {
-                    categoryBadge.textContent = suggestions.length ? 'No exact match -- pick one:' : 'No match in our role list';
-                    categoryBadge.style.color = '#B45309';
+                    categorySelect.value = '';
+                    statusLine.textContent = suggestions.length ? 'No exact match -- pick one below:' : 'No match in our role list -- try a different title or pick a category above.';
+                    statusLine.style.color = '#B45309';
                     suggestBox.replaceChildren();
                     if (suggestions.length) {
                         suggestBox.style.display = 'flex';
@@ -1116,10 +1119,8 @@
                     roleSlotState[idx].text = s.name;
                     roleSlotState[idx].stdRoleId = s.role_id;
                     roleSlotState[idx].categoryName = s.family;
-                    categoryBadge.textContent = s.family;
-                    categoryBadge.title = s.family;
-                    categoryBadge.style.color = '#52525B';
                     categorySelect.value = s.family;
+                    statusLine.textContent = '';
                     suggestBox.style.display = 'none';
                     suggestBox.replaceChildren();
                     saveRoleSlotState();
@@ -1132,14 +1133,14 @@
                     if (!trimmed) {
                         roleSlotState[idx].stdRoleId = null;
                         roleSlotState[idx].categoryName = '';
-                        categoryBadge.textContent = 'No match yet';
-                        categoryBadge.style.color = '#52525B';
+                        categorySelect.value = '';
+                        statusLine.textContent = '';
                         suggestBox.style.display = 'none';
                         saveRoleSlotState();
                         return;
                     }
-                    categoryBadge.textContent = 'Checking…';
-                    categoryBadge.style.color = '#52525B';
+                    statusLine.textContent = 'Checking…';
+                    statusLine.style.color = '#52525B';
                     const suggestions = await suggestStdRoles(trimmed);
                     const top = suggestions[0];
                     if (top && (top.match_type === 'alias' || Number(top.distance) <= ROLE_SLOT_CONFIDENCE)) {
@@ -1158,11 +1159,10 @@
                     debounceTimer = setTimeout(() => resolveSlot(val), 600);
                 });
 
-                // Slots prefilled from the resume already carry a resolved stdRoleId -- show it
-                // immediately without re-calling the model.
-                if (slot.stdRoleId) {
-                    categoryBadge.textContent = slot.categoryName;
-                } else if (slot.text) {
+                // Slots prefilled from the resume already carry a resolved stdRoleId -- the
+                // dropdown's own value (set in populateCategorySelect) already shows it, nothing
+                // else to do. Otherwise, if there's typed text with no resolved match yet, resolve it.
+                if (!slot.stdRoleId && slot.text) {
                     resolveSlot(slot.text);
                 }
 
