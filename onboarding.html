@@ -2068,14 +2068,16 @@
                 }
             }
 
-            // "Complete Profile Details" gate: re-read the resume already on
-            // file and fill in whatever's still blank. This page previously
-            // only showed whatever the DB already had — if the original
-            // signup pass missed a field (common for non-US resumes before
-            // this fix), there was no way to recover it here, so the user was
-            // stuck with a required field neither they nor the resume had
-            // ever actually filled in.
-            if (detailsOnly && profile && profile.resume_url) {
+            // "Complete Profile Details" / "Job Preferences" gate: re-read the resume
+            // already on file and fill in whatever's still blank. This page previously
+            // only showed whatever the DB already had — if the original signup pass
+            // missed a field (common for non-US resumes before this fix), there was no
+            // way to recover it here, so the user was stuck with a required field
+            // neither they nor the resume had ever actually filled in.
+            // Widened from detailsOnly to profileMode (2026-10-17): the role-slot
+            // pre-fill needs this same re-read on the ?step=profile page too, not just
+            // ?step=details -- a real bug found live (empty role slots on that page).
+            if (profileMode && profile && profile.resume_url) {
                 const autofillStatus = document.getElementById('details-autofill-status');
                 if (autofillStatus) {
                     autofillStatus.textContent = 'Reading your saved resume to fill in what we can…';
