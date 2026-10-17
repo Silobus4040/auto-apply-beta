@@ -940,17 +940,30 @@
         // --- Role slots (2026-10-17 redesign) ---
         // Replaces the old free-text job-title inputs + 31-category multiselect with up to 3
         // role+category pairs, each locked to a real std_roles row. Role comes first (pre-filled
-        // from the resume where possible); category is derived from whichever role is picked,
-        // never an independent choice. An edited role that doesn't match one of our real roles
-        // cannot lock in -- the user must pick from the real suggestions shown instead.
+        // from the resume where possible). Category is ALSO a real, directly-editable dropdown
+        // (founder call: "let users select even after we populated what we think is right --
+        // any user that chooses a wrong one is their business, they're not kids") -- picking a
+        // category re-scopes the role suggestions to that category's real roles; the user still
+        // must confirm one of those real roles (std_role_id stays the one source of truth), but
+        // they can now override a wrong auto-guess by category instead of only by editing text.
         const ROLE_SLOT_MAX = 3;
         const ROLE_SLOT_CONFIDENCE = 0.15; // same real, data-backed threshold used in the Phase 1 migration
         const roleSlotsContainer = document.getElementById('role-slots-container');
         let roleSlotState = []; // [{text, stdRoleId, categoryName, level}]
+        let stdRolesCache = null; // [{id, name, family}], fetched once, publicly readable (std_roles_select_all policy)
 
-        async function suggestStdRoles(title) {
+        async function fetchStdRolesCache() {
+            if (stdRolesCache) return stdRolesCache;
+            const { data, error } = await supabaseClient.from('std_roles').select('id, name, family').eq('active', true).order('family').order('name');
+            if (error) { console.error('fetchStdRolesCache failed', error); return []; }
+            stdRolesCache = data || [];
+            return stdRolesCache;
+        }
+
+        async function suggestStdRoles(title, family) {
             try {
-                const { data, error } = await supabaseClient.functions.invoke('suggest-std-roles', { body: { title } });
+                const body = family ? { title, family } : { title };
+                const { data, error } = await supabaseClient.functions.invoke('suggest-std-roles', { body });
                 if (error) throw error;
                 return data?.suggestions || [];
             } catch (e) {
@@ -986,6 +999,57 @@
                 categoryBadge.textContent = slot.categoryName || 'No match yet';
                 categoryBadge.title = slot.categoryName || '';
 
+                // Direct category override (founder call: let users pick the category
+                // themselves even after auto-detection -- "any user that chooses a wrong
+                // one is their business, they're not kids"). Picking one here lists that
+                // category's real roles as chips; the user still confirms one real role,
+                // std_role_id stays the one source of truth either way.
+                const categorySelectWrapper = document.createElement('div');
+                categorySelectWrapper.className = 'select-wrapper';
+                categorySelectWrapper.style.cssText = 'flex:1 1 170px; min-width:170px;';
+                const categorySelect = document.createElement('select');
+                categorySelect.className = 'role-slot-category-select';
+                function populateCategorySelect() {
+                    categorySelect.replaceChildren();
+                    const placeholder = document.createElement('option');
+                    placeholder.value = '';
+                    placeholder.textContent = 'Or pick a category…';
+                    categorySelect.appendChild(placeholder);
+                    const families = [...new Set((stdRolesCache || []).map((r) => r.family))].sort();
+                    families.forEach((f) => {
+                        const opt = document.createElement('option');
+                        opt.value = f; opt.textContent = f;
+                        if (f === slot.categoryName) opt.selected = true;
+                        categorySelect.appendChild(opt);
+                    });
+                }
+                populateCategorySelect();
+                categorySelect.addEventListener('change', () => {
+                    const fam = categorySelect.value;
+                    if (!fam) return;
+                    const rolesInFamily = (stdRolesCache || []).filter((r) => r.family === fam);
+                    roleSlotState[idx].stdRoleId = null;
+                    roleSlotState[idx].categoryName = fam;
+                    categoryBadge.textContent = `Pick a role in ${fam}:`;
+                    categoryBadge.title = fam;
+                    categoryBadge.style.color = '#52525B';
+                    suggestBox.replaceChildren();
+                    suggestBox.style.display = 'flex';
+                    rolesInFamily.forEach((r) => {
+                        const chip = document.createElement('button');
+                        chip.type = 'button';
+                        chip.textContent = r.name;
+                        chip.style.cssText = 'padding:0.3rem 0.6rem; border-radius:999px; border:1px solid #D4D4D8; background:#fff; cursor:pointer;';
+                        chip.addEventListener('click', () => {
+                            roleInput.value = r.name;
+                            lockMatch({ name: r.name, role_id: r.id, family: r.family });
+                        });
+                        suggestBox.appendChild(chip);
+                    });
+                    saveRoleSlotState();
+                });
+                categorySelectWrapper.appendChild(categorySelect);
+
                 const selectWrapper = document.createElement('div');
                 selectWrapper.className = 'select-wrapper';
                 selectWrapper.style.cssText = 'flex:0 0 150px; min-width:150px;';
@@ -1002,6 +1066,7 @@
 
                 topLine.appendChild(roleInput);
                 topLine.appendChild(categoryBadge);
+                topLine.appendChild(categorySelectWrapper);
                 topLine.appendChild(selectWrapper);
 
                 if (roleSlotState.length > 1) {
@@ -1054,6 +1119,7 @@
                     categoryBadge.textContent = s.family;
                     categoryBadge.title = s.family;
                     categoryBadge.style.color = '#52525B';
+                    categorySelect.value = s.family;
                     suggestBox.style.display = 'none';
                     suggestBox.replaceChildren();
                     saveRoleSlotState();
@@ -1151,7 +1217,7 @@
 
         // Restore from localStorage (same persistence pattern as the rest of this page's
         // fields across the multi-step flow) or start with one empty slot.
-        (function initRoleSlots() {
+        (async function initRoleSlots() {
             const saved = localStorage.getItem('onb_role_slots');
             if (saved) {
                 try {
@@ -1160,6 +1226,7 @@
                 } catch (e) {}
             }
             if (roleSlotState.length === 0) roleSlotState = [{ text: '', stdRoleId: null, categoryName: '', level: 'Mid Level' }];
+            await fetchStdRolesCache(); // needed so the category override dropdown is populated on first paint
             renderRoleSlots();
         })();
 
