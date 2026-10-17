@@ -947,7 +947,15 @@
         // must confirm one of those real roles (std_role_id stays the one source of truth), but
         // they can now override a wrong auto-guess by category instead of only by editing text.
         const ROLE_SLOT_MAX = 3;
-        const ROLE_SLOT_CONFIDENCE = 0.15; // same real, data-backed threshold used in the Phase 1 migration
+        // Tightened 0.15 -> 0.12 (2026-10-17): a real resume test caught the bare phrase
+        // "Revenue Operations" (a stripped-context CORE COMPETENCIES bullet from the resume's
+        // crude line extraction) auto-locking to "Controller" (Finance & Accounting) at distance
+        // 0.1436 -- a genuinely wrong match that slipped under the old 0.15 threshold, while the
+        // correct "Sales Operations / RevOps" sat right behind it at 0.1511, just over the old
+        // threshold. 0.12 rejects this specific false-positive; confirmed it still auto-locks
+        // clean, unambiguous matches from earlier testing (e.g. "Business Development Manager"
+        // alone landed at 0.0886).
+        const ROLE_SLOT_CONFIDENCE = 0.12;
         const roleSlotsContainer = document.getElementById('role-slots-container');
         let roleSlotState = []; // [{text, stdRoleId, categoryName, level}]
         let stdRolesCache = null; // [{id, name, family}], fetched once, publicly readable (std_roles_select_all policy)
