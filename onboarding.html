@@ -313,7 +313,7 @@
 
                             <div class="form-group">
                                 <label>Target Roles <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Up to 3 roles, pulled from your resume. Each role shows its category alongside it. Edit a role if it's wrong -- it must match one of our real roles.</p>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Type up to 3 roles -- each shows its real category alongside it, or pick a category first to choose from its roles directly. Must match one of our real roles.</p>
                                 <div id="role-slots-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
                                     <!-- Injected via JS: buildRoleSlots() -->
                                 </div>
@@ -939,8 +939,12 @@
 
         // --- Role slots (2026-10-17 redesign) ---
         // Replaces the old free-text job-title inputs + 31-category multiselect with up to 3
-        // role+category pairs, each locked to a real std_roles row. Role comes first (pre-filled
-        // from the resume where possible). Category is ALSO a real, directly-editable dropdown
+        // role+category pairs, each locked to a real std_roles row. Role comes first, always
+        // typed by hand -- an earlier version of this tried pulling candidate roles from the
+        // resume automatically, but the resume-text parsing itself (not the matching) proved too
+        // unreliable to trust silently (founder call: leave role entry to the user; resume
+        // parsing stays for name/phone/contact, which already works well). Category is ALSO a
+        // real, directly-editable dropdown
         // (founder call: "let users select even after we populated what we think is right --
         // any user that chooses a wrong one is their business, they're not kids") -- picking a
         // category re-scopes the role suggestions to that category's real roles; the user still
@@ -1167,9 +1171,10 @@
                     debounceTimer = setTimeout(() => resolveSlot(val), 600);
                 });
 
-                // Slots prefilled from the resume already carry a resolved stdRoleId -- the
-                // dropdown's own value (set in populateCategorySelect) already shows it, nothing
-                // else to do. Otherwise, if there's typed text with no resolved match yet, resolve it.
+                // A restored slot (from localStorage, same page reload across onboarding's
+                // multi-step flow) may already carry a resolved stdRoleId -- the dropdown's own
+                // value (set in populateCategorySelect) already shows it, nothing else to do.
+                // Otherwise, if there's typed text with no resolved match yet, resolve it.
                 if (!slot.stdRoleId && slot.text) {
                     resolveSlot(slot.text);
                 }
@@ -1193,45 +1198,6 @@
             roleSlotState.push({ text: '', stdRoleId: null, categoryName: '', level: 'Mid Level' });
             saveRoleSlotState();
             renderRoleSlots();
-        }
-
-        // Pulls candidate role lines straight from the resume's own extracted work-history
-        // lines (buildResumeExtraction's `experience` array) instead of asking the user to
-        // type a title from scratch. Each line is run through the same suggest-std-roles
-        // matching used everywhere else; only confident, de-duplicated matches get a slot.
-        // Live-tested: this correctly handles messy real lines (company names, dates,
-        // "Senior" prefixes) -- see tonight's verification before this was built.
-        //
-        // Structural fix (2026-10-17, real bug found in live testing): `extraction.experience`
-        // is built from ANY line containing a role-word OR a year -- that includes bare skill
-        // bullets like "Revenue Operations" under a "Core Competencies" section, which are NOT
-        // job titles. A real job title in a resume always sits next to its employment dates; a
-        // skill bullet never does. So only lines that actually contain a year are trusted as
-        // real title candidates here -- this isn't a confidence-threshold tweak, it stops
-        // non-title text from ever being sent to the matcher as if it were a title. (Confirmed:
-        // both real titles in the test resume carried a year; the false-positive "Revenue
-        // Operations" skill bullet that caused the "Controller" bug tonight did not.)
-        const RESUME_LINE_HAS_YEAR = /\b(19|20)\d{2}\b/;
-        async function prefillRoleSlotsFromResume(extraction) {
-            const lines = (extraction?.experience || []).filter((l) => RESUME_LINE_HAS_YEAR.test(l)).slice(0, 8);
-            if (lines.length === 0) return;
-            const seenRoleIds = new Set();
-            const prefilled = [];
-            for (const line of lines) {
-                if (prefilled.length >= ROLE_SLOT_MAX) break;
-                const suggestions = await suggestStdRoles(line);
-                const top = suggestions[0];
-                if (!top) continue;
-                if (top.match_type !== 'alias' && Number(top.distance) > ROLE_SLOT_CONFIDENCE) continue;
-                if (seenRoleIds.has(top.role_id)) continue;
-                seenRoleIds.add(top.role_id);
-                prefilled.push({ text: top.name, stdRoleId: top.role_id, categoryName: top.family, level: 'Mid Level' });
-            }
-            if (prefilled.length > 0) {
-                roleSlotState = prefilled;
-                saveRoleSlotState();
-                renderRoleSlots();
-            }
         }
 
         // Restore from localStorage (same persistence pattern as the rest of this page's
@@ -1970,7 +1936,6 @@
                 localStorage.setItem('pending_resume_text', window.lastResumeText);
                 window.resumeExtraction = buildResumeExtraction(window.lastResumeText);
                 prefillFromResume(window.lastResumeText);
-                prefillRoleSlotsFromResume(window.resumeExtraction);
                 finishExtractionAnimation();
                 status.style.display = 'none';
                 renderExtractionSummary();
@@ -2183,12 +2148,6 @@
                     window.lastResumeText = text;
                     localStorage.setItem('pending_resume_text', text);
                     window.resumeExtraction = buildResumeExtraction(text);
-                    // Only prefill from this re-read resume if the user hasn't already
-                    // confirmed any role slots this session -- never silently overwrite a
-                    // real edit they already made and saved to onb_role_slots.
-                    if (!roleSlotState.some((s) => s.stdRoleId)) {
-                        prefillRoleSlotsFromResume(window.resumeExtraction);
-                    }
                     const filledCount = prefillFromResume(text);
                     if (autofillStatus) {
                         autofillStatus.textContent = filledCount > 0
