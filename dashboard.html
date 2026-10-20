@@ -2107,6 +2107,24 @@
             }
         }
 
+        // Roles the user confirmed at onboarding (profile_target_roles -> std_roles.name) are what actually
+        // drive job matching. Returns a comma-separated string, or null so callers fall back to the old
+        // typed text (users with no confirmed role, or any read error).
+        async function fetchConfirmedRoleNames(userId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profile_target_roles')
+                    .select('slot, std_roles(name)')
+                    .eq('profile_id', userId)
+                    .order('slot', { ascending: true });
+                if (error || !data || !data.length) return null;
+                const names = data.map(r => r.std_roles && r.std_roles.name).filter(Boolean);
+                return names.length ? names.join(', ') : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
         function renderPrefChips(elId, csv) {
             const el = document.getElementById(elId);
             if (!el) return;
@@ -2240,7 +2258,7 @@
             // this only substitutes what gets handed to the chip renderer.
             const rolesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
                 ? 'Backend Engineer, Backend Software Engineer, API Engineer'
-                : profile.target_job_titles;
+                : ((await fetchConfirmedRoleNames(user.id)) || profile.target_job_titles);
             renderPrefChips('pref-roles', rolesForDisplay);
             // Same demo-only treatment as roles above: display only; the real
             // value driving geo eligibility is profile.country, with
@@ -3296,7 +3314,7 @@
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, country, workplace_type').eq('id', user.id).single();
             if (profile) {
-                document.getElementById('set-roles').value = profile.target_job_titles || '';
+                document.getElementById('set-roles').value = (await fetchConfirmedRoleNames(user.id)) || profile.target_job_titles || '';
                 document.getElementById('set-countries').value = profile.country || profile.target_location || '';
                 const wps = (profile.workplace_type || '').toLowerCase();
                 document.querySelectorAll('input[name="set-wp"]').forEach(cb => {
@@ -3311,11 +3329,12 @@
             btn.disabled = true;
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
-                const roles = document.getElementById('set-roles').value.trim();
+                // Roles are locked (the field is disabled and shows the confirmed taxonomy roles), so
+                // saving must never write target_job_titles back.
                 const country = document.getElementById('set-countries').value.trim();
                 const wps = Array.from(document.querySelectorAll('input[name="set-wp"]:checked')).map(cb => cb.value).join(', ');
-                
-                let updateData = { target_job_titles: roles, country: country, target_location: country, workplace_type: wps };
+
+                let updateData = { country: country, target_location: country, workplace_type: wps };
 
                 await supabaseClient.from('profiles').update(updateData).eq('id', user.id);
                 closeModal('settings-modal');

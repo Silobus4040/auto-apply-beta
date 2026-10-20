@@ -3952,11 +3952,29 @@
         }
 
 
+        // Roles the user confirmed at onboarding (profile_target_roles -> std_roles.name) are what actually
+        // drive job matching. Returns a comma-separated string, or null so callers fall back to the old
+        // typed text (users with no confirmed role, or any read error).
+        async function fetchConfirmedRoleNames(userId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profile_target_roles')
+                    .select('slot, std_roles(name)')
+                    .eq('profile_id', userId)
+                    .order('slot', { ascending: true });
+                if (error || !data || !data.length) return null;
+                const names = data.map(r => r.std_roles && r.std_roles.name).filter(Boolean);
+                return names.length ? names.join(', ') : null;
+            } catch (e) {
+                return null;
+            }
+        }
+
         async function openSettingsModal() {
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, country, workplace_type, remote_scope').eq('id', user.id).single();
             if (profile) {
-                document.getElementById('set-roles').value = profile.target_job_titles || '';
+                document.getElementById('set-roles').value = (await fetchConfirmedRoleNames(user.id)) || profile.target_job_titles || '';
                 document.getElementById('set-countries').value = profile.country || profile.target_location || '';
                 const types = (profile.workplace_type || '').split(',').map(t => t.trim());
                 document.querySelectorAll('input[name="set-wp"]').forEach(cb => { cb.checked = false; });
@@ -3984,7 +4002,8 @@
             btn.disabled = true;
             try {
                 const { data: { user } } = await supabaseClient.auth.getUser();
-                const roles = document.getElementById('set-roles').value.trim();
+                // Roles are locked (the field is disabled and shows the confirmed taxonomy roles), so
+                // saving must never write target_job_titles back.
                 const country = document.getElementById('set-countries').value.trim();
                 const wpsChecked = Array.from(document.querySelectorAll('input[name="set-wp"]:checked')).map(cb => cb.value);
 
@@ -4004,7 +4023,7 @@
                     : null;
                 const wps = workplaceTypes.join(', ');
 
-                let updateData = { target_job_titles: roles, country: country, target_location: country, workplace_type: wps, remote_scope: remoteScope };
+                let updateData = { country: country, target_location: country, workplace_type: wps, remote_scope: remoteScope };
 
                 const fileInput = document.getElementById('set-resume');
                 if (fileInput.files.length > 0) {
