@@ -2250,7 +2250,62 @@
                 document.getElementById('gap-caveat-modal').classList.add('active');
             }
             fetchPooledJobs(user.id);
+
+            // Manual Mode Feature Gate (Test Account only)
+            checkManualModeAccess(user.id);
         })();
+
+        async function checkManualModeAccess(userId) {
+            try {
+                const { data } = await supabaseClient
+                    .from('feature_access')
+                    .select('enabled')
+                    .eq('user_id', userId)
+                    .eq('feature', 'manual_mode')
+                    .maybeSingle();
+
+                if (data && data.enabled) {
+                    const pageHeader = document.querySelector('.page-header');
+                    if (pageHeader && !document.getElementById('mode-toggle-wrapper')) {
+                        const toggleDiv = document.createElement('div');
+                        toggleDiv.id = 'mode-toggle-wrapper';
+                        toggleDiv.style.cssText = 'display: inline-flex; background: rgba(0,0,0,0.06); padding: 3px; border-radius: 999px; margin-top: 0.4rem; gap: 2px; border: 1px solid var(--border);';
+                        toggleDiv.innerHTML = `
+                            <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; background: #000; color: #fff; display: inline-flex; align-items: center; gap: 0.3rem;">⚡ Automation</a>
+                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; color: var(--text-body); display: inline-flex; align-items: center; gap: 0.3rem;">📋 Manual Mode</a>
+                        `;
+                        const h1 = pageHeader.querySelector('h1');
+                        if (h1) {
+                            const wrapper = document.createElement('div');
+                            h1.parentNode.insertBefore(wrapper, h1);
+                            wrapper.appendChild(h1);
+                            wrapper.appendChild(toggleDiv);
+                        }
+                    }
+
+                    const sidebarNav = document.querySelector('.sidebar-nav');
+                    if (sidebarNav && !document.getElementById('sidebar-manual-jobs-link')) {
+                        const jobDeckLink = sidebarNav.querySelector('.sidebar-nav-item.active') || sidebarNav.querySelector('a[href="swipe.html"]');
+                        const manualLink = document.createElement('a');
+                        manualLink.id = 'sidebar-manual-jobs-link';
+                        manualLink.className = 'sidebar-nav-item';
+                        manualLink.href = 'jobs.html';
+                        manualLink.style.cssText = 'text-decoration: none; color: inherit;';
+                        manualLink.innerHTML = '<i data-lucide="briefcase" class="sidebar-nav-icon"></i> Job Board (Manual)';
+                        if (jobDeckLink && jobDeckLink.nextSibling) {
+                            sidebarNav.insertBefore(manualLink, jobDeckLink.nextSibling);
+                        } else {
+                            sidebarNav.appendChild(manualLink);
+                        }
+                        if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                            window.lucide.createIcons();
+                        }
+                    }
+                }
+            } catch (err) {
+                console.warn('Feature check ignored:', err);
+            }
+        }
 
         // Claim the first resume/sourcing request in the database so a reload
         // or a second device cannot lose it or start a duplicate run.

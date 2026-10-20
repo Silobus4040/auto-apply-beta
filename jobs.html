@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Role Rover - Job Board (Manual Mode)</title>
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #D4FF33;
+            --primary-hover: #c2ef24;
+            --secondary: #00CC99;
+            --secondary-hover: #00b386;
+            --bg-color: #FAFAFA;
+            --surface-color: #FFFFFF;
+            --text-heading: #09090B;
+            --text-body: #52525B;
+            --border: #E4E4E7;
+            --soft: #F4F4F5;
+        }
+        [data-theme="dark"] {
+            --bg-color: #09090b;
+            --surface-color: #121215;
+            --text-heading: #fafafa;
+            --text-body: #a1a1aa;
+            --border: #27272a;
+            --soft: #18181b;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-color);
+            color: var(--text-heading);
+            min-height: 100vh;
+            display: flex;
+        }
+
+        /* App Layout */
+        .app-layout { display: flex; width: 100%; min-height: 100vh; }
+        .app-sidebar {
+            width: 250px;
+            background: var(--surface-color);
+            border-right: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            position: fixed;
+            top: 0; bottom: 0; left: 0;
+            z-index: 100;
+            transition: transform 0.25s ease;
+        }
+        .sidebar-logo-area {
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            border-bottom: 1px solid var(--border);
+        }
+        .sidebar-nav {
+            padding: 1rem 0.75rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.2rem;
+            flex: 1;
+        }
+        .sidebar-nav-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.65rem 0.85rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--text-body);
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            transition: all 0.15s;
+        }
+        .sidebar-nav-item:hover { background: var(--soft); color: var(--text-heading); }
+        .sidebar-nav-item.active { background: #000; color: #fff; }
+        [data-theme="dark"] .sidebar-nav-item.active { background: #fff; color: #000; }
+        .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2.2px; }
+
+        /* Main Area */
+        .app-main {
+            margin-left: 250px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            min-height: 100vh;
+        }
+        .top-header {
+            padding: 1.25rem 2rem;
+            border-bottom: 1px solid var(--border);
+            background: var(--surface-color);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .header-title-box h1 {
+            font-size: 1.45rem;
+            font-weight: 900;
+            letter-spacing: -0.5px;
+        }
+        .mode-toggle {
+            display: inline-flex;
+            background: var(--soft);
+            padding: 3px;
+            border-radius: 999px;
+            border: 1px solid var(--border);
+            gap: 2px;
+            margin-top: 0.35rem;
+        }
+        .mode-toggle a {
+            padding: 0.3rem 0.85rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-decoration: none;
+            color: var(--text-body);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .mode-toggle a.active {
+            background: #000;
+            color: #fff;
+            font-weight: 800;
+        }
+        [data-theme="dark"] .mode-toggle a.active {
+            background: #fff;
+            color: #000;
+        }
+
+        /* Banner: Tired of forms */
+        .automation-nudge-banner {
+            margin: 1.5rem 2rem 0;
+            background: linear-gradient(135deg, rgba(212, 255, 51, 0.15), rgba(0, 204, 153, 0.12));
+            border: 1px solid rgba(0, 204, 153, 0.3);
+            border-radius: 12px;
+            padding: 0.9rem 1.25rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        .nudge-text { font-size: 0.88rem; font-weight: 700; color: var(--text-heading); }
+        .nudge-btn {
+            background: #000;
+            color: #fff;
+            padding: 0.45rem 1rem;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            font-weight: 800;
+            text-decoration: none;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+        }
+
+        /* Filter Strip */
+        .filter-bar {
+            padding: 1.25rem 2rem 0.5rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .search-input-box {
+            flex: 1;
+            min-width: 240px;
+            position: relative;
+        }
+        .search-input-box input {
+            width: 100%;
+            padding: 0.65rem 1rem 0.65rem 2.2rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface-color);
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--text-heading);
+            outline: none;
+        }
+        .search-input-box svg {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 15px;
+            height: 15px;
+            color: #71717A;
+        }
+        .filter-select {
+            padding: 0.65rem 1rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: var(--surface-color);
+            font-family: inherit;
+            font-size: 0.88rem;
+            color: var(--text-heading);
+            outline: none;
+            cursor: pointer;
+        }
+        .filter-btn {
+            padding: 0.65rem 1.2rem;
+            border-radius: 8px;
+            border: none;
+            background: #000;
+            color: #fff;
+            font-family: inherit;
+            font-size: 0.88rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        /* 2-Pane Board Layout */
+        .board-container {
+            display: flex;
+            flex: 1;
+            padding: 1rem 2rem 2rem;
+            gap: 1.5rem;
+            min-height: 0;
+        }
+        .job-list-pane {
+            flex: 1;
+            min-width: 320px;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            overflow-y: auto;
+            max-height: calc(100vh - 260px);
+            padding-right: 0.25rem;
+        }
+        .job-card {
+            background: var(--surface-color);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.15rem;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            position: relative;
+        }
+        .job-card:hover {
+            border-color: #a1a1aa;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+        }
+        .job-card.active {
+            border-color: #000;
+            box-shadow: 0 0 0 1px #000;
+        }
+        [data-theme="dark"] .job-card.active {
+            border-color: #fff;
+            box-shadow: 0 0 0 1px #fff;
+        }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+        .card-company {
+            font-size: 0.78rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--secondary);
+        }
+        .card-time {
+            font-size: 0.72rem;
+            color: #71717A;
+            font-weight: 600;
+        }
+        .card-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            line-height: 1.3;
+            color: var(--text-heading);
+            margin-bottom: 0.6rem;
+        }
+        .card-meta-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.4rem;
+            align-items: center;
+        }
+        .meta-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            background: var(--soft);
+            border: 1px solid var(--border);
+            border-radius: 999px;
+            padding: 0.2rem 0.55rem;
+            font-size: 0.72rem;
+            font-weight: 700;
+            color: var(--text-body);
+        }
+
+        /* Detail Pane */
+        .job-detail-pane {
+            flex: 1.2;
+            background: var(--surface-color);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 260px);
+            overflow-y: auto;
+            position: sticky;
+            top: 1rem;
+        }
+        .detail-placeholder {
+            margin: auto;
+            text-align: center;
+            color: #71717A;
+            padding: 3rem 1rem;
+        }
+        .detail-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            line-height: 1.25;
+            margin-bottom: 0.35rem;
+        }
+        .detail-company {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 1rem;
+        }
+
+        /* Email Tip Box */
+        .email-tip-box {
+            background: var(--soft);
+            border: 1px dashed var(--border);
+            border-radius: 10px;
+            padding: 0.85rem 1rem;
+            margin: 1.2rem 0;
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .email-tip-header {
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            color: var(--text-heading);
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .email-copy-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: var(--surface-color);
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            padding: 0.4rem 0.65rem;
+        }
+        .email-copy-text {
+            font-family: monospace;
+            font-size: 0.82rem;
+            font-weight: 700;
+            flex: 1;
+            color: var(--text-heading);
+        }
+        .copy-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 0.25rem 0.6rem;
+            font-size: 0.72rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.15s;
+        }
+        .copy-btn.copied { background: var(--secondary); }
+        .email-tip-sub {
+            font-size: 0.74rem;
+            color: #71717A;
+            line-height: 1.35;
+        }
+
+        /* Action Buttons */
+        .action-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        .apply-manual-btn {
+            flex: 1;
+            background: #000;
+            color: #fff;
+            padding: 0.85rem 1.25rem;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: transform 0.15s;
+        }
+        .apply-manual-btn:hover {
+            transform: translateY(-1px);
+        }
+        .desc-text {
+            font-size: 0.92rem;
+            line-height: 1.65;
+            color: var(--text-body);
+            white-space: pre-wrap;
+            margin-top: 1.25rem;
+        }
+
+        /* Credit Balance in Header */
+        .credit-balance {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-heading);
+        }
+        .credit-pill {
+            background: rgba(0, 204, 153, 0.1);
+            color: #00b386;
+            border: 1px solid rgba(0, 204, 153, 0.25);
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 0.78rem;
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 900px) {
+            .app-sidebar { transform: translateX(-100%); }
+            .app-sidebar.open { transform: translateX(0); }
+            .app-main { margin-left: 0; }
+            .board-container { flex-direction: column; }
+            .job-detail-pane { position: static; max-height: none; }
+            .mobile-menu-btn { display: inline-flex !important; }
+        }
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            padding: 0.4rem;
+            cursor: pointer;
+            color: var(--text-heading);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="app-sidebar" id="app-sidebar">
+            <div class="sidebar-logo-area">
+                <img src="assets/role_rover_logo.png" alt="Role Rover" style="height: 28px; width: auto;" />
+            </div>
+            <div class="sidebar-nav">
+                <a class="sidebar-nav-item" href="dashboard.html">
+                    <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
+                </a>
+                <a class="sidebar-nav-item" href="swipe.html">
+                    <i data-lucide="layers" class="sidebar-nav-icon"></i> Job Deck
+                </a>
+                <a class="sidebar-nav-item active" href="jobs.html">
+                    <i data-lucide="briefcase" class="sidebar-nav-icon"></i> Job Board (Manual)
+                </a>
+                <button class="sidebar-nav-item" onclick="window.location.href='dashboard.html#inbox'">
+                    <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
+                </button>
+                <button class="sidebar-nav-item" onclick="logout()" style="margin-top: auto;">
+                    <i data-lucide="log-out" class="sidebar-nav-icon"></i> Log Out
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="app-main">
+            <!-- Header -->
+            <header class="top-header">
+                <div style="display: flex; align-items: center; gap: 0.75rem;">
+                    <button class="mobile-menu-btn" onclick="toggleSidebar()" aria-label="Toggle menu">
+                        <i data-lucide="menu"></i>
+                    </button>
+                    <div class="header-title-box">
+                        <h1>Job Board</h1>
+                        <div class="mode-toggle">
+                            <a href="dashboard.html">⚡ Automation</a>
+                            <a href="jobs.html" class="active">📋 Manual Mode</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <div class="credit-balance" id="header-credit-balance">
+                        <span>Credits:</span>
+                        <span class="credit-pill" id="credit-count-badge">...</span>
+                    </div>
+                    <a href="index.html#pricing" style="background: var(--surface-color); color: var(--text-heading); padding: 0.45rem 1.1rem; border-radius: 8px; font-size: 0.82rem; font-weight: 700; text-decoration: none; border: 1px solid var(--border);">Upgrade</a>
+                </div>
+            </header>
+
+            <!-- Automation Nudge Banner -->
+            <div class="automation-nudge-banner">
+                <div class="nudge-text">
+                    ⚡ Tired of filling out forms manually? Switch back to Automation and let Rover tailor your CV & apply with 1-click.
+                </div>
+                <a href="swipe.html" class="nudge-btn">Go to Job Deck →</a>
+            </div>
+
+            <!-- Zero credit notice (hidden by default) -->
+            <div id="zero-credit-banner" style="display: none; margin: 1rem 2rem 0; background: rgba(0, 204, 153, 0.08); border: 1px solid rgba(0, 204, 153, 0.25); border-radius: 12px; padding: 0.85rem 1.25rem; font-size: 0.85rem; font-weight: 700;">
+                💡 <strong>Out of credits?</strong> You can still browse every job for free and apply yourself on the employer site!
+            </div>
+
+            <!-- Filter Strip -->
+            <div class="filter-bar">
+                <div class="search-input-box">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+                    <input type="text" id="filter-keyword" placeholder="Filter by title (e.g. Backend, Frontend, Engineer)..." />
+                </div>
+                <select class="filter-select" id="filter-workplace">
+                    <option value="">All Workplace Types</option>
+                    <option value="Remote">Remote</option>
+                    <option value="Hybrid">Hybrid</option>
+                    <option value="On-site">On-site</option>
+                </select>
+                <button class="filter-btn" onclick="applyFilters()">Search</button>
+            </div>
+
+            <!-- Board Panes -->
+            <div class="board-container">
+                <!-- Left: List -->
+                <div class="job-list-pane" id="job-list-container">
+                    <div style="text-align: center; padding: 3rem 1rem; color: #71717A;">
+                        Loading jobs from pool...
+                    </div>
+                </div>
+
+                <!-- Right: Detail -->
+                <div class="job-detail-pane" id="job-detail-container">
+                    <div class="detail-placeholder">
+                        <i data-lucide="mouse-pointer-click" style="width: 36px; height: 36px; stroke-width: 1.5; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        <p style="font-weight: 700;">Select a job to view details & apply</p>
+                        <p style="font-size: 0.82rem; margin-top: 0.25rem;">Browse unscored postings directly from the verified live pool.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let currentUser = null;
+        let userProfile = null;
+        let loadedJobs = [];
+        let activeJob = null;
+
+        function toggleSidebar() {
+            document.getElementById('app-sidebar').classList.toggle('open');
+        }
+
+        async function logout() {
+            await supabaseClient.auth.signOut();
+            window.location.href = 'login.html';
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str || '';
+            return div.innerHTML;
+        }
+
+        function timeAgo(dateString) {
+            if (!dateString) return '';
+            const diff = Date.now() - new Date(dateString).getTime();
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            if (days <= 0) return 'Today';
+            if (days === 1) return 'Yesterday';
+            if (days < 30) return `${days}d ago`;
+            return `${Math.floor(days / 30)}mo ago`;
+        }
+
+        // Initialize & Auth Gate
+        (async function init() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (!session) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = session.user;
+
+            // Strict Gate: check feature_access for manual_mode
+            const { data: featureAccess } = await supabaseClient
+                .from('feature_access')
+                .select('enabled')
+                .eq('user_id', currentUser.id)
+                .eq('feature', 'manual_mode')
+                .maybeSingle();
+
+            if (!featureAccess || !featureAccess.enabled) {
+                // Non-test users are redirected back to normal dashboard
+                window.location.href = 'dashboard.html';
+                return;
+            }
+
+            // Fetch profile for default filters & credits
+            const { data: profile } = await supabaseClient
+                .from('profiles')
+                .select('id, target_job_titles, target_location, workplace_type, Application_email, applications_limit, application_credit_used')
+                .eq('id', currentUser.id)
+                .single();
+            userProfile = profile;
+
+            // Render credit counter
+            const creditBalance = Math.max(0, (profile.applications_limit || 0) - (profile.application_credit_used || 0));
+            const creditBadge = document.getElementById('credit-count-badge');
+            if (creditBadge) {
+                creditBadge.textContent = `${creditBalance} / ${profile.applications_limit || 0}`;
+            }
+            if (creditBalance === 0) {
+                const zeroBanner = document.getElementById('zero-credit-banner');
+                if (zeroBanner) zeroBanner.style.display = 'block';
+            }
+
+            // Prefill search from user target titles
+            if (profile.target_job_titles) {
+                const firstTitle = profile.target_job_titles.split(',')[0].trim();
+                const keyword = firstTitle.split(' ')[0];
+                const input = document.getElementById('filter-keyword');
+                if (input && keyword) input.value = keyword;
+            }
+
+            // Load jobs
+            await loadJobs();
+
+            if (window.lucide) window.lucide.createIcons();
+        })();
+
+        async function loadJobs() {
+            const container = document.getElementById('job-list-container');
+            container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #71717A;">Searching live job pool...</div>';
+
+            const keywordInput = document.getElementById('filter-keyword').value.trim();
+            const wpFilter = document.getElementById('filter-workplace').value;
+
+            try {
+                // Query public job pool through Supabase REST with anon key
+                let query = supabaseClient
+                    .from('job_pool')
+                    .select('id, title, company_name, company, location, workplace_type, apply_url, created_at, salary_range')
+                    .eq('is_active', true)
+                    .neq('source_ats', 'ashby')
+                    .order('created_at', { ascending: false })
+                    .limit(30);
+
+                if (keywordInput) {
+                    query = query.textSearch('title_tsv', keywordInput, { type: 'websearch' });
+                }
+                if (wpFilter) {
+                    query = query.eq('workplace_type', wpFilter);
+                }
+
+                const { data: jobs, error } = await query;
+                if (error) throw error;
+
+                loadedJobs = jobs || [];
+                renderJobList();
+            } catch (err) {
+                console.error('Job load failed:', err);
+                container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #ef4444;">Unable to load jobs right now. Please try a different title search.</div>';
+            }
+        }
+
+        function renderJobList() {
+            const container = document.getElementById('job-list-container');
+            if (!loadedJobs || loadedJobs.length === 0) {
+                container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #71717A;">No jobs found matching this criteria. Try clearing the search term.</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            loadedJobs.forEach(job => {
+                const card = document.createElement('div');
+                card.className = 'job-card' + (activeJob && activeJob.id === job.id ? ' active' : '');
+                card.onclick = () => selectJob(job, card);
+
+                const company = escapeHtml(job.company_name || job.company || 'Company');
+                const title = escapeHtml(job.title || 'Untitled Role');
+                const loc = escapeHtml(job.location || 'Location Unspecified');
+                const wp = escapeHtml(job.workplace_type || 'Full Time');
+                const time = timeAgo(job.created_at);
+
+                card.innerHTML = `
+                    <div class="card-header">
+                        <span class="card-company">${company}</span>
+                        <span class="card-time">${time}</span>
+                    </div>
+                    <div class="card-title">${title}</div>
+                    <div class="card-meta-row">
+                        <span class="meta-pill"><i data-lucide="map-pin" style="width:12px;height:12px;"></i> ${loc}</span>
+                        <span class="meta-pill"><i data-lucide="briefcase" style="width:12px;height:12px;"></i> ${wp}</span>
+                        ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            if (window.lucide) window.lucide.createIcons();
+
+            // Auto-select first job if none selected
+            if (!activeJob && loadedJobs.length > 0) {
+                selectJob(loadedJobs[0], container.firstChild);
+            }
+        }
+
+        async function selectJob(job, cardElement) {
+            activeJob = job;
+            document.querySelectorAll('.job-card').forEach(c => c.classList.remove('active'));
+            if (cardElement) cardElement.classList.add('active');
+
+            const detailPane = document.getElementById('job-detail-container');
+            const company = escapeHtml(job.company_name || job.company || 'Company');
+            const title = escapeHtml(job.title || 'Untitled Role');
+            const loc = escapeHtml(job.location || 'Unspecified Location');
+            const appEmail = userProfile && userProfile.Application_email ? userProfile.Application_email : '';
+
+            detailPane.innerHTML = `
+                <div class="detail-company">${company}</div>
+                <h2 class="detail-title">${title}</h2>
+                <div class="card-meta-row" style="margin-bottom: 0.75rem;">
+                    <span class="meta-pill"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> ${loc}</span>
+                    <span class="meta-pill"><i data-lucide="briefcase" style="width:13px;height:13px;"></i> ${escapeHtml(job.workplace_type || 'Standard')}</span>
+                    ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:13px;height:13px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
+                </div>
+
+                ${appEmail ? `
+                <div class="email-tip-box">
+                    <div class="email-tip-header">
+                        <i data-lucide="sparkles" style="width:13px;height:13px;color:var(--secondary);"></i>
+                        RoleRover Application Email (Optional)
+                    </div>
+                    <div class="email-copy-row">
+                        <span class="email-copy-text" id="copy-email-val">${escapeHtml(appEmail)}</span>
+                        <button class="copy-btn" id="copy-email-btn" onclick="copyEmail('${escapeHtml(appEmail)}')">Copy</button>
+                    </div>
+                    <div class="email-tip-sub">
+                        Use this address on the employer form so company interview invites land straight into your RoleRover mailbox.
+                    </div>
+                </div>
+                ` : ''}
+
+                <div class="action-row">
+                    <a href="${job.apply_url || '#'}" target="_blank" rel="noopener noreferrer" class="apply-manual-btn" onclick="recordApplyClick('${job.id}')">
+                        Apply on company site ↗
+                    </a>
+                </div>
+
+                <div id="job-desc-body" class="desc-text">
+                    <span style="color:#71717A;">Loading full description...</span>
+                </div>
+            `;
+
+            if (window.lucide) window.lucide.createIcons();
+
+            // Fetch description on-demand
+            try {
+                const { data } = await supabaseClient
+                    .from('job_pool')
+                    .select('description_text')
+                    .eq('id', job.id)
+                    .single();
+                const descBody = document.getElementById('job-desc-body');
+                if (descBody) {
+                    descBody.textContent = (data && data.description_text) ? data.description_text : 'No description text provided for this posting.';
+                }
+            } catch (err) {
+                const descBody = document.getElementById('job-desc-body');
+                if (descBody) descBody.textContent = 'Could not load job description text.';
+            }
+        }
+
+        function copyEmail(email) {
+            navigator.clipboard.writeText(email);
+            const btn = document.getElementById('copy-email-btn');
+            if (btn) {
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }
+        }
+
+        function recordApplyClick(jobId) {
+            try {
+                supabaseClient.rpc('log_upgrade_event', {
+                    p_event: 'manual_apply_click',
+                    p_source: 'manual_board',
+                    p_meta: { job_id: jobId }
+                }).then(() => {}, () => {});
+            } catch (e) {}
+        }
+
+        function applyFilters() {
+            loadJobs();
+        }
+
+        document.getElementById('filter-keyword').addEventListener('keydown', e => {
+            if (e.key === 'Enter') applyFilters();
+        });
+        document.getElementById('filter-workplace').addEventListener('change', applyFilters);
+    </script>
+</body>
+</html>
