@@ -2108,8 +2108,8 @@
         }
 
         // Roles the user confirmed at onboarding (profile_target_roles -> std_roles.name) are what actually
-        // drive job matching. Returns a comma-separated string, or null so callers fall back to the old
-        // typed text (users with no confirmed role, or any read error).
+        // drive job matching. Returns a comma-separated string, or null when there are none (no fallback
+        // to the old typed text -- a user without a confirmed role gets no matches by design).
         async function fetchConfirmedRoleNames(userId) {
             try {
                 const { data, error } = await supabaseClient
@@ -2258,7 +2258,7 @@
             // this only substitutes what gets handed to the chip renderer.
             const rolesForDisplay = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e')
                 ? 'Backend Engineer, Backend Software Engineer, API Engineer'
-                : ((await fetchConfirmedRoleNames(user.id)) || profile.target_job_titles);
+                : (await fetchConfirmedRoleNames(user.id));
             renderPrefChips('pref-roles', rolesForDisplay);
             // Same demo-only treatment as roles above: display only; the real
             // value driving geo eligibility is profile.country, with
@@ -3314,7 +3314,7 @@
             const { data: { user } } = await supabaseClient.auth.getUser();
             const { data: profile } = await supabaseClient.from('profiles').select('target_job_titles, target_location, country, workplace_type').eq('id', user.id).single();
             if (profile) {
-                document.getElementById('set-roles').value = (await fetchConfirmedRoleNames(user.id)) || profile.target_job_titles || '';
+                document.getElementById('set-roles').value = (await fetchConfirmedRoleNames(user.id)) || '';
                 document.getElementById('set-countries').value = profile.country || profile.target_location || '';
                 const wps = (profile.workplace_type || '').toLowerCase();
                 document.querySelectorAll('input[name="set-wp"]').forEach(cb => {
