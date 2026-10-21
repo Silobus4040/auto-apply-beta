@@ -279,3 +279,48 @@ panel, apply link, and email-copy box.
 Docs referenced: https://supabase.com/docs/guides/database/full-text-search (confirmed this new
 function doesn't need it — PostgREST filters can't express the alias/neighbor-join logic, hence an
 RPC, same pattern the docs' own "Extending functionality with RPC" section recommends).
+
+---
+
+## 9. Country / remote-scope geo-eligibility added to Manual Mode — commits `918d8cd`
+
+Founder asked for the same country/global-remote eligibility mechanics automation uses. Traced
+automation's gate (`job_gate_v3` -> `geo_gate_v2`, reading `profiles.country/state/city/
+remote_scope`, `job_pool.remote_geo_scope/remote_geo_regions`, cached per-country verdicts in
+`job_geo_checks`) and extended `search_board_jobs_v1` (migrations `search_board_jobs_v1_add_geo`,
+then `search_board_jobs_v1_drop_old_overload` to remove a stale 3-arg overload `create or replace`
+left behind — Postgres treats a different parameter list as a new overload, not a replacement)
+with `p_country`, `p_remote_scope` ('local'/'global'/'both'), `p_hide_closed`. Builds the same
+`geo_gate_v2` inputs (`resolve_country_iso2`, `get_country_region`, `get_country_continent`,
+`get_country_match_terms`) from a plain country string since Manual Mode has no city/state field.
+
+`jobs.html` gained: a country text input, a remote-scope select, and a "Hide geo-closed" checkbox
+— both country and scope prefill from `profiles.country`/`profiles.remote_scope` (same fields
+automation reads). Each card now shows an Open / Check eligibility / Likely closed badge; closed
+jobs stay visible by default (Manual Mode's "see everything" ethos) and are only hidden when the
+checkbox is ticked.
+
+No new Supabase product/feature is introduced here (same Postgres functions/RPC pattern as §8), so
+no additional doc link beyond the one already logged there.
+
+**Verified live, not just assumed:**
+- A job with `remote_geo_scope='anywhere'` (e.g. "Staff Software Engineer" at B12, location
+  "Anywhere") returns `geo_status='open'` regardless of country.
+- A job with `remote_geo_scope='restricted'`, `remote_geo_regions=['US']` returns `'open'` for
+  country="United States" and `'closed'` for country="Nigeria".
+- An on-site job correctly gates on its `location` text against the country, not on
+  `remote_geo_scope` (a stale/irrelevant field for on-site rows).
+- End-to-end in mosco's real authenticated session (country=Nigeria, scope=global, prefilled
+  correctly from his profile): "Hide geo-closed" surfaced real Nigeria-eligible roles — e.g.
+  OpenFn's "Staff Software Engineer (Back-End)" which explicitly lists Nigeria in its location
+  text — and hid country-restricted ones (Affirm's Remote-Canada/Remote-US/Remote-Poland/
+  Remote-Spain postings, Toronto/Gurgaon/Bucharest on-site roles, etc.).
+- For mosco's actual profile settings (Backend Engineer, Nigeria, global scope) the honest count
+  across the full 5,721-job taxonomy pool: **87 open, 60 check, 5,574 closed.** Automation's own
+  `job_gate_v3` independently agrees at the same order of magnitude (47 total candidates survive
+  its combined freshness+workplace+level+role+geo gates, all landing in `'check'`, zero `'open'`)
+  — the two numbers aren't identical (automation also requires 48h freshness, workplace_type/
+  salary enrichment completion, and dedup against swipes/applications that Manual Mode
+  deliberately skips), but they agree on the underlying geo picture: very few backend-engineering
+  remote jobs in the pool right now are confidently open to a Nigeria-based, global-scope
+  applicant. Worth the founder's attention separately from this search work.
