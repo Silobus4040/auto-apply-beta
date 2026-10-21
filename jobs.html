@@ -816,7 +816,7 @@
                         <span class="meta-pill"><i data-lucide="map-pin" style="width:12px;height:12px;"></i> ${loc}</span>
                         <span class="meta-pill"><i data-lucide="briefcase" style="width:12px;height:12px;"></i> ${wp}</span>
                         ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
-                        ${job.matched_role_name && job.is_direct_role_match === false ? `<span class="meta-pill" style="opacity:0.75;" title="Related to your search via a nearby role in our taxonomy">Related: ${escapeHtml(job.matched_role_name)}</span>` : ''}
+                        ${job.matched_role_name && job.is_direct_role_match === false ? `<span class="meta-pill related-role-pill" data-role="${escapeHtml(job.matched_role_name)}" style="cursor:pointer; text-decoration:underline; opacity:0.85;" title="See more ${escapeHtml(job.matched_role_name)} jobs">Similar role: ${escapeHtml(job.matched_role_name)}</span>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
@@ -962,6 +962,17 @@
         document.getElementById('filter-keyword').addEventListener('keydown', e => {
             if (e.key === 'Enter') applyFilters();
         });
+
+        // Delegated so it keeps working as job-list-container's cards get re-rendered.
+        // stopPropagation so clicking the pill doesn't also select the card underneath it.
+        document.getElementById('job-list-container').addEventListener('click', e => {
+            const pill = e.target.closest('.related-role-pill');
+            if (!pill) return;
+            e.stopPropagation();
+            document.getElementById('filter-keyword').value = pill.dataset.role;
+            applyFilters();
+        });
+
         document.querySelectorAll('.wp-check').forEach(cb => cb.addEventListener('change', applyFilters));
         document.getElementById('filter-country').addEventListener('keydown', e => {
             if (e.key === 'Enter') applyFilters();
