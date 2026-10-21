@@ -324,3 +324,63 @@ no additional doc link beyond the one already logged there.
   deliberately skips), but they agree on the underlying geo picture: very few backend-engineering
   remote jobs in the pool right now are confidently open to a Nigeria-based, global-scope
   applicant. Worth the founder's attention separately from this search work.
+
+---
+
+## 10. Workplace-type filter rebuilt to match automation + researched Indeed live — commit `73f12a9`
+
+Founder asked (a) to keep the location/country field separate from workplace type, and (b) to use
+"the workplace type we use on automation" instead of a single-select Remote/Hybrid/On-site
+dropdown. Traced `dashboard.html` (lines ~2275, ~2550): `profiles.workplace_type` is a
+**comma-separated multi-select** ("Remote,Hybrid"), and the dashboard's own pref-chip rendering
+further expands "Remote" into **"Remote (Global)" / "Remote (Local)"** chips based on
+`profiles.remote_scope` — it does not use a separate standalone scope dropdown either.
+
+Rebuilt `jobs.html`'s filter bar to match exactly: On-site / Hybrid / Remote checkboxes
+(multi-select, not single dropdown), with Remote (Global) / Remote (Local) sub-checkboxes that
+only appear once Remote is checked — same labels, same data source (`profiles.workplace_type`,
+`profiles.remote_scope`), same prefill. `search_board_jobs_v1` updated to take
+`p_workplace_types text[]` (was a single `text`) — migration `search_board_jobs_v1_multiselect_
+workplace`, same "drop the old overload" step as before.
+
+Separately, founder asked to research how Indeed does job search rather than reinvent our own
+design ("enter the internet and find out"). Went to `ng.indeed.com` and `www.indeed.com` directly
+(no official API exists — a web search turns up only third-party scrapers) and tested live:
+- Indeed uses **one combined location box** ("City, state, zip code, or 'remote'"), not separate
+  country/scope controls — the founder's separate-location instruction above overrides copying
+  this specific part.
+- When location is ambiguous, Indeed shows a one-time **Yes/No disambiguation prompt**
+  ("Showing jobs in Nigeria. Want remote only?") rather than a persistent scope dropdown.
+- Indeed's "Remote" filter is a **plain workplace-type checkbox** (Remote vs Hybrid), with no
+  local/global distinction — that distinction lives in a separate "Residency Requirement" facet
+  (US states on the main site) that works as a **silent filter**, never a visible per-card badge.
+- Job cards on Indeed show no eligibility/residency info at all.
+
+Applied the one directly-portable lesson: **dropped the Open/Check/Closed per-card badges and the
+separate "Hide geo-closed" checkbox.** Country is now a quiet filter — geo-closed postings are
+simply excluded from the result set once a country is set, exactly like Indeed's Residency
+Requirement facet, with no visible label. Verified live in mosco's session: Remote (Global)
+prefills checked / Remote (Local) unchecked (matches his `remote_scope='global'`), country
+prefills "Nigeria", and the list is Remote-only with no geo-closed postings and no badges.
+
+---
+
+## 11. Bigger text + one-time email nudge — commit `155bbd8`
+
+Two founder-reported UX issues from testing live:
+
+1. **Text too small** — bumped font sizes across the board (search box, filter checkboxes,
+   country field, job card title/company/meta pills, detail-pane title/company, description
+   text, Apply button) to roughly match Indeed's scale, checked directly against the
+   `indeed.com`/`ng.indeed.com` screenshots from §10's research. Job titles especially (`.card-title`
+   1.05rem -> 1.3rem, `.detail-title` 1.35rem -> 1.6rem) were noticeably smaller than Indeed's
+   before this.
+
+2. **Email nudge box disrupting the view** — it re-rendered inside every job's detail pane on
+   every card click. Added `profiles.has_seen_manual_email_nudge` (migration
+   `profiles_add_manual_email_nudge_seen`) and an "Understood" button, mirroring the exact
+   `has_seen_inbox_intro` pattern `dashboard.html` already uses for its own one-time inbox intro
+   (localStorage for instant dismiss + a profiles column for cross-device durability). Verified
+   live: dismissing it removes the box immediately, it does not reappear when selecting a
+   different job, and it stays gone after a full page reload — confirmed
+   `has_seen_manual_email_nudge = true` in the DB for mosco afterward.
