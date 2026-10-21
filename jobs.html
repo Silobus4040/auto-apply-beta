@@ -543,21 +543,17 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
                     <input type="text" id="filter-keyword" placeholder="Filter by title (e.g. Backend, Frontend, Engineer)..." />
                 </div>
-                <select class="filter-select" id="filter-workplace">
-                    <option value="">All Workplace Types</option>
-                    <option value="Remote">Remote</option>
-                    <option value="Hybrid">Hybrid</option>
-                    <option value="On-site">On-site</option>
-                </select>
+                <!-- Same multi-select workplace-type representation profiles.workplace_type uses
+                     (dashboard.html expands it into chips, splitting Remote by remote_scope into
+                     "Remote (Global)" / "Remote (Local)") -- not a single-select dropdown. -->
+                <div class="wp-check-group" style="display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; font-weight:700; color:#27272A;">
+                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" class="wp-check" value="On-site" /> On-site</label>
+                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" class="wp-check" value="Hybrid" /> Hybrid</label>
+                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" id="filter-wp-remote" class="wp-check" value="Remote" /> Remote</label>
+                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap; opacity:0.85;"><input type="checkbox" id="filter-remote-global" checked /> Global</label>
+                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap; opacity:0.85;"><input type="checkbox" id="filter-remote-local" checked /> Local</label>
+                </div>
                 <input type="text" class="filter-select" id="filter-country" placeholder="Country (e.g. Nigeria)" style="min-width: 160px;" />
-                <select class="filter-select" id="filter-remote-scope" title="Which remote-eligible regions count as 'open' for you">
-                    <option value="both">Local + Global remote</option>
-                    <option value="local">Local-restricted remote only</option>
-                    <option value="global">Global-open remote only</option>
-                </select>
-                <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.8rem; font-weight:700; color:#71717A; white-space:nowrap;">
-                    <input type="checkbox" id="filter-hide-closed" /> Hide geo-closed
-                </label>
                 <button class="filter-btn" onclick="applyFilters()">Search</button>
             </div>
 
@@ -675,16 +671,28 @@
                     if (input && keyword) input.value = keyword;
                 }
 
-                // Prefill country/remote-scope from profile (same fields automation's
-                // job_gate_v3/geo_gate_v2 gate on) so the board defaults to "what's open to me"
+                // Prefill workplace types/country/remote-scope straight from the same
+                // profile fields automation reads (profiles.workplace_type is the same
+                // comma-separated multi-select dashboard.html parses; profiles.country /
+                // profiles.remote_scope are what job_gate_v3/geo_gate_v2 gate on).
+                const rawWorkplaces = (profile.workplace_type || '')
+                    .split(',').map(w => w.trim()).filter(Boolean);
+                if (rawWorkplaces.length) {
+                    document.querySelectorAll('.wp-check').forEach(cb => {
+                        cb.checked = rawWorkplaces.some(w => w.toLowerCase() === cb.value.toLowerCase());
+                    });
+                }
                 if (profile.country) {
                     const countryInput = document.getElementById('filter-country');
                     if (countryInput) countryInput.value = profile.country;
                 }
-                if (profile.remote_scope) {
-                    const scopeSelect = document.getElementById('filter-remote-scope');
-                    if (scopeSelect) scopeSelect.value = profile.remote_scope;
+                const scope = (profile.remote_scope || '').trim().toLowerCase();
+                if (scope === 'global') {
+                    document.getElementById('filter-remote-local').checked = false;
+                } else if (scope === 'local') {
+                    document.getElementById('filter-remote-global').checked = false;
                 }
+                syncRemoteSubChecks();
 
                 // Load jobs
                 await loadJobs();
@@ -707,10 +715,11 @@
             container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #71717A;">Searching live job pool...</div>';
 
             const keywordInput = document.getElementById('filter-keyword').value.trim();
-            const wpFilter = document.getElementById('filter-workplace').value;
+            const wpTypes = Array.from(document.querySelectorAll('.wp-check:checked')).map(cb => cb.value);
             const countryInput = document.getElementById('filter-country').value.trim();
-            const remoteScope = document.getElementById('filter-remote-scope').value;
-            const hideClosed = document.getElementById('filter-hide-closed').checked;
+            const remoteGlobal = document.getElementById('filter-remote-global').checked;
+            const remoteLocal = document.getElementById('filter-remote-local').checked;
+            const remoteScope = remoteGlobal && remoteLocal ? 'both' : (remoteGlobal ? 'global' : (remoteLocal ? 'local' : 'both'));
 
             try {
                 // search_board_jobs_v1: resolves the search term against the SAME taxonomy
@@ -725,18 +734,17 @@
                 // deliberately skips the 48h-freshness/workplace_type/salary gates — Manual
                 // Mode's whole point is browsing the raw pool, not a curated deck.
                 //
-                // Country/remote-scope use the exact same geo_gate_v2 mechanics as automation's
-                // job_gate_v3 (verified live against known restricted/anywhere jobs) to label
-                // each result open/check/closed for the chosen country — but only FILTERS them
-                // out when "Hide geo-closed" is ticked, since Manual Mode still shows everything
-                // by default.
+                // Workplace type is the same multi-select profiles.workplace_type represents
+                // (checkboxes, not a single dropdown). Country uses the exact same geo_gate_v2
+                // mechanics as automation's job_gate_v3 to quietly drop geo-closed postings —
+                // a plain filter, same as Indeed's "Residency Requirement" facet, not a visible
+                // per-card badge.
                 const { data: jobs, error } = await supabaseClient.rpc('search_board_jobs_v1', {
                     p_query: keywordInput || null,
-                    p_workplace_type: wpFilter || null,
+                    p_workplace_types: wpTypes.length ? wpTypes : null,
                     p_limit: 30,
                     p_country: countryInput || null,
-                    p_remote_scope: remoteScope || 'both',
-                    p_hide_closed: hideClosed,
+                    p_remote_scope: remoteScope,
                 });
                 if (error) throw error;
 
@@ -766,11 +774,6 @@
                 const loc = escapeHtml(job.location || 'Location Unspecified');
                 const wp = escapeHtml(job.workplace_type || 'Full Time');
                 const time = timeAgo(job.created_at);
-                const geoBadge = {
-                    open: '<span class="meta-pill" style="background:rgba(0,204,153,0.12); color:#00a37a;" title="Likely open to your chosen country">✓ Open to you</span>',
-                    check: '<span class="meta-pill" style="background:rgba(234,179,8,0.12); color:#a16207;" title="Eligibility unclear for your chosen country — check the posting">? Check eligibility</span>',
-                    closed: '<span class="meta-pill" style="background:rgba(239,68,68,0.1); color:#dc2626;" title="Likely restricted away from your chosen country">✕ Likely closed</span>',
-                }[job.geo_status] || '';
 
                 card.innerHTML = `
                     <div class="card-header">
@@ -783,7 +786,6 @@
                         <span class="meta-pill"><i data-lucide="briefcase" style="width:12px;height:12px;"></i> ${wp}</span>
                         ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
                         ${job.matched_role_name && job.is_direct_role_match === false ? `<span class="meta-pill" style="opacity:0.75;" title="Related to your search via a nearby role in our taxonomy">Related: ${escapeHtml(job.matched_role_name)}</span>` : ''}
-                        ${geoBadge}
                     </div>
                 `;
                 container.appendChild(card);
@@ -893,12 +895,22 @@
         document.getElementById('filter-keyword').addEventListener('keydown', e => {
             if (e.key === 'Enter') applyFilters();
         });
-        document.getElementById('filter-workplace').addEventListener('change', applyFilters);
+        document.querySelectorAll('.wp-check').forEach(cb => cb.addEventListener('change', applyFilters));
         document.getElementById('filter-country').addEventListener('keydown', e => {
             if (e.key === 'Enter') applyFilters();
         });
-        document.getElementById('filter-remote-scope').addEventListener('change', applyFilters);
-        document.getElementById('filter-hide-closed').addEventListener('change', applyFilters);
+        document.getElementById('filter-remote-global').addEventListener('change', applyFilters);
+        document.getElementById('filter-remote-local').addEventListener('change', applyFilters);
+
+        // Global/Local only matter once "Remote" itself is checked (mirrors
+        // dashboard.html's Remote (Global)/Remote (Local) chip expansion).
+        function syncRemoteSubChecks() {
+            const on = document.getElementById('filter-wp-remote').checked;
+            document.getElementById('filter-remote-global').closest('label').style.display = on ? '' : 'none';
+            document.getElementById('filter-remote-local').closest('label').style.display = on ? '' : 'none';
+        }
+        document.getElementById('filter-wp-remote').addEventListener('change', syncRemoteSubChecks);
+        syncRemoteSubChecks();
     </script>
 </body>
 </html>
