@@ -466,3 +466,26 @@ Also investigated a recurring `"status 400"` console error seen during this test
 (via a temporary fetch-hook, then removed) to the Cloudflare Insights analytics beacon's CORS
 fallback getting rejected by Cloudflare because `localhost` isn't a registered site with them —
 unrelated to this app, local-testing-only noise, no fix needed.
+
+---
+
+## 17. Workplace-type filter race condition — commit `65508c0`
+
+Founder reported on the live production site: checking "On-site" only still showed Remote jobs
+mixed in. First ruled out the obvious suspects — fetched `jobs.html` fresh from `myrolerover.com`
+with `cache: 'no-store'` and confirmed production had every one of today's fixes already deployed
+(not a stale-cache issue), and confirmed `search_board_jobs_v1` itself filters correctly when
+called directly with the exact same params (SQL and a manual `supabaseClient.rpc()` call both
+returned 7 correct On-site-only rows).
+
+Reproduced the real bug via actual UI clicks on the local copy (not synthetic value-setting):
+check On-site -> uncheck Remote -> click Search. Every checkbox change fires its own independent
+`loadJobs()` call without awaiting or cancelling the previous one — the click on On-site fired a
+search that captured `workplace_types=['On-site','Remote']` (both still checked at that instant,
+before Remote was unchecked a moment later), and whichever response happened to land last on the
+wire overwrote `loadedJobs`, regardless of which request was actually the most recent.
+
+Fixed with a monotonic `searchSeq` counter: each `loadJobs()` call captures its own sequence number
+at the start and only applies its response if it's still the latest call issued by the time the
+response arrives; anything superseded by a newer search is silently discarded. Verified with the
+exact reported repro — reliably shows 7 On-site-only jobs now, no Remote jobs mixed in.
