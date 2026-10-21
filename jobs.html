@@ -686,7 +686,14 @@
                     .limit(30);
 
                 if (keywordInput) {
-                    query = query.textSearch('title_tsv', keywordInput, { type: 'websearch' });
+                    // ILIKE-per-word AND match on title (same approach as the automation's
+                    // match-pool-jobs role_family_matches/ILIKE search) — more resilient to
+                    // title variations like "Senior Backend Software Engineer" than tsvector
+                    // stemming, and still index-accelerated via job_pool_title_trgm_idx (pg_trgm).
+                    const words = keywordInput.split(/\s+/).filter(Boolean);
+                    words.forEach(word => {
+                        query = query.ilike('title', `%${word}%`);
+                    });
                 }
                 if (wpFilter) {
                     query = query.eq('workplace_type', wpFilter);
