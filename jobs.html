@@ -613,6 +613,23 @@
                 }
                 currentUser = session.user;
 
+                // getSession() only reads whatever's cached in localStorage -- it doesn't
+                // validate it against the server. A tab left open/asleep long enough for the
+                // access token to actually expire (its background auto-refresh timer doesn't
+                // run while the tab is backgrounded or the machine is asleep) was surfacing as
+                // "profile fetch failed: JWT expired" on the next query. Only force a refresh
+                // when the cached token is actually near/past expiry -- calling refreshSession()
+                // unconditionally on every load can race supabase-js's own background refresh
+                // and get rejected (refresh tokens are single-use when rotation is on).
+                const expiresAtMs = session.expires_at ? session.expires_at * 1000 : 0;
+                if (expiresAtMs < Date.now() + 60000) {
+                    const { error: refreshError } = await supabaseClient.auth.refreshSession();
+                    if (refreshError) {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                }
+
                 // Strict Gate: check feature_access for manual_mode
                 let isAllowed = (currentUser.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
                 if (!isAllowed) {
