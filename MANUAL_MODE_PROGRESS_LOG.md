@@ -443,3 +443,26 @@ sample (an Elastic posting with `created_at` 92 days before `last_seen_at` = tod
 was really "how long we've tracked it," not "posted X ago" — a real risk of misleading users.
 Founder decided to just remove it rather than relabel. Dropped the `card-time` span, the now-unused
 `timeAgo()` helper, and its CSS rule.
+
+---
+
+## 16. "JWT expired" root cause fixed — commit `20ca335`
+
+Founder hit the try/catch error message added in §7 ("profile fetch failed: JWT expired") — that
+error-surfacing worked as designed (no more infinite spinner), but the underlying cause was real:
+`getSession()` only reads whatever's cached in `localStorage`; it doesn't validate against the
+server. A tab left open/asleep long enough (supabase-js's background auto-refresh timer doesn't
+run while backgrounded or the machine is asleep) ends up with a genuinely stale access token by the
+time the next query fires.
+
+Fixed: right after `getSession()`, check `session.expires_at` and force a `refreshSession()` only
+when the cached token is within 60s of (or past) expiry; if that refresh itself fails, send the
+user back to `login.html` instead of showing an error. Deliberately conditional — an unconditional
+refresh-every-load version was tried first and risked racing supabase-js's own background refresh
+(refresh tokens are single-use under rotation, so a redundant call can get rejected). Verified a
+normal session (63 min remaining) loads cleanly with the refresh correctly skipped.
+
+Also investigated a recurring `"status 400"` console error seen during this testing: traced it
+(via a temporary fetch-hook, then removed) to the Cloudflare Insights analytics beacon's CORS
+fallback getting rejected by Cloudflare because `localhost` isn't a registered site with them —
+unrelated to this app, local-testing-only noise, no fix needed.
