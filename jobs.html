@@ -549,6 +549,15 @@
                     <option value="Hybrid">Hybrid</option>
                     <option value="On-site">On-site</option>
                 </select>
+                <input type="text" class="filter-select" id="filter-country" placeholder="Country (e.g. Nigeria)" style="min-width: 160px;" />
+                <select class="filter-select" id="filter-remote-scope" title="Which remote-eligible regions count as 'open' for you">
+                    <option value="both">Local + Global remote</option>
+                    <option value="local">Local-restricted remote only</option>
+                    <option value="global">Global-open remote only</option>
+                </select>
+                <label style="display:flex; align-items:center; gap:0.35rem; font-size:0.8rem; font-weight:700; color:#71717A; white-space:nowrap;">
+                    <input type="checkbox" id="filter-hide-closed" /> Hide geo-closed
+                </label>
                 <button class="filter-btn" onclick="applyFilters()">Search</button>
             </div>
 
@@ -641,7 +650,7 @@
                 // Fetch profile for default filters & credits
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
-                    .select('id, target_job_titles, target_location, workplace_type, Application_email, applications_limit, application_credit_used')
+                    .select('id, target_job_titles, target_location, workplace_type, country, remote_scope, Application_email, applications_limit, application_credit_used')
                     .eq('id', currentUser.id)
                     .single();
                 if (profileError) throw new Error(`profile fetch failed: ${profileError.message}`);
@@ -666,6 +675,17 @@
                     if (input && keyword) input.value = keyword;
                 }
 
+                // Prefill country/remote-scope from profile (same fields automation's
+                // job_gate_v3/geo_gate_v2 gate on) so the board defaults to "what's open to me"
+                if (profile.country) {
+                    const countryInput = document.getElementById('filter-country');
+                    if (countryInput) countryInput.value = profile.country;
+                }
+                if (profile.remote_scope) {
+                    const scopeSelect = document.getElementById('filter-remote-scope');
+                    if (scopeSelect) scopeSelect.value = profile.remote_scope;
+                }
+
                 // Load jobs
                 await loadJobs();
 
@@ -688,6 +708,9 @@
 
             const keywordInput = document.getElementById('filter-keyword').value.trim();
             const wpFilter = document.getElementById('filter-workplace').value;
+            const countryInput = document.getElementById('filter-country').value.trim();
+            const remoteScope = document.getElementById('filter-remote-scope').value;
+            const hideClosed = document.getElementById('filter-hide-closed').checked;
 
             try {
                 // search_board_jobs_v1: resolves the search term against the SAME taxonomy
@@ -701,10 +724,19 @@
                 // or when there's no keyword at all. Unlike automation's live swipe deck, this
                 // deliberately skips the 48h-freshness/workplace_type/salary gates — Manual
                 // Mode's whole point is browsing the raw pool, not a curated deck.
+                //
+                // Country/remote-scope use the exact same geo_gate_v2 mechanics as automation's
+                // job_gate_v3 (verified live against known restricted/anywhere jobs) to label
+                // each result open/check/closed for the chosen country — but only FILTERS them
+                // out when "Hide geo-closed" is ticked, since Manual Mode still shows everything
+                // by default.
                 const { data: jobs, error } = await supabaseClient.rpc('search_board_jobs_v1', {
                     p_query: keywordInput || null,
                     p_workplace_type: wpFilter || null,
                     p_limit: 30,
+                    p_country: countryInput || null,
+                    p_remote_scope: remoteScope || 'both',
+                    p_hide_closed: hideClosed,
                 });
                 if (error) throw error;
 
@@ -734,6 +766,11 @@
                 const loc = escapeHtml(job.location || 'Location Unspecified');
                 const wp = escapeHtml(job.workplace_type || 'Full Time');
                 const time = timeAgo(job.created_at);
+                const geoBadge = {
+                    open: '<span class="meta-pill" style="background:rgba(0,204,153,0.12); color:#00a37a;" title="Likely open to your chosen country">✓ Open to you</span>',
+                    check: '<span class="meta-pill" style="background:rgba(234,179,8,0.12); color:#a16207;" title="Eligibility unclear for your chosen country — check the posting">? Check eligibility</span>',
+                    closed: '<span class="meta-pill" style="background:rgba(239,68,68,0.1); color:#dc2626;" title="Likely restricted away from your chosen country">✕ Likely closed</span>',
+                }[job.geo_status] || '';
 
                 card.innerHTML = `
                     <div class="card-header">
@@ -746,6 +783,7 @@
                         <span class="meta-pill"><i data-lucide="briefcase" style="width:12px;height:12px;"></i> ${wp}</span>
                         ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
                         ${job.matched_role_name && job.is_direct_role_match === false ? `<span class="meta-pill" style="opacity:0.75;" title="Related to your search via a nearby role in our taxonomy">Related: ${escapeHtml(job.matched_role_name)}</span>` : ''}
+                        ${geoBadge}
                     </div>
                 `;
                 container.appendChild(card);
@@ -856,6 +894,11 @@
             if (e.key === 'Enter') applyFilters();
         });
         document.getElementById('filter-workplace').addEventListener('change', applyFilters);
+        document.getElementById('filter-country').addEventListener('keydown', e => {
+            if (e.key === 'Enter') applyFilters();
+        });
+        document.getElementById('filter-remote-scope').addEventListener('change', applyFilters);
+        document.getElementById('filter-hide-closed').addEventListener('change', applyFilters);
     </script>
 </body>
 </html>
