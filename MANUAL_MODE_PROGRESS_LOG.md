@@ -384,3 +384,34 @@ Two founder-reported UX issues from testing live:
    live: dismissing it removes the box immediately, it does not reappear when selecting a
    different job, and it stays gone after a full page reload — confirmed
    `has_seen_manual_email_nudge = true` in the DB for mosco afterward.
+
+---
+
+## 12. Total result count shown — commit `2725034`
+
+Founder asked for the number of jobs found to be visible (Indeed-style), not just the 30-row page.
+`search_board_jobs_v1` now returns `total_count` via `count(*) over()` (migration
+`search_board_jobs_v1_add_total_count`) — correct because a window function sees every qualifying
+row before `LIMIT` trims the result set, so it's the true match count, computed in the same query
+(no second round trip). `jobs.html` renders `"N jobs found (showing 30)"` above the list.
+
+Verified live: Backend/Remote/Nigeria/Global search showed "119 jobs found (showing 30)", matching
+the independently-run SQL count from §9/§10's testing exactly.
+
+---
+
+## 13. Pagination instead of an automation-style cap — commits `068b7c4`, `c8c53ca`
+
+Founder pointed out automation intentionally caps around ~150 jobs shown per user, to limit paid
+AI fit-scoring calls (`assign_pending_matches_v2`'s `score-deck` webhook), and asked how Manual
+Mode balances that same cost concern. Answer: it doesn't need to. Manual Mode is a plain indexed
+Postgres query over data that's already classified/embedded offline — there is zero marginal AI
+cost per job shown, so capping it the same way would hide the pool for no reason.
+
+Added `p_offset` to `search_board_jobs_v1` (migration `search_board_jobs_v1_add_offset`, same
+drop-old-overload step as every prior signature change) and a "Load more (N remaining)" button so
+users can page through the **full** matching pool rather than being stuck on the first page while
+the count display claimed more existed. Verified live: page 1 (30 rows) and page 2 (30 rows) have
+zero id overlap, an offset landing mid-pool correctly returns the remaining partial page, and
+`total_count` stays identical (119) across every page. Page size was then tweaked from 30 -> 10 per
+the founder's follow-up ask.
