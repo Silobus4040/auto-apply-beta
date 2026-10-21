@@ -489,3 +489,30 @@ Fixed with a monotonic `searchSeq` counter: each `loadJobs()` call captures its 
 at the start and only applies its response if it's still the latest call issued by the time the
 response arrives; anything superseded by a newer search is silently discarded. Verified with the
 exact reported repro — reliably shows 7 On-site-only jobs now, no Remote jobs mixed in.
+
+---
+
+## 18. On-site matching was continent-wide, not country-wide — migration `search_board_jobs_v1_fix_onsite_country_scope`
+
+Founder then caught a second, real bug in the SAME On-site+Nigeria search: it still showed on-site
+jobs physically located in Cape Town and Johannesburg, **South Africa**. Traced directly:
+`get_country_match_terms('Nigeria')` returns `["Africa", "EMEA", "NG", "NGA", "Nigeria"]` — and
+§9/§10's `search_board_jobs_v1` reused that SAME broad term list to build `v_onsite` (the pattern
+list `geo_gate_v2` matches an on-site job's location text against). "Africa"/"EMEA" are correct
+inclusion terms for REMOTE-eligibility (a "Remote - EMEA" posting genuinely is open to someone in
+Nigeria), but wrong for physical on-site location — being on the same continent doesn't mean
+someone can commute there. Automation's own `job_gate_v3` never has this problem because its
+`v_onsite` is built only from the profile's literal `city/state/country` (+ `target_location`),
+never from region/continent terms — a narrower input Manual Mode's country-only field doesn't have
+on hand, so it needs its own fix.
+
+Fixed by building a separate, narrower term list for on-site matching — `v_country_only_terms`,
+pulled directly from `country_regions.iso2/iso3/canonical_name/variants` for the resolved country,
+explicitly excluding `region`/continent — and using that for `v_onsite` instead of the full
+`v_country_terms`. `v_local`/`v_global` (the remote-eligibility matching) are untouched and still
+use the full region-inclusive term list, since that behavior was correct.
+
+Verified: the Nigeria/On-site/Backend search dropped from 7 rows (including 2 South Africa jobs)
+to 1 (only the genuine Lekki, Lagos, Nigeria posting). Confirmed remote region-matching is
+unaffected — Backend Engineer/Remote/Nigeria/global still returns the same 59 open / 60 check
+split as before this fix. Verified live via the exact reported repro in the browser.
