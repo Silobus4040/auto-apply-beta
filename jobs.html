@@ -186,12 +186,12 @@
         }
         .search-input-box input {
             width: 100%;
-            padding: 0.65rem 1rem 0.65rem 2.2rem;
+            padding: 0.75rem 1rem 0.75rem 2.4rem;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: var(--surface-color);
             font-family: inherit;
-            font-size: 0.88rem;
+            font-size: 1.05rem;
             color: var(--text-heading);
             outline: none;
         }
@@ -205,24 +205,24 @@
             color: #71717A;
         }
         .filter-select {
-            padding: 0.65rem 1rem;
+            padding: 0.75rem 1rem;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: var(--surface-color);
             font-family: inherit;
-            font-size: 0.88rem;
+            font-size: 1.05rem;
             color: var(--text-heading);
             outline: none;
             cursor: pointer;
         }
         .filter-btn {
-            padding: 0.65rem 1.2rem;
+            padding: 0.75rem 1.2rem;
             border-radius: 8px;
             border: none;
             background: #000;
             color: #fff;
             font-family: inherit;
-            font-size: 0.88rem;
+            font-size: 1.05rem;
             font-weight: 800;
             cursor: pointer;
         }
@@ -275,19 +275,19 @@
             margin-bottom: 0.4rem;
         }
         .card-company {
-            font-size: 0.78rem;
+            font-size: 0.9rem;
             font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.4px;
             color: var(--secondary);
         }
         .card-time {
-            font-size: 0.72rem;
+            font-size: 0.85rem;
             color: #71717A;
             font-weight: 600;
         }
         .card-title {
-            font-size: 1.05rem;
+            font-size: 1.3rem;
             font-weight: 800;
             line-height: 1.3;
             color: var(--text-heading);
@@ -306,8 +306,8 @@
             background: var(--soft);
             border: 1px solid var(--border);
             border-radius: 999px;
-            padding: 0.2rem 0.55rem;
-            font-size: 0.72rem;
+            padding: 0.25rem 0.65rem;
+            font-size: 0.85rem;
             font-weight: 700;
             color: var(--text-body);
         }
@@ -333,13 +333,13 @@
             padding: 3rem 1rem;
         }
         .detail-title {
-            font-size: 1.35rem;
+            font-size: 1.6rem;
             font-weight: 900;
             line-height: 1.25;
             margin-bottom: 0.35rem;
         }
         .detail-company {
-            font-size: 0.95rem;
+            font-size: 1.1rem;
             font-weight: 800;
             color: var(--secondary);
             margin-bottom: 1rem;
@@ -414,7 +414,7 @@
             color: #fff;
             padding: 0.85rem 1.25rem;
             border-radius: 10px;
-            font-size: 0.9rem;
+            font-size: 1.05rem;
             font-weight: 800;
             text-decoration: none;
             display: inline-flex;
@@ -427,7 +427,7 @@
             transform: translateY(-1px);
         }
         .desc-text {
-            font-size: 0.92rem;
+            font-size: 1.02rem;
             line-height: 1.65;
             color: var(--text-body);
             white-space: pre-wrap;
@@ -546,7 +546,7 @@
                 <!-- Same multi-select workplace-type representation profiles.workplace_type uses
                      (dashboard.html expands it into chips, splitting Remote by remote_scope into
                      "Remote (Global)" / "Remote (Local)") -- not a single-select dropdown. -->
-                <div class="wp-check-group" style="display:flex; align-items:center; gap:0.75rem; font-size:0.8rem; font-weight:700; color:#27272A;">
+                <div class="wp-check-group" style="display:flex; align-items:center; gap:0.75rem; font-size:0.95rem; font-weight:700; color:#27272A;">
                     <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" class="wp-check" value="On-site" /> On-site</label>
                     <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" class="wp-check" value="Hybrid" /> Hybrid</label>
                     <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" id="filter-wp-remote" class="wp-check" value="Remote" /> Remote</label>
@@ -646,7 +646,7 @@
                 // Fetch profile for default filters & credits
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
-                    .select('id, target_job_titles, target_location, workplace_type, country, remote_scope, Application_email, applications_limit, application_credit_used')
+                    .select('id, target_job_titles, target_location, workplace_type, country, remote_scope, Application_email, applications_limit, application_credit_used, has_seen_manual_email_nudge')
                     .eq('id', currentUser.id)
                     .single();
                 if (profileError) throw new Error(`profile fetch failed: ${profileError.message}`);
@@ -819,8 +819,8 @@
                     ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:13px;height:13px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
                 </div>
 
-                ${appEmail ? `
-                <div class="email-tip-box">
+                ${appEmail && !hasSeenEmailNudge() ? `
+                <div class="email-tip-box" id="email-tip-box">
                     <div class="email-tip-header">
                         <i data-lucide="sparkles" style="width:13px;height:13px;color:var(--secondary);"></i>
                         RoleRover Application Email (Optional)
@@ -832,6 +832,7 @@
                     <div class="email-tip-sub">
                         Use this address on the employer form so company interview invites land straight into your RoleRover mailbox.
                     </div>
+                    <button class="copy-btn" style="align-self:flex-end; background:var(--secondary);" onclick="dismissEmailNudge()">Understood</button>
                 </div>
                 ` : ''}
 
@@ -862,6 +863,29 @@
             } catch (err) {
                 const descBody = document.getElementById('job-desc-body');
                 if (descBody) descBody.textContent = 'Could not load job description text.';
+            }
+        }
+
+        // Same one-time-nudge pattern dashboard.html uses for has_seen_inbox_intro:
+        // localStorage for an instant dismiss, profiles column for cross-device durability.
+        function emailNudgeSeenKey() {
+            return `rr_manual_email_nudge_seen_${currentUser ? currentUser.id : 'anon'}`;
+        }
+        function hasSeenEmailNudge() {
+            if (userProfile && typeof userProfile.has_seen_manual_email_nudge === 'boolean') {
+                return userProfile.has_seen_manual_email_nudge;
+            }
+            try { return localStorage.getItem(emailNudgeSeenKey()) === '1'; } catch (e) { return false; }
+        }
+        async function dismissEmailNudge() {
+            try { localStorage.setItem(emailNudgeSeenKey(), '1'); } catch (e) {}
+            if (userProfile) userProfile.has_seen_manual_email_nudge = true;
+            const box = document.getElementById('email-tip-box');
+            if (box) box.remove();
+            try {
+                await supabaseClient.from('profiles').update({ has_seen_manual_email_nudge: true }).eq('id', currentUser.id);
+            } catch (err) {
+                console.warn('Failed to sync email nudge dismissal:', err);
             }
         }
 
