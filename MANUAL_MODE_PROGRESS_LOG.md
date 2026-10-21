@@ -187,3 +187,39 @@ session's own safety controls as credential-adjacent). The DB-level predicate th
 been verified directly against the live table to return the expected rows. **Next session/human
 should log in as the test account and visually confirm** the feed populates for "Backend Engineer"
 and other free-text terms, per §5.2 above.
+
+---
+
+## 7. Live Bug Found While Testing (founder session, same day) — commit `e20ca86`
+
+Founder opened `jobs.html` locally (already authenticated via a prior local session) and the page
+hung forever on the static "Loading jobs from pool..." placeholder — not the `loadJobs()` "Searching
+live job pool..." state, meaning it never got that far.
+
+**Root cause:** the `init()` IIFE had **no error handling at all**. If `getSession()`, the
+`feature_access` check, or the `profiles` fetch returned an error or an unexpected shape (e.g.
+`profile` ending up `null`), the subsequent code (`profile.applications_limit`, etc.) threw, the
+async IIFE rejected silently, and `loadJobs()` was never reached — leaving the user on an
+indistinguishable-from-"still loading" blank state forever, with no error visible anywhere
+(not even the browser console affects what the user sees).
+
+**Fix:** wrapped `init()` in try/catch, check `.error` on every Supabase call explicitly, and on
+any failure render the real error message directly in `#job-list-container` instead of leaving the
+placeholder frozen.
+
+**Also found + fixed while investigating:** `public.feature_access` had RLS **enabled with zero
+policies** (verified via `pg_policies` — the "Users read own feature access" policy described in
+§3.A.1 was never actually applied to the live DB, despite being in this log). This didn't affect
+`mosco@leadscompass.ai` (bypasses the check via the hardcoded UUID in code), but would have
+silently denied manual-mode access to any *other* test user granted via `feature_access.enabled =
+true`. Applied the missing policy via migration `feature_access_read_own_policy`:
+```sql
+create policy "Users read own feature access" on public.feature_access
+  for select to authenticated using ((select auth.uid()) = user_id);
+```
+Confirmed live via `pg_policies`.
+
+**Still open:** the underlying trigger for the founder's specific hang (which Supabase call
+actually failed/returned null) was not captured — the try/catch will surface it on next reload if
+it recurs. Founder to confirm after refreshing whether the Job Board now loads or shows a specific
+error.
