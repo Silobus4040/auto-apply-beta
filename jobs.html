@@ -610,62 +610,76 @@
 
         // Initialize & Auth Gate
         (async function init() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
+            try {
+                const { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+                if (sessionError) throw new Error(`getSession failed: ${sessionError.message}`);
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
+                currentUser = session.user;
+
+                // Strict Gate: check feature_access for manual_mode
+                let isAllowed = (currentUser.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+                if (!isAllowed) {
+                    const { data: featureAccess, error: faError } = await supabaseClient
+                        .from('feature_access')
+                        .select('enabled')
+                        .eq('user_id', currentUser.id)
+                        .eq('feature', 'manual_mode')
+                        .maybeSingle();
+                    if (faError) throw new Error(`feature_access check failed: ${faError.message}`);
+                    if (featureAccess && featureAccess.enabled) isAllowed = true;
+                }
+
+                if (!isAllowed) {
+                    // Non-test users are redirected back to normal dashboard
+                    window.location.href = 'dashboard.html';
+                    return;
+                }
+
+                // Fetch profile for default filters & credits
+                const { data: profile, error: profileError } = await supabaseClient
+                    .from('profiles')
+                    .select('id, target_job_titles, target_location, workplace_type, Application_email, applications_limit, application_credit_used')
+                    .eq('id', currentUser.id)
+                    .single();
+                if (profileError) throw new Error(`profile fetch failed: ${profileError.message}`);
+                userProfile = profile;
+
+                // Render credit counter
+                const creditBalance = Math.max(0, (profile.applications_limit || 0) - (profile.application_credit_used || 0));
+                const creditBadge = document.getElementById('credit-count-badge');
+                if (creditBadge) {
+                    creditBadge.textContent = `${creditBalance} / ${profile.applications_limit || 0}`;
+                }
+                if (creditBalance === 0) {
+                    const zeroBanner = document.getElementById('zero-credit-banner');
+                    if (zeroBanner) zeroBanner.style.display = 'block';
+                }
+
+                // Prefill search from user target titles
+                if (profile.target_job_titles) {
+                    const firstTitle = profile.target_job_titles.split(',')[0].trim();
+                    const keyword = firstTitle.split(' ')[0];
+                    const input = document.getElementById('filter-keyword');
+                    if (input && keyword) input.value = keyword;
+                }
+
+                // Load jobs
+                await loadJobs();
+
+                if (window.lucide) window.lucide.createIcons();
+            } catch (err) {
+                console.error('jobs.html init failed:', err);
+                const container = document.getElementById('job-list-container');
+                if (container) {
+                    container.innerHTML = `<div style="text-align: center; padding: 3rem 1rem; color: #ef4444;">
+                        Could not load the Job Board: ${escapeHtml(err.message || String(err))}.<br>
+                        Please refresh, or go back to the <a href="dashboard.html">dashboard</a>.
+                    </div>`;
+                }
             }
-            currentUser = session.user;
-
-            // Strict Gate: check feature_access for manual_mode
-            let isAllowed = (currentUser.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
-            if (!isAllowed) {
-                const { data: featureAccess } = await supabaseClient
-                    .from('feature_access')
-                    .select('enabled')
-                    .eq('user_id', currentUser.id)
-                    .eq('feature', 'manual_mode')
-                    .maybeSingle();
-                if (featureAccess && featureAccess.enabled) isAllowed = true;
-            }
-
-            if (!isAllowed) {
-                // Non-test users are redirected back to normal dashboard
-                window.location.href = 'dashboard.html';
-                return;
-            }
-
-            // Fetch profile for default filters & credits
-            const { data: profile } = await supabaseClient
-                .from('profiles')
-                .select('id, target_job_titles, target_location, workplace_type, Application_email, applications_limit, application_credit_used')
-                .eq('id', currentUser.id)
-                .single();
-            userProfile = profile;
-
-            // Render credit counter
-            const creditBalance = Math.max(0, (profile.applications_limit || 0) - (profile.application_credit_used || 0));
-            const creditBadge = document.getElementById('credit-count-badge');
-            if (creditBadge) {
-                creditBadge.textContent = `${creditBalance} / ${profile.applications_limit || 0}`;
-            }
-            if (creditBalance === 0) {
-                const zeroBanner = document.getElementById('zero-credit-banner');
-                if (zeroBanner) zeroBanner.style.display = 'block';
-            }
-
-            // Prefill search from user target titles
-            if (profile.target_job_titles) {
-                const firstTitle = profile.target_job_titles.split(',')[0].trim();
-                const keyword = firstTitle.split(' ')[0];
-                const input = document.getElementById('filter-keyword');
-                if (input && keyword) input.value = keyword;
-            }
-
-            // Load jobs
-            await loadJobs();
-
-            if (window.lucide) window.lucide.createIcons();
         })();
 
         async function loadJobs() {
