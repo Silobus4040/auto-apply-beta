@@ -415,3 +415,18 @@ the count display claimed more existed. Verified live: page 1 (30 rows) and page
 zero id overlap, an offset landing mid-pool correctly returns the remaining partial page, and
 `total_count` stays identical (119) across every page. Page size was then tweaked from 30 -> 10 per
 the founder's follow-up ask.
+
+---
+
+## 14. "Related" pill was half-finished — commit `3b93ab3`
+
+Founder caught two real problems with the §9 "Related: X" pill (shown when a job matched via a
+`std_role_neighbors` broaden rather than the user's direct target role): its tooltip said "via a
+nearby role in our taxonomy" — internal terminology leaking to end users — and it was styled like a
+tag/chip (implying clickability) but had no click handler at all, a dead end.
+
+Fixed both: relabeled to "Similar role: X" with a plain tooltip ("See more X jobs"), and gave it a
+real function — clicking it now sets the search box to that role name and re-runs the search, via a
+delegated click listener on `#job-list-container` (survives card re-renders; `stopPropagation` so
+it doesn't also select the underlying card). Verified by dispatching a synthetic click on a test
+pill and confirming it set `filter-keyword` and triggered a new search.
