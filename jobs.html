@@ -690,33 +690,25 @@
             const wpFilter = document.getElementById('filter-workplace').value;
 
             try {
-                // Query public job pool through Supabase REST with anon key
-                let query = supabaseClient
-                    .from('job_pool')
-                    .select('id, title, company_name, company, location, workplace_type, apply_url, created_at, salary_range')
-                    .eq('is_active', true)
-                    .neq('source_ats', 'ashby')
-                    .order('created_at', { ascending: false })
-                    .limit(30);
-
-                if (keywordInput) {
-                    // ILIKE-per-word AND match on title (same approach as the automation's
-                    // match-pool-jobs role_family_matches/ILIKE search) — more resilient to
-                    // title variations like "Senior Backend Software Engineer" than tsvector
-                    // stemming, and still index-accelerated via job_pool_title_trgm_idx (pg_trgm).
-                    const words = keywordInput.split(/\s+/).filter(Boolean);
-                    words.forEach(word => {
-                        query = query.ilike('title', `%${word}%`);
-                    });
-                }
-                if (wpFilter) {
-                    query = query.eq('workplace_type', wpFilter);
-                }
-
-                const { data: jobs, error } = await query;
+                // search_board_jobs_v1: resolves the search term against the SAME taxonomy
+                // automation uses (std_roles / std_role_aliases / std_role_neighbors ->
+                // job_title_labels, the role classification that the embedding+LLM "JEV"
+                // pipeline produces offline) so Manual Mode surfaces the same jobs automation
+                // would match a user to for that role — including titles with no literal
+                // keyword overlap (e.g. "Application Programmer (EBS)" classified as Backend
+                // Engineer). Falls back to a raw per-word ILIKE title browse only when the
+                // search term doesn't resolve to any known role (company names, typos, etc.)
+                // or when there's no keyword at all. Unlike automation's live swipe deck, this
+                // deliberately skips the 48h-freshness/workplace_type/salary gates — Manual
+                // Mode's whole point is browsing the raw pool, not a curated deck.
+                const { data: jobs, error } = await supabaseClient.rpc('search_board_jobs_v1', {
+                    p_query: keywordInput || null,
+                    p_workplace_type: wpFilter || null,
+                    p_limit: 30,
+                });
                 if (error) throw error;
 
-                loadedJobs = jobs || [];
+                loadedJobs = (jobs || []).map(j => ({ ...j, id: j.job_pool_id }));
                 renderJobList();
             } catch (err) {
                 console.error('Job load failed:', err);
@@ -753,6 +745,7 @@
                         <span class="meta-pill"><i data-lucide="map-pin" style="width:12px;height:12px;"></i> ${loc}</span>
                         <span class="meta-pill"><i data-lucide="briefcase" style="width:12px;height:12px;"></i> ${wp}</span>
                         ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
+                        ${job.matched_role_name && job.is_direct_role_match === false ? `<span class="meta-pill" style="opacity:0.75;" title="Related to your search via a nearby role in our taxonomy">Related: ${escapeHtml(job.matched_role_name)}</span>` : ''}
                     </div>
                 `;
                 container.appendChild(card);
