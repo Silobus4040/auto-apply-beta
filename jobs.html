@@ -585,6 +585,7 @@
         let loadedJobs = [];
         let activeJob = null;
         let totalJobsFound = 0;
+        let searchSeq = 0;
         const PAGE_SIZE = 10;
 
         function toggleSidebar() {
@@ -717,6 +718,15 @@
         })();
 
         async function loadJobs(append = false) {
+            // Every checkbox/country/keyword change fires its own loadJobs() call
+            // independently (not awaited by the caller), so without this guard whichever
+            // network response happens to land LAST wins -- even an earlier, now-stale
+            // request (e.g. the instant "On-site" was checked, before "Remote" was
+            // unchecked a moment later) could overwrite a newer, correct result. Only the
+            // response matching the most recently issued call is applied; everything
+            // else is silently discarded.
+            const mySeq = ++searchSeq;
+
             const container = document.getElementById('job-list-container');
             if (!append) {
                 container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #71717A;">Searching live job pool...</div>';
@@ -765,6 +775,7 @@
                     p_offset: append ? loadedJobs.length : 0,
                 });
                 if (error) throw error;
+                if (mySeq !== searchSeq) return; // a newer search has since started
 
                 const page = (jobs || []).map(j => ({ ...j, id: j.job_pool_id }));
                 loadedJobs = append ? loadedJobs.concat(page) : page;
@@ -783,6 +794,7 @@
                 renderJobList();
             } catch (err) {
                 console.error('Job load failed:', err);
+                if (mySeq !== searchSeq) return; // a newer search has since started
                 if (!append) {
                     container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #ef4444;">Unable to load jobs right now. Please try a different title search.</div>';
                 }
