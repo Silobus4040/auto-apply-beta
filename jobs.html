@@ -281,11 +281,6 @@
             letter-spacing: 0.4px;
             color: var(--secondary);
         }
-        .card-time {
-            font-size: 0.85rem;
-            color: #71717A;
-            font-weight: 600;
-        }
         .card-title {
             font-size: 1.3rem;
             font-weight: 800;
@@ -607,16 +602,6 @@
             return div.innerHTML;
         }
 
-        function timeAgo(dateString) {
-            if (!dateString) return '';
-            const diff = Date.now() - new Date(dateString).getTime();
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            if (days <= 0) return 'Today';
-            if (days === 1) return 'Yesterday';
-            if (days < 30) return `${days}d ago`;
-            return `${Math.floor(days / 30)}mo ago`;
-        }
-
         // Initialize & Auth Gate
         (async function init() {
             try {
@@ -804,12 +789,10 @@
                 const title = escapeHtml(job.title || 'Untitled Role');
                 const loc = escapeHtml(job.location || 'Location Unspecified');
                 const wp = escapeHtml(job.workplace_type || 'Full Time');
-                const time = timeAgo(job.created_at);
 
                 card.innerHTML = `
                     <div class="card-header">
                         <span class="card-company">${company}</span>
-                        <span class="card-time">${time}</span>
                     </div>
                     <div class="card-title">${title}</div>
                     <div class="card-meta-row">
