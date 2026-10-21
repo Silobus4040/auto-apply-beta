@@ -430,3 +430,16 @@ real function — clicking it now sets the search box to that role name and re-r
 delegated click listener on `#job-list-container` (survives card re-renders; `stopPropagation` so
 it doesn't also select the underlying card). Verified by dispatching a synthetic click on a test
 pill and confirming it set `filter-keyword` and triggered a new search.
+
+---
+
+## 15. Job age label removed — commit `2b43388`
+
+Founder asked where the "1mo ago"/"Today" label on each card came from. Checked directly:
+`job_pool.created_at` defaults to `now()` and is set when our pipeline **first discovers/ingests**
+a posting — not the employer's actual posting date (which we generally don't capture; the only
+exception is an unparsed, raw `zoho_date_opened` for Zoho-sourced jobs). Confirmed with a live
+sample (an Elastic posting with `created_at` 92 days before `last_seen_at` = today) that the label
+was really "how long we've tracked it," not "posted X ago" — a real risk of misleading users.
+Founder decided to just remove it rather than relabel. Dropped the `card-time` span, the now-unused
+`timeAgo()` helper, and its CSS rule.
