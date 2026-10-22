@@ -320,48 +320,6 @@
                                 <div id="category-guardrail" class="category-guardrail" role="status" aria-live="polite"></div>
                             </div>
 
-                            <div class="form-group" style="display:none;">
-                                <!-- Retired 2026-10-17: the old free-standing 31-category multiselect. Replaced by the
-                                     per-role family dropdown inside each role slot above, sourced live from
-                                     std_roles.family instead of this hardcoded list. Left here (hidden, unused)
-                                     only so nothing downstream that still queries #target-role-families by id
-                                     breaks before Phase 4 fully retires profile_role_families. -->
-                                <select id="target-role-families" multiple>
-                                    <option value="Sales & Account Management">Sales &amp; Account Management</option>
-                                    <option value="Administrative & Executive Support">Administrative &amp; Executive Support</option>
-                                    <option value="AI & Machine Learning">AI &amp; Machine Learning</option>
-                                    <option value="Backend Engineering">Backend Engineering</option>
-                                    <option value="Content & Technical Writing">Content &amp; Technical Writing</option>
-                                    <option value="Customer Success & Support">Customer Success &amp; Support</option>
-                                    <option value="Cybersecurity & Security Operations">Cybersecurity &amp; Security Operations</option>
-                                    <option value="Data & Analytics">Data &amp; Analytics</option>
-                                    <option value="Data Engineering">Data Engineering</option>
-                                    <option value="Data Entry & Transcription">Data Entry &amp; Transcription</option>
-                                    <option value="Education & Training">Education &amp; Training</option>
-                                    <option value="Engineering Leadership">Engineering Leadership</option>
-                                    <option value="Finance & Accounting">Finance &amp; Accounting</option>
-                                    <option value="AI Data Labelling & Evaluation">AI Data Labelling &amp; Evaluation</option>
-                                    <option value="Frontend & Mobile Engineering">Frontend &amp; Mobile Engineering</option>
-                                    <option value="Full Stack Engineering">Full Stack Engineering</option>
-                                    <option value="Hardware & Robotics Engineering">Hardware &amp; Robotics Engineering</option>
-                                    <option value="Human Resources">Human Resources</option>
-                                    <option value="Legal & Compliance">Legal &amp; Compliance</option>
-                                    <option value="Marketing & Growth">Marketing &amp; Growth</option>
-                                    <option value="Motion Design & VFX">Motion Design &amp; VFX</option>
-                                    <option value="Operations & Supply Chain">Operations &amp; Supply Chain</option>
-                                    <option value="Platform & DevOps Engineering">Platform &amp; DevOps Engineering</option>
-                                    <option value="Product Design">Product Design</option>
-                                    <option value="Product Management">Product Management</option>
-                                    <option value="Project & Program Management">Project &amp; Program Management</option>
-                                    <option value="QA & Testing">QA &amp; Testing</option>
-                                    <option value="Quantitative Finance & Trading">Quantitative Finance &amp; Trading</option>
-                                    <option value="Software Engineering">Software Engineering</option>
-                                    <option value="Solutions Engineering & Pre-Sales">Solutions Engineering &amp; Pre-Sales</option>
-                                    <option value="Talent Acquisition & Recruiting">Talent Acquisition &amp; Recruiting</option>
-                                    <option value="Communications & Public Affairs">Communications &amp; Public Affairs</option>
-                                    <option value="Workflow Automation & Integrations">Workflow Automation &amp; Integrations</option>
-                                </select>
-                            </div>
 
                             <div class="form-group">
                                 <label>Workplace Type <span style="color: #FF6B4A;">*</span></label>
@@ -1227,12 +1185,6 @@
 
         // --- end role slots ---
 
-        const roleFamilySelectEl = document.getElementById('target-role-families');
-        const savedRoleFamilies = localStorage.getItem('onb_target-role-families');
-        if (savedRoleFamilies) {
-            try { /* retired selector, state no longer used */ } catch(e) {}
-        }
-
         const commitmentSelectEl = document.getElementById('commitment-select');
         const commitmentChoices = new Choices(commitmentSelectEl, {
             removeItemButton: true,
@@ -1985,10 +1937,6 @@
             }
 
             const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, target_role_family, notice_period, start_date, target_currency').eq('id', currentUserId).single();
-            const { data: profileRoleFamilies } = await supabaseClient
-                .from('profile_role_families')
-                .select('role_key')
-                .eq('profile_id', currentUserId);
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
             const { data: launchState } = await supabaseClient.from('profiles').select('launch_waitlisted_at').eq('id', currentUserId).maybeSingle();
             if (launchState?.launch_waitlisted_at) { window.location.href = 'waitlist.html'; return; }
@@ -2063,16 +2011,6 @@
                 }
                 if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
                     document.getElementById('industry').value = profile.industry;
-                }
-                if (!localStorage.getItem('onb_target-role-families')) {
-                    const savedFamilies = (profileRoleFamilies || []).map(row => row.role_key).filter(Boolean);
-                    if (savedFamilies.length > 0) {
-                        localStorage.setItem('onb_target-role-families', JSON.stringify(savedFamilies));
-                        roleFamilyChoices.setChoiceByValue(savedFamilies);
-                    } else if (profile.target_role_family) {
-                        localStorage.setItem('onb_target-role-families', JSON.stringify([profile.target_role_family]));
-                        roleFamilyChoices.setChoiceByValue([profile.target_role_family]);
-                    }
                 }
                 if (profile.notice_period && !localStorage.getItem('onb_notice-period') && document.getElementById('notice-period')) {
                     document.getElementById('notice-period').value = profile.notice_period;
@@ -2692,22 +2630,6 @@
                 }, { onConflict: 'id' });
 
                 if (profileError) throw profileError;
-
-                const { error: deleteRoleFamiliesError } = await supabaseClient
-                    .from('profile_role_families')
-                    .delete()
-                    .eq('profile_id', currentUserId);
-                if (deleteRoleFamiliesError) throw deleteRoleFamiliesError;
-
-                const roleFamilyRows = selectedRoleFamilies.map(roleKey => ({
-                    profile_id: currentUserId,
-                    role_key: roleKey,
-                    source: 'onboarding_multiselect'
-                }));
-                const { error: roleFamiliesError } = await supabaseClient
-                    .from('profile_role_families')
-                    .insert(roleFamilyRows);
-                if (roleFamiliesError) throw roleFamiliesError;
 
                 // Real source of truth for matching going forward (Role-Taxonomy Unification,
                 // 2026-10-17): one row per confirmed slot, each locked to a real std_roles id.
