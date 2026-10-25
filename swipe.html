@@ -3740,6 +3740,18 @@
                 card.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
                 if (Math.abs(currentX) > 100) {
                     const decision = currentX > 0 ? 'apply' : 'skip';
+                    // v79 (2026-10-25): a drag-apply must hit the same unscored gate as the
+                    // Apply button click (swipeCurrentCard) -- this handler used to call
+                    // finishSwipe directly, bypassing it entirely, so dragging right on an
+                    // unscored card submitted the application with no wait at all.
+                    if (decision === 'apply' && !job.is_social && (job.fit_score === null || job.fit_score === undefined)) {
+                        card.style.transform = '';
+                        passStamp.style.opacity = 0;
+                        applyStamp.style.opacity = 0;
+                        currentX = 0;
+                        showScoringWaitForApply(job);
+                        return;
+                    }
                     const swiped = await finishSwipe(card, job, decision);
                     if (!swiped) {
                         // Blocked (no credit, or a skill-write error) --
