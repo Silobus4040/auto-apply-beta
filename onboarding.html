@@ -313,7 +313,7 @@
 
                             <div class="form-group">
                                 <label>Target Roles <span style="color: #FF6B4A;">*</span></label>
-                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Type up to 3 roles -- each shows its real category alongside it, or pick a category first to choose from its roles directly. Must match one of our real roles.</p>
+                                <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select up to 3 roles — maximum of one role per Career field. Choose a field or search by title to pick your role.</p>
                                 <div id="role-slots-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
                                     <!-- Injected via JS: buildRoleSlots() -->
                                 </div>
@@ -884,7 +884,11 @@
             removeItemButton: true,
             placeholder: true,
             placeholderValue: 'Select workplace type(s)',
-            searchEnabled: false
+            searchEnabled: false,
+            closeDropdownOnSelect: true
+        });
+        workplaceSelectEl.addEventListener('addItem', () => {
+            workplaceChoices.hideDropdown();
         });
         const savedWorkplace = localStorage.getItem('onb_workplace');
         if (savedWorkplace) {
@@ -1190,7 +1194,11 @@
             removeItemButton: true,
             placeholder: true,
             placeholderValue: 'Select commitment type(s)',
-            searchEnabled: false
+            searchEnabled: false,
+            closeDropdownOnSelect: true
+        });
+        commitmentSelectEl.addEventListener('addItem', () => {
+            commitmentChoices.hideDropdown();
         });
         const savedCommitment = localStorage.getItem('onb_commitment');
         if (savedCommitment) {
@@ -1199,6 +1207,18 @@
         commitmentSelectEl.addEventListener('change', () => {
             const selected = Array.from(commitmentSelectEl.selectedOptions).map(opt => opt.value);
             localStorage.setItem('onb_commitment', JSON.stringify(selected));
+        });
+
+        // Close multi-select dropdowns immediately when clicking anywhere outside of them
+        document.addEventListener('click', (e) => {
+            const wpOuter = workplaceSelectEl.closest('.choices');
+            if (wpOuter && !wpOuter.contains(e.target)) {
+                workplaceChoices.hideDropdown();
+            }
+            const cmOuter = commitmentSelectEl.closest('.choices');
+            if (cmOuter && !cmOuter.contains(e.target)) {
+                commitmentChoices.hideDropdown();
+            }
         });
 
         const currencySelectEl = document.getElementById('target-currency');
@@ -2308,6 +2328,14 @@
             }
             if (unresolvedSlot) {
                 errorMsg.textContent = `"${unresolvedSlot.text}" doesn't match one of our roles yet -- pick one of the suggestions shown, or clear that slot.`;
+                errorMsg.style.display = 'block';
+                roleSlotsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                return;
+            }
+            const categories = filledSlots.map(s => s.categoryName).filter(Boolean);
+            const duplicateCategory = categories.find((cat, idx) => categories.indexOf(cat) !== idx);
+            if (duplicateCategory) {
+                errorMsg.textContent = `Maximum of one role per Career field. You have multiple roles in "${duplicateCategory}".`;
                 errorMsg.style.display = 'block';
                 roleSlotsContainer.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 return;
