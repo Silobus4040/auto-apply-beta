@@ -1552,6 +1552,16 @@
             <p id="resume-invalid-reason" style="color: #B91C1C; font-size: 0.85rem; font-weight: 700;"></p>
         </div>
 
+        <!-- Social Hiring (Facebook) applications -- Test Account only, same
+             gate as Manual Mode. Status here can only ever be "Emailed" for
+             now: reply detection (the mailbox-thread auto-advance to
+             "Replied") is a separate, not-yet-built n8n piece -- see memory
+             social-hiring-ui-design-2026-10-21.md. -->
+        <div id="social-applications-section" style="display: none; margin-bottom: 1.5rem;">
+            <h3 style="font-size: 1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.85rem;">Facebook applications</h3>
+            <div id="social-applications-list"></div>
+        </div>
+
         <!-- Stats Bar (Hero Position) -->
         <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 0.6rem;">
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
@@ -2380,7 +2390,74 @@
 
             // Manual Mode Feature Gate (Test Account only)
             checkManualModeAccess(user.id);
+
+            // Social Hiring (Facebook leads) Feature Gate (Test Account only)
+            checkSocialHiringAccess(user.id);
         })();
+
+        async function checkSocialHiringAccess(userId) {
+            try {
+                let isAllowed = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+                if (!isAllowed) {
+                    const { data } = await supabaseClient
+                        .from('feature_access')
+                        .select('enabled')
+                        .eq('user_id', userId)
+                        .eq('feature', 'social_hiring')
+                        .maybeSingle();
+                    if (data && data.enabled) isAllowed = true;
+                }
+                if (isAllowed) await fetchAndRenderSocialApplications(userId);
+            } catch (err) {
+                console.error('checkSocialHiringAccess failed', err);
+            }
+        }
+
+        // Status is only ever "Emailed" today -- Replied/Interview need reply
+        // detection on the Rover mailbox thread, not built yet (see memory
+        // social-hiring-ui-design-2026-10-21.md). Never show a status this
+        // page can't actually back with real data.
+        async function fetchAndRenderSocialApplications(userId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('social_hiring_lead_matches')
+                    .select(`
+                        id, sent_at,
+                        social_hiring_leads ( search_keyword, company_name, post_url, contact_email )
+                    `)
+                    .eq('profile_id', userId)
+                    .eq('decision', 'send')
+                    .not('sent_at', 'is', null)
+                    .order('sent_at', { ascending: false })
+                    .limit(20);
+                if (error) { console.error('fetchAndRenderSocialApplications failed', error); return; }
+                const rows = (data || []).filter(r => r.social_hiring_leads);
+                const section = document.getElementById('social-applications-section');
+                const list = document.getElementById('social-applications-list');
+                if (!section || !list) return;
+                if (!rows.length) { section.style.display = 'none'; return; }
+                section.style.display = 'block';
+                list.innerHTML = rows.map(row => {
+                    const lead = row.social_hiring_leads;
+                    const sentDate = row.sent_at ? new Date(row.sent_at).toLocaleDateString() : '';
+                    return `
+                        <div style="background: var(--surface-color); border: 1px solid var(--border); border-radius: 14px; padding: 0.9rem 1.1rem; margin-bottom: 0.7rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                            <div>
+                                <div style="font-size: 0.75rem; color: #71717A;">${escapeHtml(lead.company_name || 'Facebook post')} · via Facebook</div>
+                                <div style="font-weight: 800;">${escapeHtml(lead.search_keyword || 'Role')}</div>
+                                <div style="font-size: 0.75rem; color: #71717A; margin-top: 0.2rem;">Sent to ${escapeHtml(lead.contact_email || '')}${sentDate ? ' · ' + sentDate : ''}</div>
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 0.6rem;">
+                                <div class="status-pill">Emailed</div>
+                                ${lead.post_url ? `<a class="table-btn" href="${escapeHtml(lead.post_url)}" target="_blank" rel="noopener">View post</a>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                console.error('fetchAndRenderSocialApplications failed', err);
+            }
+        }
 
         async function checkManualModeAccess(userId) {
             try {

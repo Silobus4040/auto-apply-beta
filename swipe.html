@@ -3073,11 +3073,38 @@
                 }
                 lastPendingAssignedCount = pendingAssignedCount;
                 if (!Array.isArray(jobs)) return;
+                const jobMap = new Map(jobs.map(j => [j.id, j]));
+                let updatedAnyScore = false;
+                for (let k = 0; k < pooledJobs.length; k++) {
+                    const current = pooledJobs[k];
+                    const incoming = jobMap.get(current.id);
+                    if (incoming && (current.fit_score === null || current.fit_score === undefined) && (incoming.fit_score !== null && incoming.fit_score !== undefined)) {
+                        current.fit_score = incoming.fit_score;
+                        current.fit_reason = incoming.fit_reason;
+                        current.fit_missing_skills = incoming.fit_missing_skills;
+                        updatedAnyScore = true;
+                        // Real-time update of visible card DOM badge if it exists
+                        const cardEl = document.querySelector(`.swipe-card[data-job-id="${CSS.escape(current.id)}"]`);
+                        if (cardEl) {
+                            const oldBadge = cardEl.querySelector('.swipe-card-fit-badge');
+                            if (oldBadge) {
+                                const temp = document.createElement('div');
+                                temp.innerHTML = buildFitScoreBadge(current, k);
+                                if (temp.firstElementChild) {
+                                    oldBadge.replaceWith(temp.firstElementChild);
+                                }
+                            }
+                        }
+                    }
+                }
+
                 const existingIds = new Set(pooledJobs.map(j => j.id));
                 const newOnes = jobs.filter(j => !existingIds.has(j.id));
                 const wasShowingEmpty = pooledJobIndex >= pooledJobs.length;
                 if (newOnes.length) {
                     pooledJobs.push(...newOnes);
+                }
+                if (newOnes.length || updatedAnyScore) {
                     if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
                     if (userProfile && userProfile.auto_apply_enabled && cachedUserId) {
                         await autoApplySweepAndFilter(cachedUserId);
@@ -3565,6 +3592,7 @@
                 const depthFromTop = visible.length - 1 - i; // 0 = the current, draggable card
                 const card = document.createElement('div');
                 card.className = 'swipe-card';
+                card.dataset.jobId = String(job.id || '');
                 const scale = 1 - depthFromTop * 0.03;
                 const offsetY = depthFromTop * 10;
                 card.style.transform = `translateY(${offsetY}px) scale(${scale})`;
@@ -3810,7 +3838,7 @@
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
             modalText.style.cssText = '';
-            modalText.innerText = "We're scoring your fit for this role now -- this card updates the moment it's ready, usually under two minutes. You can close this and keep swiping; just tap Apply again once it's scored.";
+            modalText.innerText = "We're scoring your fit for more roles it usually in a few minutes. You can close this and keep swiping once the scoring is completed";
             modal.classList.add('active');
             if (scoringWaitPollId) clearInterval(scoringWaitPollId);
             scoringWaitPollId = setInterval(() => {
