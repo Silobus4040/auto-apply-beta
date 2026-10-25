@@ -1121,8 +1121,30 @@
         }
         .swipe-card-fit-badge { display: flex; align-items: flex-start; gap: 0.6rem; padding: 0.6rem 0.75rem; border-radius: 12px; margin-bottom: 0.9rem; position: relative; }
         .swipe-card-fit-badge.fit-high { background: #ECFDF5; border: 1px solid #A7F3D0; }
+        /* Social-hiring (Facebook) lead cards -- same shape/sizing as
+           .swipe-card-geo-badge and the same "one color per state, words do
+           the differentiating" rule the rest of this file already follows. */
+        .social-badge-row { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; margin: 0.55rem 0 0.7rem; flex-shrink: 0; }
+        .social-badge-row > div { margin: 0; }
+        .social-lead-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 1.1rem 1.25rem; margin-bottom: 1rem; }
+        .swipe-card-freshness-badge, .social-lead-scam-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: #ECFDF5; color: #059669; border: 1px solid #A7F3D0; margin-right: 0.4rem; margin-bottom: 0.6rem; }
+        .swipe-card-freshness-badge.swipe-card-freshness-stale { background: #f4f4f5; color: #3f3f46; border: 1px solid var(--border); }
+        .social-lead-scam-badge.scam-flagged { background: #FEF2F2; color: #B91C1C; border: 1px solid #FECACA; }
+        .social-lead-level-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.2rem 0.65rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700; background: #FFFBEB; color: #92400E; border: 1px solid #FDE68A; margin-bottom: 0.6rem; }
+        .social-lead-quote { border-left: 2px solid var(--border); padding: 0.15rem 0 0.15rem 0.7rem; font-size: 0.85rem; color: #52525B; line-height: 1.5; margin: 0.6rem 0; }
+        .social-lead-meta { font-size: 0.75rem; color: #71717A; margin-bottom: 0.7rem; }
+        .social-lead-apply-note { background: #f4f4f5; border-radius: 10px; padding: 0.55rem 0.75rem; font-size: 0.78rem; color: #3f3f46; margin-bottom: 0.9rem; }
+        .social-lead-actions { display: flex; gap: 0.6rem; }
+        .social-lead-actions button { flex: 1; padding: 0.65rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: 1px solid var(--border); background: #fff; }
+        .social-lead-actions button.social-lead-send { background: #000; color: #fff; border-color: #000; }
         .swipe-card-fit-score { font-size: 1.1rem; font-weight: 900; flex-shrink: 0; }
         .fit-high .swipe-card-fit-score { color: #059669; }
+        .swipe-card-fit-badge.fit-low { background: #F4F4F5; border: 1px solid #E4E4E7; }
+        .fit-low .swipe-card-fit-score { color: #52525B; }
+        .swipe-card-fit-badge.fit-scoring { background: #F4F4F5; border: 1px solid #E4E4E7; }
+        .fit-scoring-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #D4D4D8; border-top-color: #71717A; border-radius: 50%; animation: fitScoringSpin 0.8s linear infinite; }
+        @keyframes fitScoringSpin { to { transform: rotate(360deg); } }
+        .fit-scoring .swipe-card-fit-reason { color: #71717A; }
         .swipe-card-fit-reason-wrap { position: relative; flex: 1; min-width: 0; }
         /* Truncation is decided entirely in JS from the real string length
            (see buildFitScoreBadge) -- no CSS line-clamp, no pixel measurement,
@@ -1645,7 +1667,8 @@
             </div>
         </div>
 
-        <!-- Swipe Deck (pre-scraped job pool) -->
+        <!-- Swipe Deck (pre-scraped job pool). Facebook leads are cards in this
+             same deck (Test Account only for now, see checkSocialHiringAccess). -->
         <div id="swipe-deck-section" style="display: none;">
             <div class="swipe-stack" id="swipe-stack"></div>
             <div class="swipe-actions">
@@ -2086,7 +2109,7 @@
 
             const { data: profile } = await supabaseClient
                 .from('profiles')
-                .select('id, onboarding_complete, launch_waitlisted_at, initial_scrape_requested_at, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
+                .select('id, onboarding_complete, launch_waitlisted_at, initial_scrape_requested_at, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, social_free_sends_used, experience_level_bucket, has_seen_gap_caveat, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
                 .eq('id', user.id)
                 .single();
 
@@ -2253,7 +2276,236 @@
 
             // Manual Mode Feature Gate (Test Account only)
             checkManualModeAccess(user.id);
+
+            // Social Hiring (Facebook leads) Feature Gate (Test Account only)
+            checkSocialHiringAccess(user.id);
         })();
+
+        // Same color regardless of how long ago it was posted -- the words
+        // carry the difference, same rule every other badge on this page
+        // follows (see .swipe-card-geo-badge comment). Anything a day or
+        // older drops the speed framing entirely rather than overclaiming.
+        function buildFreshnessBadge(lead, now) {
+            if (!lead || !lead.posted_at) return '';
+            now = now || new Date();
+            const posted = new Date(lead.posted_at);
+            if (isNaN(posted.getTime())) return '';
+            const diffMs = now - posted;
+            if (diffMs < 0) return '';
+            const diffMin = Math.floor(diffMs / 60000);
+            if (diffMin < 1) return '<div class="swipe-card-freshness-badge">⚡ Found moments after posting</div>';
+            if (diffMin < 60) return `<div class="swipe-card-freshness-badge">⚡ Found ${diffMin} min after posting</div>`;
+            const diffHr = Math.floor(diffMin / 60);
+            if (diffHr < 24) {
+                const remMin = diffMin % 60;
+                const label = remMin > 0 ? `${diffHr}h ${remMin}m` : `${diffHr}h`;
+                return `<div class="swipe-card-freshness-badge">⚡ Found ${label} after posting</div>`;
+            }
+            const diffDays = Math.floor(diffHr / 24);
+            return `<div class="swipe-card-freshness-badge swipe-card-freshness-stale">🕐 Posted ${diffDays}d ago</div>`;
+        }
+
+        async function checkSocialHiringAccess(userId) {
+            try {
+                let isAllowed = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+                if (!isAllowed) {
+                    const { data } = await supabaseClient
+                        .from('feature_access')
+                        .select('enabled')
+                        .eq('user_id', userId)
+                        .eq('feature', 'social_hiring')
+                        .maybeSingle();
+                    if (data && data.enabled) isAllowed = true;
+                }
+                if (isAllowed) await loadSocialLeadsIntoDeck(userId);
+            } catch (err) {
+                console.error('checkSocialHiringAccess failed', err);
+            }
+        }
+
+        // Facebook leads are normal cards in the same swipe deck (same layout,
+        // same Decline / Skip / Apply buttons, same reason + gaps). The only
+        // difference from an ATS card is that there is no fit score number.
+        // They are held in socialLeadJobs and placed at the front of the
+        // not-yet-seen part of pooledJobs by mergeSocialLeadsIntoDeck().
+        let socialLeadJobs = [];
+
+        function socialWorkplaceLabel(raw) {
+            const map = { remote: 'Remote', hybrid: 'Hybrid', onsite: 'On-site' };
+            return String(raw || '').split(',').map(s => map[s.trim()] || '').filter(Boolean).join(' / ');
+        }
+
+        function socialLeadToJob(row) {
+            const lead = row.social_hiring_leads;
+            const countries = Array.isArray(lead.detected_countries) ? lead.detected_countries : [];
+            const text = lead.post_text || '';
+            return {
+                is_social: true,
+                id: lead.id,
+                match_id: row.id,
+                title: lead.search_keyword || 'Role',
+                company_name: lead.company_name || lead.author_name || 'Facebook post',
+                location: countries.join(', '),
+                workplace_type: socialWorkplaceLabel(lead.detected_workplace_type),
+                description_text: text + (lead.post_url ? '\n\n---\nOriginal Facebook post: ' + lead.post_url : ''),
+                posted_at: lead.posted_at,
+                post_url: lead.post_url,
+                author_name: lead.author_name,
+                fraud_check_status: lead.fraud_check_status,
+                detected_job_level: lead.detected_job_level,
+                fit_reason: row.fit_reason || '',
+                fit_missing_skills: Array.isArray(row.fit_missing_skills) ? row.fit_missing_skills : []
+            };
+        }
+
+        function mergeSocialLeadsIntoDeck() {
+            if (!socialLeadJobs.length) return;
+            const seen = pooledJobs.slice(0, pooledJobIndex);
+            const rest = pooledJobs.slice(pooledJobIndex).filter(j => !(j && j.is_social));
+            pooledJobs = seen.concat(socialLeadJobs, rest);
+        }
+
+        async function loadSocialLeadsIntoDeck(userId) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('social_hiring_lead_matches')
+                    .select(`
+                        id, decision, matched_at, fit_reason, fit_missing_skills,
+                        social_hiring_leads ( id, platform, search_keyword, post_url, post_text, posted_at, author_name, company_name, fraud_check_status, detected_job_level, detected_countries, detected_workplace_type )
+                    `)
+                    .eq('profile_id', userId)
+                    .eq('decision', 'pending')
+                    .order('matched_at', { ascending: true })
+                    .limit(20);
+                if (error) {
+                    console.error('loadSocialLeadsIntoDeck failed', error);
+                    return;
+                }
+                // Same workplace rule the matcher uses: hide a lead whose stated
+                // workplace (remote / hybrid / onsite) is none of the settings
+                // this user picked. Unstated on either side = show.
+                const userTypes = String((userProfile && userProfile.workplace_type) || '').toLowerCase().replace(/[\s-]/g, '').split(',').filter(Boolean);
+                const fitsWorkplace = lead => {
+                    const leadTypes = String(lead.detected_workplace_type || '').split(',').filter(Boolean);
+                    if (!leadTypes.length || !userTypes.length) return true;
+                    return leadTypes.some(t => userTypes.includes(t));
+                };
+                // Same level rule as the matcher (deck_level_cap_from_rank): the
+                // post may be the user's own level or one step either side.
+                // Level unclear (null) is shown, with the "Level unclear" badge.
+                const rankByBucket = { 'entrylevel': 0, 'midlevel': 1, 'seniorlevel': 2, 'executive': 3 };
+                const userRanks = String((userProfile && userProfile.experience_level_bucket) || '').split(',')
+                    .map(s => rankByBucket[s.toLowerCase().replace(/\s/g, '')]).filter(r => r !== undefined);
+                const fitsLevel = lead => {
+                    const level = lead.detected_job_level;
+                    if (level === null || level === undefined) return true;
+                    return (userRanks.length ? userRanks : [1]).some(r => Math.abs(level - r) <= 1);
+                };
+                socialLeadJobs = (data || []).filter(r => r.social_hiring_leads && fitsWorkplace(r.social_hiring_leads) && fitsLevel(r.social_hiring_leads)).map(socialLeadToJob);
+                if (!socialLeadJobs.length) return;
+                await loadConfirmedSkills(userId);
+                mergeSocialLeadsIntoDeck();
+                if (pooledJobs.length > pooledJobIndex) {
+                    hideDeckLoading();
+                    const section = document.getElementById('swipe-deck-section');
+                    if (section) section.style.display = 'block';
+                    const emptyState = document.getElementById('deck-empty-state');
+                    if (emptyState) emptyState.style.display = 'none';
+                    renderSwipeStack();
+                }
+            } catch (err) {
+                console.error('loadSocialLeadsIntoDeck failed', err);
+            }
+        }
+
+        // Badges for a Facebook card, in the slot ATS cards use for the
+        // remote-scope badge. One color, the words carry the difference.
+        function buildSocialBadges(job) {
+            // "No scam reports found" is only honest when a check actually ran
+            // (status clear). A post with no named employer is never checked
+            // (status skipped), so it gets the unverified tag instead.
+            let scam;
+            if (job.fraud_check_status === 'flagged') {
+                scam = '<div class="social-lead-scam-badge scam-flagged">⚠️ Possible scam reports found</div>';
+            } else if (job.fraud_check_status === 'clear') {
+                scam = '<div class="social-lead-scam-badge">🛡️ No scam reports found</div>';
+            } else if (job.fraud_check_status === 'pending') {
+                scam = '<div class="social-lead-level-badge">⏳ Scam check not finished yet</div>';
+            } else {
+                scam = '<div class="social-lead-level-badge">🏷️ Employer not identified — verify before applying</div>';
+            }
+            const level = (job.detected_job_level === null || job.detected_job_level === undefined)
+                ? '<div class="social-lead-level-badge">❓ Level unclear — check before applying</div>'
+                : '';
+            return `<div class="social-badge-row"><div class="swipe-card-tag">📘 Facebook post</div>${buildFreshnessBadge(job)}${scam}${level}</div>`;
+        }
+
+        // Same reason + "N gaps" pill as buildFitScoreBadge, with no score
+        // number (founder call: social leads never show a fit score).
+        function buildSocialFitBadge(job, jobIndex) {
+            if (!job.fit_reason) {
+                return '<div class="swipe-card-fit-badge fit-high"><div class="swipe-card-fit-reason-wrap"><span class="swipe-card-fit-reason">Rover is checking how this role fits you…</span></div></div>';
+            }
+            const missing = normalizeFitGaps(job.fit_missing_skills);
+            const confirmedNames = getJobConfirmedClaimNames(job);
+            const remaining = missing.filter(gap => !confirmedNames.has(normalizeSkillName(gap.label))).length;
+            const { preview, needsMore } = truncateReasonWords(job.fit_reason);
+            const gapPill = remaining ? `
+                <div class="swipe-card-fit-tags-wrap">
+                    <div class="swipe-card-gap-group">
+                        <button type="button" id="gap-summary-${jobIndex}" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${remaining} ${remaining === 1 ? 'gap' : 'gaps'} <span aria-hidden="true">→</span></button>
+                    </div>
+                </div>` : '';
+            return `
+                <div class="swipe-card-fit-badge fit-high">
+                    <div class="swipe-card-fit-reason-wrap">
+                        <span class="swipe-card-fit-reason" id="fit-reason-${jobIndex}">${escapeHtml(preview)}</span>
+                        ${needsMore ? `<button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); showFitReasonModal(${jobIndex})">more</button>` : ''}
+                    </div>
+                </div>${gapPill}`;
+        }
+
+        // Swipe on a Facebook card: same animation and deck advance as
+        // finishSwipeInner, but the decision goes to the lead match row (the
+        // n8n sender picks up decision='send'), and the credit check also
+        // honors premium and the 5 free social sends. Fails closed.
+        async function finishSocialSwipe(card, job, decision) {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (!user) return false;
+            const tier = (userProfile && userProfile.subscription_tier || '').trim().toLowerCase();
+            const freeUsed = (userProfile && Number(userProfile.social_free_sends_used)) || 0;
+            const usesFreeSend = decision === 'apply' && tier !== 'premium' && freeUsed < 5;
+            if (decision === 'apply') {
+                try {
+                    await waitForPendingSkillWrites();
+                } catch (err) {
+                    alert('One skill could not be added yet. Please retry it or apply without adding it.');
+                    return false;
+                }
+                if (tier !== 'premium' && !usesFreeSend) {
+                    const usage = await fetchFreshApplicationUsage(user.id);
+                    if (!usage || usage.used >= usage.limit) {
+                        showLimitReachedModal(usage ? usage.limit : null);
+                        return false;
+                    }
+                }
+            }
+            card.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
+            card.style.transform = decision === 'apply' ? 'translateX(600px) rotate(20deg)' : 'translateX(-600px) rotate(-20deg)';
+            card.style.opacity = '0';
+            pooledJobIndex++;
+            socialLeadJobs = socialLeadJobs.filter(j => j.match_id !== job.match_id);
+            if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
+            setTimeout(renderSwipeStack, 280);
+            const { error } = await supabaseClient
+                .from('social_hiring_lead_matches')
+                .update({ decision: decision === 'apply' ? 'send' : 'skip', decided_at: new Date().toISOString() })
+                .eq('id', job.match_id);
+            if (error) console.error('Failed to record social lead decision', error);
+            if (usesFreeSend && userProfile) userProfile.social_free_sends_used = freeUsed + 1;
+            return true;
+        }
+
 
         async function checkManualModeAccess(userId) {
             try {
@@ -2624,6 +2876,10 @@
 
         function cacheDeckJobs(userId, jobs, index) {
             try {
+                // Facebook cards are reloaded fresh every visit, never cached.
+                const socialBefore = jobs.slice(0, index).filter(j => j && j.is_social).length;
+                jobs = jobs.filter(j => !(j && j.is_social));
+                index = Math.max(0, index - socialBefore);
                 localStorage.setItem(`deckJobs_${userId}`, JSON.stringify(jobs));
                 localStorage.setItem(`deckIndex_${userId}`, String(index));
                 localStorage.setItem(`deckCacheVersion_${userId}`, String(DECK_CACHE_VERSION));
@@ -2716,6 +2972,7 @@
                         pooledJobs = jobs;
                         pooledJobIndex = 0;
                         cacheDeckJobs(userId, pooledJobs, 0);
+                        mergeSocialLeadsIntoDeck();
                         if (userProfile && !userProfile.deck_ready) {
                             await supabaseClient.from('profiles').update({ deck_ready: true }).eq('id', userId);
                             userProfile.deck_ready = true;
@@ -2991,7 +3248,7 @@
         async function addConfirmedSkill(jobIndex, skill, category = 'skill') {
             const normalized = normalizeSkillName(skill);
             const gapCategory = normalizeGapCategory(category);
-            const job = pooledJobs[jobIndex] || {};
+            const job = resolveDeckJob(jobIndex) || {};
             if (!job.id) throw new Error('No job selected for this claim');
             if (!normalized || getJobConfirmedClaimNames(job).has(normalized)) return;
             const pendingKey = `${job.id || jobIndex}:${normalized}`;
@@ -3008,6 +3265,30 @@
                 // process happened to refresh it. The webhook does both the
                 // upsert and the missing_skills reduction in one call and
                 // hands back the already-updated list.
+                let result;
+                if (job.is_social) {
+                    // Facebook leads have no job_pool row or job_fit_scores row, so
+                    // the Confirm Job Skill webhook (which reduces
+                    // job_fit_scores.missing_skills) does not apply. Same end result
+                    // done directly: save the claim (job_pool_id holds the social
+                    // lead id -- that column has no foreign key) and drop the gap
+                    // from this match's own list. The Social Lead Auto-Apply
+                    // workflow reads these claims when it builds the resume.
+                    const { error: claimErr } = await supabaseClient.from('profile_confirmed_skills').insert({
+                        user_id: user.id,
+                        skill_name: String(skill || '').trim(),
+                        normalized_skill_name: normalized,
+                        gap_category: gapCategory,
+                        source: 'swipe_gap_chip',
+                        job_pool_id: job.id
+                    });
+                    if (claimErr) throw new Error('Saving the skill failed');
+                    const remaining = normalizeFitGaps(job.fit_missing_skills).filter(g => normalizeSkillName(g.label) !== normalized);
+                    const { error: gapErr } = await supabaseClient.from('social_hiring_lead_matches')
+                        .update({ fit_missing_skills: remaining }).eq('id', job.match_id);
+                    if (gapErr) console.error('Could not update remaining gaps', gapErr);
+                    result = { ok: true, missing_skills: remaining };
+                } else {
                 const res = await fetch(CONFIRM_SKILL_WEBHOOK_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -3019,9 +3300,10 @@
                     })
                 });
                 if (!res.ok) throw new Error('Confirm skill webhook failed: ' + res.status);
-                const result = await res.json();
+                result = await res.json();
                 if (!result || result.ok !== true) throw new Error('Confirm skill webhook returned an error');
-                
+                }
+
                 const newClaim = {
                     skill_name: String(skill || '').trim(),
                     normalized_skill_name: normalized,
@@ -3138,6 +3420,7 @@
         }
 
         function buildGeoBadge(job) {
+            if (job.is_social) return buildSocialBadges(job);
             // Set by match-pool-jobs (v71+) when Jev's location check confirmed the job is
             // open to this user's country -- more specific than the raw classifier scope.
             if (job.geo_open_verified_for) {
@@ -3172,13 +3455,25 @@
         }
 
         function buildFitScoreBadge(job, jobIndex) {
-            // A card only ever reaches the deck once already scored (see
-            // match-pool-jobs), so there is no "scoring..." pending state to show.
-            if (job.fit_score === null || job.fit_score === undefined) return '';
+            if (job.is_social) return buildSocialFitBadge(job, jobIndex);
+            // v79 (2026-10-25): a card can now reach the deck unscored -- role/location/level
+            // eligibility (job_gate_v3) is the only thing that gates visibility; scoring is a
+            // background batch that may still be in flight. Show a scoring placeholder instead
+            // of hiding the badge, so the card itself is never missing this information.
+            if (job.fit_score === null || job.fit_score === undefined) {
+                return `
+                <div class="swipe-card-fit-badge fit-scoring">
+                    <span class="fit-scoring-spinner" aria-hidden="true"></span>
+                    <div class="swipe-card-fit-reason-wrap">
+                        <span class="swipe-card-fit-reason">Scoring your fit…</span>
+                    </div>
+                </div>`;
+            }
             const score = job.fit_score;
-            // Always the same badge color: the % itself is the differentiator,
-            // a lower score shouldn't also read as a red-flag warning color.
-            const colorClass = 'fit-high';
+            // 50 and above reads as a confirmed match (green); below is still a real job --
+            // role/location/level already matched, just a weaker description-level fit -- shown
+            // gray rather than hidden (founder design decision, 2026-10-25).
+            const colorClass = score >= 50 ? 'fit-high' : 'fit-low';
             const missing = normalizeFitGaps(job.fit_missing_skills);
             const confirmedNames = getJobConfirmedClaimNames(job);
             const remainingCount = missing.filter(gap => !confirmedNames.has(normalizeSkillName(gap.label))).length;
@@ -3295,7 +3590,7 @@
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
                     <div class="swipe-card-info">
                         ${locationLine ? `<div class="swipe-card-info-row"><i data-lucide="map-pin" class="swipe-card-info-icon"></i><span>${escapeHtml(locationLine)}</span></div>` : ''}
-                        <div class="swipe-card-info-row"><i data-lucide="banknote" class="swipe-card-info-icon"></i><span class="swipe-card-salary">${job.salary_range ? escapeHtml(job.salary_range) : 'Salary not stated'}</span></div>
+                        ${job.is_social ? '' : `<div class="swipe-card-info-row"><i data-lucide="banknote" class="swipe-card-info-icon"></i><span class="swipe-card-salary">${job.salary_range ? escapeHtml(job.salary_range) : 'Salary not stated'}</span></div>`}
                     </div>
                     ${buildGeoBadge(job)}
                     ${buildFitScoreBadge(job, jobIndexInPool)}
@@ -3327,8 +3622,14 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
+        // Facebook cards live in pooledJobs like any other card, so the
+        // reason/gap modals and the add-skill chips find them by deck index.
+        function resolveDeckJob(jobIndex) {
+            return pooledJobs[jobIndex];
+        }
+
         function showFitReasonModal(jobIndex) {
-            const job = pooledJobs[jobIndex];
+            const job = resolveDeckJob(jobIndex);
             if (!job) return;
             document.getElementById('modal-title').innerText = "Why you're a fit";
             document.getElementById('modal-company').innerText = job.company_name || job.company || '';
@@ -3345,7 +3646,7 @@
         // .swipe-card-fit-tags-wrap comment for why inline expansion inside
         // the fixed-height card kept losing content).
         function showFitGapsModal(jobIndex) {
-            const job = pooledJobs[jobIndex];
+            const job = resolveDeckJob(jobIndex);
             if (!job) return;
             const confirmedNames = getJobConfirmedClaimNames(job);
             const missing = normalizeFitGaps(job.fit_missing_skills);
@@ -3365,13 +3666,20 @@
                             const isAdded = confirmedNames.has(normalized);
                             return `<span class="fit-gap-item ${isAdded ? 'is-added' : ''}">
                                 <span class="fit-gap-label" style="${isAdded ? 'text-decoration: line-through; opacity: 0.7;' : ''}">${escapeHtml(gap.label)}</span>
-                                <button type="button" class="fit-gap-add-btn ${isAdded ? 'is-added' : ''}" ${isAdded ? 'disabled' : ''} data-job-id="${escapeHtml(String(job.id || ''))}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(gap.label)}" data-gap-category="${escapeHtml(gap.category)}" onclick="addConfirmedSkillFromChip(this, ${jobIndex})" title="I have this -- add it to my resume and cover letter for this job">${isAdded ? '✓ Added' : '+ Add'}</button>
+                                <button type="button" class="fit-gap-add-btn ${isAdded ? 'is-added' : ''}" ${isAdded ? 'disabled' : ''} data-job-id="${escapeHtml(String(job.id || ''))}" data-gap-skill="${escapeHtml(normalized)}" data-skill-label="${escapeHtml(gap.label)}" data-gap-category="${escapeHtml(gap.category)}" onclick="addConfirmedSkillFromChip(this, '${jobIndex}')" title="I have this -- add it to my resume and cover letter for this job">${isAdded ? '✓ Added' : '+ Add'}</button>
                             </span>`;
                         }).join('')}
                     </div>
                 </section>
             `).join('');
-            const atsAlert = `
+            // Facebook leads are applied to by email, so there is no applicant
+            // tracking system -- a person reads the email. Different wording,
+            // and no "perfect match is rare" footer.
+            const atsAlert = job.is_social ? `
+                <div class="gap-ats-alert">
+                    <div class="gap-ats-alert-title">The person reading your email may pass on you if your résumé is missing key requirements.</div>
+                    <div class="gap-ats-alert-sub">Click Add if you’re currently learning, can learn on the job, or can confidently discuss it in an interview and it’ll be tailored on your résumé for this role. Otherwise, leave it as is, and Rover will address the gap persuasively in your cover letter.</div>
+                </div>` : `
                 <div class="gap-ats-alert">
                     <div class="gap-ats-alert-title">An applicant tracking system may rank you below other candidates if your résumé is missing key requirements.</div>
                     <div class="gap-ats-alert-sub">Click Add if you’re currently learning, can learn on the job, or can confidently discuss it in an interview and it’ll be tailored on your résumé for this role. Otherwise, leave it as is, and Rover will address the gap persuasively in your cover letter.</div>
@@ -3386,7 +3694,7 @@
             // layout inline at open-time so no inherited prose/height rule can
             // distribute categories across the available viewport.
             modalText.style.cssText = 'display:grid;grid-auto-rows:max-content;align-content:start;gap:1rem;white-space:normal;max-width:none;min-height:0;height:auto;margin:0;padding:0;line-height:normal;';
-            modalText.innerHTML = (html ? (atsAlert + html + guaranteeNote) : 'No gaps found.');
+            modalText.innerHTML = (html ? (atsAlert + html + (job.is_social ? '' : guaranteeNote)) : 'No gaps found.');
             document.getElementById('desc-modal').classList.add('active');
         }
         function openSwipeJobDescription(index) {
@@ -3467,7 +3775,41 @@
             if (!topCard) return;
             const job = pooledJobs[pooledJobIndex];
             if (!job) return;
+            // v79 (2026-10-25): Apply is the only action that can wait on scoring -- Decline
+            // and Skip never do. The Apply button itself never looks different; this check only
+            // runs at the moment of click.
+            if (decision === 'apply' && !job.is_social && (job.fit_score === null || job.fit_score === undefined)) {
+                showScoringWaitForApply(job);
+                return;
+            }
             finishSwipe(topCard, job, decision);
+        }
+
+        // Shown only when Apply is tapped on a card that hasn't been scored yet. Polls the
+        // in-memory job object (kept current by refreshDeckSilently's existing ~6s poll)
+        // rather than opening a second network loop. Never auto-submits once scored -- the
+        // user sees the finished card (real badge + gaps) and decides for themselves.
+        let scoringWaitPollId = null;
+        function showScoringWaitForApply(job) {
+            const modal = document.getElementById('desc-modal');
+            if (!modal) return;
+            document.getElementById('modal-title').innerText = 'Please wait while we score this job…';
+            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            const modalText = document.getElementById('modal-text');
+            modalText.classList.remove('gap-list');
+            modalText.style.cssText = '';
+            modalText.innerText = "We're scoring your fit for this role now -- this card updates the moment it's ready, usually under two minutes. You can close this and keep swiping; just tap Apply again once it's scored.";
+            modal.classList.add('active');
+            if (scoringWaitPollId) clearInterval(scoringWaitPollId);
+            scoringWaitPollId = setInterval(() => {
+                const stillThere = pooledJobs.find(j => j.id === job.id);
+                const nowScored = stillThere && stillThere.fit_score !== null && stillThere.fit_score !== undefined;
+                if (!stillThere || nowScored) {
+                    clearInterval(scoringWaitPollId);
+                    scoringWaitPollId = null;
+                    modal.classList.remove('active');
+                }
+            }, 3000);
         }
 
         // "Skip for now" is deliberately NOT a decision -- no user_job_swipes
@@ -3532,6 +3874,7 @@
         }
 
         async function finishSwipeInner(card, job, decision) {
+            if (job && job.is_social) return finishSocialSwipe(card, job, decision);
             if (decision === 'apply') {
                 try {
                     await waitForPendingSkillWrites();
@@ -3787,6 +4130,8 @@
                         break;
                     }
                     const job = pooledJobs[pooledJobIndex];
+                    // Facebook cards are ask-first: Auto-Apply never decides them.
+                    if (job.is_social) break;
                     const decision = typeof job.fit_score === 'number' && job.fit_score >= minScore ? 'apply' : 'skip';
                     if (decision === 'apply') optimisticAppliedThisSweep++;
                     const swiped = await autoSwipeCurrentCard(decision);
