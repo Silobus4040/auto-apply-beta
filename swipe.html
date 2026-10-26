@@ -4766,6 +4766,7 @@
 
             setupFounderChatRealtime(userId);
             checkFounderUnreadCount(userId);
+            setupMailboxRealtime(userId);
         }
 
         function onFitScoreUpdate(payload) {
@@ -5094,6 +5095,27 @@
         }
 
         let founderChatRealtimeSub = null;
+        let mailboxRealtimeSub = null;
+        function setupMailboxRealtime(userId) {
+            if (!userId || mailboxRealtimeSub) return;
+            mailboxRealtimeSub = supabaseClient.channel('dedicated-mailbox-live')
+              .on('postgres_changes', {
+                  event: 'INSERT',
+                  schema: 'public',
+                  table: 'emails',
+                  filter: `user_id=eq.${userId}`
+              }, payload => {
+                  const isOutbound = typeof userProfile !== 'undefined' && userProfile?.Application_email && payload.new?.sender === userProfile.Application_email;
+                  if (!isOutbound) {
+                      playFounderMessageChime();
+                      if (typeof fetchEmails === 'function') {
+                          fetchEmails();
+                      }
+                  }
+              })
+              .subscribe();
+        }
+
         function setupFounderChatRealtime(userId) {
             if (!userId || founderChatRealtimeSub) return;
             founderChatRealtimeSub = supabaseClient.channel('founder-chat-live')
