@@ -1671,6 +1671,71 @@
             }
         }
 
+    
+        .founder-mic-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #f4f4f5;
+            color: #71717a;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.15s, color 0.15s, transform 0.1s;
+        }
+        .founder-mic-btn:hover {
+            background: #e4e4e7;
+            color: #09090b;
+            transform: scale(1.05);
+        }
+        .founder-voice-record-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            background: #fef2f2;
+            border: 1.5px solid #fecaca;
+            border-radius: 16px;
+            padding: 0.45rem 0.65rem 0.45rem 1rem;
+            animation: fadeIn 0.2s ease;
+        }
+        .founder-recording-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #dc2626;
+        }
+        .founder-recording-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #dc2626;
+            animation: pulseRecord 1s infinite alternate ease-in-out;
+        }
+        @keyframes pulseRecord {
+            from { transform: scale(0.85); opacity: 0.6; }
+            to { transform: scale(1.25); opacity: 1; }
+        }
+        .founder-voice-cancel-btn {
+            background: transparent;
+            border: none;
+            color: #71717a;
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            padding: 0.35rem 0.65rem;
+            border-radius: 8px;
+            transition: background 0.15s, color 0.15s;
+        }
+        .founder-voice-cancel-btn:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+    
     </style>
     <!-- Cloudflare Web Analytics -->
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e283f8a57d564d11a0e493125628363a"}'></script>
@@ -1807,8 +1872,16 @@
 
                 <!-- Input Footer -->
                 <div class="founder-chat-footer">
-                    <div class="founder-chat-input-bar">
+                    <!-- Standard Text Input Bar -->
+                    <div class="founder-chat-input-bar" id="founder-text-input-bar">
                         <textarea id="feedback-text" rows="1" placeholder="Type your reply to Obruche..." onkeydown="handleFounderChatKey(event)"></textarea>
+                        <button id="founder-mic-btn" class="founder-mic-btn" onclick="toggleVoiceRecording()" title="Record voice message">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"></path>
+                                <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                                <line x1="12" y1="19" x2="12" y2="22"></line>
+                            </svg>
+                        </button>
                         <button id="submit-feedback-btn" class="founder-send-btn" onclick="submitFeedback()" title="Send reply">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                 <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -1816,7 +1889,26 @@
                             </svg>
                         </button>
                     </div>
-                    <div class="founder-chat-hint">Obruche reads and answers every message personally.</div>
+
+                    <!-- Voice Recording Bar (hidden by default) -->
+                    <div class="founder-voice-record-bar" id="founder-voice-record-bar" style="display: none;">
+                        <div class="founder-recording-indicator">
+                            <span class="founder-recording-dot"></span>
+                            <span id="founder-record-timer">0:00</span>
+                        </div>
+                        <div style="font-size: 0.8rem; color: #ef4444; font-weight: 600;">Recording voice message...</div>
+                        <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto;">
+                            <button class="founder-voice-cancel-btn" onclick="cancelVoiceRecording()" title="Cancel">Cancel</button>
+                            <button id="founder-voice-send-btn" class="founder-send-btn" onclick="sendVoiceRecording()" title="Send voice note" style="background: #10b981;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="founder-chat-hint">Obruche reads & listens to every message personally.</div>
                 </div>
             </div>
         </div>
@@ -3950,7 +4042,29 @@
                 const body = document.getElementById('founder-chat-body');
                 if (body) body.scrollTop = body.scrollHeight;
             }, 100);
+
+            const userId = typeof userProfile !== 'undefined' && userProfile?.id ? userProfile.id : null;
+            if (userId) {
+                setupFounderChatRealtime(userId);
+            }
             loadFounderChatHistory();
+        }
+
+        let founderChatRealtimeSub = null;
+        function setupFounderChatRealtime(userId) {
+            if (founderChatRealtimeSub) return;
+            founderChatRealtimeSub = supabaseClient.channel('founder-chat-live')
+                .on('postgres_changes', {
+                    event: 'INSERT',
+                    schema: 'public',
+                    table: 'feedback',
+                    filter: 'user_id=eq.' + userId
+                }, payload => {
+                    if (payload.new && payload.new.sender === 'founder') {
+                        appendFounderReplyMessage(payload.new.message, payload.new.created_at);
+                    }
+                })
+                .subscribe();
         }
 
         async function loadFounderChatHistory() {
@@ -3960,7 +4074,7 @@
 
                 const { data: messages, error } = await supabaseClient
                     .from('feedback')
-                    .select('id, message, created_at')
+                    .select('id, message, created_at, sender, voice_url')
                     .eq('user_id', userId)
                     .order('created_at', { ascending: true });
 
@@ -3970,7 +4084,11 @@
                 if (!container) return;
                 container.innerHTML = '';
                 messages.forEach(m => {
-                    appendUserChatMessage(m.message, m.created_at, false);
+                    if (m.sender === 'founder') {
+                        appendFounderReplyMessage(m.message, m.created_at, false);
+                    } else {
+                        appendUserChatMessage(m.message, m.created_at, false, m.voice_url);
+                    }
                 });
 
                 const body = document.getElementById('founder-chat-body');
@@ -3980,7 +4098,31 @@
             }
         }
 
-        function appendUserChatMessage(text, timestamp, animate = true) {
+        function appendFounderReplyMessage(text, timestamp, animate = true) {
+            const container = document.getElementById('founder-chat-history');
+            if (!container) return;
+
+            const cluster = document.createElement('div');
+            cluster.className = 'founder-msg-cluster';
+            cluster.style.marginTop = '0.5rem';
+            if (animate) cluster.style.animation = 'fadeInUp 0.25s ease';
+
+            const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+
+            cluster.innerHTML = `
+                <div class="founder-msg-avatar">OS</div>
+                <div class="founder-msg-bubbles">
+                    <div class="founder-bubble" style="border-left: 3px solid #10b981;">${escapeHtml(text)}</div>
+                    <span class="founder-msg-time">Obruche • ${timeStr}</span>
+                </div>
+            `;
+            container.appendChild(cluster);
+
+            const body = document.getElementById('founder-chat-body');
+            if (body) body.scrollTop = body.scrollHeight;
+        }
+
+        function appendUserChatMessage(text, timestamp, animate = true, voiceUrl = null) {
             const container = document.getElementById('founder-chat-history');
             if (!container) return;
 
@@ -3990,8 +4132,20 @@
 
             const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
 
+            let bubbleContent = '';
+            if (voiceUrl) {
+                bubbleContent = `
+                    <div style="font-size: 0.75rem; margin-bottom: 0.35rem; opacity: 0.85; display: flex; align-items: center; gap: 0.35rem;">
+                        <span>🎙️ Voice Message</span>
+                    </div>
+                    <audio controls src="${escapeHtml(voiceUrl)}" style="height: 34px; max-width: 230px;"></audio>
+                `;
+            } else {
+                bubbleContent = escapeHtml(text);
+            }
+
             wrap.innerHTML = `
-                <div class="founder-user-bubble">${escapeHtml(text)}</div>
+                <div class="founder-user-bubble">${bubbleContent}</div>
                 <div class="founder-user-status">
                     <span>Delivered to Obruche</span>
                     <span style="opacity: 0.6;">•</span>
@@ -4030,6 +4184,7 @@
                     user_id: userId,
                     email: email,
                     message: text,
+                    sender: 'user',
                     type: 'founder_message'
                 }]);
 
@@ -4073,6 +4228,135 @@
                     btn.style.opacity = '1';
                 }
             }
+        }
+
+        // --- VOICE NOTE RECORDING LOGIC ---
+        let mediaRecorder = null;
+        let audioChunks = [];
+        let recordInterval = null;
+        let recordSeconds = 0;
+
+        async function toggleVoiceRecording() {
+            try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    return alert("Voice messages are not supported by your browser.");
+                }
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data && e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                mediaRecorder.start();
+
+                document.getElementById('founder-text-input-bar').style.display = 'none';
+                document.getElementById('founder-voice-record-bar').style.display = 'flex';
+
+                recordSeconds = 0;
+                document.getElementById('founder-record-timer').textContent = '0:00';
+                clearInterval(recordInterval);
+                recordInterval = setInterval(() => {
+                    recordSeconds++;
+                    const m = Math.floor(recordSeconds / 60);
+                    const s = (recordSeconds % 60).toString().padStart(2, '0');
+                    document.getElementById('founder-record-timer').textContent = `${m}:${s}`;
+                }, 1000);
+            } catch (err) {
+                console.error("Microphone access error:", err);
+                alert("Please allow microphone access to record a voice message.");
+            }
+        }
+
+        function cancelVoiceRecording() {
+            if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                mediaRecorder.stop();
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+            }
+            clearInterval(recordInterval);
+            audioChunks = [];
+            document.getElementById('founder-voice-record-bar').style.display = 'none';
+            document.getElementById('founder-text-input-bar').style.display = 'flex';
+        }
+
+        async function sendVoiceRecording() {
+            if (!mediaRecorder || mediaRecorder.state === 'inactive') return;
+
+            const sendBtn = document.getElementById('founder-voice-send-btn');
+            if (sendBtn) sendBtn.disabled = true;
+
+            clearInterval(recordInterval);
+
+            mediaRecorder.onstop = async () => {
+                mediaRecorder.stream.getTracks().forEach(t => t.stop());
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                
+                try {
+                    const userId = typeof userProfile !== 'undefined' && userProfile?.id ? userProfile.id : (await supabaseClient.auth.getUser()).data?.user?.id;
+                    const email = typeof userProfile !== 'undefined' ? (userProfile?.Application_email || userProfile?.email || 'unknown') : 'unknown';
+                    const filePath = `voice_notes/${userId || 'guest'}_${Date.now()}.webm`;
+
+                    // Upload to public resumes bucket
+                    const { data: uploadData, error: uploadErr } = await supabaseClient.storage
+                        .from('resumes')
+                        .upload(filePath, audioBlob, { contentType: 'audio/webm', upsert: true });
+
+                    if (uploadErr) throw uploadErr;
+
+                    const { data: publicUrlData } = supabaseClient.storage.from('resumes').getPublicUrl(filePath);
+                    const voiceUrl = publicUrlData ? publicUrlData.publicUrl : '';
+
+                    // Save to feedback table
+                    const { error: dbErr } = await supabaseClient.from('feedback').insert([{
+                        user_id: userId,
+                        email: email,
+                        message: '🎙️ Voice Message (' + Math.round(recordSeconds) + 's)',
+                        voice_url: voiceUrl,
+                        sender: 'user',
+                        type: 'founder_voice_message'
+                    }]);
+
+                    if (dbErr) throw dbErr;
+
+                    // Forward to Telegram webhook
+                    const fullName = (typeof userProfile !== 'undefined' && userProfile)
+                        ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() || 'Anonymous'
+                        : 'Anonymous';
+                    const loc = (typeof userProfile !== 'undefined' && userProfile)
+                        ? [userProfile.city, userProfile.state, userProfile.country].filter(Boolean).join(', ') || userProfile.target_location || 'Not specified'
+                        : 'Not specified';
+                    const targetRoles = (typeof userProfile !== 'undefined' && userProfile)
+                        ? (userProfile.target_job_titles || 'Not specified')
+                        : 'Not specified';
+
+                    fetch('https://n8n.leadscompass.ai/webhook/founder-message', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            user_id: userId,
+                            email: email,
+                            full_name: fullName,
+                            location: loc,
+                            target_roles: targetRoles,
+                            message: '🎙️ Voice Message (' + Math.round(recordSeconds) + 's): ' + voiceUrl
+                        })
+                    }).catch(err => console.warn('Telegram forward notify error', err));
+
+                    appendUserChatMessage('', new Date().toISOString(), true, voiceUrl);
+
+                } catch (err) {
+                    console.error("Voice send error:", err);
+                    alert("Could not send voice message. Please try again.");
+                } finally {
+                    document.getElementById('founder-voice-record-bar').style.display = 'none';
+                    document.getElementById('founder-text-input-bar').style.display = 'flex';
+                    if (sendBtn) sendBtn.disabled = false;
+                }
+            };
+
+            mediaRecorder.stop();
+        }
         }
 
         // --- EMAIL CLIENT LOGIC ---
