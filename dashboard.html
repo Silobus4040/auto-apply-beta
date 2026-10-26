@@ -1406,6 +1406,271 @@
             }
         }
 
+    
+        /* Founder Direct Chat Interface */
+        .founder-chat-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            height: 620px;
+            max-height: calc(100dvh - 2rem);
+            border-radius: 24px;
+            box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid rgba(0, 0, 0, 0.08);
+            animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.96) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .founder-chat-header {
+            padding: 1rem 1.25rem;
+            background: #ffffff;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+        .founder-chat-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+        }
+        .founder-avatar-wrap {
+            position: relative;
+        }
+        .founder-avatar {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #18181b 0%, #27272a 100%);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            letter-spacing: -0.5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+        }
+        .founder-status-dot {
+            width: 11px;
+            height: 11px;
+            background: #10b981;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+        .founder-chat-name {
+            font-weight: 800;
+            font-size: 1rem;
+            color: #09090b;
+            line-height: 1.2;
+        }
+        .founder-chat-role {
+            font-size: 0.75rem;
+            color: #71717a;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+            margin-top: 0.15rem;
+        }
+        .founder-chat-close {
+            background: #f4f4f5;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            cursor: pointer;
+            color: #71717a;
+            transition: background 0.15s, color 0.15s;
+            line-height: 1;
+        }
+        .founder-chat-close:hover {
+            background: #e4e4e7;
+            color: #09090b;
+        }
+        .founder-chat-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.25rem 1.1rem;
+            background: #f8fafc;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+            scroll-behavior: smooth;
+        }
+        .founder-chat-date-pill {
+            text-align: center;
+            margin: 0.25rem 0;
+        }
+        .founder-chat-date-pill span {
+            background: #e2e8f0;
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 600;
+            padding: 0.2rem 0.65rem;
+            border-radius: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .founder-msg-cluster {
+            display: flex;
+            gap: 0.65rem;
+            align-items: flex-end;
+            max-width: 92%;
+        }
+        .founder-msg-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #18181b;
+            color: #fff;
+            font-size: 0.7rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-bottom: 1.2rem;
+        }
+        .founder-msg-bubbles {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+        .founder-bubble {
+            background: #ffffff;
+            color: #1e293b;
+            padding: 0.75rem 0.95rem;
+            border-radius: 16px 16px 16px 4px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            word-break: break-word;
+        }
+        .founder-msg-time {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            margin-top: 0.2rem;
+            margin-left: 0.25rem;
+        }
+        #founder-chat-history {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+        .founder-user-msg-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            width: 100%;
+        }
+        .founder-user-bubble {
+            background: #0f172a;
+            color: #ffffff;
+            padding: 0.75rem 0.95rem;
+            border-radius: 16px 16px 4px 16px;
+            font-size: 0.88rem;
+            line-height: 1.5;
+            max-width: 85%;
+            word-break: break-word;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+        }
+        .founder-user-status {
+            font-size: 0.68rem;
+            color: #64748b;
+            margin-top: 0.25rem;
+            margin-right: 0.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .founder-chat-footer {
+            padding: 0.75rem 1rem 0.85rem;
+            background: #ffffff;
+            border-top: 1px solid #f1f5f9;
+            flex-shrink: 0;
+        }
+        .founder-chat-input-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 0.35rem 0.45rem 0.35rem 0.85rem;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .founder-chat-input-bar:focus-within {
+            border-color: #0f172a;
+            box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.08);
+        }
+        .founder-chat-input-bar textarea {
+            flex: 1;
+            border: none;
+            background: transparent;
+            outline: none;
+            font-family: inherit;
+            font-size: 0.88rem;
+            line-height: 1.4;
+            resize: none;
+            max-height: 90px;
+            padding: 0.35rem 0;
+            color: #0f172a;
+        }
+        .founder-send-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #0f172a;
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.15s, transform 0.1s;
+        }
+        .founder-send-btn:hover {
+            background: #000000;
+            transform: scale(1.05);
+        }
+        .founder-send-btn:active {
+            transform: scale(0.95);
+        }
+        .founder-chat-hint {
+            font-size: 0.68rem;
+            color: #94a3b8;
+            text-align: center;
+            margin-top: 0.4rem;
+        }
+        @media (max-width: 768px) {
+            .founder-chat-card {
+                max-width: 100%;
+                height: 88dvh;
+                max-height: 88dvh;
+                border-radius: 20px;
+            }
+        }
+
     </style>
     <!-- Cloudflare Web Analytics -->
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e283f8a57d564d11a0e493125628363a"}'></script>
@@ -1479,7 +1744,7 @@
                      anywhere opened this modal -- whatever used to trigger it
                      was removed at some point, leaving it orphaned (last real
                      submission: 2026-06-17, over two months ago). -->
-                <button class="sidebar-nav-item" onclick="document.getElementById('feedback-modal').classList.add('active'); if(window.innerWidth<=768) toggleSidebar();">
+                <button class="sidebar-nav-item" onclick="openFounderChat(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="message-circle" class="sidebar-nav-icon"></i> Message Founder
                 </button>
                 <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
@@ -1493,22 +1758,66 @@
         <div class="app-main">
     <div class="container">
         <!-- Feedback Modal -->
-        <div class="modal-overlay" id="feedback-modal">
-            <div class="desc-modal" style="max-width: 500px; text-align: left; padding: 2.5rem;">
-                <button class="close-modal" onclick="closeModal('feedback-modal')">&times;</button>
-                <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">💬 Message the Founder</h2>
-            <p style="color: #27272A; font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.85rem;">
-                    <strong>Hey, I'm Obruche Siloko — founder of Role Rover.</strong><br>
-                    I built Role Rover because everything about job hunting is stressful — from the job search, to filling out long application forms, optimizing resumes for every role, and writing a cover letter like one professing love to a company.
-                </p>
-                <p style="color: #27272A; font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.85rem;">
-                    The idea behind building Rover is simply to assist you in landing multiple interviews effortlessly and fast, while I take up the fight of beating the repetitive application grind.
-                </p>
-                <p style="color: #52525B; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.5rem;">
-                    Have a question, a feature idea, or something that annoyed you? Positive, negative, or brutally honest—don't hold back. You're talking directly to me, not a corporate support bot, and your feedback shapes what I build next.
-                </p>
-                <textarea id="feedback-text" rows="5" style="width: 100%; border: 1px solid #e4e4e7; border-radius: 12px; padding: 1rem; font-family: inherit; font-size: 0.95rem; resize: vertical; margin-bottom: 1.5rem; outline: none; transition: border-color 0.2s;" placeholder="What's working, what's broken, or what can I fix for you today?..."></textarea>
-                <button id="submit-feedback-btn" class="table-btn" style="width: 100%; justify-content: center; background: #000; color: #fff; border-color: #000;" onclick="submitFeedback()">Send Message to Founder</button>
+        <!-- Message Founder Chat Modal -->
+        <div class="modal-overlay" id="feedback-modal" onclick="if(event.target === this) closeModal('feedback-modal')">
+            <div class="founder-chat-card">
+                <!-- Chat Header -->
+                <div class="founder-chat-header">
+                    <div class="founder-chat-profile">
+                        <div class="founder-avatar-wrap">
+                            <div class="founder-avatar">OS</div>
+                            <span class="founder-status-dot"></span>
+                        </div>
+                        <div>
+                            <div class="founder-chat-name">Obruche Siloko</div>
+                            <div class="founder-chat-role">Founder, Role Rover • Direct Line</div>
+                        </div>
+                    </div>
+                    <button class="founder-chat-close" onclick="closeModal('feedback-modal')" title="Close">&times;</button>
+                </div>
+
+                <!-- Chat Messages Stream -->
+                <div class="founder-chat-body" id="founder-chat-body">
+                    <div class="founder-chat-date-pill"><span>Today</span></div>
+
+                    <div class="founder-msg-cluster">
+                        <div class="founder-msg-avatar">OS</div>
+                        <div class="founder-msg-bubbles">
+                            <div class="founder-bubble">
+                                Hi, I'm <strong>Obruche Siloko</strong> the founder of Role Rover 👋
+                            </div>
+                            <div class="founder-bubble">
+                                I built this because job hunting has become a stressful, repetitive process: I mean, the endless searching for open roles, the lengthy application forms, rewriting your resume for every single role, and thinking of the perfect words to use for every cover letter like one professing undying love to a company.
+                            </div>
+                            <div class="founder-bubble">
+                                My goal is simple: help you land more interviews with less effort, and hope you crush the interviews and land multiple job offers.
+                            </div>
+                            <div class="founder-bubble">
+                                <span id="founder-chat-user-name">Friend</span>, do you have questions, ideas, bad experience, or something you love about the App? I really want to hear what you actually think because this App revolves around your need.
+                            </div>
+                            <div class="founder-bubble">
+                                Your opinion matters and it helps me decide what to keep, fix, or build next. Thanks!
+                            </div>
+                            <span class="founder-msg-time">Founder Message</span>
+                        </div>
+                    </div>
+
+                    <div id="founder-chat-history"></div>
+                </div>
+
+                <!-- Input Footer -->
+                <div class="founder-chat-footer">
+                    <div class="founder-chat-input-bar">
+                        <textarea id="feedback-text" rows="1" placeholder="Type your reply to Obruche..." onkeydown="handleFounderChatKey(event)"></textarea>
+                        <button id="submit-feedback-btn" class="founder-send-btn" onclick="submitFeedback()" title="Send reply">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="founder-chat-hint">Obruche reads and answers every message personally.</div>
+                </div>
             </div>
         </div>
 
@@ -3626,36 +3935,119 @@
             }
         }
 
+        function openFounderChat() {
+            const modal = document.getElementById('feedback-modal');
+            if (!modal) return;
+            const nameEl = document.getElementById('founder-chat-user-name');
+            if (nameEl) {
+                const fname = (typeof userProfile !== 'undefined' && userProfile?.first_name) ? userProfile.first_name.trim() : 'Friend';
+                nameEl.textContent = fname;
+            }
+            modal.classList.add('active');
+            setTimeout(() => {
+                const input = document.getElementById('feedback-text');
+                if (input) input.focus();
+                const body = document.getElementById('founder-chat-body');
+                if (body) body.scrollTop = body.scrollHeight;
+            }, 100);
+            loadFounderChatHistory();
+        }
+
+        async function loadFounderChatHistory() {
+            try {
+                const userId = typeof userProfile !== 'undefined' && userProfile?.id ? userProfile.id : (await supabaseClient.auth.getUser()).data?.user?.id;
+                if (!userId) return;
+
+                const { data: messages, error } = await supabaseClient
+                    .from('feedback')
+                    .select('id, message, created_at')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: true });
+
+                if (error || !messages) return;
+
+                const container = document.getElementById('founder-chat-history');
+                if (!container) return;
+                container.innerHTML = '';
+                messages.forEach(m => {
+                    appendUserChatMessage(m.message, m.created_at, false);
+                });
+
+                const body = document.getElementById('founder-chat-body');
+                if (body) body.scrollTop = body.scrollHeight;
+            } catch (e) {
+                console.warn('Could not load chat history', e);
+            }
+        }
+
+        function appendUserChatMessage(text, timestamp, animate = true) {
+            const container = document.getElementById('founder-chat-history');
+            if (!container) return;
+
+            const wrap = document.createElement('div');
+            wrap.className = 'founder-user-msg-wrap';
+            if (animate) wrap.style.animation = 'fadeInUp 0.2s ease';
+
+            const timeStr = timestamp ? new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+
+            wrap.innerHTML = `
+                <div class="founder-user-bubble">${escapeHtml(text)}</div>
+                <div class="founder-user-status">
+                    <span>Delivered to Obruche</span>
+                    <span style="opacity: 0.6;">•</span>
+                    <span>${timeStr}</span>
+                </div>
+            `;
+            container.appendChild(wrap);
+
+            const body = document.getElementById('founder-chat-body');
+            if (body) body.scrollTop = body.scrollHeight;
+        }
+
+        function handleFounderChatKey(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                submitFeedback();
+            }
+        }
+
         async function submitFeedback() {
-            const text = document.getElementById('feedback-text').value.trim();
-            if(!text) return alert("Please enter some feedback first!");
-            
+            const input = document.getElementById('feedback-text');
+            const text = input ? input.value.trim() : '';
+            if (!text) return;
+
             const btn = document.getElementById('submit-feedback-btn');
-            btn.innerText = "Sending...";
-            btn.disabled = true;
+            if (btn) {
+                btn.disabled = true;
+                btn.style.opacity = '0.5';
+            }
 
             try {
                 const userId = typeof userProfile !== 'undefined' && userProfile?.id ? userProfile.id : (await supabaseClient.auth.getUser()).data?.user?.id;
-                const email = typeof userProfile !== 'undefined' ? (userProfile?.Application_email || 'unknown') : 'unknown';
+                const email = typeof userProfile !== 'undefined' ? (userProfile?.Application_email || userProfile?.email || 'unknown') : 'unknown';
 
                 const { error } = await supabaseClient.from('feedback').insert([{
                     user_id: userId,
                     email: email,
                     message: text,
-                    type: 'bug_report'
+                    type: 'founder_message'
                 }]);
-                
+
                 if (error) throw error;
-                
-                document.getElementById('feedback-text').value = '';
-                closeModal('feedback-modal');
-                alert("Thanks for reaching out! Your message was sent directly to the founder.");
+
+                appendUserChatMessage(text, new Date().toISOString(), true);
+                if (input) {
+                    input.value = '';
+                    input.style.height = 'auto';
+                }
             } catch(err) {
                 console.error("Feedback error", err);
-                alert("Could not send feedback. Please try again.");
+                alert("Could not send message. Please try again.");
             } finally {
-                btn.innerText = "Send Message to Founder";
-                btn.disabled = false;
+                if (btn) {
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                }
             }
         }
 
