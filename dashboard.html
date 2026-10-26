@@ -1497,9 +1497,12 @@
             <div class="desc-modal" style="max-width: 500px; text-align: left; padding: 2.5rem;">
                 <button class="close-modal" onclick="closeModal('feedback-modal')">&times;</button>
                 <h2 style="font-size: 1.5rem; font-weight: 900; margin-bottom: 0.5rem; text-transform: uppercase;">💬 Message the Founder</h2>
-            <p style="color: #27272A; font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.8rem;">
+            <p style="color: #27272A; font-size: 0.95rem; line-height: 1.6; margin-bottom: 0.85rem;">
                     <strong>Hey, I'm Obruche Siloko — founder of Role Rover.</strong><br>
-                    I built Role Rover because job hunting is broken, and you deserve a tool that actually works for you.
+                    I built Role Rover because everything about job hunting is stressful — from the job search, to filling out long application forms, optimizing resumes for every role, and writing a cover letter like one professing love to a company.
+                </p>
+                <p style="color: #27272A; font-size: 0.92rem; line-height: 1.6; margin-bottom: 0.85rem;">
+                    The idea behind building Rover is simply to assist you in landing multiple interviews effortlessly and fast, while I take up the fight of beating the repetitive application grind.
                 </p>
                 <p style="color: #52525B; font-size: 0.88rem; line-height: 1.5; margin-bottom: 1.5rem;">
                     Have a question, a feature idea, or something that annoyed you? Positive, negative, or brutally honest—don't hold back. You're talking directly to me, not a corporate support bot, and your feedback shapes what I build next.
@@ -3790,13 +3793,6 @@
             try {
                 const { data: { session } } = await supabaseClient.auth.getSession();
                 if (!session) return;
-
-                // Ensure candidate has personal welcome email from founder Obruche Siloko
-                try {
-                    await supabaseClient.rpc('ensure_founder_welcome_email', { p_user_id: session.user.id });
-                } catch (e) {
-                    console.warn('Founder welcome email check:', e);
-                }
 
                 let query = supabaseClient
                     .from('emails')
