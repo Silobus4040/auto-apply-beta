@@ -4221,7 +4221,8 @@
                 }
             } catch(err) {
                 console.error("Feedback error", err);
-                alert("Could not send message. Please try again.");
+                const errMsg = err?.message || err?.error_description || (typeof err === 'string' ? err : JSON.stringify(err));
+                alert("Could not send message: " + errMsg);
             } finally {
                 if (btn) {
                     btn.disabled = false;
@@ -4300,7 +4301,7 @@
                     // Upload to public resumes bucket
                     const { data: uploadData, error: uploadErr } = await supabaseClient.storage
                         .from('resumes')
-                        .upload(filePath, audioBlob, { contentType: 'audio/webm', upsert: true });
+                        .upload(filePath, audioBlob, { contentType: 'audio/webm', upsert: false });
 
                     if (uploadErr) throw uploadErr;
 
@@ -4347,7 +4348,8 @@
 
                 } catch (err) {
                     console.error("Voice send error:", err);
-                    alert("Could not send voice message. Please try again.");
+                    const errMsg = err?.message || err?.error_description || (typeof err === 'string' ? err : JSON.stringify(err));
+                    alert("Could not send voice message: " + errMsg);
                 } finally {
                     document.getElementById('founder-voice-record-bar').style.display = 'none';
                     document.getElementById('founder-text-input-bar').style.display = 'flex';
