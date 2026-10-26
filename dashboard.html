@@ -4035,6 +4035,30 @@
 
                 if (error) throw error;
 
+                // Forward message to Telegram via n8n
+                const fullName = (typeof userProfile !== 'undefined' && userProfile)
+                    ? `${userProfile.first_name || ''} ${userProfile.last_name || ''}`.trim() || 'Anonymous'
+                    : 'Anonymous';
+                const loc = (typeof userProfile !== 'undefined' && userProfile)
+                    ? [userProfile.city, userProfile.state, userProfile.country].filter(Boolean).join(', ') || userProfile.target_location || 'Not specified'
+                    : 'Not specified';
+                const targetRoles = (typeof userProfile !== 'undefined' && userProfile)
+                    ? (userProfile.target_job_titles || 'Not specified')
+                    : 'Not specified';
+
+                fetch('https://n8n.leadscompass.ai/webhook/founder-message', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        user_id: userId,
+                        email: email,
+                        full_name: fullName,
+                        location: loc,
+                        target_roles: targetRoles,
+                        message: text
+                    })
+                }).catch(err => console.warn('Telegram forward notify error', err));
+
                 appendUserChatMessage(text, new Date().toISOString(), true);
                 if (input) {
                     input.value = '';
