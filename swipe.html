@@ -1139,8 +1139,9 @@
         .social-lead-actions button.social-lead-send { background: #000; color: #fff; border-color: #000; }
         .swipe-card-fit-score { font-size: 1.1rem; font-weight: 900; flex-shrink: 0; }
         .fit-high .swipe-card-fit-score { color: #059669; }
-        .swipe-card-fit-badge.fit-low { background: #F4F4F5; border: 1px solid #E4E4E7; }
-        .fit-low .swipe-card-fit-score { color: #52525B; }
+        .swipe-card-fit-badge.fit-low { background: #FEF2F2; border: 1px solid #FECACA; }
+        .fit-low .swipe-card-fit-score { color: #B91C1C; }
+        .fit-low .swipe-card-fit-reason { color: #7F1D1D; }
         .swipe-card-fit-badge.fit-scoring { background: #F4F4F5; border: 1px solid #E4E4E7; }
         .fit-scoring-spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid #D4D4D8; border-top-color: #71717A; border-radius: 50%; animation: fitScoringSpin 0.8s linear infinite; }
         @keyframes fitScoringSpin { to { transform: rotate(360deg); } }
@@ -3159,6 +3160,18 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function cleanCompanyName(raw) {
+            if (!raw) return '';
+            let name = String(raw).trim();
+            name = name.replace(/\.zohorecruit\.(com|in|eu|net)$/i, '');
+            name = name.replace(/[-_.]zohorecruit$/i, '');
+            name = name.replace(/\s+(Careers\s*Page|Careers|Jobs|Job\s*Openings)$/i, '');
+            if (name.includes('-') && !name.includes(' ')) {
+                name = name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+            return name.trim();
+        }
+
         function companyInitials(name) {
             const words = String(name || '?').trim().split(/\s+/).filter(Boolean);
             return words.slice(0, 2).map(w => w[0].toUpperCase()).join('') || '?';
@@ -3178,7 +3191,7 @@
         // Brandfetch has no logo indexed for that domain (onerror swaps to the badge
         // instead of leaving a blank gap on the card).
         function renderCompanyLogo(job) {
-            const name = job.company_name || job.company || '';
+            const name = cleanCompanyName(job.company_name || job.company || '');
             const initials = companyInitials(name);
             if (!job.company_domain) {
                 return `<div class="swipe-card-logo swipe-card-logo-fallback">${escapeHtml(initials)}</div>`;
@@ -3613,7 +3626,7 @@
                     <div class="swipe-card-stamp apply">Apply</div>
                     <div class="swipe-card-header">
                         ${renderCompanyLogo(job)}
-                        <div class="swipe-card-company">${escapeHtml(job.company_name || job.company || '')}</div>
+                        <div class="swipe-card-company">${escapeHtml(cleanCompanyName(job.company_name || job.company || ''))}</div>
                     </div>
                     <div class="swipe-card-title">${escapeHtml(job.title || '')}</div>
                     <div class="swipe-card-info">
@@ -3660,7 +3673,7 @@
             const job = resolveDeckJob(jobIndex);
             if (!job) return;
             document.getElementById('modal-title').innerText = "Why you're a fit";
-            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-company').innerText = cleanCompanyName(job.company_name || job.company || '');
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
             modalText.style.cssText = '';
@@ -3715,7 +3728,7 @@
             const guaranteeNote = `
                 <div class="gap-guarantee-note">A perfect 100% match is rare -- don't let that stop you from applying.</div>`;
             document.getElementById('modal-title').innerText = job.title || 'Role';
-            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-company').innerText = cleanCompanyName(job.company_name || job.company || '');
             const modalText = document.getElementById('modal-text');
             modalText.classList.add('gap-list');
             // This modal is reused for prose and gaps. Set the compact gap
@@ -3729,7 +3742,7 @@
             const job = pooledJobs[index];
             if (!job) return;
             document.getElementById('modal-title').innerText = job.title || 'Role';
-            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-company').innerText = cleanCompanyName(job.company_name || job.company || '');
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
             modalText.style.cssText = '';
@@ -3834,7 +3847,7 @@
             const modal = document.getElementById('desc-modal');
             if (!modal) return;
             document.getElementById('modal-title').innerText = 'Please wait while we score this job…';
-            document.getElementById('modal-company').innerText = job.company_name || job.company || '';
+            document.getElementById('modal-company').innerText = cleanCompanyName(job.company_name || job.company || '');
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
             modalText.style.cssText = '';

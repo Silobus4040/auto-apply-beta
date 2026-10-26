@@ -2674,6 +2674,18 @@
             }
         }
 
+        function cleanCompanyName(raw) {
+            if (!raw) return '';
+            let name = String(raw).trim();
+            name = name.replace(/\.zohorecruit\.(com|in|eu|net)$/i, '');
+            name = name.replace(/[-_.]zohorecruit$/i, '');
+            name = name.replace(/\s+(Careers\s*Page|Careers|Jobs|Job\s*Openings)$/i, '');
+            if (name.includes('-') && !name.includes(' ')) {
+                name = name.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+            }
+            return name.trim();
+        }
+
         function parseLinkedInTitle(rawTitle) {
             if (!rawTitle) return null;
             const cleaned = rawTitle.replace(/\s*\|\s*LinkedIn\s*$/i, '').trim();
@@ -2764,7 +2776,7 @@
                     formattedDate = dbJob.postedAt || '';
                 }
 
-                let companyName = dbJob.companyName || '';
+                let companyName = cleanCompanyName(dbJob.companyName || '');
                 let title = dbJob.title || '';
                 let location = dbJob.location || '';
 
