@@ -227,45 +227,13 @@
             cursor: pointer;
         }
 
-        /* 2-Pane Board Layout */
+        /* Deck: single centered card */
         .board-container {
             display: flex;
             flex: 1;
+            justify-content: center;
             padding: 1rem 2rem 2rem;
-            gap: 1.5rem;
             min-height: 0;
-        }
-        .job-list-pane {
-            flex: 1;
-            min-width: 320px;
-            display: flex;
-            flex-direction: column;
-            gap: 0.75rem;
-            overflow-y: auto;
-            max-height: calc(100vh - 260px);
-            padding-right: 0.25rem;
-        }
-        .job-card {
-            background: var(--surface-color);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 1.15rem;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            position: relative;
-        }
-        .job-card:hover {
-            border-color: #a1a1aa;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.04);
-        }
-        .job-card.active {
-            border-color: #000;
-            box-shadow: 0 0 0 1px #000;
-        }
-        [data-theme="dark"] .job-card.active {
-            border-color: #fff;
-            box-shadow: 0 0 0 1px #fff;
         }
         .card-header {
             display: flex;
@@ -307,19 +275,18 @@
             color: var(--text-body);
         }
 
-        /* Detail Pane */
+        /* Deck Card */
         .job-detail-pane {
-            flex: 1.2;
+            width: 100%;
+            max-width: 680px;
             background: var(--surface-color);
             border: 1px solid var(--border);
             border-radius: 14px;
             padding: 1.75rem;
             display: flex;
             flex-direction: column;
-            max-height: calc(100vh - 260px);
+            max-height: calc(100vh - 220px);
             overflow-y: auto;
-            position: sticky;
-            top: 1rem;
         }
         .detail-placeholder {
             margin: auto;
@@ -420,6 +387,26 @@
         }
         .apply-manual-btn:hover {
             transform: translateY(-1px);
+        }
+        .pass-btn {
+            flex: 1;
+            background: var(--surface-color);
+            color: var(--text-heading);
+            border: 1px solid var(--border);
+            padding: 0.85rem 1.25rem;
+            border-radius: 10px;
+            font-size: 1.05rem;
+            font-weight: 800;
+            font-family: inherit;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            transition: all 0.15s;
+        }
+        .pass-btn:hover {
+            border-color: #a1a1aa;
         }
         .desc-text {
             font-size: 1.02rem;
@@ -532,43 +519,16 @@
                 💡 <strong>Out of credits?</strong> You can still browse every job for free and apply yourself on the employer site!
             </div>
 
-            <!-- Filter Strip -->
-            <div class="filter-bar">
-                <div class="search-input-box">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-                    <input type="text" id="filter-keyword" placeholder="Filter by title (e.g. Backend, Frontend, Engineer)..." />
-                </div>
-                <!-- Same multi-select workplace-type representation profiles.workplace_type uses
-                     (dashboard.html expands it into chips, splitting Remote by remote_scope into
-                     "Remote (Global)" / "Remote (Local)") -- not a single-select dropdown. -->
-                <div class="wp-check-group" style="display:flex; align-items:center; gap:0.75rem; font-size:0.95rem; font-weight:700; color:#27272A;">
-                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" class="wp-check" value="On-site" /> On-site</label>
-                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" class="wp-check" value="Hybrid" /> Hybrid</label>
-                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap;"><input type="checkbox" id="filter-wp-remote" class="wp-check" value="Remote" /> Remote</label>
-                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap; opacity:0.85;"><input type="checkbox" id="filter-remote-global" checked /> Global</label>
-                    <label style="display:flex; align-items:center; gap:0.3rem; white-space:nowrap; opacity:0.85;"><input type="checkbox" id="filter-remote-local" checked /> Local</label>
-                </div>
-                <input type="text" class="filter-select" id="filter-country" placeholder="Country (e.g. Nigeria)" style="min-width: 160px;" />
-                <button class="filter-btn" onclick="applyFilters()">Search</button>
-            </div>
+            <div id="deck-progress" style="padding: 1.25rem 2rem 0; font-size: 0.9rem; font-weight: 700; color: #71717A;"></div>
 
-            <div id="results-count" style="padding: 0 2rem; font-size: 0.9rem; font-weight: 700; color: #71717A;"></div>
-
-            <!-- Board Panes -->
+            <!-- Deck: one job at a time, same candidate pool automation's own swipe deck
+                 draws from (find_matching_jobs / deck_candidates_v3) -- just Pass or Apply
+                 on the company's own site yourself, no AI scoring or CV/cover-letter. -->
             <div class="board-container">
-                <!-- Left: List -->
-                <div class="job-list-pane" id="job-list-container">
-                    <div style="text-align: center; padding: 3rem 1rem; color: #71717A;">
-                        Loading jobs from pool...
-                    </div>
-                </div>
-
-                <!-- Right: Detail -->
                 <div class="job-detail-pane" id="job-detail-container">
                     <div class="detail-placeholder">
-                        <i data-lucide="mouse-pointer-click" style="width: 36px; height: 36px; stroke-width: 1.5; margin-bottom: 0.5rem; opacity: 0.5;"></i>
-                        <p style="font-weight: 700;">Select a job to view details & apply</p>
-                        <p style="font-size: 0.82rem; margin-top: 0.25rem;">Browse unscored postings directly from the verified live pool.</p>
+                        <i data-lucide="loader" style="width: 36px; height: 36px; stroke-width: 1.5; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        <p style="font-weight: 700;">Loading your deck...</p>
                     </div>
                 </div>
             </div>
@@ -582,11 +542,8 @@
 
         let currentUser = null;
         let userProfile = null;
-        let loadedJobs = [];
-        let activeJob = null;
-        let totalJobsFound = 0;
-        let searchSeq = 0;
-        const PAGE_SIZE = 10;
+        let deckJobs = [];
+        let deckIndex = 0;
 
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
@@ -650,10 +607,13 @@
                     return;
                 }
 
-                // Fetch profile for default filters & credits
+                // Fetch profile for credits + the application email tip (deck candidate
+                // selection itself reads the profile server-side inside find_matching_jobs,
+                // via p_user_id -- no client-side prefill of target roles/country/workplace
+                // needed anymore, since there's no search UI to prefill).
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
-                    .select('id, target_job_titles, target_location, workplace_type, country, remote_scope, Application_email, applications_limit, application_credit_used, has_seen_manual_email_nudge')
+                    .select('id, Application_email, applications_limit, application_credit_used, has_seen_manual_email_nudge')
                     .eq('id', currentUser.id)
                     .single();
                 if (profileError) throw new Error(`profile fetch failed: ${profileError.message}`);
@@ -670,44 +630,12 @@
                     if (zeroBanner) zeroBanner.style.display = 'block';
                 }
 
-                // Prefill search from user target titles
-                if (profile.target_job_titles) {
-                    const firstTitle = profile.target_job_titles.split(',')[0].trim();
-                    const keyword = firstTitle.split(' ')[0];
-                    const input = document.getElementById('filter-keyword');
-                    if (input && keyword) input.value = keyword;
-                }
-
-                // Prefill workplace types/country/remote-scope straight from the same
-                // profile fields automation reads (profiles.workplace_type is the same
-                // comma-separated multi-select dashboard.html parses; profiles.country /
-                // profiles.remote_scope are what job_gate_v3/geo_gate_v2 gate on).
-                const rawWorkplaces = (profile.workplace_type || '')
-                    .split(',').map(w => w.trim()).filter(Boolean);
-                if (rawWorkplaces.length) {
-                    document.querySelectorAll('.wp-check').forEach(cb => {
-                        cb.checked = rawWorkplaces.some(w => w.toLowerCase() === cb.value.toLowerCase());
-                    });
-                }
-                if (profile.country) {
-                    const countryInput = document.getElementById('filter-country');
-                    if (countryInput) countryInput.value = profile.country;
-                }
-                const scope = (profile.remote_scope || '').trim().toLowerCase();
-                if (scope === 'global') {
-                    document.getElementById('filter-remote-local').checked = false;
-                } else if (scope === 'local') {
-                    document.getElementById('filter-remote-global').checked = false;
-                }
-                syncRemoteSubChecks();
-
-                // Load jobs
-                await loadJobs();
+                await loadDeck();
 
                 if (window.lucide) window.lucide.createIcons();
             } catch (err) {
                 console.error('jobs.html init failed:', err);
-                const container = document.getElementById('job-list-container');
+                const container = document.getElementById('job-detail-container');
                 if (container) {
                     container.innerHTML = `<div style="text-align: center; padding: 3rem 1rem; color: #ef4444;">
                         Could not load the Job Board: ${escapeHtml(err.message || String(err))}.<br>
@@ -717,161 +645,102 @@
             }
         })();
 
-        async function loadJobs(append = false) {
-            // Every checkbox/country/keyword change fires its own loadJobs() call
-            // independently (not awaited by the caller), so without this guard whichever
-            // network response happens to land LAST wins -- even an earlier, now-stale
-            // request (e.g. the instant "On-site" was checked, before "Remote" was
-            // unchecked a moment later) could overwrite a newer, correct result. Only the
-            // response matching the most recently issued call is applied; everything
-            // else is silently discarded.
-            const mySeq = ++searchSeq;
-
-            const container = document.getElementById('job-list-container');
-            if (!append) {
-                container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #71717A;">Searching live job pool...</div>';
-                const resultsCountEl0 = document.getElementById('results-count');
-                if (resultsCountEl0) resultsCountEl0.textContent = '';
-            }
-
-            const keywordInput = document.getElementById('filter-keyword').value.trim();
-            const wpTypes = Array.from(document.querySelectorAll('.wp-check:checked')).map(cb => cb.value);
-            const countryInput = document.getElementById('filter-country').value.trim();
-            const remoteGlobal = document.getElementById('filter-remote-global').checked;
-            const remoteLocal = document.getElementById('filter-remote-local').checked;
-            const remoteScope = remoteGlobal && remoteLocal ? 'both' : (remoteGlobal ? 'global' : (remoteLocal ? 'local' : 'both'));
+        async function loadDeck() {
+            const container = document.getElementById('job-detail-container');
+            const progressEl = document.getElementById('deck-progress');
+            container.innerHTML = '<div class="detail-placeholder"><p style="font-weight:700;">Loading your deck...</p></div>';
+            if (progressEl) progressEl.textContent = '';
 
             try {
-                // search_board_jobs_v1: resolves the search term against the SAME taxonomy
-                // automation uses (std_roles / std_role_aliases / std_role_neighbors ->
-                // job_title_labels, the role classification that the embedding+LLM "JEV"
-                // pipeline produces offline) so Manual Mode surfaces the same jobs automation
-                // would match a user to for that role — including titles with no literal
-                // keyword overlap (e.g. "Application Programmer (EBS)" classified as Backend
-                // Engineer). Falls back to a raw per-word ILIKE title browse only when the
-                // search term doesn't resolve to any known role (company names, typos, etc.)
-                // or when there's no keyword at all. Unlike automation's live swipe deck, this
-                // deliberately skips the 48h-freshness/workplace_type/salary gates — Manual
-                // Mode's whole point is browsing the raw pool, not a curated deck.
+                // find_matching_jobs -> deck_candidates_v3: the EXACT candidate-selection
+                // function automation's own swipe deck is built on. Automation calls this
+                // server-side (inside the match-pool-jobs edge function), which ALSO does
+                // paid AI fit-scoring before queueing into job_queue_assignments -- that
+                // scoring step, plus the CV/cover-letter tailoring and auto-submit, is what
+                // Manual Mode skips. Called here directly as the authenticated user: same
+                // profile-driven matching (target roles, country, workplace type, remote
+                // scope), same geo/level gating, same dedup against past swipes/applications
+                // -- just Pass or go apply yourself, no scoring, no queueing.
                 //
-                // Workplace type is the same multi-select profiles.workplace_type represents
-                // (checkboxes, not a single dropdown). Country uses the exact same geo_gate_v2
-                // mechanics as automation's job_gate_v3 to quietly drop geo-closed postings —
-                // a plain filter, same as Indeed's "Residency Requirement" facet, not a visible
-                // per-card badge.
-                //
-                // No p_limit cap like automation's ~150-job cost cap: that cap exists to limit
-                // PAID AI fit-scoring calls per job queued for a user (see assign_pending_
-                // matches_v2's score-deck webhook). This is a plain indexed Postgres query over
-                // data that's already classified/embedded — showing more rows costs nothing
-                // extra, so Manual Mode pages through the FULL matching pool via "Load more"
-                // instead of hiding it behind an automation-style cap.
-                const { data: jobs, error } = await supabaseClient.rpc('search_board_jobs_v1', {
-                    p_query: keywordInput || null,
-                    p_workplace_types: wpTypes.length ? wpTypes : null,
-                    p_limit: PAGE_SIZE,
-                    p_country: countryInput || null,
-                    p_remote_scope: remoteScope,
-                    p_offset: append ? loadedJobs.length : 0,
+                // Needed 7 new RLS policies + 2 grants to make this callable by a real
+                // end-user session at all (migrations allow_authenticated_read_deck_
+                // matching_reference_tables, allow_authenticated_read_job_level) --
+                // automation had only ever called this server-side with a service-role key,
+                // which bypasses RLS, so job_title_labels/std_role_neighbors/country_regions/
+                // job_geo_checks/location_names_v2/location_patterns_v2/job_level were RLS-
+                // enabled with zero policies and would have silently returned empty for any
+                // real logged-in user. Verified via a real impersonated-role SQL call before
+                // wiring this up client-side.
+                const { data, error } = await supabaseClient.rpc('find_matching_jobs', {
+                    p_user_id: currentUser.id,
+                    p_limit: 100,
+                    p_include_check: true,
+                    p_pool_cap: 1000000,
                 });
                 if (error) throw error;
-                if (mySeq !== searchSeq) return; // a newer search has since started
 
-                const page = (jobs || []).map(j => ({ ...j, id: j.job_pool_id }));
-                loadedJobs = append ? loadedJobs.concat(page) : page;
-                totalJobsFound = page.length ? (page[0].total_count || page.length) : (append ? totalJobsFound : 0);
-
-                // total_count comes back on every row via count(*) over() in
-                // search_board_jobs_v1, so it reflects the true match count even
-                // though only PAGE_SIZE rows come back per call (same idea as Indeed
-                // showing "1,234 jobs" while paginating a handful at a time).
-                const resultsCountEl = document.getElementById('results-count');
-                if (resultsCountEl) {
-                    resultsCountEl.textContent = totalJobsFound === 0
-                        ? 'No jobs found'
-                        : `${totalJobsFound.toLocaleString()} job${totalJobsFound === 1 ? '' : 's'} found${loadedJobs.length < totalJobsFound ? ` (showing ${loadedJobs.length})` : ''}`;
+                const ids = (data || []).map(r => r.job_pool_id);
+                if (!ids.length) {
+                    deckJobs = [];
+                    deckIndex = 0;
+                    renderCurrentCard();
+                    return;
                 }
-                renderJobList();
+
+                const { data: fullJobs, error: jobsError } = await supabaseClient
+                    .from('job_pool')
+                    .select('id, title, company_name, company, location, workplace_type, apply_url, salary_range, description_text')
+                    .in('id', ids);
+                if (jobsError) throw jobsError;
+
+                const byId = new Map((fullJobs || []).map(j => [j.id, j]));
+                deckJobs = data
+                    .map(r => {
+                        const full = byId.get(r.job_pool_id);
+                        return full ? { ...full, geo_status: r.geo_status } : null;
+                    })
+                    .filter(Boolean);
+                deckIndex = 0;
+                renderCurrentCard();
             } catch (err) {
-                console.error('Job load failed:', err);
-                if (mySeq !== searchSeq) return; // a newer search has since started
-                if (!append) {
-                    container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #ef4444;">Unable to load jobs right now. Please try a different title search.</div>';
-                }
+                console.error('Deck load failed:', err);
+                container.innerHTML = `<div class="detail-placeholder"><p style="font-weight:700; color:#ef4444;">Could not load your deck: ${escapeHtml(err.message || String(err))}</p></div>`;
             }
         }
 
-        function renderJobList() {
-            const container = document.getElementById('job-list-container');
-            if (!loadedJobs || loadedJobs.length === 0) {
-                container.innerHTML = '<div style="text-align: center; padding: 3rem 1rem; color: #71717A;">No jobs found matching this criteria. Try clearing the search term.</div>';
+        function renderCurrentCard() {
+            const container = document.getElementById('job-detail-container');
+            const progressEl = document.getElementById('deck-progress');
+
+            if (!deckJobs.length || deckIndex >= deckJobs.length) {
+                if (progressEl) progressEl.textContent = '';
+                container.innerHTML = `
+                    <div class="detail-placeholder">
+                        <i data-lucide="check-circle-2" style="width: 36px; height: 36px; stroke-width: 1.5; margin-bottom: 0.5rem; opacity: 0.5;"></i>
+                        <p style="font-weight: 700;">You're all caught up</p>
+                        <p style="font-size: 0.9rem; margin-top: 0.25rem;">No more matching jobs right now — check back later for new postings.</p>
+                        <button class="filter-btn" style="margin-top: 1rem;" onclick="loadDeck()">Check again</button>
+                    </div>`;
+                if (window.lucide) window.lucide.createIcons();
                 return;
             }
 
-            container.innerHTML = '';
-            loadedJobs.forEach(job => {
-                const card = document.createElement('div');
-                card.className = 'job-card' + (activeJob && activeJob.id === job.id ? ' active' : '');
-                card.onclick = () => selectJob(job, card);
+            if (progressEl) progressEl.textContent = `Job ${deckIndex + 1} of ${deckJobs.length}`;
 
-                const company = escapeHtml(job.company_name || job.company || 'Company');
-                const title = escapeHtml(job.title || 'Untitled Role');
-                const loc = escapeHtml(job.location || 'Location Unspecified');
-                const wp = escapeHtml(job.workplace_type || 'Full Time');
-
-                card.innerHTML = `
-                    <div class="card-header">
-                        <span class="card-company">${company}</span>
-                    </div>
-                    <div class="card-title">${title}</div>
-                    <div class="card-meta-row">
-                        <span class="meta-pill"><i data-lucide="map-pin" style="width:12px;height:12px;"></i> ${loc}</span>
-                        <span class="meta-pill"><i data-lucide="briefcase" style="width:12px;height:12px;"></i> ${wp}</span>
-                        ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:12px;height:12px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
-                        ${job.matched_role_name && job.is_direct_role_match === false ? `<span class="meta-pill related-role-pill" data-role="${escapeHtml(job.matched_role_name)}" style="cursor:pointer; text-decoration:underline; opacity:0.85;" title="See more ${escapeHtml(job.matched_role_name)} jobs">Similar role: ${escapeHtml(job.matched_role_name)}</span>` : ''}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
-
-            // No automation-style ~150-job cap here (that limit is about capping paid AI
-            // fit-scoring calls, not relevant to a plain DB browse) -- page through the
-            // full matching pool instead.
-            if (loadedJobs.length < totalJobsFound) {
-                const loadMoreBtn = document.createElement('button');
-                loadMoreBtn.className = 'filter-btn';
-                loadMoreBtn.style.cssText = 'width:100%; margin-top:0.5rem;';
-                loadMoreBtn.textContent = `Load more (${totalJobsFound - loadedJobs.length} remaining)`;
-                loadMoreBtn.onclick = () => loadJobs(true);
-                container.appendChild(loadMoreBtn);
-            }
-
-            if (window.lucide) window.lucide.createIcons();
-
-            // Auto-select first job if none selected
-            if (!activeJob && loadedJobs.length > 0) {
-                selectJob(loadedJobs[0], container.firstChild);
-            }
-        }
-
-        async function selectJob(job, cardElement) {
-            activeJob = job;
-            document.querySelectorAll('.job-card').forEach(c => c.classList.remove('active'));
-            if (cardElement) cardElement.classList.add('active');
-
-            const detailPane = document.getElementById('job-detail-container');
+            const job = deckJobs[deckIndex];
             const company = escapeHtml(job.company_name || job.company || 'Company');
             const title = escapeHtml(job.title || 'Untitled Role');
             const loc = escapeHtml(job.location || 'Unspecified Location');
             const appEmail = userProfile && userProfile.Application_email ? userProfile.Application_email : '';
 
-            detailPane.innerHTML = `
+            container.innerHTML = `
                 <div class="detail-company">${company}</div>
                 <h2 class="detail-title">${title}</h2>
                 <div class="card-meta-row" style="margin-bottom: 0.75rem;">
                     <span class="meta-pill"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> ${loc}</span>
                     <span class="meta-pill"><i data-lucide="briefcase" style="width:13px;height:13px;"></i> ${escapeHtml(job.workplace_type || 'Standard')}</span>
                     ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:13px;height:13px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
+                    ${job.geo_status === 'check' ? `<span class="meta-pill" title="Your location eligibility for this posting couldn't be confirmed automatically — check the listing yourself">Eligibility: please verify</span>` : ''}
                 </div>
 
                 ${appEmail && !hasSeenEmailNudge() ? `
@@ -892,33 +761,54 @@
                 ` : ''}
 
                 <div class="action-row">
-                    <a href="${job.apply_url || '#'}" target="_blank" rel="noopener noreferrer" class="apply-manual-btn" onclick="recordApplyClick('${job.id}')">
+                    <button class="pass-btn" onclick="passCurrentJob()">Pass</button>
+                    <a href="${job.apply_url || '#'}" target="_blank" rel="noopener noreferrer" class="apply-manual-btn" onclick="applyCurrentJob()">
                         Apply on company site ↗
                     </a>
                 </div>
 
-                <div id="job-desc-body" class="desc-text">
-                    <span style="color:#71717A;">Loading full description...</span>
-                </div>
+                <div class="desc-text">${escapeHtml(job.description_text || 'No description text provided for this posting.')}</div>
             `;
 
             if (window.lucide) window.lucide.createIcons();
+        }
 
-            // Fetch description on-demand
+        // Same user_job_swipes table + decision values ('skip'/'apply') automation's
+        // swipe.html writes on every Decline/Apply swipe (finishSwipe/submitApplyForJob),
+        // so a job passed or applied-to here won't reappear in the Automation deck, and
+        // vice versa -- one shared "seen" history, not a separate one.
+        async function recordSwipe(job, decision) {
             try {
-                const { data } = await supabaseClient
-                    .from('job_pool')
-                    .select('description_text')
-                    .eq('id', job.id)
-                    .single();
-                const descBody = document.getElementById('job-desc-body');
-                if (descBody) {
-                    descBody.textContent = (data && data.description_text) ? data.description_text : 'No description text provided for this posting.';
-                }
+                await supabaseClient.from('user_job_swipes').upsert(
+                    { user_id: currentUser.id, job_pool_id: job.id, decision },
+                    { onConflict: 'user_id,job_pool_id' }
+                );
             } catch (err) {
-                const descBody = document.getElementById('job-desc-body');
-                if (descBody) descBody.textContent = 'Could not load job description text.';
+                console.error('Failed to record swipe:', err);
             }
+        }
+
+        async function passCurrentJob() {
+            const job = deckJobs[deckIndex];
+            if (!job) return;
+            deckIndex++;
+            renderCurrentCard();
+            await recordSwipe(job, 'skip');
+            if (deckIndex >= deckJobs.length) await loadDeck();
+        }
+
+        async function applyCurrentJob() {
+            const job = deckJobs[deckIndex];
+            if (!job) return;
+            recordApplyClick(job.id);
+            deckIndex++;
+            renderCurrentCard();
+            // Unlike automation's own Apply swipe (submitApplyForJob in swipe.html), this
+            // never calls the AI-tailoring/auto-submit webhook and never touches
+            // applications_limit/application_credit_used -- the user applies themselves on
+            // the company page that just opened in a new tab.
+            await recordSwipe(job, 'apply');
+            if (deckIndex >= deckJobs.length) await loadDeck();
         }
 
         // Same one-time-nudge pattern dashboard.html uses for has_seen_inbox_intro:
@@ -967,40 +857,6 @@
             } catch (e) {}
         }
 
-        function applyFilters() {
-            loadJobs();
-        }
-
-        document.getElementById('filter-keyword').addEventListener('keydown', e => {
-            if (e.key === 'Enter') applyFilters();
-        });
-
-        // Delegated so it keeps working as job-list-container's cards get re-rendered.
-        // stopPropagation so clicking the pill doesn't also select the card underneath it.
-        document.getElementById('job-list-container').addEventListener('click', e => {
-            const pill = e.target.closest('.related-role-pill');
-            if (!pill) return;
-            e.stopPropagation();
-            document.getElementById('filter-keyword').value = pill.dataset.role;
-            applyFilters();
-        });
-
-        document.querySelectorAll('.wp-check').forEach(cb => cb.addEventListener('change', applyFilters));
-        document.getElementById('filter-country').addEventListener('keydown', e => {
-            if (e.key === 'Enter') applyFilters();
-        });
-        document.getElementById('filter-remote-global').addEventListener('change', applyFilters);
-        document.getElementById('filter-remote-local').addEventListener('change', applyFilters);
-
-        // Global/Local only matter once "Remote" itself is checked (mirrors
-        // dashboard.html's Remote (Global)/Remote (Local) chip expansion).
-        function syncRemoteSubChecks() {
-            const on = document.getElementById('filter-wp-remote').checked;
-            document.getElementById('filter-remote-global').closest('label').style.display = on ? '' : 'none';
-            document.getElementById('filter-remote-local').closest('label').style.display = on ? '' : 'none';
-        }
-        document.getElementById('filter-wp-remote').addEventListener('change', syncRemoteSubChecks);
-        syncRemoteSubChecks();
     </script>
 </body>
 </html>
