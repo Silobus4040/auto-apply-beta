@@ -671,10 +671,20 @@
                 // enabled with zero policies and would have silently returned empty for any
                 // real logged-in user. Verified via a real impersonated-role SQL call before
                 // wiring this up client-side.
+                //
+                // p_include_check: false -- read match-pool-jobs (the real edge function
+                // automation's deck calls) and confirmed its final query is
+                // job_gate_v3(...) where g.eligible, and `eligible` requires
+                // geo_status = 'open' specifically. Automation NEVER shows a 'check'
+                // (ambiguous-eligibility) job to a user; it silently withholds it until a
+                // background worker resolves it one way or the other. For "the full job
+                // calling must be same" to actually be true, Manual Mode can't show more
+                // than automation does either -- so this stays false, matching eligible-
+                // only, same as the real deck.
                 const { data, error } = await supabaseClient.rpc('find_matching_jobs', {
                     p_user_id: currentUser.id,
                     p_limit: 100,
-                    p_include_check: true,
+                    p_include_check: false,
                     p_pool_cap: 1000000,
                 });
                 if (error) throw error;
@@ -697,7 +707,7 @@
                 deckJobs = data
                     .map(r => {
                         const full = byId.get(r.job_pool_id);
-                        return full ? { ...full, geo_status: r.geo_status } : null;
+                        return full ? { ...full } : null;
                     })
                     .filter(Boolean);
                 deckIndex = 0;
@@ -740,7 +750,6 @@
                     <span class="meta-pill"><i data-lucide="map-pin" style="width:13px;height:13px;"></i> ${loc}</span>
                     <span class="meta-pill"><i data-lucide="briefcase" style="width:13px;height:13px;"></i> ${escapeHtml(job.workplace_type || 'Standard')}</span>
                     ${job.salary_range ? `<span class="meta-pill"><i data-lucide="dollar-sign" style="width:13px;height:13px;"></i> ${escapeHtml(job.salary_range)}</span>` : ''}
-                    ${job.geo_status === 'check' ? `<span class="meta-pill" title="Your location eligibility for this posting couldn't be confirmed automatically — check the listing yourself">Eligibility: please verify</span>` : ''}
                 </div>
 
                 ${appEmail && !hasSeenEmailNudge() ? `
