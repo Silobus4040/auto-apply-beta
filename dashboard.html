@@ -4729,6 +4729,9 @@
                 if (error) throw error;
                 currentEmails = data || [];
                 renderEmailList();
+                if (currentEmailTab === 'drafts' && currentEmails.length > 0 && window.innerWidth > 768) {
+                    showEmailContent(0, 0);
+                }
                 
                 // Update Badge
                 const { count: unreadCount, error: unreadError } = await supabaseClient
@@ -4904,6 +4907,9 @@
             emailClient.classList.add('list-only');
             renderInboxIntro();
             await fetchEmails();
+            if (tab === 'drafts' && currentEmails.length > 0 && window.innerWidth > 768) {
+                showEmailContent(0, 0);
+            }
         }
 
         function getLocallyReadEmailIds() {
