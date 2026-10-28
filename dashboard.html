@@ -2850,9 +2850,56 @@
                         .maybeSingle();
                     if (data && data.enabled) isAllowed = true;
                 }
-                if (isAllowed) await fetchAndRenderSocialApplications(userId);
+                if (isAllowed) {
+                    await fetchAndRenderSocialApplications(userId);
+                    injectSocialHiringNavItems();
+                    await updateDraftsBadgeVisibility();
+                }
             } catch (err) {
                 console.error('checkSocialHiringAccess failed', err);
+            }
+        }
+
+        function injectSocialHiringNavItems() {
+            const sidebarNav = document.querySelector('.sidebar-nav');
+            if (!sidebarNav) return;
+
+            // 1. Hiring Posts link in sidebar
+            if (!document.getElementById('sidebar-hiring-posts-link')) {
+                const manualLink = document.getElementById('sidebar-manual-jobs-link') || sidebarNav.querySelector('a[href="swipe.html"]');
+                const hiringLink = document.createElement('a');
+                hiringLink.id = 'sidebar-hiring-posts-link';
+                hiringLink.className = 'sidebar-nav-item';
+                hiringLink.href = 'swipe.html';
+                hiringLink.style.cssText = 'text-decoration: none; color: inherit;';
+                hiringLink.innerHTML = '<i data-lucide="sparkles" class="sidebar-nav-icon"></i> Hiring Posts <span class="badge" style="margin-left:auto; font-size:0.7rem; background:#fef3c7; color:#b45309; padding:2px 7px; border-radius:6px; font-weight:700;">Beta</span>';
+                if (manualLink && manualLink.nextSibling) {
+                    sidebarNav.insertBefore(hiringLink, manualLink.nextSibling);
+                } else if (manualLink) {
+                    sidebarNav.appendChild(hiringLink);
+                }
+            }
+
+            // 2. Application Drafts button in sidebar (directly opens mailbox on Drafts tab)
+            if (!document.getElementById('sidebar-drafts-item')) {
+                const mailboxBtn = sidebarNav.querySelector('button[onclick*="openEmailClient"]');
+                const draftsBtn = document.createElement('button');
+                draftsBtn.id = 'sidebar-drafts-item';
+                draftsBtn.className = 'sidebar-nav-item';
+                draftsBtn.onclick = () => {
+                    openEmailClient('drafts');
+                    if (window.innerWidth <= 768) toggleSidebar();
+                };
+                draftsBtn.innerHTML = '<i data-lucide="file-edit" class="sidebar-nav-icon"></i> Application Drafts <span class="sidebar-badge" id="sidebar-drafts-badge" style="display:none; background:#2563eb; color:#fff;">0</span>';
+                if (mailboxBtn && mailboxBtn.nextSibling) {
+                    sidebarNav.insertBefore(draftsBtn, mailboxBtn.nextSibling);
+                } else if (mailboxBtn) {
+                    sidebarNav.appendChild(draftsBtn);
+                }
+            }
+
+            if (window.lucide && typeof window.lucide.createIcons === 'function') {
+                window.lucide.createIcons();
             }
         }
 
@@ -4621,14 +4668,22 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
-        async function openEmailClient() {
+        async function openEmailClient(initialTab = null) {
             document.body.style.overflow = 'hidden';
             document.getElementById('email-client-modal').classList.add('active');
             const container = document.querySelector('.email-client-container');
             container.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
             container.classList.add('list-only');
-            renderInboxIntro();
-            await fetchEmails();
+            
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            await updateDraftsBadgeVisibility(session);
+
+            if (initialTab) {
+                await switchEmailTab(initialTab);
+            } else {
+                renderInboxIntro();
+                await fetchEmails();
+            }
         }
 
         function closeMobileEmailDetail() {
@@ -4968,37 +5023,59 @@
         }
 
         
-        function isFounderTestAccount() {
-            const isId = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
-            const isEmail = (typeof currentUserEmail !== 'undefined' && currentUserEmail.toLowerCase() === 'mosco@leadscompass.ai');
-            const isProfile = (typeof userProfile !== 'undefined' && userProfile && (userProfile.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' || userProfile.Application_email === 'mosco@careermailing.com'));
-            return Boolean(isId || isEmail || isProfile);
+        function isFounderTestAccount(optSession) {
+            const user = optSession?.user || optSession;
+            const uid = user?.id || (typeof cachedUserId !== 'undefined' ? cachedUserId : null);
+            const email = (user?.email || (typeof currentUserEmail !== 'undefined' ? currentUserEmail : '')).toLowerCase();
+            const profEmail = (typeof userProfile !== 'undefined' && userProfile?.Application_email) ? userProfile.Application_email.toLowerCase() : '';
+            const profId = (typeof userProfile !== 'undefined' && userProfile?.id) ? userProfile.id : '';
+            return uid === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ||
+                   profId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ||
+                   email === 'mosco@leadscompass.ai' ||
+                   profEmail === 'mosco@careermailing.com';
         }
 
         async function updateDraftsBadgeVisibility(session) {
-            const draftsTab = document.getElementById('tab-drafts');
-            if (!draftsTab) return;
-            if (!isFounderTestAccount()) {
-                draftsTab.style.display = 'none';
-                return;
+            if (!session && typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
+                try {
+                    const res = await supabaseClient.auth.getSession();
+                    session = res?.data?.session;
+                } catch(e) {}
             }
-            draftsTab.style.display = 'flex';
+            const isFounder = isFounderTestAccount(session);
+            
+            const draftsTab = document.getElementById('tab-drafts');
+            if (draftsTab) {
+                draftsTab.style.display = isFounder ? 'flex' : 'none';
+            }
+            const sidebarDrafts = document.getElementById('sidebar-drafts-item');
+            if (sidebarDrafts) {
+                sidebarDrafts.style.display = isFounder ? 'flex' : 'none';
+            }
+            const sidebarHiring = document.getElementById('sidebar-hiring-posts-link');
+            if (sidebarHiring) {
+                sidebarHiring.style.display = isFounder ? 'flex' : 'none';
+            }
+
+            if (!isFounder) return;
+
             try {
-                const uid = session?.user?.id || cachedUserId;
-                if (!uid) return;
+                const uid = session?.user?.id || cachedUserId || 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
                 const { count } = await supabaseClient
                     .from('emails')
                     .select('id', { count: 'exact', head: true })
                     .eq('user_id', uid)
                     .eq('category', 'draft');
                 const badge = document.getElementById('drafts-badge');
+                const sideDraftBadge = document.getElementById('sidebar-drafts-badge');
+                const num = count || 0;
                 if (badge) {
-                    if (count > 0) {
-                        badge.textContent = count;
-                        badge.style.display = 'inline-block';
-                    } else {
-                        badge.style.display = 'none';
-                    }
+                    badge.textContent = num;
+                    badge.style.display = num > 0 ? 'inline-block' : 'none';
+                }
+                if (sideDraftBadge) {
+                    sideDraftBadge.textContent = num;
+                    sideDraftBadge.style.display = num > 0 ? 'inline-block' : 'none';
                 }
             } catch (e) {
                 console.warn('Failed to fetch drafts badge:', e);
@@ -5018,6 +5095,9 @@
                 <div style="display: flex; flex-direction: column; height: 100%; background: #fff; overflow-y: auto;">
                     <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
                         <div>
+                            <div style="margin-bottom: 0.85rem;" class="email-mobile-back-row">
+                                <button class="email-content-back-btn" onclick="closeMobileEmailDetail()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Drafts</button>
+                            </div>
                             <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
                                 <span style="background: #fef3c7; color: #b45309; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 50px; text-transform: uppercase;">📝 Application Draft</span>
                                 <span style="font-size: 0.75rem; color: #71717A;">Generated ${dateStr}</span>
@@ -5230,6 +5310,11 @@
             const emailClient = document.querySelector('.email-client-container');
             emailClient.classList.add('mobile-show-content', 'show-detail');
             emailClient.classList.remove('is-composing', 'list-only');
+
+            if (email.category === 'draft' || currentEmailTab === 'drafts') {
+                renderDraftDetailView(email, index);
+                return;
+            }
 
             const pane = document.getElementById('email-content-pane');
             const d = new Date(email.created_at);
