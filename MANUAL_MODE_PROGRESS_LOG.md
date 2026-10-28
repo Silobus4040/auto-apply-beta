@@ -590,3 +590,33 @@ removed system-wide in master's Run 201, between when this thread first read tho
 when it re-read them days later) — always re-fetch live function definitions and check
 `origin/master`'s `PROGRESS_LOG.md`/`TRACKER.md` before trusting cached understanding of a
 fast-moving shared system, not just this session's own earlier tool results.
+
+## 21. Naming settled on "Free Job Deck"; mobile sidebar close bug fixed — commit `b323736`
+
+Founder picked **"Free Job Deck"** as the final name (rejected "Job Board (Manual)" and "Free Job
+Search"). Renamed every user-facing occurrence: `jobs.html`'s `<title>`, sidebar nav link, `<h1>`,
+mode-toggle pill, and the deck-load error message; plus the parallel mode-switcher injection code
+that `dashboard.html` and `swipe.html` each carry their own copy of (their pill label and the
+dynamically-inserted sidebar link text). Internal JS variable/comment names still say "manual" in
+places — cosmetic only, left as-is.
+
+Founder also reported a real mobile bug: tapping outside the open sidebar menu did nothing, the
+only way to close it was tapping a nav item. Checked the actual CSS/JS (`grep` for
+`toggleSidebar|app-sidebar`) and confirmed there was genuinely no backdrop/overlay element at
+all — `.app-sidebar.open` was just a bare CSS transform with zero outside-click handling. Added a
+`.sidebar-backdrop` div (fixed, full-viewport, semi-transparent, `display: none` until
+`@media (max-width: 900px) .open`) wired to call the existing `toggleSidebar()` on click, and added
+an `Escape`-key listener that does the same. Verified live in the browser pane at 375x812 (mobile
+preset): opened the menu via the hamburger button, confirmed via DOM inspection
+(`app-sidebar`/`sidebar-backdrop` `.open` classes) that clicking the backdrop closes it, reopened,
+confirmed Escape closes it too. Only `jobs.html` has this issue/fix — `dashboard.html`/`swipe.html`
+were not checked for the same gap and may need the identical treatment later if reported.
+
+Founder asked whether "Dedicated mailbox" and "Dashboard" should stay visible to Free Job Deck
+users, given automation doesn't log manual applications into `job_applications`. Answered: keep
+both. The mailbox/inbox is Resend-based tracking of *incoming* email tied to the profile's
+dedicated address — it works independently of `job_applications` and benefits a manual-mode user
+exactly the same way (replies to applications they made by hand on a company's career page still
+land there). "Dashboard" is the account home/settings hub, not purely an automation-stats page, so
+hiding it would just make it harder to get back to settings/credits — no actual data collision
+either way since nothing here writes a fake automation-tracked application.
