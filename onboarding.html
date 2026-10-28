@@ -390,6 +390,11 @@
                             </div>
                         </div>
 
+                        <div class="form-group">
+                            <label>Date of Birth <span style="color: #6B7280; font-weight: 500; font-size: 0.8rem; text-transform: none;">(Optional — required by some employers for age/eligibility verification)</span></label>
+                            <input type="date" id="date-of-birth">
+                        </div>
+
                         <div class="row-grid">
                             <div class="form-group">
                                 <label>Phone Number <span style="color: #FF6B4A;">*</span></label>
@@ -1956,7 +1961,7 @@
                 signedInAsEl.style.display = 'block';
             }
 
-            const { data: profile } = await supabaseClient.from('profiles').select('onboarding_complete, first_name, last_name, city, state, country, nationality, target_job_titles, target_location, workplace_type, remote_scope, resume_url, industry, target_role_family, notice_period, start_date, target_currency').eq('id', currentUserId).single();
+            const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', currentUserId).single();
             if (profile && profile.onboarding_complete && !window.location.search.includes('edit=true')) { window.location.href = 'dashboard.html'; return; }
             const { data: launchState } = await supabaseClient.from('profiles').select('launch_waitlisted_at').eq('id', currentUserId).maybeSingle();
             if (launchState?.launch_waitlisted_at) { window.location.href = 'waitlist.html'; return; }
@@ -2028,6 +2033,15 @@
                 }
                 if (profile.nationality && !localStorage.getItem('onb_nationality') && document.getElementById('nationality')) {
                     document.getElementById('nationality').value = profile.nationality;
+                }
+                if (profile.date_of_birth && !localStorage.getItem('onb_date-of-birth') && document.getElementById('date-of-birth')) {
+                    document.getElementById('date-of-birth').value = profile.date_of_birth;
+                }
+                if (profile.linkedin_url && !localStorage.getItem('onb_linkedin') && document.getElementById('linkedin')) {
+                    document.getElementById('linkedin').value = profile.linkedin_url;
+                }
+                if (profile.website_url && !localStorage.getItem('onb_portfolio') && document.getElementById('portfolio')) {
+                    document.getElementById('portfolio').value = profile.website_url;
                 }
                 if (profile.industry && !localStorage.getItem('onb_industry') && document.getElementById('industry')) {
                     document.getElementById('industry').value = profile.industry;
@@ -2643,6 +2657,7 @@
                     industry: document.getElementById('industry').value.trim(),
                     notice_period: document.getElementById('notice-period').value,
                     start_date: document.getElementById('start-date').value || null,
+                    date_of_birth: document.getElementById('date-of-birth')?.value || null,
                     target_currency: targetCurrency,
                     gender: document.getElementById('gender').value,
                     race: document.getElementById('race').value,

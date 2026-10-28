@@ -795,3 +795,74 @@ one-click action in the dashboard (Security > Settings > Bot traffic) rather tha
 scripted here.
 
 Related: [[manual-mode-job-board-search-fix-2026-10-21]]
+
+## 28. Location-parse caching fix shipped + re-tested at 50-concurrent (2026-10-28)
+
+Founder confirmed: fix the live location-text-parsing gap found during the 50-concurrent load
+test (§ previous), then re-run the same test before any social-launch decision.
+
+**Fix (Supabase, `cache_job_location_parse` + `cache_job_location_parse_trigger_and_functions`
+migrations):**
+- Added `job_pool.location_parsed_countries/regions/anywhere` -- caches `location_places_v2()`'s
+  output (country/region codes parsed from the raw location text) once per job instead of
+  recomputing it live on every single deck call, for every remote candidate, every time.
+- Backfilled all 261,309 existing rows in 5,000-10,000-row batches (the full-table UPDATE hit
+  Supabase's 2-minute statement cap; batching is Supabase's own documented approach --
+  https://supabase.com/docs/guides/database/postgres/data-deletion -- confirmed via docs before
+  building). Hit 3 deadlocks against the live job-ingestion pipeline mid-backfill; retried through
+  them (expected/normal per the same docs).
+- Self-maintaining trigger (`job_pool_cache_location_parse_trg`, before insert/update of
+  `location`) keeps it correct forever -- no ingestion code touched.
+- `geo_gate_v2` extended with 3 new trailing params (default NULL = exact original live-parse
+  behavior). Found mid-build that `CREATE OR REPLACE` with a changed signature does NOT replace a
+  Postgres function -- it creates a second overload, which made the 2 other real callers
+  (`search_board_jobs_v1`, `bot_search_jobs_v1` -- public search + Telegram bot, neither touched
+  otherwise) ambiguous/broken. Fixed by explicitly dropping the old 12-arg overload; confirmed
+  both callers still run correctly afterward.
+- `job_gate_v3` now passes the cached columns through to `geo_gate_v2`.
+
+**Correctness, proven not assumed:** compared the old live-parse path against the new cached path
+for the SAME 2,000 real remote jobs (`geo_gate_v2` called both ways side by side) -- 0 mismatches.
+
+**Re-ran the identical 50-concurrent test (new 50 random real profiles):** 49/50 succeeded,
+**1 timeout (2%)**, vs 3/50 (6%) before the fix. The one failure this time happened inside
+`job_level_rank_v2`, not the location-parsing code the fix targeted -- direct proof the fix closed
+the specific hole it was built for, and equally direct proof it is not the only hole: average
+latency and the count of slow (>10s) calls did not meaningfully change (~5.8s avg, 4 calls >10s,
+one as high as 14.1s), because at least one more expensive per-candidate step (the job-level check,
+possibly also the duplicate-fingerprint hashing in `job_group_key_v2`) still runs fresh on every
+candidate, every call.
+
+**Status: not yet cleared for the social-launch volume (~50/hour expected).** 2% is better than 6%
+but is not zero; founder has not yet decided whether to accept that risk or pursue the next fix
+(automation's own top-up/cached-assignment pattern, so the expensive matching call doesn't re-run
+on every single page view) before publicly announcing.
+
+Related: [[free-job-deck-timeout-findings-2026-10-28]], [[free-job-deck-apply-click-tracking-2026-10-28]]
+
+## 29. Duplicate-fingerprint caching shipped + re-tested at 50-concurrent (2026-10-28)
+
+Founder: "fix the next bottleneck first."
+
+**Ruled out first (proof):** the timeout in §28 landed in `job_level_rank_v2`, whose expensive
+fallback (`job_level_rank_full` -> `job_required_years`, a regex over the full description) only runs
+when a job has no `job_level` cache row. 0 of 134,780 active jobs lack one -> that fallback never
+actually runs. Not the bottleneck.
+
+**Real cost, measured:** `job_group_key_v2()` (duplicate fingerprint: MD5 of the full description,
+never stored) over 20,000 real active jobs = 10.3s.
+
+**Fix:** `job_pool.group_key` column, backfilled all 269,564 rows in 5k-10k batches (several deadlocks
+against the live Greenhouse refresher, retried through), trigger `job_pool_cache_group_key_trg`
+(before insert/update of company_name/company/title/location/description_text), and migration
+`cache_job_group_key_trigger_and_job_gate` makes `job_gate_v3` read `jp.group_key` in both places it
+used to call the function. `job_group_key_v2` itself untouched (`bot_search_jobs_v1` still calls it).
+Correctness: 5,383 sampled rows, cached vs live = 0 mismatches.
+
+**Re-test (50 new random real profiles, 15s cap):** 49/50 ok, 1 timeout (2%, unchanged), average
+~4.7s (was ~5.8s), slowest 13.4s, calls over 10s: 2 (was 4). The one failure landed in a third,
+different function (`deck_level_cap_from_rank`) -> no single dominant cost left; the remaining load
+is the sum of many small per-candidate steps, repeated on every page view.
+
+**Conclusion:** further function-level caching = whack-a-mole. The structural fix is to stop running
+the full match on every page view (precompute and store each user's deck; see next entry).

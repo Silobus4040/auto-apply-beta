@@ -2180,6 +2180,7 @@
                         <button id="tab-codes" class="email-folder-btn" data-email-tab="codes" onclick="switchEmailTab('codes')"><i data-lucide="key-round"></i><span class="folder-label-desktop">Sign-up Codes</span><span class="folder-label-mobile">Codes</span></button>
                         <button id="tab-rejections" class="email-folder-btn" data-email-tab="rejections" onclick="switchEmailTab('rejections')"><i data-lucide="circle-x"></i><span class="folder-label-desktop">Rejections</span><span class="folder-label-mobile">Rejections</span></button>
                         <div class="email-folder-divider"></div>
+                        <button id="tab-drafts" class="email-folder-btn" data-email-tab="drafts" onclick="switchEmailTab('drafts')" style="display:none;"><i data-lucide="file-edit"></i><span class="folder-label-desktop">Drafts</span><span class="folder-label-mobile">Drafts</span><span id="drafts-badge" class="badge" style="display:none; margin-left:auto; font-size:0.75rem; background:#eff6ff; color:#2563eb; padding:2px 7px; border-radius:10px; font-weight:700;">0</span></button>
                         <button id="tab-sent" class="email-folder-btn" data-email-tab="sent" onclick="switchEmailTab('sent')"><i data-lucide="send"></i>Sent</button>
                     </nav>
                     <div style="display:flex; flex:1; min-width:0; flex-direction:column;">
@@ -4647,6 +4648,7 @@
             offers: 'job_offer',
             codes: 'signup_code',
             rejections: 'rejection',
+            drafts: 'draft',
             sent: 'sent'
         });
 
@@ -4963,6 +4965,229 @@
                 `;
                 listEl.appendChild(el);
             });
+        }
+
+        
+        function isFounderTestAccount() {
+            const isId = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+            const isEmail = (typeof currentUserEmail !== 'undefined' && currentUserEmail.toLowerCase() === 'mosco@leadscompass.ai');
+            const isProfile = (typeof userProfile !== 'undefined' && userProfile && (userProfile.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' || userProfile.Application_email === 'mosco@careermailing.com'));
+            return Boolean(isId || isEmail || isProfile);
+        }
+
+        async function updateDraftsBadgeVisibility(session) {
+            const draftsTab = document.getElementById('tab-drafts');
+            if (!draftsTab) return;
+            if (!isFounderTestAccount()) {
+                draftsTab.style.display = 'none';
+                return;
+            }
+            draftsTab.style.display = 'flex';
+            try {
+                const uid = session?.user?.id || cachedUserId;
+                if (!uid) return;
+                const { count } = await supabaseClient
+                    .from('emails')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('user_id', uid)
+                    .eq('category', 'draft');
+                const badge = document.getElementById('drafts-badge');
+                if (badge) {
+                    if (count > 0) {
+                        badge.textContent = count;
+                        badge.style.display = 'inline-block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+            } catch (e) {
+                console.warn('Failed to fetch drafts badge:', e);
+            }
+        }
+
+        function renderDraftDetailView(email, index) {
+            const pane = document.getElementById('email-content-pane');
+            if (!pane) return;
+            const recipient = email.recipient || '';
+            const subject = email.subject || '(No Subject)';
+            const rawBody = (email.body_preview || email.full_html || '').trim();
+            const d = new Date(email.created_at);
+            const dateStr = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
+            pane.innerHTML = `
+                <div style="display: flex; flex-direction: column; height: 100%; background: #fff; overflow-y: auto;">
+                    <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                        <div>
+                            <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
+                                <span style="background: #fef3c7; color: #b45309; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 50px; text-transform: uppercase;">📝 Application Draft</span>
+                                <span style="font-size: 0.75rem; color: #71717A;">Generated ${dateStr}</span>
+                            </div>
+                            <h2 style="font-size: 1.3rem; font-weight: 800; margin: 0; color: #000;">${escapeHtml(subject)}</h2>
+                            <div style="font-size: 0.85rem; color: #52525b; margin-top: 0.35rem;">
+                                <strong>To Recruiter:</strong> <span style="color: #2563eb; font-weight: 600;">${escapeHtml(recipient)}</span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.6rem;">
+                            <button id="send-draft-btn-${index}" onclick="sendDraftApplication(${index})" style="background: #059669; color: #fff; border: none; padding: 0.75rem 1.6rem; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(5,150,105,0.25); transition: opacity 0.2s;">
+                                <i data-lucide="send"></i> Send Application
+                            </button>
+                            <button onclick="discardDraft(${index})" style="background: transparent; color: #ef4444; border: 1px solid #fecaca; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
+                                Discard
+                            </button>
+                        </div>
+                    </div>
+
+                    <div style="padding: 1.5rem; flex: 1;">
+                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #475569; font-weight: 600;">
+                                <span>✉️ Pure Plain Text Email</span>
+                                <span style="color: #94a3b8;">·</span>
+                                <span>Zero HTML formatting</span>
+                                <span style="color: #94a3b8;">·</span>
+                                <span>100% human-typed style</span>
+                            </div>
+                            <button id="edit-draft-btn-${index}" onclick="toggleEditDraft(${index})" style="background: none; border: none; color: #2563eb; font-weight: 700; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
+                                Edit text
+                            </button>
+                        </div>
+
+                        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: #18181b; margin-bottom: 1.5rem;">
+                            <span>📎 Resume.pdf</span>
+                            <span style="color: #10b981; font-size: 0.75rem;">(Tailored PDF Attached)</span>
+                        </div>
+
+                        <div id="draft-body-view-${index}" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 0.95rem; line-height: 1.7; color: #18181b; white-space: pre-wrap; background: #fff; padding: 1.2rem; border: 1px solid var(--border); border-radius: 8px;">${escapeHtml(rawBody)}</div>
+
+                        <div id="draft-body-edit-${index}" style="display: none; flex-direction: column; gap: 0.75rem;">
+                            <textarea id="draft-textarea-${index}" style="width: 100%; min-height: 280px; padding: 1rem; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border: 1px solid #3b82f6; border-radius: 8px; outline: none; box-sizing: border-box;">${escapeHtml(rawBody)}</textarea>
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button onclick="saveDraftEdits(${index})" style="background: #2563eb; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Save Changes</button>
+                                <button onclick="toggleEditDraft(${index})" style="background: #f4f4f5; color: #52525b; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+
+        function toggleEditDraft(index) {
+            const viewEl = document.getElementById(`draft-body-view-${index}`);
+            const editEl = document.getElementById(`draft-body-edit-${index}`);
+            const editBtn = document.getElementById(`edit-draft-btn-${index}`);
+            if (!viewEl || !editEl) return;
+            const isEditing = editEl.style.display !== 'none';
+            if (isEditing) {
+                editEl.style.display = 'none';
+                viewEl.style.display = 'block';
+                if (editBtn) editBtn.style.display = 'inline-block';
+            } else {
+                editEl.style.display = 'flex';
+                viewEl.style.display = 'none';
+                if (editBtn) editBtn.style.display = 'none';
+            }
+        }
+
+        async function saveDraftEdits(index) {
+            const email = currentEmails[index];
+            const textarea = document.getElementById(`draft-textarea-${index}`);
+            if (!email || !textarea) return;
+            const updatedText = textarea.value.trim();
+            if (!updatedText) {
+                alert('Draft cannot be empty.');
+                return;
+            }
+            try {
+                await supabaseClient.from('emails').update({
+                    body_preview: updatedText.substring(0, 150),
+                    full_html: updatedText
+                }).eq('id', email.id);
+
+                email.body_preview = updatedText.substring(0, 150);
+                email.full_html = updatedText;
+                document.getElementById(`draft-body-view-${index}`).textContent = updatedText;
+                toggleEditDraft(index);
+                alert('Draft saved successfully!');
+            } catch (err) {
+                console.error('Failed to save draft edits:', err);
+                alert('Could not save edits. Please try again.');
+            }
+        }
+
+        async function discardDraft(index) {
+            const email = currentEmails[index];
+            if (!email) return;
+            if (!confirm('Are you sure you want to discard this draft?')) return;
+            try {
+                await supabaseClient.from('emails').delete().eq('id', email.id);
+                currentEmails.splice(index, 1);
+                renderEmailList();
+                const pane = document.getElementById('email-content-pane');
+                if (pane) pane.innerHTML = '<div style="padding:3rem;text-align:center;color:#a1a1aa;">Draft discarded.</div>';
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                updateDraftsBadgeVisibility(session);
+            } catch (err) {
+                console.error('Failed to discard draft:', err);
+            }
+        }
+
+        async function sendDraftApplication(index) {
+            const email = currentEmails[index];
+            if (!email) return;
+            const sendBtn = document.getElementById(`send-draft-btn-${index}`);
+            if (sendBtn) {
+                sendBtn.disabled = true;
+                sendBtn.innerHTML = 'Sending...';
+            }
+
+            try {
+                const { data: { session } } = await supabaseClient.auth.getSession();
+                const jwt = session ? session.access_token : '';
+                const uid = session?.user?.id || cachedUserId;
+
+                // Call the social lead apply webhook or direct dispatch
+                const response = await fetch('https://n8n.leadscompass.ai/webhook/dashboard-send-social-draft', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${jwt}`
+                    },
+                    body: JSON.stringify({
+                        email_id: email.id,
+                        user_id: uid,
+                        to: email.recipient,
+                        subject: email.subject,
+                        body: email.body_preview || email.full_html,
+                        matched_job_id: email.matched_job_id
+                    })
+                });
+
+                // Update category to sent
+                await supabaseClient.from('emails').update({
+                    category: 'sent',
+                    type: 'outbound',
+                    created_at: new Date().toISOString()
+                }).eq('id', email.id);
+
+                if (email.matched_job_id) {
+                    await supabaseClient.from('social_hiring_lead_matches').update({
+                        decision: 'send',
+                        sent_at: new Date().toISOString()
+                    }).eq('lead_id', email.matched_job_id).eq('profile_id', uid);
+                }
+
+                alert(`✅ Application sent successfully to ${email.recipient}!`);
+                await switchEmailTab('sent');
+                updateDraftsBadgeVisibility(session);
+            } catch (err) {
+                console.error('Failed to send draft application:', err);
+                alert('Could not dispatch email. Please check your connection or try again.');
+                if (sendBtn) {
+                    sendBtn.disabled = false;
+                    sendBtn.innerHTML = '<i data-lucide="send"></i> Send Application';
+                    if (typeof lucide !== 'undefined') lucide.createIcons();
+                }
+            }
         }
 
         async function showEmailContent(index, demoDisplayIndex = index) {

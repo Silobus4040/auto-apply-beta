@@ -2774,13 +2774,14 @@
             const lead = row.social_hiring_leads;
             const countries = Array.isArray(lead.detected_countries) ? lead.detected_countries : [];
             const text = lead.post_text || '';
+            const locationStr = lead.says_anywhere ? 'Worldwide (Remote)' : (countries.length ? countries.join(', ') : 'Location not verified');
             return {
                 is_social: true,
                 id: lead.id,
                 match_id: row.id,
                 title: lead.search_keyword || 'Role',
                 company_name: lead.company_name || lead.author_name || 'Facebook post',
-                location: countries.join(', '),
+                location: locationStr,
                 workplace_type: socialWorkplaceLabel(lead.detected_workplace_type),
                 description_text: text + (lead.post_url ? '\n\n---\nOriginal Facebook post: ' + lead.post_url : ''),
                 posted_at: lead.posted_at,
@@ -2806,7 +2807,7 @@
                     .from('social_hiring_lead_matches')
                     .select(`
                         id, decision, matched_at, fit_reason, fit_missing_skills,
-                        social_hiring_leads ( id, platform, search_keyword, post_url, post_text, posted_at, author_name, company_name, fraud_check_status, detected_job_level, detected_countries, detected_workplace_type )
+                        social_hiring_leads ( id, platform, search_keyword, post_url, post_text, posted_at, author_name, company_name, fraud_check_status, detected_job_level, detected_countries, detected_workplace_type, says_anywhere, status )
                     `)
                     .eq('profile_id', userId)
                     .eq('decision', 'pending')
@@ -2816,6 +2817,29 @@
                     console.error('loadSocialLeadsIntoDeck failed', error);
                     return;
                 }
+                // Founder mandate: Leads tagged "Location not verified" or leads with
+                // unverified locations are strictly hidden from the Job Deck by default.
+                // We only serve candidates verified, trusted cards.
+                const userCountry = String((userProfile && (userProfile.country || userProfile.target_location)) || '').toLowerCase().trim();
+                const fitsLocation = lead => {
+                    // Rejected or flagged scam leads are never shown
+                    if (lead.status === 'rejected' || lead.fraud_check_status === 'flagged') return false;
+
+                    // Explicit worldwide / remote anywhere is allowed for all
+                    if (lead.says_anywhere) return true;
+
+                    const countries = Array.isArray(lead.detected_countries) ? lead.detected_countries : [];
+                    // Ambiguous or missing location -> hidden by default
+                    if (!countries.length) return false;
+                    if (countries.some(c => /not verified|not stated/i.test(c))) return false;
+
+                    // If candidate specified country, match candidate country
+                    if (userCountry) {
+                        return countries.some(c => userCountry.includes(c.toLowerCase()) || c.toLowerCase().includes(userCountry));
+                    }
+                    return true;
+                };
+
                 // Same workplace rule the matcher uses: hide a lead whose stated
                 // workplace (remote / hybrid / onsite) is none of the settings
                 // this user picked. Unstated on either side = show.
@@ -2836,7 +2860,12 @@
                     if (level === null || level === undefined) return true;
                     return (userRanks.length ? userRanks : [1]).some(r => Math.abs(level - r) <= 1);
                 };
-                socialLeadJobs = (data || []).filter(r => r.social_hiring_leads && fitsWorkplace(r.social_hiring_leads) && fitsLevel(r.social_hiring_leads)).map(socialLeadToJob);
+                socialLeadJobs = (data || []).filter(r => 
+                    r.social_hiring_leads && 
+                    fitsLocation(r.social_hiring_leads) && 
+                    fitsWorkplace(r.social_hiring_leads) && 
+                    fitsLevel(r.social_hiring_leads)
+                ).map(socialLeadToJob);
                 if (!socialLeadJobs.length) return;
                 await loadConfirmedSkills(userId);
                 mergeSocialLeadsIntoDeck();
@@ -2932,10 +2961,21 @@
             socialLeadJobs = socialLeadJobs.filter(j => j.match_id !== job.match_id);
             if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
             setTimeout(renderSwipeStack, 280);
+            const isFounderAccount = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' || (userProfile && (userProfile.email === 'mosco@leadscompass.ai' || userProfile.Application_email === 'mosco@careermailing.com')));
+            const targetDecision = (decision === 'apply') ? (isFounderAccount ? 'draft' : 'send') : 'skip';
             const { error } = await supabaseClient
                 .from('social_hiring_lead_matches')
-                .update({ decision: decision === 'apply' ? 'send' : 'skip', decided_at: new Date().toISOString() })
+                .update({ decision: targetDecision, decided_at: new Date().toISOString() })
                 .eq('id', job.match_id);
+
+            if (decision === 'apply' && isFounderAccount) {
+                // Show instant feedback toast
+                const toast = document.createElement('div');
+                toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18181b;color:#fff;padding:0.75rem 1.4rem;border-radius:10px;font-size:0.875rem;font-weight:700;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:0.5rem;animation:fadein 0.2s ease;';
+                toast.innerHTML = '<span>📝 Application drafted! Review in Dedicated Mailbox &rarr; Drafts.</span>';
+                document.body.appendChild(toast);
+                setTimeout(() => { toast.remove(); }, 3500);
+            }
             if (error) console.error('Failed to record social lead decision', error);
             if (usesFreeSend && userProfile) userProfile.social_free_sends_used = freeUsed + 1;
             return true;
