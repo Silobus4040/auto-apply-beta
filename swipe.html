@@ -3003,25 +3003,34 @@
         // Same reason + "N gaps" pill as buildFitScoreBadge, with no score
         // number (founder call: social leads never show a fit score).
         function buildSocialFitBadge(job, jobIndex) {
-            if (!job.fit_reason) {
-                return '<div class="swipe-card-fit-badge fit-high"><div class="swipe-card-fit-reason-wrap"><span class="swipe-card-fit-reason">Rover is checking how this role fits you…</span></div></div>';
-            }
             const missing = normalizeFitGaps(job.fit_missing_skills);
             const confirmedNames = getJobConfirmedClaimNames(job);
             const remaining = missing.filter(gap => !confirmedNames.has(normalizeSkillName(gap.label))).length;
-            const { preview, needsMore } = truncateReasonWords(job.fit_reason);
             const gapPill = remaining ? `
                 <div class="swipe-card-fit-tags-wrap">
                     <div class="swipe-card-gap-group">
                         <button type="button" id="gap-summary-${jobIndex}" class="swipe-card-gap-summary" onclick="event.stopPropagation(); showFitGapsModal(${jobIndex})">${remaining} ${remaining === 1 ? 'gap' : 'gaps'} <span aria-hidden="true">→</span></button>
                     </div>
                 </div>` : '';
-            return `
-                <div class="swipe-card-fit-badge fit-high">
+
+            let reasonHtml = '';
+            if (job.fit_reason) {
+                const { preview, needsMore } = truncateReasonWords(job.fit_reason);
+                reasonHtml = `
                     <div class="swipe-card-fit-reason-wrap">
                         <span class="swipe-card-fit-reason" id="fit-reason-${jobIndex}">${escapeHtml(preview)}</span>
                         ${needsMore ? `<button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); showFitReasonModal(${jobIndex})">more</button>` : ''}
-                    </div>
+                    </div>`;
+            } else {
+                reasonHtml = `
+                    <div class="swipe-card-fit-reason-wrap">
+                        <span class="swipe-card-fit-reason">Matched for ${escapeHtml(job.search_keyword || 'this role')}</span>
+                    </div>`;
+            }
+
+            return `
+                <div class="swipe-card-fit-badge fit-high">
+                    ${reasonHtml}
                 </div>${gapPill}`;
         }
 
@@ -3058,51 +3067,83 @@
             if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
             setTimeout(renderSwipeStack, 280);
             const isFounderAccount = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' || (userProfile && (userProfile.email === 'mosco@leadscompass.ai' || userProfile.Application_email === 'mosco@careermailing.com')));
-            const targetDecision = (decision === 'apply') ? (isFounderAccount ? 'draft' : 'send') : 'skip';
-            
+
             if (decision === 'apply') {
-                try {
-                    const recipient = job.contact_email || 'recruiter@facebook-post.com';
-                    const candName = (userProfile && (userProfile.first_name || userProfile.last_name))
-                        ? [userProfile.first_name, userProfile.last_name].filter(Boolean).join(' ')
-                        : 'Applicant';
-                    const dynamicSubject = `Application for ${job.title || 'Role'} - ${candName}`;
-                    const plainBody = `Dear Hiring Team,\n\nI am reaching out regarding the ${job.title || 'open'} position posted on Facebook by ${job.company_name || 'your team'}.\n\nWith my relevant background and proven hands-on experience, I am confident in delivering immediate value to your operations. I have attached my resume for your review and consideration.\n\nI welcome the opportunity to discuss how my qualifications align with your requirements.\n\nBest regards,\n${candName}`;
-                    const userSender = (userProfile && userProfile.Application_email) ? userProfile.Application_email : (user.email || 'user@myrolerover.com');
+                if (isFounderAccount) {
+                    // Show active draft generation toast
+                    const toast = document.createElement('div');
+                    toast.id = 'social-draft-toast';
+                    toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18181b;color:#fff;padding:0.75rem 1.4rem;border-radius:10px;font-size:0.875rem;font-weight:700;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:0.5rem;animation:fadein 0.2s ease;';
+                    toast.innerHTML = '<span>⚡ Tailoring application draft with Llama 3.3...</span>';
+                    document.body.appendChild(toast);
 
-                    await supabaseClient.from('emails').insert({
-                        user_id: user.id,
-                        sender: userSender,
-                        recipient: recipient,
-                        subject: dynamicSubject,
-                        body_preview: plainBody.substring(0, 140),
-                        full_html: plainBody,
-                        category: 'draft',
-                        type: 'outbound',
-                        is_read: true,
-                        matched_job_id: job.id
+                    // Trigger the dedicated Llama 3.3 Social Draft Generator workflow in n8n
+                    fetch('https://n8n.leadscompass.ai/webhook/generate-social-draft', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ match_id: job.match_id })
+                    })
+                    .then(r => r.json())
+                    .then(data => {
+                        toast.style.cursor = 'pointer';
+                        toast.onclick = () => { toast.remove(); openEmailClient('drafts'); };
+                        toast.innerHTML = '<span>📝 Application drafted! Tap to review in Drafts &rarr;</span>';
+                        if (typeof updateDraftsBadgeVisibility === 'function') updateDraftsBadgeVisibility();
+                        setTimeout(() => { if (toast.parentNode) toast.remove(); }, 6000);
+                    })
+                    .catch(async err => {
+                        console.warn('Webhook draft generation fallback:', err);
+                        try {
+                            const recipient = job.contact_email || 'recruiter@facebook-post.com';
+                            const candName = (userProfile && (userProfile.first_name || userProfile.last_name))
+                                ? [userProfile.first_name, userProfile.last_name].filter(Boolean).join(' ')
+                                : 'Applicant';
+                            const dynamicSubject = `Application for ${job.title || 'Role'} - ${candName}`;
+                            const plainBody = `Dear Hiring Team,\n\nI am reaching out regarding the ${job.title || 'open'} position posted on Facebook by ${job.company_name || 'your team'}.\n\nWith my relevant background and proven hands-on experience, I am confident in delivering immediate value to your operations. I have attached my resume for your review and consideration.\n\nI welcome the opportunity to discuss how my qualifications align with your requirements.\n\nBest regards,\n${candName}`;
+                            const userSender = (userProfile && userProfile.Application_email) ? userProfile.Application_email : (user.email || 'user@myrolerover.com');
+
+                            await supabaseClient.from('emails').insert({
+                                user_id: user.id,
+                                sender: userSender,
+                                recipient: recipient,
+                                subject: dynamicSubject,
+                                body_preview: plainBody.substring(0, 140),
+                                full_html: plainBody,
+                                category: 'draft',
+                                type: 'outbound',
+                                is_read: true,
+                                matched_job_id: job.id
+                            });
+                            await supabaseClient
+                                .from('social_hiring_lead_matches')
+                                .update({ decision: 'draft', decided_at: new Date().toISOString() })
+                                .eq('id', job.match_id);
+
+                            toast.style.cursor = 'pointer';
+                            toast.onclick = () => { toast.remove(); openEmailClient('drafts'); };
+                            toast.innerHTML = '<span>📝 Application drafted! Tap to review in Drafts &rarr;</span>';
+                            if (typeof updateDraftsBadgeVisibility === 'function') updateDraftsBadgeVisibility();
+                            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 5000);
+                        } catch (e) {
+                            console.error('Fallback draft failed', e);
+                            toast.remove();
+                        }
                     });
-                    if (typeof updateDraftsBadgeVisibility === 'function') updateDraftsBadgeVisibility();
-                } catch (draftErr) {
-                    console.error('Failed to insert draft into emails table:', draftErr);
+                } else {
+                    // Standard send path for non-founder accounts
+                    await supabaseClient
+                        .from('social_hiring_lead_matches')
+                        .update({ decision: 'send', decided_at: new Date().toISOString() })
+                        .eq('id', job.match_id);
                 }
+            } else {
+                // Skip decision
+                await supabaseClient
+                    .from('social_hiring_lead_matches')
+                    .update({ decision: 'skip', decided_at: new Date().toISOString() })
+                    .eq('id', job.match_id);
             }
 
-            const { error } = await supabaseClient
-                .from('social_hiring_lead_matches')
-                .update({ decision: targetDecision, decided_at: new Date().toISOString() })
-                .eq('id', job.match_id);
-
-            if (decision === 'apply' && isFounderAccount) {
-                // Show instant feedback toast - opens Dedicated Mailbox modal directly!
-                const toast = document.createElement('div');
-                toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18181b;color:#fff;padding:0.75rem 1.4rem;border-radius:10px;font-size:0.875rem;font-weight:700;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:0.5rem;animation:fadein 0.2s ease;cursor:pointer;';
-                toast.onclick = () => { toast.remove(); openEmailClient('drafts'); };
-                toast.innerHTML = '<span>📝 Application drafted! Tap to review in Drafts &rarr;</span>';
-                document.body.appendChild(toast);
-                setTimeout(() => { toast.remove(); }, 4000);
-            }
-            if (error) console.error('Failed to record social lead decision', error);
             if (usesFreeSend && userProfile) userProfile.social_free_sends_used = freeUsed + 1;
             return true;
         }
@@ -6189,6 +6230,7 @@
             const recipient = email.recipient || '';
             const subject = email.subject || '(No Subject)';
             const rawBody = (email.body_preview || email.full_html || '').trim();
+            const cleanBody = rawBody.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
             const d = new Date(email.created_at);
             const dateStr = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -6237,10 +6279,10 @@
                             <span style="color: #10b981; font-size: 0.75rem;">(Tailored PDF Attached)</span>
                         </div>
 
-                        <div id="draft-body-view-${index}" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 0.95rem; line-height: 1.7; color: #18181b; white-space: pre-wrap; background: #fff; padding: 1.2rem; border: 1px solid var(--border); border-radius: 8px;">${escapeHtml(rawBody)}</div>
+                        <div id="draft-body-view-${index}" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 0.95rem; line-height: 1.7; color: #18181b; white-space: pre-wrap; background: #fff; padding: 1.2rem; border: 1px solid var(--border); border-radius: 8px;">${escapeHtml(cleanBody)}</div>
 
                         <div id="draft-body-edit-${index}" style="display: none; flex-direction: column; gap: 0.75rem;">
-                            <textarea id="draft-textarea-${index}" style="width: 100%; min-height: 280px; padding: 1rem; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border: 1px solid #3b82f6; border-radius: 8px; outline: none; box-sizing: border-box;">${escapeHtml(rawBody)}</textarea>
+                            <textarea id="draft-textarea-${index}" style="width: 100%; min-height: 280px; padding: 1rem; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border: 1px solid #3b82f6; border-radius: 8px; outline: none; box-sizing: border-box;">${escapeHtml(cleanBody)}</textarea>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button onclick="saveDraftEdits(${index})" style="background: #2563eb; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Save Changes</button>
                                 <button onclick="toggleEditDraft(${index})" style="background: #f4f4f5; color: #52525b; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>

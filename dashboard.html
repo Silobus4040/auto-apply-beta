@@ -5095,6 +5095,7 @@
             const recipient = email.recipient || '';
             const subject = email.subject || '(No Subject)';
             const rawBody = (email.body_preview || email.full_html || '').trim();
+            const cleanBody = rawBody.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
             const d = new Date(email.created_at);
             const dateStr = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
@@ -5143,10 +5144,10 @@
                             <span style="color: #10b981; font-size: 0.75rem;">(Tailored PDF Attached)</span>
                         </div>
 
-                        <div id="draft-body-view-${index}" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 0.95rem; line-height: 1.7; color: #18181b; white-space: pre-wrap; background: #fff; padding: 1.2rem; border: 1px solid var(--border); border-radius: 8px;">${escapeHtml(rawBody)}</div>
+                        <div id="draft-body-view-${index}" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 0.95rem; line-height: 1.7; color: #18181b; white-space: pre-wrap; background: #fff; padding: 1.2rem; border: 1px solid var(--border); border-radius: 8px;">${escapeHtml(cleanBody)}</div>
 
                         <div id="draft-body-edit-${index}" style="display: none; flex-direction: column; gap: 0.75rem;">
-                            <textarea id="draft-textarea-${index}" style="width: 100%; min-height: 280px; padding: 1rem; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border: 1px solid #3b82f6; border-radius: 8px; outline: none; box-sizing: border-box;">${escapeHtml(rawBody)}</textarea>
+                            <textarea id="draft-textarea-${index}" style="width: 100%; min-height: 280px; padding: 1rem; font-family: inherit; font-size: 0.95rem; line-height: 1.6; border: 1px solid #3b82f6; border-radius: 8px; outline: none; box-sizing: border-box;">${escapeHtml(cleanBody)}</textarea>
                             <div style="display: flex; gap: 0.5rem;">
                                 <button onclick="saveDraftEdits(${index})" style="background: #2563eb; color: #fff; border: none; padding: 0.5rem 1.2rem; border-radius: 6px; font-weight: 700; cursor: pointer;">Save Changes</button>
                                 <button onclick="toggleEditDraft(${index})" style="background: #f4f4f5; color: #52525b; border: none; padding: 0.5rem 1rem; border-radius: 6px; font-weight: 600; cursor: pointer;">Cancel</button>
