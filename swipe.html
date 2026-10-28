@@ -2981,7 +2981,14 @@
             const level = (job.detected_job_level === null || job.detected_job_level === undefined)
                 ? '<div class="social-lead-level-badge">❓ Level unclear — check before applying</div>'
                 : '';
-            return `<div class="social-badge-row"><div class="swipe-card-tag">📘 Facebook post</div>${buildFreshnessBadge(job)}${scam}${level}</div>`;
+            // The badge is the way to read the original post, so make it a real link when we
+            // have a safe http(s) URL. Stop mousedown/touchstart bubbling so tapping it never
+            // starts a card drag/swipe.
+            const postUrl = /^https?:\/\//i.test(String(job.post_url || '')) ? job.post_url : '';
+            const fbTag = postUrl
+                ? `<a class="swipe-card-tag" href="${escapeAttr(postUrl)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none; cursor:pointer; position:relative; z-index:20; pointer-events:auto;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation()">📘 View Facebook post ↗</a>`
+                : '<div class="swipe-card-tag">📘 Facebook post</div>';
+            return `<div class="social-badge-row">${fbTag}${buildFreshnessBadge(job)}${scam}${level}</div>`;
         }
 
         // Same reason + "N gaps" pill as buildFitScoreBadge, with no score
@@ -4303,7 +4310,14 @@
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
             modalText.style.cssText = '';
-            modalText.innerText = job.description_text || 'No description available.';
+            if (job.is_social) {
+                // Facebook post text: keep line breaks and turn the original-post URL into a real link.
+                modalText.style.whiteSpace = 'pre-wrap';
+                modalText.innerHTML = escapeHtml(job.description_text || 'No description available.')
+                    .replace(/(https?:\/\/[^\s<]+)/g, (u) => '<a href="' + escapeAttr(u.replace(/&amp;/g, '&')) + '" target="_blank" rel="noopener noreferrer" style="color:#059669; font-weight:700; text-decoration:underline; word-break:break-all;">' + u + '</a>');
+            } else {
+                modalText.innerText = job.description_text || 'No description available.';
+            }
             document.getElementById('desc-modal').classList.add('active');
         }
 
