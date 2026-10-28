@@ -620,3 +620,178 @@ exactly the same way (replies to applications they made by hand on a company's c
 land there). "Dashboard" is the account home/settings hub, not purely an automation-stats page, so
 hiding it would just make it harder to get back to settings/credits — no actual data collision
 either way since nothing here writes a fake automation-tracked application.
+
+## 22. Free Job Deck timeout: logged-in limit 8s -> 15s; mosco moved to New York for testing (2026-10-28)
+
+**Problem (proven):** the deck's search (`find_matching_jobs`) is called straight from the browser as
+role `authenticated`, which Supabase limits to 8s. For mosco it was being cancelled (code 57014).
+Automation reaches the same function through `match-pool-jobs` with a 15s limit.
+
+**Change:** migration `authenticated_statement_timeout_15s` =
+`alter role authenticated set statement_timeout = '15s'; notify pgrst, 'reload config';`
+Docs: https://supabase.com/docs/guides/database/postgres/timeouts#role-level
+Verified in `pg_roles`: authenticated=15s (anon 3s, authenticator 8s unchanged). Affects every
+logged-in browser request. Rollback: set it back to '8s' and `notify pgrst, 'reload config'`.
+
+**Test persona:** mosco (`cbc2ad35-...`) city/state/country changed Lagos/Lagos/Nigeria ->
+New York/New York/United States so the deck has jobs to test. (Standing default is Nigeria: revert after testing.)
+
+**Result (browser, real call):** Nigeria: 0 jobs, 5.5-7.0s, no error. New York: 100 jobs;
+first call took 8.06s with no error (over the old 8s cap), second 5.9s. Page shows "Job 1 of 100".
+Still open: why the call slowed since 2026-10-27; routing the deck via the server path automation uses.
+
+## 23. Free Job Deck: mobile description overflow, parity with automation's card, "next job" feedback (2026-10-28)
+
+Founder report: description ran endlessly on mobile, the deck didn't look like automation's, and
+there was no visible way to tell the deck moved to the next company after clicking Apply.
+
+**Root causes (confirmed in code):**
+- Mobile media query dropped the card's own `max-height` entirely (`max-height: none`), and
+  `.desc-text` had no clamp, so the whole raw posting dictated the card's (and page's) height.
+- The card was a plain static box, not swipe.html's actual card/description-popup component.
+- `applyCurrentJob()` opens the company page in a new tab and silently re-renders the card
+  underneath with no animation or confirmation, so returning to the tab looked like nothing moved.
+
+**Fix (jobs.html only, swipe.html/dashboard.html untouched):**
+- `.desc-text` now clamps to 5 lines (`-webkit-line-clamp`); a "Read full description" button opens
+  a popup reusing swipe.html's own `#desc-modal` pattern (same CSS shape, same behavior).
+- Mobile `.job-detail-pane` keeps a real `max-height` (`calc(100dvh - 1.5rem)`) instead of none.
+- `passCurrentJob`/`applyCurrentJob` now call `renderCurrentCard(true)` (slide-up/fade-in on the new
+  card) and show a toast ("Passed" / "Marked as applied — next job ready").
+
+**Verified (browser, mobile viewport 375x812, mosco/New York test persona):** description
+`scrollHeight` 6328px but visible `clientHeight` 135px (clamped); card height 543px, no endless growth.
+"Read full description" opens the popup with full text, closes on the X, Escape, and backdrop click.
+Clicking Pass advanced from "Job 1 of 100" to "Job 2 of 100" with the fade-in and toast firing.
+Not committed yet.
+
+## 24. Free Job Deck: dropped inline description text, added "Skip for now", matched automation's button bar (2026-10-28)
+
+Founder, after seeing §23's fix live: remove the inline description paragraph under the buttons,
+no visible way to move to the next job without Pass/Apply, and button size must match automation exactly.
+
+**Checked against swipe.html before changing anything:**
+- Its card (`.swipe-card-readmore`, swipe.html:4072) never prints any of the posting's raw text --
+  only a plain "Job Description →" link that opens the popup. The clipped 5-line preview jobs.html
+  added in §23 was an extra step automation doesn't have; removed, link-only now.
+- Its action bar (swipe.html:2110-2112, current CSS ~1735-1764) is 3 buttons, not 2: Decline / **Skip
+  for now** / Apply, grid columns 1fr/1.32fr/1fr, 50px-tall pills. "Skip for now" (`skipJobForNow` in
+  swipe.html) writes nothing to `user_job_swipes` -- it just moves the job to the end of the deck for
+  this session. jobs.html had no equivalent, which is what read as a missing "next" affordance.
+
+**Applied to jobs.html:**
+- `.action-row` is now the same 3-column grid; buttons use automation's own `.swipe-btn`/`.swipe-btn-icon`
+  classes and sizing (50px height, pill radius, same icons: x / chevrons-right / check). Not copied:
+  swipe.html's frosted-glass blur, which is tied to its fixed bottom dock -- this page isn't docked,
+  so buttons keep jobs.html's flat surface color instead. Everything else (height, shape, grid ratio,
+  labels, icons) matches.
+- Added `skipJobForNow()`: splices the current job out of `deckJobs` and pushes it to the end (same
+  non-destructive behavior as automation), no `user_job_swipes` write, toast "Skipped for now".
+- Description: dropped the clipped-preview `<div>` entirely; only the "Job Description →" link remains
+  (same popup from §23).
+
+**Verified (browser, mobile 375x812, mosco/New York):** card shows Decline / Skip for now / Apply as
+three equal-height pill buttons, no inline description text, "Job Description →" link present.
+Clicking Skip for now moved the card to a different job while the counter stayed "Job 1 of 100"
+(job requeued, not consumed) and showed the "Skipped for now" toast. Not committed yet.
+
+## 25. Free Job Deck: collapsed back to 2 buttons -- Next / Apply on Career Page (2026-10-28)
+
+Founder decided 2 buttons beats 3: "Next and Apply on company career page should be the only two
+buttons." Removed Decline/Skip-for-now distinction from §24, replaced with one neutral "Next".
+
+- `nextJob()` (renamed from passCurrentJob) still records 'skip' in `user_job_swipes` -- same
+  shared-history table/decision automation's own Pass writes, so a job moved past here still won't
+  resurface in either deck. Only the label and button count changed, not that behavior.
+- `skipJobForNow()` (§24's non-destructive requeue) removed -- no longer reachable from the UI.
+- Apply button relabeled "Apply Manually" (icon: external-link, not automation's check -- this
+  one actually leaves the app to a different site, automation's doesn't) per founder's ask for
+  wording that's shorter than "Apply on company site" but still says where it goes.
+- `.action-row` grid back to 2 equal columns; "Next" styled neutral gray (not the red Decline color).
+
+Verified (browser, mobile 375x812): two pill buttons, clicking Next advanced "Job 1 of 100" -> "Job 2
+of 100" with the "Next job" toast. Not committed yet.
+
+## 26. Free Job Deck: added "Back" (3 buttons again), fixed a real RLS gap it exposed (2026-10-28)
+
+Founder: "should also be able to go back after they click next"; then "maybe 3 buttons, name the
+back properly if back isn't the best name." Went with "Back" (standard, pairs with an arrow-left
+icon, same meaning as a browser's own Back). Buttons are now Back / Next / Apply Manually, 3 equal
+columns, same pill sizing as before.
+
+- `previousJob()`: decrements `deckIndex` (deckJobs is a stable fetched list, no refetch needed) and
+  calls a new `deleteSwipe(job)` to remove that job's row from `user_job_swipes` -- otherwise Back
+  would only change what the UI shows while the SHARED table (same one automation reads) still
+  called the job skipped/applied underneath.
+- **Found and fixed a real gap while verifying this**: `user_job_swipes` had RLS policies for INSERT
+  and SELECT only, no DELETE -- confirmed via `pg_policy`. Table-level GRANT DELETE already existed
+  for `authenticated`, so the delete call didn't error, it silently removed 0 rows. First test proved
+  this: clicked Next then Back, UI went back to the right job, but the DB still showed `decision:
+  skip` for it. Added policy `allow_authenticated_delete_own_job_swipes`:
+  `create policy "Users can delete their own swipes" on public.user_job_swipes for delete to
+  authenticated using ( (select auth.uid()) = user_id );` -- same `(select auth.uid()) = user_id`
+  pattern as the existing policies, per https://supabase.com/docs/guides/database/postgres/row-level-security#delete-policies.
+
+**Verified (browser console calls + direct DB read, mosco/New York):** called `nextJob()` then
+`previousJob()` on a real job (GitLab, id `69b4101a-...`) -- landed back on the same job, and a direct
+`select ... where job_pool_id = '69b4101a-...'` came back empty, confirming the swipe row is really
+gone, not just hidden in the UI. Not committed yet.
+
+## 27. Free Job Deck: apply-click tracking via myrolerover.com/go (Cloudflare Worker), no expiry (2026-10-28)
+
+Founder decision: drop the expiring-link idea, but build the redirect purely for tracking + tamper
+resistance, and confirmed `myrolerover.com` is really on Cloudflare before any of this (verified via
+the Cloudflare account connected to this session: zone `myrolerover.com`, status active, owned by
+davidobus4040@gmail.com's account, Free plan -- not inferred from HTTP headers alone).
+
+**Why "Apply Manually" used to be untracked:** the button linked straight to `job.apply_url`
+(the real employer link, already present in the bulk `find_matching_jobs`/`job_pool` payload) --
+nothing ever touched our server on a real click, so there was no way to log an apply or notice a
+scraping pattern on this specific action.
+
+**What's live:**
+- Supabase: migration `apply_click_redirect_tracking`.
+  - `vault.create_secret(...)` generates the HMAC signing key server-side (raw value never left
+    the database, never printed/logged). Docs: https://supabase.com/docs/guides/database/vault
+  - `public.job_apply_clicks` (user_id, job_pool_id, clicked_at) -- one row per real resolved
+    click; RLS lets a user read only their own rows.
+  - `public.rr_sign_apply_click(p_job_id)` -- SECURITY DEFINER, `to authenticated`. Mints
+    `https://myrolerover.com/go?job=<id>&uid=<auth.uid()>&t=<hmac>`. **No timestamp in the
+    signature** (founder: "no expiry") -- the link never goes stale, the signature only proves
+    we minted it for this exact job+user, so it can't be hand-crafted or reattributed.
+  - `public.rr_resolve_apply_click(p_job_id, p_user_id, p_sig)` -- SECURITY DEFINER, `to anon,
+    authenticated`. Re-verifies the signature server-side (never trusts the Worker's own check
+    alone), inserts the click log, returns the real `job_pool.apply_url`. Called with only the
+    public anon key -- no service_role key was ever generated for or given to Cloudflare.
+- Cloudflare: Worker `rr-apply-redirect` (account `bfdcaafba103f3f4f4fde01b9f5bf304`), deployed via
+  the Workers API, bound to zone route `myrolerover.com/go*` (zone `fe02e3607c366ced865c5930a0aa102c`).
+  Everything else on the zone still serves from GitHub Pages untouched -- this route only
+  intercepts `/go`. The Worker calls `rr_resolve_apply_click` over PostgREST and 302s to the
+  real URL, or shows a small branded error page ("Go back to RoleRover") if the signature is bad.
+  Docs: https://developers.cloudflare.com/workers/configuration/routing/routes/
+- jobs.html: "Apply Manually" is now a `<button>` (was an `<a href>`). `applyCurrentJob()` opens a
+  blank tab synchronously (so the browser doesn't treat it as an unrequested popup), calls
+  `rr_sign_apply_click` for the signed link, then points the tab at it; falls back to the raw
+  `job.apply_url` if the sign call fails, so a hiccup never blocks a real apply.
+
+**Verified, real end-to-end chain (mosco/New York, no mocks):**
+1. `rr_sign_apply_click` called from the actual deck page (not SQL) for job "Northbeam" ->
+   returned `https://myrolerover.com/go?job=b71dcacd-...&uid=cbc2ad35-...&t=263e27b6...`.
+2. Followed that exact URL for real (curl) -> `302` to `https://job-boards.greenhouse.io/northbeam/jobs/4558061006`
+   (Northbeam's real posting).
+3. `job_apply_clicks` shows the real row (Northbeam, correct user, correct timestamp).
+4. A tampered `t=` value on the same job/uid -> `400` with the branded "link no longer valid"
+   page, no redirect, nothing logged.
+
+**Not done (separate, larger piece, deliberately out of scope this round):** this only tracks the
+*apply click*. The bulk job data (titles/companies/descriptions/salary) is still returned in full
+on every deck load straight from Supabase, which never touches Cloudflare at all -- that's the
+"close the bulk-data hole" idea from the same conversation, not built.
+
+**Also not done:** turning on Cloudflare's Bot Fight Mode toggle for the zone -- the classic
+`/zones/{id}/settings/bot_fight_mode` API returned "Undefined zone setting" for this zone (it now
+lives under the newer unified Security Settings UI, not that legacy endpoint); flipping it is a
+one-click action in the dashboard (Security > Settings > Bot traffic) rather than something I
+scripted here.
+
+Related: [[manual-mode-job-board-search-fix-2026-10-21]]
