@@ -2867,7 +2867,19 @@
                 // Founder mandate: Leads tagged "Location not verified" or leads with
                 // unverified locations are strictly hidden from the Job Deck by default.
                 // We only serve candidates verified, trusted cards.
-                const userCountry = String((userProfile && (userProfile.country || userProfile.target_location)) || '').toLowerCase().trim();
+                // Leads store ISO codes (NG, CA...) while profiles store names ("Nigeria"), so
+                // compare by country NAME, and check both the profile country and the
+                // target location (either may be a comma list).
+                const regionNames = (() => { try { return new Intl.DisplayNames(['en'], { type: 'region' }); } catch (e) { return null; } })();
+                const toCountryName = c => {
+                    const raw = String(c || '').trim();
+                    if (/^[A-Za-z]{2}$/.test(raw) && regionNames) {
+                        try { return (regionNames.of(raw.toUpperCase()) || raw).toLowerCase(); } catch (e) { /* fall through */ }
+                    }
+                    return raw.toLowerCase();
+                };
+                const userCountries = [userProfile && userProfile.country, userProfile && userProfile.target_location]
+                    .filter(Boolean).join(',').split(',').map(x => x.trim().toLowerCase()).filter(Boolean);
                 const fitsLocation = lead => {
                     // Rejected or flagged scam leads are never shown
                     if (lead.status === 'rejected' || lead.fraud_check_status === 'flagged') return false;
@@ -2881,8 +2893,11 @@
                     if (countries.some(c => /not verified|not stated/i.test(c))) return false;
 
                     // If candidate specified country, match candidate country
-                    if (userCountry) {
-                        return countries.some(c => userCountry.includes(c.toLowerCase()) || c.toLowerCase().includes(userCountry));
+                    if (userCountries.length) {
+                        return countries.some(c => {
+                            const name = toCountryName(c);
+                            return userCountries.some(u => u === name || u.includes(name) || name.includes(u));
+                        });
                     }
                     return true;
                 };
