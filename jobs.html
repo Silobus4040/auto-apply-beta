@@ -405,6 +405,13 @@
             transition: transform 0.15s ease;
         }
         .swipe-btn .swipe-btn-icon { width: 17px; height: 17px; stroke-width: 2.5; flex-shrink: 0; }
+        /* Phones: three buttons share one row, so drop the icons and tighten the text
+           or "Apply Manually" gets clipped. */
+        @media (max-width: 480px) {
+            .action-row { grid-template-columns: minmax(0, 0.75fr) minmax(0, 0.75fr) minmax(0, 1.5fr); }
+            .swipe-btn { font-size: 0.7rem; padding: 0 0.4rem; letter-spacing: 0; white-space: nowrap; }
+            .swipe-btn .swipe-btn-icon { display: none; }
+        }
         .swipe-btn:hover { transform: translateY(-2px) scale(1.03); }
         .swipe-btn.back, .swipe-btn.next { color: #475569; }
         .swipe-btn.back:hover, .swipe-btn.next:hover { border-color: rgba(71,85,105,.5); }
@@ -499,6 +506,54 @@
             z-index: 300;
         }
         .deck-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+        /* "Did you apply?" bar -- shown after Apply Manually, stays until answered.
+           Only "I applied" removes the job from Auto Apply (see markManualApplied). */
+        .applied-bar {
+            display: none;
+            margin: 1rem 2rem 0;
+            background: rgba(0, 204, 153, 0.08);
+            border: 1px solid rgba(0, 204, 153, 0.3);
+            border-radius: 14px;
+            padding: 0.75rem 1rem;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+        .applied-bar.show { display: flex; }
+        .applied-bar-text { font-size: 0.88rem; font-weight: 700; color: var(--text-heading); min-width: 0; overflow-wrap: anywhere; }
+        .applied-bar-actions { display: flex; gap: 0.5rem; flex-shrink: 0; }
+        .applied-bar-btn {
+            border: none;
+            border-radius: 999px;
+            padding: 0.5rem 1rem;
+            font-size: 0.8rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+        .applied-bar-btn.yes { background: #059669; color: #fff; }
+        .applied-bar-btn.no { background: var(--soft); color: var(--text-heading); }
+        .applied-bar-btn:disabled { opacity: 0.6; cursor: default; }
+
+        /* One-time "Applying on your own?" notice */
+        .apply-notice-modal { max-width: 480px; }
+        .apply-notice-modal p { color: var(--text-body); font-size: 0.98rem; line-height: 1.6; margin-top: 0.75rem; }
+        .apply-notice-btn {
+            margin-top: 1.5rem;
+            width: 100%;
+            min-height: 48px;
+            border: none;
+            border-radius: 999px;
+            background: #059669;
+            color: #fff;
+            font-weight: 800;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+        @media (max-width: 900px) {
+            .applied-bar { margin: 0.75rem 1rem 0; }
+        }
 
         /* Credit Balance in Header */
         .credit-balance {
@@ -621,6 +676,14 @@
                 💡 <strong>Out of credits?</strong> You can still browse every job for free and apply yourself on the employer site!
             </div>
 
+            <div class="applied-bar" id="applied-bar" role="status">
+                <div class="applied-bar-text" id="applied-bar-text"></div>
+                <div class="applied-bar-actions">
+                    <button type="button" class="applied-bar-btn yes" id="applied-bar-yes" onclick="markManualApplied()">I applied</button>
+                    <button type="button" class="applied-bar-btn no" onclick="dismissAppliedBar()">Not yet</button>
+                </div>
+            </div>
+
             <div id="deck-progress" style="padding: 1.25rem 2rem 0; font-size: 0.9rem; font-weight: 700; color: #71717A;"></div>
 
             <!-- Deck: one job at a time, same candidate pool automation's own swipe deck
@@ -644,6 +707,16 @@
             <h2 id="desc-modal-title">Job Title</h2>
             <div class="modal-company" id="desc-modal-company">Company Name</div>
             <div class="full-text" id="desc-modal-text">Loading...</div>
+        </div>
+    </div>
+    <!-- Shown once, on the first Apply Manually click (has_seen_manual_apply_notice). -->
+    <div class="modal-overlay" id="apply-notice-overlay">
+        <div class="desc-modal apply-notice-modal">
+            <button class="close-modal" onclick="closeApplyNotice()">&times;</button>
+            <h2>Applying on your own?</h2>
+            <p>When you've finished, tap <strong>"I applied"</strong>. We'll remove this job from Auto Apply, so it isn't sent twice if you switch to Auto Apply later.</p>
+            <p>We can't see the company's website. If you don't tap "I applied", this job may still show up in Auto Apply.</p>
+            <button type="button" class="apply-notice-btn" onclick="confirmApplyNotice()">Got it, open the career page</button>
         </div>
     </div>
     <div class="deck-toast" id="deck-toast"></div>
@@ -670,11 +743,17 @@
             if (document.getElementById('desc-modal-overlay').classList.contains('active')) {
                 closeJobDescription();
             }
+            if (document.getElementById('apply-notice-overlay').classList.contains('active')) {
+                closeApplyNotice();
+            }
         });
         // Click the dimmed backdrop (not the modal box itself) to close, same as
         // the sidebar backdrop above.
         document.getElementById('desc-modal-overlay').addEventListener('click', e => {
             if (e.target.id === 'desc-modal-overlay') closeJobDescription();
+        });
+        document.getElementById('apply-notice-overlay').addEventListener('click', e => {
+            if (e.target.id === 'apply-notice-overlay') closeApplyNotice();
         });
 
         async function logout() {
@@ -741,7 +820,7 @@
                 // needed anymore, since there's no search UI to prefill).
                 const { data: profile, error: profileError } = await supabaseClient
                     .from('profiles')
-                    .select('id, Application_email, applications_limit, application_credit_used, has_seen_manual_email_nudge')
+                    .select('id, Application_email, applications_limit, application_credit_used, has_seen_manual_email_nudge, has_seen_manual_apply_notice')
                     .eq('id', currentUser.id)
                     .single();
                 if (profileError) throw new Error(`profile fetch failed: ${profileError.message}`);
@@ -817,7 +896,11 @@
                 });
                 if (error) throw error;
 
-                const ids = (data || []).map(r => r.job_pool_id);
+                // Jobs the user already opened with Apply Manually leave THIS deck only.
+                // They are not swiped, so automation can still show them (with a
+                // reminder) unless the user taps "I applied".
+                const openedIds = await fetchOpenedJobIds();
+                const ids = (data || []).map(r => r.job_pool_id).filter(id => !openedIds.has(id));
                 if (!ids.length) {
                     deckJobs = [];
                     deckIndex = 0;
@@ -833,6 +916,7 @@
 
                 const byId = new Map((fullJobs || []).map(j => [j.id, j]));
                 deckJobs = data
+                    .filter(r => !openedIds.has(r.job_pool_id))
                     .map(r => {
                         const full = byId.get(r.job_pool_id);
                         return full ? { ...full } : null;
@@ -926,11 +1010,14 @@
             }
         }
 
-        // Same user_job_swipes table + decision values ('skip'/'apply') automation's
-        // swipe.html writes on every Decline/Apply swipe (finishSwipe/submitApplyForJob),
-        // so a job passed or applied-to here won't reappear in the Automation deck, and
-        // vice versa -- one shared "seen" history, not a separate one.
+        // Same user_job_swipes table automation's swipe.html uses, so a job passed here
+        // won't reappear in the Automation deck, and vice versa. This page may only
+        // ever write 'skip': 'apply' means "send the bot" (MANUAL_MODE_PROGRESS_LOG §30).
         async function recordSwipe(job, decision) {
+            if (decision !== 'skip') {
+                console.error('Free Job Deck refused to write swipe decision:', decision);
+                return;
+            }
             try {
                 await supabaseClient.from('user_job_swipes').upsert(
                     { user_id: currentUser.id, job_pool_id: job.id, decision },
@@ -982,7 +1069,9 @@
             const job = deckJobs[deckIndex];
             renderCurrentCard(true);
             showDeckToast('Back');
-            if (job) await deleteSwipe(job);
+            // A job the user said "I applied" to keeps its record -- going back
+            // to look at it again doesn't undo an application they really made.
+            if (job && !markedAppliedIds.has(job.id)) await deleteSwipe(job);
         }
 
         // Apply Manually now routes through myrolerover.com/go (a Cloudflare Worker) instead of
@@ -994,10 +1083,27 @@
         // The button opens a blank tab FIRST (synchronously, before any await) so browsers don't
         // block it as an unrequested popup, then fills in that tab's destination once the signed
         // link comes back.
-        async function applyCurrentJob() {
+        //
+        // This NEVER writes a swipe. 'apply' in user_job_swipes means "send the bot" -- the
+        // n8n Swipe-to-Apply hourly backstop turned every old Apply Manually click into a real
+        // bot application (MANUAL_MODE_PROGRESS_LOG §30). Opening the link only moves the job
+        // out of this deck; only "I applied" (markManualApplied) takes it out of Auto Apply.
+        function applyCurrentJob() {
             const job = deckJobs[deckIndex];
             if (!job) return;
+            if (!hasSeenApplyNotice()) {
+                // First time: explain the "I applied" rule before leaving the site. The
+                // notice's button is a fresh click, so opening the tab from it isn't blocked.
+                pendingNoticeJob = job;
+                document.getElementById('apply-notice-overlay').classList.add('active');
+                return;
+            }
+            openCareerPage(job);
+        }
+
+        async function openCareerPage(job) {
             recordApplyClick(job.id);
+            openedThisSession.add(job.id);
             const outboundTab = window.open('', '_blank');
             let redirectUrl = job.apply_url || '#'; // fallback so a signing hiccup never blocks applying
             try {
@@ -1012,19 +1118,97 @@
             } else {
                 window.open(redirectUrl, '_blank', 'noopener,noreferrer');
             }
-            deckIndex++;
-            renderCurrentCard(true);
+            if (deckJobs[deckIndex] && deckJobs[deckIndex].id === job.id) {
+                deckIndex++;
+                renderCurrentCard(true);
+            }
             // Apply opens the company page in a new tab, so the user's focus
             // leaves this tab right as the card changes underneath -- without
             // this toast + the animateIn slide-up above, coming back to this
             // tab looked like nothing had happened (see founder report 2026-10-28).
-            showDeckToast('Marked as applied — next job ready');
-            // Unlike automation's own Apply swipe (submitApplyForJob in swipe.html), this
-            // never calls the AI-tailoring/auto-submit webhook and never touches
-            // applications_limit/application_credit_used -- the user applies themselves on
-            // the company page that just opened in a new tab.
-            await recordSwipe(job, 'apply');
+            showDeckToast('Next job ready');
+            // Waiting for them when they come back to this tab.
+            showAppliedBar(job);
             if (deckIndex >= deckJobs.length) await loadDeck();
+        }
+
+        // ---- "I applied" flow -------------------------------------------------
+        let pendingNoticeJob = null;
+        let appliedBarJob = null;
+        const openedThisSession = new Set();
+        const markedAppliedIds = new Set();
+
+        // Every job this user opened via Apply Manually (job_apply_clicks is written by
+        // the myrolerover.com/go redirect; RLS lets a user read only their own rows),
+        // plus this session's clicks in case the redirect row hasn't landed yet.
+        async function fetchOpenedJobIds() {
+            const ids = new Set(openedThisSession);
+            try {
+                const { data, error } = await supabaseClient
+                    .from('job_apply_clicks')
+                    .select('job_pool_id')
+                    .eq('user_id', currentUser.id)
+                    .order('clicked_at', { ascending: false })
+                    .limit(1000);
+                if (error) throw error;
+                (data || []).forEach(r => ids.add(r.job_pool_id));
+            } catch (err) {
+                console.warn('Could not read opened jobs; showing the deck unfiltered:', err);
+            }
+            return ids;
+        }
+
+        function applyNoticeSeenKey() {
+            return `rr_manual_apply_notice_seen_${currentUser ? currentUser.id : 'anon'}`;
+        }
+        function hasSeenApplyNotice() {
+            if (userProfile && userProfile.has_seen_manual_apply_notice === true) return true;
+            try { return localStorage.getItem(applyNoticeSeenKey()) === '1'; } catch (e) { return false; }
+        }
+        function closeApplyNotice() {
+            pendingNoticeJob = null;
+            document.getElementById('apply-notice-overlay').classList.remove('active');
+        }
+        function confirmApplyNotice() {
+            const job = pendingNoticeJob;
+            closeApplyNotice();
+            try { localStorage.setItem(applyNoticeSeenKey(), '1'); } catch (e) {}
+            if (userProfile) userProfile.has_seen_manual_apply_notice = true;
+            supabaseClient.from('profiles').update({ has_seen_manual_apply_notice: true }).eq('id', currentUser.id)
+                .then(({ error }) => { if (error) console.warn('Failed to save apply notice dismissal:', error); });
+            if (job) openCareerPage(job);
+        }
+
+        function showAppliedBar(job) {
+            appliedBarJob = job;
+            const title = escapeHtml(job.title || 'this role');
+            const company = escapeHtml(job.company_name || job.company || 'this company');
+            document.getElementById('applied-bar-text').innerHTML = `Applied to <strong>${title}</strong> at <strong>${company}</strong>?`;
+            const yes = document.getElementById('applied-bar-yes');
+            if (yes) yes.disabled = false;
+            document.getElementById('applied-bar').classList.add('show');
+        }
+        function dismissAppliedBar() {
+            appliedBarJob = null;
+            document.getElementById('applied-bar').classList.remove('show');
+            showDeckToast('OK, it stays available in Auto Apply');
+        }
+        async function markManualApplied() {
+            const job = appliedBarJob;
+            if (!job) return;
+            const yes = document.getElementById('applied-bar-yes');
+            if (yes) yes.disabled = true;
+            const { error } = await supabaseClient.rpc('rr_mark_manual_applied', { p_job_id: job.id, p_source: 'free_deck' });
+            if (error) {
+                console.error('Failed to save "I applied":', error);
+                if (yes) yes.disabled = false;
+                showDeckToast('Could not save, please try again');
+                return;
+            }
+            markedAppliedIds.add(job.id);
+            appliedBarJob = null;
+            document.getElementById('applied-bar').classList.remove('show');
+            showDeckToast("Saved. We won't apply to this job for you");
         }
 
         function openJobDescription() {

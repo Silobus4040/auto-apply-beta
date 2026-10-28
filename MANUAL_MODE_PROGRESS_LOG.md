@@ -893,3 +893,60 @@ Found while answering the founder's "a link click is a false positive" point. Pr
 "seen" (it leaves both decks; Back still undoes it) and log the click (already in `job_apply_clicks`);
 an explicit "Yes, I applied" confirmation records a manual application separately. Not launch-safe
 until this is changed.
+
+## 31. FIX for §30: Apply Manually no longer writes `'apply'`; "I applied" flow built (2026-10-28)
+
+Founder's rules (agreed in chat, in order): an "Apply Manually" click must NOT hide the job from
+automation (a user may give up on the form and pay for automation later); we cannot know whether
+someone applied on their own, so **only the user's own "I applied" removes a job from automation**;
+Auto-Apply is left completely untouched; if a user ignores the prompts, a duplicate is their choice.
+
+**What changed**
+- `jobs.html`
+  - Apply Manually opens the tracked `myrolerover.com/go` link and **writes no swipe at all**.
+    `recordSwipe` now refuses any decision other than `'skip'` (guard against a repeat of §30).
+  - First click only: one-time notice "Applying on your own?" (`profiles.has_seen_manual_apply_notice`,
+    same pattern as the email nudge). Escape / backdrop closes it.
+  - After each click: a bar "Applied to <title> at <company>? [I applied] [Not yet]". Ignoring it does
+    nothing. "Not yet" just dismisses.
+  - Jobs the user opened (`job_apply_clicks`, read through its existing own-rows RLS policy) are removed
+    from the Free Job Deck only; they stay in automation.
+  - Back no longer deletes the swipe of a job the user marked "I applied".
+  - Phones: "Apply Manually" was clipped at 375px (three equal columns). Icons hidden and columns
+    0.75/0.75/1.5fr under 480px. Verified: no clipping, no horizontal scroll.
+- `swipe.html` (automation deck): cards for jobs the user opened show
+  "You opened this job yourself on 26 Oct. [I already applied, remove it]". The button removes the job
+  from the deck. Reads `job_apply_clicks` (cached 15 s), re-renders only if a visible card is affected.
+  Auto-Apply code is untouched (`autoApplySweepAndFilter` unchanged).
+- Supabase (migrations `manual_job_applications_i_applied`, `ops_reports_count_manual_applications`):
+  - Table `manual_job_applications` (user_id, job_pool_id, source `free_deck|automation_card`,
+    created_at; PK user+job; RLS select/insert own rows).
+  - RPC `rr_mark_manual_applied(p_job_id, p_source)`: **security invoker**, `search_path=''`, execute
+    revoked from public/anon and granted to authenticated. Inserts the manual row and a `'skip'` swipe
+    (`on conflict do nothing`). It never writes `'apply'`.
+  - `ops_activity`, `ops_snapshot`, `ops_user` now count manual applications under `manual_applied` and
+    exclude them from `left` swipes (JSON shape only gained a key).
+  - Docs: https://supabase.com/docs/guides/database/functions#security-definer-vs-invoker ,
+    https://supabase.com/docs/guides/database/postgres/row-level-security
+
+**Why `'skip'` is safe:** I read all 26 public functions that touch `user_job_swipes`. Only `'apply'`
+triggers the n8n backstop or `apply_slots_left()`. Nothing treats `'skip'` as a signal to apply.
+
+**Tested as mosco (real DB, real browser)**
+- Click -> notice shown once -> "Got it" -> tracked link attempted (the harness blocks popups, as in §27)
+  -> deck advances -> bar shown. DB after: apply swipes 128 -> 128, skip 281 -> 281, applications 52 -> 52,
+  `manual_job_applications` 0, notice flag true.
+- "Not yet": bar clears, nothing saved. Second click: no notice (flag works).
+- "I applied" (Free Job Deck): row `source=free_deck` + `skip` swipe; apply swipes and applications unchanged.
+- Automation deck: reminder rendered on an opened job (Vannevar); "I already applied, remove it" removed
+  it from the deck (51 -> 50) and saved `source=automation_card` + `skip`; apply swipes and applications
+  unchanged.
+- Cleanup: test click rows, manual rows and their `skip` swipes deleted; notice flag reset to false so
+  the founder sees the notice on the next click. mosco is back to 128 apply / 281 skip / 7 clicks.
+
+**Not done / still open**
+- Not tested with a real popup open (harness blocks popups) -> the return-to-tab bar is shown right after
+  the click, not on a tab-focus event. It stays until answered, so the outcome is the same.
+- mosco's 10 credits charged by the §30 backstop were not refunded (founder's call).
+- Old 'apply' swipes written by the buggy version still exist for mosco; harmless now (all processed).
+- Architecture work from earlier (shared list, refill without scoring, throttle) is NOT built yet.
