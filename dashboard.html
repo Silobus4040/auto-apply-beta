@@ -2870,7 +2870,7 @@
                 const hiringLink = document.createElement('a');
                 hiringLink.id = 'sidebar-hiring-posts-link';
                 hiringLink.className = 'sidebar-nav-item';
-                hiringLink.href = 'swipe.html';
+                hiringLink.href = 'swipe.html?mode=hiring';
                 hiringLink.style.cssText = 'text-decoration: none; color: inherit;';
                 hiringLink.innerHTML = '<i data-lucide="sparkles" class="sidebar-nav-icon"></i> Hiring Posts <span class="badge" style="margin-left:auto; font-size:0.7rem; background:#fef3c7; color:#b45309; padding:2px 7px; border-radius:6px; font-weight:700;">Beta</span>';
                 if (manualLink && manualLink.nextSibling) {
@@ -3541,6 +3541,7 @@
             document.getElementById('skill-gap-info-modal').classList.add('active');
         }
         if (location.hash === '#skill-gap') goToMarketIntel();
+            if (location.hash === '#drafts') setTimeout(() => openEmailClient('drafts'), 600);
 
         const STATUS_FILTER_DEFS = [
             { key: 'all', label: 'All' },

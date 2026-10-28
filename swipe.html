@@ -1892,7 +1892,7 @@
                 <a class="sidebar-nav-item" href="dashboard.html" style="text-decoration: none; color: inherit;">
                     <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
                 </a>
-                <div class="sidebar-nav-item active">
+                <div class="sidebar-nav-item active" id="sidebar-job-deck-item">
                     <i data-lucide="layers" class="sidebar-nav-icon"></i> Job Deck
                 </div>
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
@@ -2522,6 +2522,10 @@
 
 
         // ─── Auth Guard: block unverified / unauthenticated / un-onboarded users ───
+        // "Hiring Posts" mode (?mode=hiring): the deck is made ONLY of Facebook hiring-post
+        // leads. The normal Job Deck never mixes them in, so cards no longer appear
+        // and disappear depending on which fetch finishes first.
+        var HIRING_MODE = new URLSearchParams(window.location.search).get('mode') === 'hiring';
         (async function authGuard() {
             const { data: { session } } = await supabaseClient.auth.getSession();
 
@@ -2662,7 +2666,7 @@
             }
             // Restore cached deck jobs for instant render on re-login
             // -- no loading spinner for returning users.
-            const cachedDeck = loadCachedDeckJobs(user.id);
+            const cachedDeck = HIRING_MODE ? null : loadCachedDeckJobs(user.id);
             if (cachedDeck && cachedDeck.jobs.length) {
                 pooledJobs = cachedDeck.jobs;
                 pooledJobIndex = cachedDeck.index;
@@ -2670,6 +2674,16 @@
                 const section = document.getElementById('swipe-deck-section');
                 if (section) section.style.display = 'block';
                 renderSwipeStack();
+            } else if (HIRING_MODE) {
+                    hideDeckLoading();
+                    const hiringPlaceholder = document.getElementById('deck-empty-state');
+                    if (hiringPlaceholder) {
+                        hiringPlaceholder.style.display = '';
+                        const h3 = hiringPlaceholder.querySelector('h3');
+                        const p = hiringPlaceholder.querySelector('p');
+                        if (h3) h3.textContent = 'Loading hiring posts...';
+                        if (p) p.textContent = 'Fetching recruiter posts matched to you.';
+                    }
             } else if (profile.deck_ready || poolAvailableCount > 0) {
                     // Jobs exist on server but no cache (new device). Hide the
                     // compass but show a lightweight placeholder in its place --
@@ -2707,7 +2721,7 @@
             if (!profile.has_seen_gap_caveat) {
                 document.getElementById('gap-caveat-modal').classList.add('active');
             }
-            fetchPooledJobs(user.id);
+            if (!HIRING_MODE) fetchPooledJobs(user.id);
 
             // Manual Mode Feature Gate (Test Account only)
             checkManualModeAccess(user.id);
@@ -2752,9 +2766,42 @@
                         .maybeSingle();
                     if (data && data.enabled) isAllowed = true;
                 }
-                if (isAllowed) await loadSocialLeadsIntoDeck(userId);
+                if (isAllowed) {
+                    injectHiringPostsNav();
+                    if (HIRING_MODE) await loadSocialLeadsIntoDeck(userId);
+                } else if (HIRING_MODE) {
+                    window.location.replace('swipe.html');
+                }
             } catch (err) {
                 console.error('checkSocialHiringAccess failed', err);
+            }
+        }
+
+        // Sidebar entry for Hiring Posts (founder test account / feature_access only).
+        // In hiring mode it is the active item and Job Deck becomes a plain link.
+        function injectHiringPostsNav() {
+            const nav = document.querySelector('.sidebar-nav');
+            if (!nav || document.getElementById('sidebar-hiring-posts-link')) return;
+            const jobDeck = document.getElementById('sidebar-job-deck-item');
+            if (HIRING_MODE && jobDeck) {
+                jobDeck.classList.remove('active');
+                jobDeck.style.cursor = 'pointer';
+                jobDeck.onclick = () => { window.location.href = 'swipe.html'; };
+            }
+            const link = document.createElement('a');
+            link.id = 'sidebar-hiring-posts-link';
+            link.className = 'sidebar-nav-item' + (HIRING_MODE ? ' active' : '');
+            link.href = 'swipe.html?mode=hiring';
+            link.style.cssText = 'text-decoration: none; color: inherit;';
+            link.innerHTML = '<i data-lucide="sparkles" class="sidebar-nav-icon"></i> Hiring Posts <span class="badge" style="margin-left:auto; font-size:0.7rem; background:#fef3c7; color:#b45309; padding:2px 7px; border-radius:6px; font-weight:700;">Beta</span>';
+            const manual = document.getElementById('sidebar-manual-jobs-link');
+            const anchor = manual || jobDeck;
+            if (anchor && anchor.nextSibling) nav.insertBefore(link, anchor.nextSibling);
+            else nav.appendChild(link);
+            if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+            if (HIRING_MODE) {
+                const title = document.querySelector('.page-title');
+                if (title) title.textContent = 'Hiring Posts';
             }
         }
 
@@ -2866,9 +2913,27 @@
                     fitsWorkplace(r.social_hiring_leads) && 
                     fitsLevel(r.social_hiring_leads)
                 ).map(socialLeadToJob);
-                if (!socialLeadJobs.length) return;
+                if (!socialLeadJobs.length) {
+                    if (HIRING_MODE) {
+                        hideDeckLoading();
+                        const es = document.getElementById('deck-empty-state');
+                        if (es) {
+                            es.style.display = '';
+                            const h3 = es.querySelector('h3');
+                            const p = es.querySelector('p');
+                            if (h3) h3.textContent = 'No hiring posts right now';
+                            if (p) p.textContent = 'Rover is watching Facebook groups and will add matching recruiter posts here.';
+                        }
+                    }
+                    return;
+                }
                 await loadConfirmedSkills(userId);
-                mergeSocialLeadsIntoDeck();
+                if (HIRING_MODE) {
+                    pooledJobs = socialLeadJobs.slice();
+                    pooledJobIndex = 0;
+                } else {
+                    mergeSocialLeadsIntoDeck();
+                }
                 if (pooledJobs.length > pooledJobIndex) {
                     hideDeckLoading();
                     const section = document.getElementById('swipe-deck-section');
@@ -2972,7 +3037,8 @@
                 // Show instant feedback toast
                 const toast = document.createElement('div');
                 toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18181b;color:#fff;padding:0.75rem 1.4rem;border-radius:10px;font-size:0.875rem;font-weight:700;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:0.5rem;animation:fadein 0.2s ease;';
-                toast.innerHTML = '<span>📝 Application drafted! Review in Dedicated Mailbox &rarr; Drafts.</span>';
+                toast.style.cursor = 'pointer'; toast.onclick = () => { window.location.href = 'dashboard.html#drafts'; };
+                toast.innerHTML = '<span>📝 Application drafted! Tap to review in Application Drafts &rarr;</span>';
                 document.body.appendChild(toast);
                 setTimeout(() => { toast.remove(); }, 3500);
             }
@@ -3016,7 +3082,7 @@
 
                     const sidebarNav = document.querySelector('.sidebar-nav');
                     if (sidebarNav && !document.getElementById('sidebar-manual-jobs-link')) {
-                        const jobDeckLink = sidebarNav.querySelector('.sidebar-nav-item.active') || sidebarNav.querySelector('a[href="swipe.html"]');
+                        const jobDeckLink = document.getElementById('sidebar-job-deck-item') || sidebarNav.querySelector('.sidebar-nav-item.active') || sidebarNav.querySelector('a[href="swipe.html"]');
                         const manualLink = document.createElement('a');
                         manualLink.id = 'sidebar-manual-jobs-link';
                         manualLink.className = 'sidebar-nav-item';
@@ -3350,6 +3416,7 @@
         const DECK_CACHE_VERSION = 7;
 
         function cacheDeckJobs(userId, jobs, index) {
+            if (HIRING_MODE) return;
             try {
                 // Facebook cards are reloaded fresh every visit, never cached.
                 const socialBefore = jobs.slice(0, index).filter(j => j && j.is_social).length;
@@ -3538,6 +3605,7 @@
         // cards (and scores them) server-side before the buffer runs low, this
         // just picks up anything new without disturbing the cards already shown.
         async function refreshDeckSilently() {
+            if (HIRING_MODE) return;
             try {
                 const { data, error } = await supabaseClient.functions.invoke('match-pool-jobs', { body: {} });
                 if (error) return;

@@ -866,3 +866,30 @@ is the sum of many small per-candidate steps, repeated on every page view.
 
 **Conclusion:** further function-level caching = whack-a-mole. The structural fix is to stop running
 the full match on every page view (precompute and store each user's deck; see next entry).
+
+## 30. CRITICAL: "Apply Manually" clicks were turned into REAL automated applications (found 2026-10-28)
+
+Found while answering the founder's "a link click is a false positive" point. Proof:
+- Every Free Job Deck "Apply Manually" click upserts `user_job_swipes` with decision `'apply'`
+  (`recordSwipe(job, 'apply')` in jobs.html).
+- n8n workflow **"Swipe to Apply"** (`9qNxbuJqSlCU5biZ`, main n8n, last edited 2026-10-27) has a second
+  trigger, **"Backstop - Hourly Swipe Check"**: every hour it reads `'apply'` swipes from the last 48 h
+  that have no matching `job_applications` row (older than 10 min) and feeds them straight into the
+  normal swipe path -> Resume Matching (tailored CV + cover letter) -> "Wake Up AutoApply Engine"
+  (bot submits) -> `Record Swipe` (resets the swipe's `created_at`). The "Replay Swipe" node is disabled,
+  but `Compute Stalled Swipes` is wired directly to `Normalize Webhook Input`, so the backstop is live.
+  `Get Job` uses `.first()`, so it processes ONE stalled swipe per run -> one application per hour.
+- Result for mosco (the only account with `feature_access.manual_mode`): 10 real applications in 24 h,
+  all at :01 past the hour, status `applied`, `credit_charged = true` (credits now 30/70), including every
+  job clicked "Apply Manually" today, in click order: 3M Consultancy 03:01, Axios 04:01, Hypori 05:01,
+  Northbeam 06:01, Keeper Security 07:01, Reddit 08:01, Andesite 09:01, CoverGo 10:01 (Lagos). Fit
+  scores null, `auto_apply_enabled = false` -> not the Auto-Apply toggle; it's the backstop.
+- Pending right now: 0 (all processed). No real user affected: the deck is gated to mosco only.
+- Second, related effect: `apply_slots_left()` counts `'apply'` swipes from the last 90 min with no
+  application as "pending" automation applications, so manual clicks also shrink the automation
+  credits a user is allowed to use, for 90 minutes.
+
+**Fix (proposed, not applied):** the Free Job Deck must never write `'apply'`. Record the click as
+"seen" (it leaves both decks; Back still undoes it) and log the click (already in `job_apply_clicks`);
+an explicit "Yes, I applied" confirmation records a manual application separately. Not launch-safe
+until this is changed.
