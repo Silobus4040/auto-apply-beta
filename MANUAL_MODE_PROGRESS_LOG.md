@@ -516,3 +516,77 @@ Verified: the Nigeria/On-site/Backend search dropped from 7 rows (including 2 So
 to 1 (only the genuine Lekki, Lagos, Nigeria posting). Confirmed remote region-matching is
 unaffected — Backend Engineer/Remote/Nigeria/global still returns the same 59 open / 60 check
 split as before this fix. Verified live via the exact reported repro in the browser.
+
+---
+
+## 19. Manual Mode rebuilt as a true deck on `find_matching_jobs` — commit `8ca8de9`
+
+Founder decided Manual Mode should be "on deck just like automation": same candidate-selection
+query automation's swipe deck uses, buttons just Pass / Apply-on-company-site, only skipping AI
+scoring and CV/cover-letter/auto-submit. This superseded the entire §8-18 search-board design
+(`search_board_jobs_v1`, keyword/country/workplace filters) — founder confirmed via two explicit
+choices: Pass/Apply write to `user_job_swipes` (shared dedup with automation, not separate), and
+the search bar is removed entirely (pure deck, no override).
+
+Replaced the whole filter UI and RPC with a single-card deck calling `find_matching_jobs` (->
+`deck_candidates_v3`) directly as the authenticated user — the **exact** function automation's
+`match-pool-jobs` edge function calls server-side (that edge function also does paid AI
+fit-scoring before queueing into `job_queue_assignments`; Manual Mode skips that step and
+everything downstream of it, read straight from the edge function's own deployed source, fetched
+via `get_edge_function`). Same profile-driven matching (target roles, country, workplace type,
+remote scope), same geo/level gating, same dedup against past activity — no client-side prefill
+needed since `find_matching_jobs(p_user_id, ...)` reads the profile server-side itself.
+
+Pass and Apply both write to `user_job_swipes` with the same `decision` values (`'skip'`/`'apply'`)
+and the same upsert shape (`onConflict: 'user_id,job_pool_id'`) automation's `swipe.html` uses
+(`finishSwipe`/`submitApplyForJob`) — so a job seen in either mode won't reappear in the other.
+Unlike automation's own Apply swipe, `applyCurrentJob()` never calls the AI-tailoring/auto-submit
+webhook and never touches `applications_limit`/`application_credit_used`.
+
+**Required real backend fixes to make this callable at all**, not just a frontend change:
+automation has only ever invoked `find_matching_jobs`/`deck_candidates_v3` server-side with a
+service-role key, which bypasses RLS. Verified via an impersonated-authenticated-role SQL call
+(`set local role authenticated; set local request.jwt.claims = ...`) before touching the
+frontend, and found `job_title_labels`/`std_role_neighbors`/`country_regions`/`job_geo_checks`/
+`location_names_v2`/`location_patterns_v2` all had RLS enabled with **zero policies** (same bug
+pattern as the earlier `feature_access` incident), and `job_level` lacked even a table grant —
+every one of these would have silently (`job_title_labels`) or loudly (`job_level`: hard
+permission-denied error) blocked a real end-user call. Added read-only policies/grants for
+`authenticated` on all of them (reference/lookup data, nothing user-specific), plus `EXECUTE` on
+`geo_gate_v2` (migrations `allow_authenticated_read_deck_matching_reference_tables`,
+`allow_authenticated_read_job_level`).
+
+Verified live end-to-end as mosco (real authenticated session, not superuser): deck loaded
+matching the impersonated-SQL candidate count exactly; Pass recorded `decision='skip'` in
+`user_job_swipes` for the right `job_pool_id` and advanced to card 2; Apply recorded
+`decision='apply'` for the right job and left `application_credit_used` unchanged (confirmed
+before and after).
+
+---
+
+## 20. Deck visibility parity fixed: `p_include_check` must be `false` — commit `292dbdc`
+
+The §19 rebuild shipped with `p_include_check: true`, which asks `find_matching_jobs` for
+ambiguous (`geo_status='check'`) jobs too, rendering them with an "Eligibility: please verify"
+badge. Founder pushed back hard on this specific badge showing on a real card, which led to
+reading `match-pool-jobs`'s actual deployed source (fetched via `get_edge_function`, not assumed):
+its final query is `job_gate_v3(...) where g.eligible`, and `eligible` requires
+`geo_status = 'open'` specifically — automation **never** shows a `'check'` job to a real user, it
+silently withholds it until a background worker resolves it one way or the other. For "the full
+job calling must be same" to actually hold, Manual Mode can't show more than the real deck does
+either.
+
+Set `p_include_check: false` and dropped the now-dead badge (`geo_status` can no longer be
+`'check'` on any row `find_matching_jobs` returns with that flag false). Verified live after the
+separate geo-check pipeline fix landed (see founder's Run 202 in the main `stagehand_poc`
+`PROGRESS_LOG.md`, fetched from `origin/master` directly since the local worktree copy was two
+weeks stale — queue drained 640 -> 0, model migrated `typesafe/jev-router` ->
+`cf-llama-3.3-70b-jev-v1` on Cloudflare): mosco's deck correctly shows "Job 1 of 8", matching the
+live open-candidate count verified independently via an impersonated-role SQL call, no badge.
+
+**Standing lesson from this whole thread, worth repeating:** this session's own understanding of
+`deck_candidates_v3`/`job_gate_v3` went stale mid-session (the 48-hour freshness window was
+removed system-wide in master's Run 201, between when this thread first read those functions and
+when it re-read them days later) — always re-fetch live function definitions and check
+`origin/master`'s `PROGRESS_LOG.md`/`TRACKER.md` before trusting cached understanding of a
+fast-moving shared system, not just this session's own earlier tool results.
