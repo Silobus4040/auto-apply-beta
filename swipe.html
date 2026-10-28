@@ -1653,8 +1653,6 @@
            marooning it above the action bar on tall mobile screens. */
         /* Reminder on cards for jobs the user already opened with Apply Manually in the Free Job Deck */
         .swipe-card-opened { margin-top: 0.6rem; padding: 0.55rem 0.7rem; border-radius: 12px; background: rgba(0, 204, 153, 0.08); border: 1px solid rgba(0, 204, 153, 0.3); font-size: 0.8rem; font-weight: 700; line-height: 1.35; flex-shrink: 0; }
-        .swipe-card-opened button { display: block; margin-top: 0.35rem; padding: 0; background: transparent; border: none; color: var(--secondary); font-size: 0.8rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); width: fit-content; }
-        .swipe-card-opened button:disabled { opacity: 0.6; cursor: default; }
         .swipe-card-readmore { position: static; align-self: flex-start; margin-top: 0.75rem; padding: 0; background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; border-bottom: 1px dashed var(--secondary); width: fit-content; flex-shrink: 0; }
         /* The card is a fixed-height flex column, so on short screens (or a tall
            card: salary row + geo badge + several gap tags) the content can exceed
@@ -4159,7 +4157,7 @@
         // Jobs the user opened with "Apply Manually" in the Free Job Deck (job_apply_clicks,
         // written by the myrolerover.com/go redirect). Clicking never removes a job from this
         // deck -- we can't tell whether they really applied -- so these cards show a reminder
-        // with an "I already applied" button (rr_mark_manual_applied). Auto-Apply is untouched.
+        // telling them to tap Decline if they did. Auto-Apply is untouched.
         const openedClicks = new Map(); // job_pool_id -> first clicked_at (ISO)
         let openedClicksLoadedAt = 0;
         async function loadOpenedClicks() {
@@ -4193,23 +4191,9 @@
             if (!job || job.is_social || !openedClicks.has(job.id)) return '';
             const when = new Date(openedClicks.get(job.id));
             const day = isNaN(when) ? '' : ` on ${when.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}`;
-            return `<div class="swipe-card-opened">🔗 You opened this job yourself${day}.
-                <button type="button" onclick="event.stopPropagation(); markOpenedJobApplied('${escapeHtml(String(job.id))}', this)">I already applied, remove it</button>
-            </div>`;
-        }
-
-        async function markOpenedJobApplied(jobId, btn) {
-            if (btn) btn.disabled = true;
-            const { error } = await supabaseClient.rpc('rr_mark_manual_applied', { p_job_id: jobId, p_source: 'automation_card' });
-            if (error) {
-                console.error('Failed to save "I already applied":', error);
-                if (btn) btn.disabled = false;
-                return;
-            }
-            const idx = pooledJobs.findIndex(j => j.id === jobId);
-            if (idx >= pooledJobIndex) pooledJobs.splice(idx, 1);
-            if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
-            renderSwipeStack();
+            // Text only. Decline already writes 'skip', which removes the job from this deck,
+            // so a separate "I already applied" button would do the same thing.
+            return `<div class="swipe-card-opened">🔗 <strong>Reminder:</strong> You opened this job from the Free Job Deck${day}. If you've already applied, tap <strong>Decline</strong>.</div>`;
         }
 
         function renderSwipeStack() {

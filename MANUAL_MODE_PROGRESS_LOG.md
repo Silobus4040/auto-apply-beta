@@ -950,3 +950,18 @@ triggers the n8n backstop or `apply_slots_left()`. Nothing treats `'skip'` as a 
 - mosco's 10 credits charged by the §30 backstop were not refunded (founder's call).
 - Old 'apply' swipes written by the buggy version still exist for mosco; harmless now (all processed).
 - Architecture work from earlier (shared list, refill without scoring, throttle) is NOT built yet.
+
+### 31a. Automation-card reminder reworded; why "Scoring your fit..." stayed forever on the test cards (2026-10-28)
+
+- Founder tested live. Reminder is now text only: "Reminder: You opened this job from the Free Job
+  Deck on 28 Oct. If you've already applied, tap Decline." The "I already applied, remove it" button was
+  removed: Decline already writes `'skip'`, which hides the job in both decks, so the button did the same
+  thing. (`rr_mark_manual_applied` still serves the Free Job Deck's "I applied" bar.)
+- "Scoring your fit..." on Seeq (pinned test card) for 30+ min: NOT a scoring fault. Proof (mosco):
+  84 gate-eligible unswiped jobs, 13 already scored. `match-pool-jobs` (v82) only asks for a new
+  scoring batch when FEWER THAN 5 scored eligible jobs are left (`SCORE_TOPUP_THRESHOLD = 5`), and the
+  hourly background sweep gives test accounts `score_budget = 0`. No scoring request has been sent for
+  mosco since 2026-10-28 01:37 UTC and Seeq has no `score_send_log` row. Seeq is gate-eligible and would be
+  first in line (`jobs_needing_score_v3` orders by `sequence_no`, pins are negative) -- it just is never
+  asked for. I pinned it at the front by hand (`sequence_no = -14`), ahead of the 13 scored jobs. In a
+  normal deck unscored jobs sit behind scored ones (deck sorts by fit score, nulls last).
