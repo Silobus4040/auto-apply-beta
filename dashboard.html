@@ -2923,7 +2923,7 @@
                         toggleDiv.style.cssText = 'display: inline-flex; background: rgba(0,0,0,0.06); padding: 3px; border-radius: 999px; margin-top: 0.4rem; gap: 2px; border: 1px solid var(--border);';
                         toggleDiv.innerHTML = `
                             <a href="dashboard.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; background: #000; color: #fff; display: inline-flex; align-items: center; gap: 0.3rem;">⚡ Automation</a>
-                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; color: var(--text-body); display: inline-flex; align-items: center; gap: 0.3rem;">📋 Manual Mode</a>
+                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; color: var(--text-body); display: inline-flex; align-items: center; gap: 0.3rem;">📋 Free Job Deck</a>
                         `;
                         const titleArea = pageHeader.querySelector('div');
                         if (titleArea) titleArea.appendChild(toggleDiv);
@@ -2938,7 +2938,7 @@
                         manualLink.className = 'sidebar-nav-item';
                         manualLink.href = 'jobs.html';
                         manualLink.style.cssText = 'text-decoration: none; color: inherit;';
-                        manualLink.innerHTML = '<i data-lucide="briefcase" class="sidebar-nav-icon"></i> Job Board (Manual)';
+                        manualLink.innerHTML = '<i data-lucide="briefcase" class="sidebar-nav-icon"></i> Free Job Deck';
                         if (jobDeckLink && jobDeckLink.nextSibling) {
                             sidebarNav.insertBefore(manualLink, jobDeckLink.nextSibling);
                         } else {

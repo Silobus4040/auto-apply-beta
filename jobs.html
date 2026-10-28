@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Role Rover - Job Board (Manual Mode)</title>
+    <title>Role Rover - Free Job Deck</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -436,9 +436,17 @@
         }
 
         /* Mobile Responsive */
+        .sidebar-backdrop {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
+            z-index: 99;
+        }
         @media (max-width: 900px) {
             .app-sidebar { transform: translateX(-100%); }
             .app-sidebar.open { transform: translateX(0); }
+            .sidebar-backdrop.open { display: block; }
             .app-main { margin-left: 0; }
             .board-container { flex-direction: column; }
             .job-detail-pane { position: static; max-height: none; }
@@ -456,6 +464,9 @@
 </head>
 <body>
     <div class="app-layout">
+        <!-- Mobile sidebar backdrop: clicking it (or Escape) closes the menu, same as
+             tapping a nav item -- previously nothing caught an outside click at all. -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop" onclick="toggleSidebar()"></div>
         <!-- Sidebar -->
         <aside class="app-sidebar" id="app-sidebar">
             <div class="sidebar-logo-area">
@@ -469,7 +480,7 @@
                     <i data-lucide="layers" class="sidebar-nav-icon"></i> Job Deck
                 </a>
                 <a class="sidebar-nav-item active" href="jobs.html">
-                    <i data-lucide="briefcase" class="sidebar-nav-icon"></i> Job Board (Manual)
+                    <i data-lucide="briefcase" class="sidebar-nav-icon"></i> Free Job Deck
                 </a>
                 <button class="sidebar-nav-item" onclick="window.location.href='dashboard.html#inbox'">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
@@ -489,10 +500,10 @@
                         <i data-lucide="menu"></i>
                     </button>
                     <div class="header-title-box">
-                        <h1>Job Board</h1>
+                        <h1>Free Job Deck</h1>
                         <div class="mode-toggle">
                             <a href="dashboard.html">⚡ Automation</a>
-                            <a href="jobs.html" class="active">📋 Manual Mode</a>
+                            <a href="jobs.html" class="active">📋 Free Job Deck</a>
                         </div>
                     </div>
                 </div>
@@ -547,7 +558,13 @@
 
         function toggleSidebar() {
             document.getElementById('app-sidebar').classList.toggle('open');
+            document.getElementById('sidebar-backdrop').classList.toggle('open');
         }
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape' && document.getElementById('app-sidebar').classList.contains('open')) {
+                toggleSidebar();
+            }
+        });
 
         async function logout() {
             await supabaseClient.auth.signOut();
@@ -638,7 +655,7 @@
                 const container = document.getElementById('job-detail-container');
                 if (container) {
                     container.innerHTML = `<div style="text-align: center; padding: 3rem 1rem; color: #ef4444;">
-                        Could not load the Job Board: ${escapeHtml(err.message || String(err))}.<br>
+                        Could not load the Free Job Deck: ${escapeHtml(err.message || String(err))}.<br>
                         Please refresh, or go back to the <a href="dashboard.html">dashboard</a>.
                     </div>`;
                 }
