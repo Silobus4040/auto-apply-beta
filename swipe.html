@@ -1901,10 +1901,6 @@
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
-                <button id="sidebar-drafts-item" class="sidebar-nav-item" onclick="openEmailClient('drafts'); if(window.innerWidth<=768) toggleSidebar();" style="display: none;">
-                    <i data-lucide="file-edit" class="sidebar-nav-icon"></i> Application Drafts
-                    <span class="sidebar-badge" id="sidebar-drafts-badge" style="display:none; background:#2563eb; color:#fff;">0</span>
-                </button>
                 <button class="sidebar-nav-item" onclick="goToMarketIntel(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Skill gap
                 </button>
@@ -6194,10 +6190,6 @@
             if (draftsTab) {
                 draftsTab.style.display = isFounder ? 'flex' : 'none';
             }
-            const sidebarDrafts = document.getElementById('sidebar-drafts-item');
-            if (sidebarDrafts) {
-                sidebarDrafts.style.display = isFounder ? 'flex' : 'none';
-            }
 
             if (!isFounder) return;
 
@@ -6209,15 +6201,10 @@
                     .eq('user_id', uid)
                     .eq('category', 'draft');
                 const badge = document.getElementById('drafts-badge');
-                const sideDraftBadge = document.getElementById('sidebar-drafts-badge');
                 const num = count || 0;
                 if (badge) {
                     badge.textContent = num;
                     badge.style.display = num > 0 ? 'inline-block' : 'none';
-                }
-                if (sideDraftBadge) {
-                    sideDraftBadge.textContent = num;
-                    sideDraftBadge.style.display = num > 0 ? 'inline-block' : 'none';
                 }
             } catch (e) {
                 console.warn('Failed to fetch drafts badge:', e);

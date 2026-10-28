@@ -2880,24 +2880,6 @@
                 }
             }
 
-            // 2. Application Drafts button in sidebar (directly opens mailbox on Drafts tab)
-            if (!document.getElementById('sidebar-drafts-item')) {
-                const mailboxBtn = sidebarNav.querySelector('button[onclick*="openEmailClient"]');
-                const draftsBtn = document.createElement('button');
-                draftsBtn.id = 'sidebar-drafts-item';
-                draftsBtn.className = 'sidebar-nav-item';
-                draftsBtn.onclick = () => {
-                    openEmailClient('drafts');
-                    if (window.innerWidth <= 768) toggleSidebar();
-                };
-                draftsBtn.innerHTML = '<i data-lucide="file-edit" class="sidebar-nav-icon"></i> Application Drafts <span class="sidebar-badge" id="sidebar-drafts-badge" style="display:none; background:#2563eb; color:#fff;">0</span>';
-                if (mailboxBtn && mailboxBtn.nextSibling) {
-                    sidebarNav.insertBefore(draftsBtn, mailboxBtn.nextSibling);
-                } else if (mailboxBtn) {
-                    sidebarNav.appendChild(draftsBtn);
-                }
-            }
-
             if (window.lucide && typeof window.lucide.createIcons === 'function') {
                 window.lucide.createIcons();
             }
@@ -5055,10 +5037,6 @@
             if (draftsTab) {
                 draftsTab.style.display = isFounder ? 'flex' : 'none';
             }
-            const sidebarDrafts = document.getElementById('sidebar-drafts-item');
-            if (sidebarDrafts) {
-                sidebarDrafts.style.display = isFounder ? 'flex' : 'none';
-            }
             const sidebarHiring = document.getElementById('sidebar-hiring-posts-link');
             if (sidebarHiring) {
                 sidebarHiring.style.display = isFounder ? 'flex' : 'none';
@@ -5074,15 +5052,10 @@
                     .eq('user_id', uid)
                     .eq('category', 'draft');
                 const badge = document.getElementById('drafts-badge');
-                const sideDraftBadge = document.getElementById('sidebar-drafts-badge');
                 const num = count || 0;
                 if (badge) {
                     badge.textContent = num;
                     badge.style.display = num > 0 ? 'inline-block' : 'none';
-                }
-                if (sideDraftBadge) {
-                    sideDraftBadge.textContent = num;
-                    sideDraftBadge.style.display = num > 0 ? 'inline-block' : 'none';
                 }
             } catch (e) {
                 console.warn('Failed to fetch drafts badge:', e);
