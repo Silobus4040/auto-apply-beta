@@ -2980,19 +2980,25 @@
 
         // Badges for a Facebook card, in the slot ATS cards use for the
         // remote-scope badge. One color, the words carry the difference.
+        function isGenericCompanyName(name) {
+            if (!name) return true;
+            const lower = String(name).toLowerCase().trim();
+            return ['facebook group', 'facebook post', 'facebook', 'company', 'unknown', 'n/a', 'none', 'no company name on post'].includes(lower);
+        }
+
         function buildSocialBadges(job) {
-            // "No scam reports found" is only honest when a check actually ran
-            // (status clear). A post with no named employer is never checked
-            // (status skipped), so it gets the unverified tag instead.
+            const hasRealCompany = job.company_name && !isGenericCompanyName(job.company_name);
             let scam;
-            if (job.fraud_check_status === 'flagged') {
-                scam = '<div class="social-lead-scam-badge scam-flagged">⚠️ Possible scam reports found</div>';
+            if (!hasRealCompany) {
+                scam = '<div class="social-lead-level-badge">Employer not named · verify before applying</div>';
+            } else if (job.fraud_check_status === 'flagged') {
+                scam = '<div class="social-lead-scam-badge scam-flagged">Possible scam reports found</div>';
             } else if (job.fraud_check_status === 'clear') {
-                scam = '<div class="social-lead-scam-badge">🛡️ No scam reports found</div>';
+                scam = '<div class="social-lead-scam-badge">No scam reports found</div>';
             } else if (job.fraud_check_status === 'pending') {
-                scam = '<div class="social-lead-level-badge">⏳ Scam check not finished yet</div>';
+                scam = '<div class="social-lead-level-badge">Scam check not finished yet</div>';
             } else {
-                scam = '<div class="social-lead-level-badge">🏷️ Employer not identified — verify before applying</div>';
+                scam = '<div class="social-lead-level-badge">Employer not identified · verify before applying</div>';
             }
             const level = (job.detected_job_level === null || job.detected_job_level === undefined)
                 ? '<div class="social-lead-level-badge">❓ Level unclear — check before applying</div>'
@@ -3809,8 +3815,11 @@
         }
 
         function cleanCompanyName(raw) {
-            if (!raw) return '';
+            if (!raw) return 'No company name on post';
             let name = String(raw).trim();
+            if (['facebook group', 'facebook post', 'facebook', 'company', 'unknown', 'n/a', 'none', 'undefined', 'null', 'no company name on post'].includes(name.toLowerCase())) {
+                return 'No company name on post';
+            }
             name = name.replace(/\.zohorecruit\.(com|in|eu|net)$/i, '');
             name = name.replace(/[-_.]zohorecruit$/i, '');
             name = name.replace(/\s+(Careers\s*Page|Careers|Jobs|Job\s*Openings)$/i, '');
@@ -6280,7 +6289,7 @@
                     roleTitle = subj;
                 }
             }
-            const genericCompanies = ['facebook group', 'facebook', 'company', 'unknown', 'n/a', 'none', 'undefined', 'null', 'direct recruiter'];
+            const genericCompanies = ['no company name on post', 'facebook group', 'facebook', 'company', 'unknown', 'n/a', 'none', 'undefined', 'null', 'direct recruiter'];
             let safeCompany = '';
             if (companyName && !genericCompanies.includes(companyName.toLowerCase().trim())) {
                 safeCompany = companyName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);

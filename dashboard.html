@@ -3145,8 +3145,11 @@
         }
 
         function cleanCompanyName(raw) {
-            if (!raw) return '';
+            if (!raw) return 'No company name on post';
             let name = String(raw).trim();
+            if (['facebook group', 'facebook post', 'facebook', 'company', 'unknown', 'n/a', 'none', 'undefined', 'null', 'no company name on post'].includes(name.toLowerCase())) {
+                return 'No company name on post';
+            }
             name = name.replace(/\.zohorecruit\.(com|in|eu|net)$/i, '');
             name = name.replace(/[-_.]zohorecruit$/i, '');
             name = name.replace(/\s+(Careers\s*Page|Careers|Jobs|Job\s*Openings)$/i, '');
@@ -5113,7 +5116,7 @@
                     roleTitle = subj;
                 }
             }
-            const genericCompanies = ['facebook group', 'facebook', 'company', 'unknown', 'n/a', 'none', 'undefined', 'null', 'direct recruiter'];
+            const genericCompanies = ['no company name on post', 'facebook group', 'facebook', 'company', 'unknown', 'n/a', 'none', 'undefined', 'null', 'direct recruiter'];
             let safeCompany = '';
             if (companyName && !genericCompanies.includes(companyName.toLowerCase().trim())) {
                 safeCompany = companyName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
