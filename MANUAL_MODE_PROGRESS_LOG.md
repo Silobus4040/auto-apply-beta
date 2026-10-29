@@ -1070,3 +1070,41 @@ needs the same manual `net.http_post` trigger used there, not normal swiping.
 **What this is NOT:** not a "100 scores per day" rule, no new number was invented, nothing was deployed
 to the `match-pool-jobs` edge function (fix lives entirely in the shared SQL function it already calls).
 Free Job Deck unaffected -- it never calls any scoring function.
+
+## 34. True 50-concurrent test, before opening the Free Job Deck to more users (2026-10-29)
+
+Founder asked to test the two gaps flagged in §32/§33 before lifting the mosco-only gate. Only ~10
+real test accounts in this database have a complete onboarding profile, so a genuine 50-distinct-user
+test needed more identities. Founder chose: create real synthetic test accounts rather than reuse
+fewer real ones. Built 30 via the Auth Admin API (`email_confirm:true`, no email sent), with real
+profiles (resume, onboarding_complete, one of 10 well-populated target roles each -- verified each
+returns 20/20 real matches from `deck_candidates_v3` before testing). Marked in `test_accounts`
+immediately (excluded from all `ops_*` reports). Combined with the ~9-10 real complete accounts that
+genuinely needed a refill right now (no thresholds changed, real production settings throughout:
+cap 5, low-threshold 20).
+
+**Test 1 -- full page load (`rr_free_deck_ids` + the `job_pool` detail fetch, the exact two calls
+`loadDeck()` makes), 49 real distinct users, genuinely concurrent:** 49/49 succeeded, avg 3.5s, p90
+4.5s, max 5.1s. No failures. This is the step every single Free Job Deck visit hits -- solid.
+
+**Test 2 -- 39 users who all genuinely needed a refill at the same instant (30 brand-new + 9 real),
+one real production cap-5 burst:** 5 got a slot (11-15s each under load), 34 got `busy` within
+1.3-1.8s. **Then simulated the real client retry loop** (`jobs.html`'s `requestRefill(true)`: up to 8
+tries, 2.5s+1s/attempt backoff, ~48s total budget) for all 39 at once: **23/39 (59%) succeeded within
+the retry window, 16/39 (41%) exhausted their retries and would see "Lots of people are searching
+right now... Try again."** No server errors; this is a real-but-survivable capacity gap, not a crash
+-- a user who gives up and taps "Try again" would very likely succeed shortly after, since the cap-5
+queue keeps draining in the background. This scenario (dozens of users with an EMPTY list at the
+exact same instant) is narrower than every page view -- most real users already have a saved list
+from onboarding before they ever reach the Free Job Deck.
+
+**Cleanup (verified):** all 1,050 queued jobs, 30 `deck_refill_state`/`profile_target_roles`/
+`test_accounts`/`profiles` rows, and all 30 auth users deleted; 0 remaining
+`freedeckloadtest*@leadscompass.ai` rows anywhere. `rr_throttle_settings` untouched (cap 5, low 20)
+throughout -- confirmed before and after. The 9 real accounts keep the real jobs/cooldown state the
+refill call legitimately gave them (same as normal use, nothing to revert).
+
+**Open question for the founder:** whether to raise the client's retry patience (cheap, no DB-load
+change), cautiously raise the cap above 5 (cap 10 previously caused real HTTP 500s under 12-user
+load, §32), or accept the current ~41% first-try "try again" rate for the narrow empty-list-burst
+case before opening `feature_access.manual_mode` beyond mosco. Not decided or changed.
