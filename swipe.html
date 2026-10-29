@@ -1739,6 +1739,9 @@
 
         /* ===== Action bar — fused to the bottom of the top card, no gap/seam ===== */
         .swipe-actions{
+            position: relative !important;
+            z-index: 100 !important;
+            pointer-events: auto !important;
             display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1.32fr) minmax(0, 1fr);
             gap: 0.65rem !important; margin-top: 0 !important;
             background: linear-gradient(160deg, rgba(255,255,255,.84), rgba(255,255,255,.68)) !important;
@@ -1751,6 +1754,10 @@
             box-shadow: 0 34px 60px -22px rgba(6,10,26,.62), 0 10px 24px -14px rgba(6,10,26,.5) !important;
         }
         .swipe-btn{
+            position: relative !important;
+            z-index: 101 !important;
+            pointer-events: auto !important;
+            cursor: pointer !important;
             width: 100% !important; height: 50px !important; min-width: 0 !important; border-radius: 999px !important;
             padding: 0 0.7rem; gap: .4rem; font-size: .78rem !important; font-weight: 800; letter-spacing: .2px;
             text-transform: uppercase;
@@ -3013,20 +3020,24 @@
                     </div>
                 </div>` : '';
 
-            let reasonHtml = '';
-            if (job.fit_reason) {
-                const { preview, needsMore } = truncateReasonWords(job.fit_reason);
-                reasonHtml = `
-                    <div class="swipe-card-fit-reason-wrap">
-                        <span class="swipe-card-fit-reason" id="fit-reason-${jobIndex}">${escapeHtml(preview)}</span>
-                        ${needsMore ? `<button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); showFitReasonModal(${jobIndex})">more</button>` : ''}
-                    </div>`;
-            } else {
-                reasonHtml = `
-                    <div class="swipe-card-fit-reason-wrap">
-                        <span class="swipe-card-fit-reason">Matched for ${escapeHtml(job.search_keyword || 'this role')}</span>
-                    </div>`;
+            function humanizeFitReason(text) {
+                if (!text) return '';
+                return String(text)
+                    .replace(/\bthe candidate's\b/gi, 'your')
+                    .replace(/\bcandidate's\b/gi, 'your')
+                    .replace(/\bthe candidate\b/gi, 'you')
+                    .replace(/\bStrong candidate foundation\b/gi, 'Your background provides a strong foundation')
+                    .replace(/\bcandidate\b/gi, 'you');
             }
+
+            let reasonHtml = '';
+            const rawReason = job.fit_reason ? humanizeFitReason(job.fit_reason) : `Your profile directly matches the core operational responsibilities for ${job.search_keyword || 'this role'}.`;
+            const { preview, needsMore } = truncateReasonWords(rawReason);
+            reasonHtml = `
+                <div class="swipe-card-fit-reason-wrap">
+                    <span class="swipe-card-fit-reason" id="fit-reason-${jobIndex}">${escapeHtml(preview)}</span>
+                    ${needsMore ? `<button type="button" class="swipe-card-fit-more" onclick="event.stopPropagation(); showFitReasonModal(${jobIndex})">more</button>` : ''}
+                </div>`;
 
             return `
                 <div class="swipe-card-fit-badge fit-high">
@@ -4364,7 +4375,14 @@
             const modalText = document.getElementById('modal-text');
             modalText.classList.remove('gap-list');
             modalText.style.cssText = '';
-            modalText.innerText = job.fit_reason || '';
+            const reason = job.fit_reason ? String(job.fit_reason)
+                .replace(/\bthe candidate's\b/gi, 'your')
+                .replace(/\bcandidate's\b/gi, 'your')
+                .replace(/\bthe candidate\b/gi, 'you')
+                .replace(/\bStrong candidate foundation\b/gi, 'Your background provides a strong foundation')
+                .replace(/\bcandidate\b/gi, 'you')
+                : `Your profile directly matches the core operational responsibilities for ${job.search_keyword || 'this role'}.`;
+            modalText.innerText = reason;
             document.getElementById('desc-modal').classList.add('active');
         }
 
