@@ -5066,6 +5066,24 @@
             }
         }
 
+        
+        async function handleDraftResumeClick(e, primaryUrl, fallbackUrl) {
+            if (!primaryUrl) return;
+            e.preventDefault();
+            try {
+                const res = await fetch(primaryUrl, { method: 'HEAD' });
+                if (res.ok) {
+                    window.open(primaryUrl, '_blank');
+                    return;
+                }
+            } catch (err) {}
+            if (fallbackUrl && fallbackUrl !== primaryUrl) {
+                window.open(fallbackUrl, '_blank');
+            } else {
+                window.open(primaryUrl, '_blank');
+            }
+        }
+
         function renderDraftDetailView(email, index) {
             const pane = document.getElementById('email-content-pane');
             if (!pane) return;
@@ -5091,13 +5109,19 @@
                 const appForMatch = subj.match(/Application\s+for\s+(.+?)(?:\s+at\s+(.+))?$/i);
                 if (appForMatch) {
                     roleTitle = appForMatch[1].trim();
-                    if (appForMatch[2] && !companyName) companyName = appForMatch[2].trim();
+                    if (appForMatch[2] && !companyName) {
+                        const parsedComp = appForMatch[2].trim();
+                        if (!['facebook group', 'facebook', 'company'].includes(parsedComp.toLowerCase())) {
+                            companyName = parsedComp;
+                        }
+                    }
                 } else {
                     roleTitle = subj;
                 }
             }
+            const genericCompanies = ['facebook group', 'facebook', 'company', 'unknown', 'n/a', 'none', 'undefined', 'null', 'direct recruiter'];
             let safeCompany = '';
-            if (companyName && !['company', 'undefined', 'null'].includes(companyName.toLowerCase().trim())) {
+            if (companyName && !genericCompanies.includes(companyName.toLowerCase().trim())) {
                 safeCompany = companyName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
             }
             const safeTitle = roleTitle.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
@@ -5105,6 +5129,7 @@
                 ? `${firstName}_${lastName}_${safeTitle}_${safeCompany}.pdf`
                 : `${firstName}_${lastName}_${safeTitle}.pdf`;
             const resumeUrl = `https://ahpvdcdpwtdeoiatjvnq.supabase.co/storage/v1/object/public/tailored-resumes/${userId}/${atsResumeFilename}`;
+            const baseResumeUrl = (typeof userProfile !== 'undefined' && userProfile?.resume_url) ? userProfile.resume_url : resumeUrl;
 
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%; background: #fff; overflow-y: auto;">
@@ -5136,10 +5161,10 @@
                     </div>
 
                     <div style="padding: 1.5rem; flex: 1;">
-                        <a href="${resumeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: #18181b; text-decoration: none; margin-bottom: 1.5rem; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#3b82f6';this.style.background='#f8fafc';" onmouseout="this.style.borderColor='var(--border)';this.style.background='#fff';" title="Click to view attached resume">
+                        <a href="${resumeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleDraftResumeClick(event, '${resumeUrl}', '${baseResumeUrl}')" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: #18181b; text-decoration: none; margin-bottom: 1.5rem; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#3b82f6';this.style.background='#f8fafc';" onmouseout="this.style.borderColor='var(--border)';this.style.background='#fff';" title="Click to view attached resume">
                             <i data-lucide="paperclip" style="width: 15px; height: 15px; color: #2563eb;"></i>
                             <span style="color: #2563eb; text-decoration: underline;">${escapeHtml(atsResumeFilename)}</span>
-                            <span style="color: #10b981; font-size: 0.75rem; text-decoration: none; font-weight: 600;">(Tailored PDF Attached)</span>
+                            
                         </a>
 
                         <div id="draft-body-view-${index}" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 0.95rem; line-height: 1.7; color: #18181b; white-space: pre-wrap; background: #fff; padding: 1.2rem; border: 1px solid var(--border); border-radius: 8px;">${escapeHtml(cleanBody)}</div>
