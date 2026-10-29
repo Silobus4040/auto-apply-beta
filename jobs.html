@@ -687,7 +687,7 @@
             <div id="deck-progress" style="padding: 1.25rem 2rem 0; font-size: 0.9rem; font-weight: 700; color: #71717A;"></div>
 
             <!-- Deck: one job at a time, same candidate pool automation's own swipe deck
-                 draws from (find_matching_jobs / deck_candidates_v3) -- just Pass or Apply
+                 draws from (the saved list in job_queue_assignments, refilled with deck_candidates_v3) -- just Pass or Apply
                  on the company's own site yourself, no AI scoring or CV/cover-letter. -->
             <div class="board-container">
                 <div class="job-detail-pane" id="job-detail-container">
@@ -815,7 +815,7 @@
                 }
 
                 // Fetch profile for credits + the application email tip (deck candidate
-                // selection itself reads the profile server-side inside find_matching_jobs,
+                // selection itself reads the profile server-side inside rr_free_deck_refill,
                 // via p_user_id -- no client-side prefill of target roles/country/workplace
                 // needed anymore, since there's no search UI to prefill).
                 const { data: profile, error: profileError } = await supabaseClient
@@ -852,6 +852,95 @@
             }
         })();
 
+        // ---- Deck loading (saved list + throttled background refill) -----------------
+        // The Free Job Deck reads the SAME saved list automation uses (job_queue_assignments),
+        // through rr_free_deck_ids: a cheap read that keeps only still-active jobs that pass the
+        // same job_gate_v3 check automation's own deck uses, minus jobs already swiped and minus
+        // jobs this user opened with Apply Manually (those leave THIS deck only; automation keeps
+        // them with a reminder). It does NOT re-run the full job search on every page view any
+        // more (that search took ~7s per call and failed for every user in a 50-at-once test).
+        // When the list runs low, rr_free_deck_refill finds new matches with the same search
+        // (deck_candidates_v3) and appends them to the saved list. That refill is throttled on the
+        // server (one at a time per user, a small cap across all users) and NEVER sends anything
+        // to the AI scoring / enrichment workflows, so the Free Job Deck costs no AI money.
+        // MANUAL_MODE_PROGRESS_LOG.md section 32.
+        const DECK_LOW_REMAINING = 15;   // ask for more jobs when this few are left to swipe
+        let refillInFlight = false;
+        let lastRefillAttemptAt = 0;
+        const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+        // Asks the server to refill the saved list. With waitIfBusy it keeps retrying while the
+        // server says other users' refills are using every slot ('busy' / 'in_progress').
+        async function requestRefill(waitIfBusy) {
+            if (refillInFlight) return 'in_progress';
+            refillInFlight = true;
+            lastRefillAttemptAt = Date.now();
+            try {
+                const maxTries = waitIfBusy ? 8 : 1;
+                for (let attempt = 0; attempt < maxTries; attempt++) {
+                    const { data, error } = await supabaseClient.rpc('rr_free_deck_refill');
+                    if (error) {
+                        console.warn('Refill request failed:', error);
+                        if (!waitIfBusy) return 'error';
+                        await sleep(3000);
+                        continue;
+                    }
+                    const status = data && data.status;
+                    if (status === 'busy' || status === 'in_progress') {
+                        if (!waitIfBusy) return status;
+                        await sleep(2500 + attempt * 1000);
+                        continue;
+                    }
+                    return status || 'unknown';
+                }
+                return 'busy';
+            } finally {
+                refillInFlight = false;
+            }
+        }
+
+        async function fetchDeckJobIds() {
+            const { data, error } = await supabaseClient.rpc('rr_free_deck_ids', { p_limit: 100 });
+            if (error) throw error;
+            // Session clicks may not be in job_apply_clicks yet (the redirect row lands when the
+            // company tab opens), so filter those here too.
+            return (data || []).map(r => r.job_pool_id).filter(id => !openedThisSession.has(id));
+        }
+
+        async function fetchJobDetails(ids) {
+            if (!ids.length) return [];
+            const { data: fullJobs, error: jobsError } = await supabaseClient
+                .from('job_pool')
+                .select('id, title, company_name, company, location, workplace_type, apply_url, salary_range, description_text')
+                .in('id', ids);
+            if (jobsError) throw jobsError;
+            const byId = new Map((fullJobs || []).map(j => [j.id, j]));
+            return ids.map(id => byId.get(id)).filter(Boolean).map(j => ({ ...j }));
+        }
+
+        // After a background refill: add any new jobs to the END of the current deck.
+        async function appendNewJobs() {
+            try {
+                const ids = await fetchDeckJobIds();
+                const have = new Set(deckJobs.map(j => j.id));
+                const fresh = ids.filter(id => !have.has(id));
+                if (!fresh.length) return;
+                const jobs = await fetchJobDetails(fresh);
+                deckJobs = deckJobs.concat(jobs);
+                const progressEl = document.getElementById('deck-progress');
+                if (progressEl && deckIndex < deckJobs.length) progressEl.textContent = `Job ${deckIndex + 1} of ${deckJobs.length}`;
+            } catch (err) {
+                console.warn('Could not add refilled jobs:', err);
+            }
+        }
+
+        function maybeRefillInBackground() {
+            if (refillInFlight) return;
+            if (deckJobs.length - deckIndex >= DECK_LOW_REMAINING) return;
+            if (Date.now() - lastRefillAttemptAt < 20000) return;
+            requestRefill(false).then(status => { if (status === 'added') return appendNewJobs(); });
+        }
+
         async function loadDeck() {
             const container = document.getElementById('job-detail-container');
             const progressEl = document.getElementById('deck-progress');
@@ -859,48 +948,29 @@
             if (progressEl) progressEl.textContent = '';
 
             try {
-                // find_matching_jobs -> deck_candidates_v3: the EXACT candidate-selection
-                // function automation's own swipe deck is built on. Automation calls this
-                // server-side (inside the match-pool-jobs edge function), which ALSO does
-                // paid AI fit-scoring before queueing into job_queue_assignments -- that
-                // scoring step, plus the CV/cover-letter tailoring and auto-submit, is what
-                // Manual Mode skips. Called here directly as the authenticated user: same
-                // profile-driven matching (target roles, country, workplace type, remote
-                // scope), same geo/level gating, same dedup against past swipes/applications
-                // -- just Pass or go apply yourself, no scoring, no queueing.
-                //
-                // Needed 7 new RLS policies + 2 grants to make this callable by a real
-                // end-user session at all (migrations allow_authenticated_read_deck_
-                // matching_reference_tables, allow_authenticated_read_job_level) --
-                // automation had only ever called this server-side with a service-role key,
-                // which bypasses RLS, so job_title_labels/std_role_neighbors/country_regions/
-                // job_geo_checks/location_names_v2/location_patterns_v2/job_level were RLS-
-                // enabled with zero policies and would have silently returned empty for any
-                // real logged-in user. Verified via a real impersonated-role SQL call before
-                // wiring this up client-side.
-                //
-                // p_include_check: false -- read match-pool-jobs (the real edge function
-                // automation's deck calls) and confirmed its final query is
-                // job_gate_v3(...) where g.eligible, and `eligible` requires
-                // geo_status = 'open' specifically. Automation NEVER shows a 'check'
-                // (ambiguous-eligibility) job to a user; it silently withholds it until a
-                // background worker resolves it one way or the other. For "the full job
-                // calling must be same" to actually be true, Manual Mode can't show more
-                // than automation does either -- so this stays false, matching eligible-
-                // only, same as the real deck.
-                const { data, error } = await supabaseClient.rpc('find_matching_jobs', {
-                    p_user_id: currentUser.id,
-                    p_limit: 100,
-                    p_include_check: false,
-                    p_pool_cap: 1000000,
-                });
-                if (error) throw error;
+                let ids = await fetchDeckJobIds();
 
-                // Jobs the user already opened with Apply Manually leave THIS deck only.
-                // They are not swiped, so automation can still show them (with a
-                // reminder) unless the user taps "I applied".
-                const openedIds = await fetchOpenedJobIds();
-                const ids = (data || []).map(r => r.job_pool_id).filter(id => !openedIds.has(id));
+                if (!ids.length) {
+                    // Nothing saved yet (or all used up): find more, waiting politely if the server
+                    // is busy with other people's refills.
+                    container.innerHTML = '<div class="detail-placeholder"><p style="font-weight:700;">Finding jobs for you...</p><p style="font-size:0.85rem; margin-top:0.35rem;">This can take a few seconds.</p></div>';
+                    const status = await requestRefill(true);
+                    ids = await fetchDeckJobIds();
+                    if (!ids.length && (status === 'busy' || status === 'in_progress' || status === 'error')) {
+                        deckJobs = [];
+                        deckIndex = 0;
+                        container.innerHTML = `<div class="detail-placeholder">
+                            <p style="font-weight:700;">Lots of people are searching right now</p>
+                            <p style="font-size:0.9rem; margin-top:0.25rem;">Your jobs are on the way. Please try again in a moment.</p>
+                            <button class="filter-btn" style="margin-top: 1rem;" onclick="loadDeck()">Try again</button>
+                        </div>`;
+                        return;
+                    }
+                } else if (ids.length < DECK_LOW_REMAINING) {
+                    // Running low: refill in the background while they keep swiping.
+                    requestRefill(false).then(status => { if (status === 'added') return appendNewJobs(); });
+                }
+
                 if (!ids.length) {
                     deckJobs = [];
                     deckIndex = 0;
@@ -908,25 +978,12 @@
                     return;
                 }
 
-                const { data: fullJobs, error: jobsError } = await supabaseClient
-                    .from('job_pool')
-                    .select('id, title, company_name, company, location, workplace_type, apply_url, salary_range, description_text')
-                    .in('id', ids);
-                if (jobsError) throw jobsError;
-
-                const byId = new Map((fullJobs || []).map(j => [j.id, j]));
-                deckJobs = data
-                    .filter(r => !openedIds.has(r.job_pool_id))
-                    .map(r => {
-                        const full = byId.get(r.job_pool_id);
-                        return full ? { ...full } : null;
-                    })
-                    .filter(Boolean);
+                deckJobs = await fetchJobDetails(ids);
                 deckIndex = 0;
                 renderCurrentCard();
             } catch (err) {
                 console.error('Deck load failed:', err);
-                container.innerHTML = `<div class="detail-placeholder"><p style="font-weight:700; color:#ef4444;">Could not load your deck: ${escapeHtml(err.message || String(err))}</p></div>`;
+                container.innerHTML = `<div class="detail-placeholder"><p style="font-weight:700; color:#ef4444;">Could not load your deck: ${escapeHtml(err.message || String(err))}</p><button class="filter-btn" style="margin-top: 1rem;" onclick="loadDeck()">Try again</button></div>`;
             }
         }
 
@@ -1056,6 +1113,7 @@
             showDeckToast('Next job');
             await recordSwipe(job, 'skip');
             if (deckIndex >= deckJobs.length) await loadDeck();
+            else maybeRefillInBackground();
         }
 
         // "Back" (2026-10-28, founder asked to reconsider the previous job after
@@ -1130,6 +1188,7 @@
             // Waiting for them when they come back to this tab.
             showAppliedBar(job);
             if (deckIndex >= deckJobs.length) await loadDeck();
+            else maybeRefillInBackground();
         }
 
         // ---- "I applied" flow -------------------------------------------------
@@ -1137,26 +1196,6 @@
         let appliedBarJob = null;
         const openedThisSession = new Set();
         const markedAppliedIds = new Set();
-
-        // Every job this user opened via Apply Manually (job_apply_clicks is written by
-        // the myrolerover.com/go redirect; RLS lets a user read only their own rows),
-        // plus this session's clicks in case the redirect row hasn't landed yet.
-        async function fetchOpenedJobIds() {
-            const ids = new Set(openedThisSession);
-            try {
-                const { data, error } = await supabaseClient
-                    .from('job_apply_clicks')
-                    .select('job_pool_id')
-                    .eq('user_id', currentUser.id)
-                    .order('clicked_at', { ascending: false })
-                    .limit(1000);
-                if (error) throw error;
-                (data || []).forEach(r => ids.add(r.job_pool_id));
-            } catch (err) {
-                console.warn('Could not read opened jobs; showing the deck unfiltered:', err);
-            }
-            return ids;
-        }
 
         function applyNoticeSeenKey() {
             return `rr_manual_apply_notice_seen_${currentUser ? currentUser.id : 'anon'}`;

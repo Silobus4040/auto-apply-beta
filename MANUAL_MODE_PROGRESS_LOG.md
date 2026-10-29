@@ -965,3 +965,68 @@ triggers the n8n backstop or `apply_slots_left()`. Nothing treats `'skip'` as a 
   first in line (`jobs_needing_score_v3` orders by `sequence_no`, pins are negative) -- it just is never
   asked for. I pinned it at the front by hand (`sequence_no = -14`), ahead of the 13 scored jobs. In a
   normal deck unscored jobs sit behind scored ones (deck sorts by fit score, nulls last).
+
+## 32. Free Job Deck now reads automation's SAVED list + throttled background refill (2026-10-29)
+
+Founder asked for the "shared list" design before a social-media launch (so thousands of free users
+do not each re-run the full job search on every page view) with a Redis-style throttle, no AI scoring,
+no extra cost.
+
+**Why (proof, same-moment 50-at-once test, 50 browsers calling as mosco through the REST API)**
+- OLD way (`find_matching_jobs` on every page view): **0 of 50 succeeded** -- every call was cancelled by the
+  15 s role timeout (`57014`). Earlier the same day the same test had 1/50 failures; lists grow, it gets worse.
+- NEW way (`rr_free_deck_ids`, a read of the saved list): **50 of 50 succeeded**, avg 4.8 s, p90 6.1 s,
+  slowest 6.2 s (one call alone: ~0.12-0.16 s vs ~7 s for the old search; in the page, deck on screen in 2.3 s).
+  50 simultaneous requests queue up on this database (~8 reads/s), they do not fail.
+
+**What was built (Supabase migrations `free_deck_saved_list_and_guarded_refill`, `free_deck_refill_tunable_low_threshold`)**
+- `rr_free_deck_ids(p_limit)` (security invoker, RLS applies): the user's unswiped, active, `job_gate_v3`-eligible
+  jobs from `job_queue_assignments`, in assignment order; skips jobs the user opened (`job_apply_clicks`) and demo
+  pins (negative `sequence_no`). Gates at most 4 x p_limit ids. Same gate automation's deck uses.
+- `rr_free_deck_refill()` (security definer, `search_path=''`, own `statement_timeout=30s`): appends up to 50 new
+  matches from `deck_candidates_v3` (the same search automation uses) to the saved list. **Never calls the
+  score-deck / enrich-deck webhooks.** Guards, in order: one refill per user at a time (advisory lock) ->
+  skip if >= 20 eligible jobs remain (`not_needed`) -> cooldown (30 s after a refill that added jobs, 5 min after
+  one that found nothing) -> global cap on simultaneous refills (advisory-lock slots) -> else `busy`.
+- Tables `rr_throttle_settings` (tunable: `free_deck_refill` cap, `free_deck_low_threshold`) and
+  `deck_refill_state` (RLS on, no policies, only the definer function touches them).
+- Docs: https://supabase.com/docs/guides/database/functions#security-definer-vs-invoker ,
+  https://supabase.com/docs/guides/database/postgres/timeouts#function-level (function-level timeout works through
+  the Data API), https://supabase.com/docs/guides/database/postgres/row-level-security . Supabase docs have NO page
+  on advisory locks (standard Postgres: https://www.postgresql.org/docs/current/explicit-locking.html#ADVISORY-LOCKS).
+  Redis not needed.
+- `jobs.html`: `loadDeck` calls `rr_free_deck_ids`; if the list is empty it shows "Finding jobs for you..." and
+  asks for a refill (retrying while the server says busy; then "Lots of people are searching right now ... Try
+  again"); if < 15 jobs remain it refills in the background (also after Next / Apply Manually) and appends the new
+  jobs to the end of the deck. Removed the separate click-history fetch (the server excludes opened jobs now).
+
+**Throttle cap: 5, not 20 (measured, my earlier "20" guess was wrong)**
+12 test users (synthetic QA/swipe-test accounts) called refill at the same instant:
+- cap 5: 5 got a slot (4 added jobs, 1 found nothing), **7 were told `busy` within ~1.7 s**, each running refill
+  took ~12 s, no failures.
+- cap 10: 10 got slots, but running together they slowed so much that **5 hit the 30 s limit (HTTP 500)**.
+- One refill alone: ~6.5 s. So the database handles about 5 heavy searches at once; capacity is roughly 25 refills
+  a minute. Set to 5 (`rr_throttle_settings`, change with one UPDATE, no deploy).
+
+**Tests (mosco, real DB / real browser; everything temporary was removed)**
+- List read matches automation: 83 jobs, none pinned / opened / swiped, first = Customer.io (also near the front of
+  the automation deck).
+- Refill from the page (threshold temporarily raised): deck 83 -> 100, 7 s in the background, 50 rows appended
+  (`sequence_no` 451..500). **`job_fit_scores` 12,256 -> 12,256 and `score_send_log` 3,551 -> 3,551: no scoring.**
+  Rows removed afterwards, threshold back to 20.
+- A refill on a short list (11 jobs) -> 61, second call `not_needed`. All inside a rolled-back transaction.
+- Next saved `skip`, Back deleted it; apply swipes 128, skip 283, applications 52 (unchanged).
+- UI states checked: "busy" message and "all caught up" message.
+- Test hygiene: the 50-at-once and 12-user tests signed test users in through the admin magic-link API (no emails
+  sent; adds session rows to synthetic test accounts + mosco). Added list rows were deleted by `assigned_at`, state
+  rows deleted, settings restored (cap 5, low 20). Test-account list sizes verified back to normal.
+
+**Still open / honest limits**
+- A new user normally already has a saved list (the dashboard top-up builds it at onboarding). A user with NO list
+  waits for one refill (~7-12 s, longer if others are refilling); at the cap-5 capacity a burst of hundreds of
+  brand-new users with empty lists would queue (they see the "busy / try again" message), not fail.
+- Refill appends UNSCORED jobs to the end of the shared list. Automation still scores only when < 5 scored jobs
+  remain (batch of 10), exactly as before; the live path still has no `score_budget` cap (not changed here).
+- `find_matching_jobs` is no longer used by jobs.html (function untouched; the earlier §19-20 notes describe the old path).
+- The new RPCs are callable by any logged-in user, but only jobs.html (still gated to mosco / `manual_mode`) calls them.
+- mosco still New York for testing; 10 credits from §30 still not refunded (founder's call).
