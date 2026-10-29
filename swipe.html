@@ -3182,7 +3182,6 @@
                         toggleDiv.id = 'mode-toggle-wrapper';
                         toggleDiv.style.cssText = 'display: inline-flex; background: rgba(0,0,0,0.06); padding: 3px; border-radius: 999px; margin-top: 0.4rem; gap: 2px; border: 1px solid var(--border);';
                         const isHiring = (typeof HIRING_MODE !== 'undefined' && HIRING_MODE);
-                        const isHiring = (typeof HIRING_MODE !== 'undefined' && HIRING_MODE);
                         const isManual = window.location.pathname.includes('jobs.html');
                         toggleDiv.innerHTML = `
                             <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${!isHiring && !isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Auto-Apply (158)</a>
