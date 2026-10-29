@@ -1905,9 +1905,38 @@
                 <a class="sidebar-nav-item" href="dashboard.html" style="text-decoration: none; color: inherit;">
                     <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
                 </a>
-                <div class="sidebar-nav-item active" id="sidebar-job-deck-item">
-                    <i data-lucide="building-2" class="sidebar-nav-icon"></i> Career Pages — Auto-Apply (158)
+
+                <!-- Career Pages: Single item with Auto-Apply and Apply Yourself sub-links -->
+                <div class="sidebar-nav-group" id="sidebar-career-pages-group" style="display: flex; flex-direction: column;">
+                    <div class="sidebar-nav-item" id="sidebar-career-pages-parent" onclick="toggleCareerSubnav()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem;">
+                            <i data-lucide="building-2" class="sidebar-nav-icon"></i>
+                            <span style="font-weight: 700;">Career Pages</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.35rem;">
+                            <span class="sidebar-badge" id="sidebar-career-count" style="background: rgba(0,0,0,0.06); color: var(--text-heading); font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 6px;">158</span>
+                            <i data-lucide="chevron-down" id="career-chevron" style="width: 14px; height: 14px; color: #71717a; transition: transform 0.2s;"></i>
+                        </div>
+                    </div>
+                    <div class="sidebar-subnav" id="sidebar-career-pages-subnav" style="padding-left: 2rem; display: flex; flex-direction: column; gap: 2px; margin-top: 2px; margin-bottom: 6px;">
+                        <a href="swipe.html" id="subnav-auto-apply" class="sidebar-subnav-item" style="padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 800; text-decoration: none; background: rgba(16, 185, 129, 0.12); color: #059669; border-left: 2px solid #059669; display: flex; align-items: center; gap: 0.4rem; transition: all 0.15s;">
+                            <span>⚡</span> Auto-Apply
+                        </a>
+                        <a href="jobs.html" id="subnav-apply-free" class="sidebar-subnav-item" style="padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; color: #52525b; display: flex; align-items: center; gap: 0.4rem; transition: all 0.15s;">
+                            <span>📄</span> Apply Yourself (Free)
+                        </a>
+                    </div>
                 </div>
+
+                <!-- Social Posts -->
+                <a class="sidebar-nav-item" id="sidebar-hiring-posts-link" href="swipe.html?mode=hiring" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <i data-lucide="smartphone" class="sidebar-nav-icon"></i>
+                        <span>Social Posts — Auto Outreach</span>
+                    </div>
+                    <span class="badge" style="font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40</span>
+                </a>
+
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
@@ -1918,11 +1947,6 @@
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="sliders" class="sidebar-nav-icon"></i> Job Filters
                 </button>
-                <!-- Restored 2026-08-29: the modal + submitFeedback()'s real
-                     Supabase write both still existed and worked, but nothing
-                     anywhere opened this modal -- whatever used to trigger it
-                     was removed at some point, leaving it orphaned (last real
-                     submission: 2026-06-17, over two months ago). -->
                 <button class="sidebar-nav-item" onclick="openFounderChat(); if(window.innerWidth<=768) toggleSidebar();" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <i data-lucide="message-circle" class="sidebar-nav-icon"></i> Message Founder
@@ -2795,30 +2819,37 @@
 
         // Sidebar entry for Hiring Posts (founder test account / feature_access only).
         // In hiring mode it is the active item and Job Deck becomes a plain link.
+        function toggleCareerSubnav() {
+            const subnav = document.getElementById('sidebar-career-pages-subnav');
+            const chevron = document.getElementById('career-chevron');
+            if (!subnav) return;
+            const isHidden = subnav.style.display === 'none';
+            subnav.style.display = isHidden ? 'flex' : 'none';
+            if (chevron) chevron.style.transform = isHidden ? 'rotate(0deg)' : 'rotate(-90deg)';
+        }
+
         function injectHiringPostsNav() {
-            const nav = document.querySelector('.sidebar-nav');
-            if (!nav || document.getElementById('sidebar-hiring-posts-link')) return;
-            const jobDeck = document.getElementById('sidebar-job-deck-item');
-            if (HIRING_MODE && jobDeck) {
-                jobDeck.classList.remove('active');
-                jobDeck.style.cursor = 'pointer';
-                jobDeck.onclick = () => { window.location.href = 'swipe.html'; };
-            }
-            const link = document.createElement('a');
-            link.id = 'sidebar-hiring-posts-link';
-            link.className = 'sidebar-nav-item' + (HIRING_MODE ? ' active' : '');
-            link.href = 'swipe.html?mode=hiring';
-            link.style.cssText = 'text-decoration: none; color: inherit;';
-            link.innerHTML = '<i data-lucide="smartphone" class="sidebar-nav-icon"></i> Social Posts — Auto Outreach (40)';
-            const manual = document.getElementById('sidebar-manual-jobs-link');
-            const anchor = jobDeck;
-            if (anchor && anchor.nextSibling) nav.insertBefore(link, anchor.nextSibling);
-            else nav.appendChild(link);
-            if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
+            const hiringLink = document.getElementById('sidebar-hiring-posts-link');
+            const careerParent = document.getElementById('sidebar-career-pages-parent');
+            const careerSubnav = document.getElementById('sidebar-career-pages-subnav');
+            const careerChevron = document.getElementById('career-chevron');
+
             if (HIRING_MODE) {
+                if (hiringLink) hiringLink.classList.add('active');
+                if (careerParent) careerParent.classList.remove('active');
+                if (careerSubnav) careerSubnav.style.display = 'none';
+                if (careerChevron) careerChevron.style.transform = 'rotate(-90deg)';
                 const title = document.querySelector('.page-title');
                 if (title) title.textContent = 'Social Posts — Auto Outreach';
+                const mobileTitle = document.getElementById('mobile-page-title');
+                if (mobileTitle) mobileTitle.textContent = 'Social Posts — Auto Outreach';
+            } else {
+                if (careerParent) careerParent.classList.add('active');
+                if (hiringLink) hiringLink.classList.remove('active');
+                if (careerSubnav) careerSubnav.style.display = 'flex';
+                if (careerChevron) careerChevron.style.transform = 'rotate(0deg)';
             }
+            if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
         }
 
         // Facebook leads are normal cards in the same swipe deck (same layout,
@@ -3170,53 +3201,35 @@
 
         async function checkManualModeAccess(userId) {
             try {
-                // Free Job Deck is open to every signed-in user (2026-10-29) -- see jobs.html's
-                // init() for why the earlier mosco-only / feature_access gate never actually
-                // restricted the underlying data, only who saw this header link.
-                const isAllowed = true;
-
-                if (isAllowed) {
-                    const pageHeader = document.querySelector('.page-header');
-                    if (pageHeader && !document.getElementById('mode-toggle-wrapper')) {
-                        const toggleDiv = document.createElement('div');
-                        toggleDiv.id = 'mode-toggle-wrapper';
-                        toggleDiv.style.cssText = 'display: inline-flex; background: rgba(0,0,0,0.06); padding: 3px; border-radius: 999px; margin-top: 0.4rem; gap: 2px; border: 1px solid var(--border);';
-                        const isHiring = (typeof HIRING_MODE !== 'undefined' && HIRING_MODE);
-                        const isManual = window.location.pathname.includes('jobs.html');
-                        toggleDiv.innerHTML = `
-                            <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${!isHiring && !isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Auto-Apply (158)</a>
-                            <a href="swipe.html?mode=hiring" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${isHiring ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="smartphone" style="width:13px;height:13px;"></i> Social Posts — Auto Outreach (40)</a>
-                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; ${isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Apply Yourself (Free)</a>
-                        `;
-                        const h1 = pageHeader.querySelector('h1');
-                        if (h1) {
-                            const wrapper = document.createElement('div');
-                            h1.parentNode.insertBefore(wrapper, h1);
-                            wrapper.appendChild(h1);
-                            wrapper.appendChild(toggleDiv);
-                        }
+                const pageHeader = document.querySelector('.page-header');
+                if (pageHeader && !document.getElementById('mode-toggle-wrapper')) {
+                    const toggleDiv = document.createElement('div');
+                    toggleDiv.id = 'mode-toggle-wrapper';
+                    toggleDiv.style.cssText = 'display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.4rem;';
+                    const isHiring = (typeof HIRING_MODE !== 'undefined' && HIRING_MODE);
+                    const isManual = window.location.pathname.includes('jobs.html');
+                    toggleDiv.innerHTML = `
+                        <div style="display: inline-flex; background: rgba(0,0,0,0.06); padding: 3px; border-radius: 999px; gap: 2px; border: 1px solid var(--border); width: fit-content;">
+                            <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${!isHiring ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.35rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages (158)</a>
+                            <a href="swipe.html?mode=hiring" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${isHiring ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.35rem;"><i data-lucide="smartphone" style="width:13px;height:13px;"></i> Social Posts — Auto Outreach (40)</a>
+                        </div>
+                        ${!isHiring ? `
+                        <div style="display: inline-flex; align-items: center; gap: 0.4rem; padding-left: 0.2rem;">
+                            <span style="font-size: 0.7rem; font-weight: 700; color: #71717a; text-transform: uppercase; letter-spacing: 0.03em;">Mode:</span>
+                            <div style="display: inline-flex; background: rgba(0,0,0,0.04); padding: 2px; border-radius: 999px; gap: 2px; border: 1px solid var(--border);">
+                                <a href="swipe.html" style="padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 800; text-decoration: none; ${!isManual ? 'background: #10B981; color: #fff;' : 'color: #52525b; background: transparent;'} display: inline-flex; align-items: center; gap: 0.25rem;">⚡ Auto-Apply</a>
+                                <a href="jobs.html" style="padding: 0.25rem 0.75rem; border-radius: 999px; font-size: 0.72rem; font-weight: 700; text-decoration: none; ${isManual ? 'background: #10B981; color: #fff;' : 'color: #52525b; background: transparent;'} display: inline-flex; align-items: center; gap: 0.25rem;">📄 Apply Yourself (Free)</a>
+                            </div>
+                        </div>` : ''}
+                    `;
+                    const h1 = pageHeader.querySelector('h1');
+                    if (h1) {
+                        const wrapper = document.createElement('div');
+                        h1.parentNode.insertBefore(wrapper, h1);
+                        wrapper.appendChild(h1);
+                        wrapper.appendChild(toggleDiv);
                     }
-
-                    const sidebarNav = document.querySelector('.sidebar-nav');
-                    if (sidebarNav && !document.getElementById('sidebar-manual-jobs-link')) {
-                        const hiringLink = document.getElementById('sidebar-hiring-posts-link');
-                        const jobDeckLink = document.getElementById('sidebar-job-deck-item') || sidebarNav.querySelector('.sidebar-nav-item.active') || sidebarNav.querySelector('a[href="swipe.html"]');
-                        const anchor = hiringLink || jobDeckLink;
-                        const manualLink = document.createElement('a');
-                        manualLink.id = 'sidebar-manual-jobs-link';
-                        manualLink.className = 'sidebar-nav-item';
-                        manualLink.href = 'jobs.html';
-                        manualLink.style.cssText = 'text-decoration: none; color: inherit;';
-                        manualLink.innerHTML = '<i data-lucide="building-2" class="sidebar-nav-icon"></i> Career Pages — Apply Yourself (Free)';
-                        if (anchor && anchor.nextSibling) {
-                            sidebarNav.insertBefore(manualLink, anchor.nextSibling);
-                        } else {
-                            sidebarNav.appendChild(manualLink);
-                        }
-                        if (window.lucide && typeof window.lucide.createIcons === 'function') {
-                            window.lucide.createIcons();
-                        }
-                    }
+                    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
                 }
             } catch (err) {
                 console.warn('Feature check ignored:', err);
