@@ -2950,23 +2950,8 @@
         }
 
         async function checkManualModeAccess(userId) {
-            try {
-                const pageHeader = document.querySelector('.page-header');
-                if (pageHeader && !document.getElementById('mode-toggle-wrapper')) {
-                    const toggleDiv = document.createElement('div');
-                    toggleDiv.id = 'mode-toggle-wrapper';
-                    toggleDiv.style.cssText = 'display: inline-flex; background: rgba(0,0,0,0.06); padding: 3px; border-radius: 999px; margin-top: 0.4rem; gap: 2px; border: 1px solid var(--border);';
-                    toggleDiv.innerHTML = `
-                        <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; color: var(--text-body); background: transparent; display: inline-flex; align-items: center; gap: 0.35rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages (158)</a>
-                        <a href="swipe.html?mode=hiring" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; color: var(--text-body); background: transparent; display: inline-flex; align-items: center; gap: 0.35rem;"><i data-lucide="smartphone" style="width:13px;height:13px;"></i> Social Posts — Auto Outreach (40)</a>
-                    `;
-                    const titleArea = pageHeader.querySelector('div');
-                    if (titleArea) titleArea.appendChild(toggleDiv);
-                    if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
-                }
-            } catch (err) {
-                console.warn('Feature check ignored:', err);
-            }
+            // Header mode toggle removed per user request: navigation is cleanly handled in the sidebar.
+            return;
         }
 
         // The first resume/sourcing request must survive a reload or a switch
