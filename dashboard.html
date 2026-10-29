@@ -5076,6 +5076,37 @@
             const d = new Date(email.created_at);
             const dateStr = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
+            let firstName = 'Applicant', lastName = 'Resume';
+            if (typeof userProfile !== 'undefined' && userProfile) {
+                if (userProfile.first_name) firstName = userProfile.first_name.trim();
+                if (userProfile.last_name) lastName = userProfile.last_name.trim();
+            }
+            const userId = (typeof userProfile !== 'undefined' && userProfile?.id) ? userProfile.id : (email.user_id || cachedUserId);
+
+            let roleTitle = 'Role';
+            let companyName = email.matched_company || '';
+
+            if (email.subject) {
+                const subj = email.subject.trim();
+                const appForMatch = subj.match(/Application\s+for\s+(.+?)(?:\s+at\s+(.+))?$/i);
+                if (appForMatch) {
+                    roleTitle = appForMatch[1].trim();
+                    if (appForMatch[2] && !companyName) companyName = appForMatch[2].trim();
+                } else {
+                    roleTitle = subj;
+                }
+            }
+            if (!companyName && email.recipient) {
+                const handle = email.recipient.split('@')[0];
+                companyName = handle.replace(/[0-9_.-]/g, ' ').trim();
+            }
+            if (!companyName) companyName = 'Company';
+
+            const safeTitle = roleTitle.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+            const safeCompany = companyName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
+            const atsResumeFilename = `${firstName}_${lastName}_${safeTitle}_${safeCompany}.pdf`;
+            const resumeUrl = `https://ahpvdcdpwtdeoiatjvnq.supabase.co/storage/v1/object/public/tailored-resumes/${userId}/${atsResumeFilename}`;
+
             pane.innerHTML = `
                 <div style="display: flex; flex-direction: column; height: 100%; background: #fff; overflow-y: auto;">
                     <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
@@ -5084,7 +5115,7 @@
                                 <button class="email-content-back-btn" onclick="closeMobileEmailDetail()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Drafts</button>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
-                                <span style="background: #fef3c7; color: #b45309; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 50px; text-transform: uppercase;">📝 Application Draft</span>
+                                <span style="background: #fef3c7; color: #b45309; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 50px; text-transform: uppercase;">Application Draft</span>
                                 <span style="font-size: 0.75rem; color: #71717A;">Generated ${dateStr}</span>
                             </div>
                             <h2 style="font-size: 1.3rem; font-weight: 800; margin: 0; color: #000;">${escapeHtml(subject)}</h2>
@@ -5096,6 +5127,9 @@
                             <button id="send-draft-btn-${index}" onclick="sendDraftApplication(${index})" style="background: #059669; color: #fff; border: none; padding: 0.75rem 1.6rem; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(5,150,105,0.25); transition: opacity 0.2s;">
                                 <i data-lucide="send"></i> Send Application
                             </button>
+                            <button id="edit-draft-btn-${index}" onclick="toggleEditDraft(${index})" style="background: #f4f4f5; color: #18181b; border: 1px solid #e4e4e7; padding: 0.75rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
+                                <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> Edit text
+                            </button>
                             <button onclick="discardDraft(${index})" style="background: transparent; color: #ef4444; border: 1px solid #fecaca; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
                                 Discard
                             </button>
@@ -5103,23 +5137,11 @@
                     </div>
 
                     <div style="padding: 1.5rem; flex: 1;">
-                        <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 0.75rem 1rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem;">
-                            <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #475569; font-weight: 600;">
-                                <span>✉️ Pure Plain Text Email</span>
-                                <span style="color: #94a3b8;">·</span>
-                                <span>Zero HTML formatting</span>
-                                <span style="color: #94a3b8;">·</span>
-                                <span>100% human-typed style</span>
-                            </div>
-                            <button id="edit-draft-btn-${index}" onclick="toggleEditDraft(${index})" style="background: none; border: none; color: #2563eb; font-weight: 700; font-size: 0.8rem; cursor: pointer; text-decoration: underline;">
-                                Edit text
-                            </button>
-                        </div>
-
-                        <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: #18181b; margin-bottom: 1.5rem;">
-                            <span>📎 Resume.pdf</span>
-                            <span style="color: #10b981; font-size: 0.75rem;">(Tailored PDF Attached)</span>
-                        </div>
+                        <a href="${resumeUrl}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: #18181b; text-decoration: none; margin-bottom: 1.5rem; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#3b82f6';this.style.background='#f8fafc';" onmouseout="this.style.borderColor='var(--border)';this.style.background='#fff';" title="Click to view attached resume">
+                            <i data-lucide="paperclip" style="width: 15px; height: 15px; color: #2563eb;"></i>
+                            <span style="color: #2563eb; text-decoration: underline;">${escapeHtml(atsResumeFilename)}</span>
+                            <span style="color: #10b981; font-size: 0.75rem; text-decoration: none; font-weight: 600;">(Tailored PDF Attached)</span>
+                        </a>
 
                         <div id="draft-body-view-${index}" style="font-family: 'Inter', -apple-system, sans-serif; font-size: 0.95rem; line-height: 1.7; color: #18181b; white-space: pre-wrap; background: #fff; padding: 1.2rem; border: 1px solid var(--border); border-radius: 8px;">${escapeHtml(cleanBody)}</div>
 
@@ -5145,12 +5167,13 @@
             if (isEditing) {
                 editEl.style.display = 'none';
                 viewEl.style.display = 'block';
-                if (editBtn) editBtn.style.display = 'inline-block';
+                if (editBtn) editBtn.innerHTML = '<i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> Edit text';
             } else {
                 editEl.style.display = 'flex';
                 viewEl.style.display = 'none';
-                if (editBtn) editBtn.style.display = 'none';
+                if (editBtn) editBtn.innerHTML = 'Cancel edit';
             }
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
 
         async function saveDraftEdits(index) {
