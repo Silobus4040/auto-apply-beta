@@ -1030,3 +1030,43 @@ no extra cost.
 - `find_matching_jobs` is no longer used by jobs.html (function untouched; the earlier §19-20 notes describe the old path).
 - The new RPCs are callable by any logged-in user, but only jobs.html (still gated to mosco / `manual_mode`) calls them.
 - mosco still New York for testing; 10 credits from §30 still not refunded (founder's call).
+
+## 33. Automation deck: live scoring now respects score_budget (2026-10-29)
+
+Founder asked to cap AI scoring cost exposure before launch. Investigated and corrected course mid-task:
+`score_budget` (from `user_lifecycle_state_v2`) is NOT a daily counter of scoring calls -- it's a ceiling
+on how many unswiped jobs (unscored, or scored >= the `deck_min_fit` floor) are allowed to sit in a
+user's queue at once, with no reset. `assign_pending_matches_v2` / `sweep_new_matches_for_user_inner`
+(the hourly background sweep) already respect it this way. The live Automation deck
+(`match-pool-jobs` edge fn -> `claim_jobs_needing_score_v3` -> `jobs_needing_score_v3`, fired whenever a
+swiping user has fewer than 5 scored eligible jobs left) never checked it at all -- unlimited while
+someone is actively swiping, even though test accounts (`score_budget=0`) and quiet/new/trial-used users
+all have a lower number specifically to control this.
+
+**Fix (migration `jobs_needing_score_v3_respects_score_budget`):** `jobs_needing_score_v3` now computes
+the same "runway" (unswiped, active, assigned jobs that are unscored or scored >= the floor) the
+background sweep already computes, subtracts it from `score_budget`, and clamps `p_limit` to what's left
+-- `0` if the user is already at or over their ceiling. One shared function, so both the live path and
+any future caller get it automatically; `claim_jobs_needing_score_v3` (its only other caller) inherits
+the fix with no changes of its own. `jobs_needing_score_v2` is independent/unused by this chain --
+untouched. Docs: https://supabase.com/docs/guides/database/functions
+
+**Verified (real data, no test rows written):**
+- mosco (test account, `score_budget=0`, runway 156): before the fix, `jobs_needing_score_v3` would have
+  returned 10 jobs to score (confirmed by running the OLD function first); after, returns 0, and
+  `claim_jobs_needing_score_v3` also returns 0 with nothing written to `score_send_log`.
+- nbj2 (real active user, budget 100, runway 81 -> 19 remaining): same result before and after (0, for
+  an unrelated reason -- no eligible unscored jobs waiting right now), confirming no regression for a
+  user well under their ceiling.
+- Automation deck (swipe.html) loads normally for mosco in the browser afterward -- 51 jobs, no console
+  errors; it simply won't request fresh scores for him going forward (expected and correct, since test
+  accounts already get 0 budget in the background system -- this just makes that consistent live too).
+
+**Known consequence:** mosco (and any test account) will no longer get automatic scores from live
+swiping on the Automation deck -- matches `manual_job_applications`/Free-Job-Deck behavior where test
+accounts don't burn AI spend by default. A scored test card (like Seeq/Town Web in section §30-31) now
+needs the same manual `net.http_post` trigger used there, not normal swiping.
+
+**What this is NOT:** not a "100 scores per day" rule, no new number was invented, nothing was deployed
+to the `match-pool-jobs` edge function (fix lives entirely in the shared SQL function it already calls).
+Free Job Deck unaffected -- it never calls any scoring function.
