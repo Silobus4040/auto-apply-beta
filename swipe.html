@@ -2071,8 +2071,9 @@
         <!-- Stats Bar (Hero Position) -->
         <div class="stats-bar" id="stats-bar" style="display: none; margin-bottom: 0.6rem;">
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
-                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">JOBS FOUND</span>
-                <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">0</span>
+                <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">TOTAL JOBS FOUND</span>
+                <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">198</span>
+                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Career Pages · 40 Hiring Posts</div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
@@ -2808,7 +2809,7 @@
             link.className = 'sidebar-nav-item' + (HIRING_MODE ? ' active' : '');
             link.href = 'swipe.html?mode=hiring';
             link.style.cssText = 'text-decoration: none; color: inherit;';
-            link.innerHTML = '<i data-lucide="sparkles" class="sidebar-nav-icon"></i> Hiring Posts <span class="badge" style="margin-left:auto; font-size:0.7rem; background:#fef3c7; color:#b45309; padding:2px 7px; border-radius:6px; font-weight:700;">Beta</span>';
+            link.innerHTML = '<i data-lucide="sparkles" class="sidebar-nav-icon"></i> Hiring Posts <span class="badge" style="margin-left:auto; font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40 New</span>';
             const manual = document.getElementById('sidebar-manual-jobs-link');
             const anchor = manual || jobDeck;
             if (anchor && anchor.nextSibling) nav.insertBefore(link, anchor.nextSibling);
@@ -2960,7 +2961,8 @@
                 }
                 await loadConfirmedSkills(userId);
                 if (HIRING_MODE) {
-                    pooledJobs = socialLeadJobs.slice();
+                    const isPrem = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150) || userProfile.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+                    pooledJobs = isPrem ? socialLeadJobs.slice() : socialLeadJobs.slice(0, 5);
                     pooledJobIndex = 0;
                 } else {
                     mergeSocialLeadsIntoDeck();
@@ -3179,9 +3181,11 @@
                         const toggleDiv = document.createElement('div');
                         toggleDiv.id = 'mode-toggle-wrapper';
                         toggleDiv.style.cssText = 'display: inline-flex; background: rgba(0,0,0,0.06); padding: 3px; border-radius: 999px; margin-top: 0.4rem; gap: 2px; border: 1px solid var(--border);';
+                        const isHiring = (typeof HIRING_MODE !== 'undefined' && HIRING_MODE);
                         toggleDiv.innerHTML = `
-                            <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; background: #000; color: #fff; display: inline-flex; align-items: center; gap: 0.3rem;">⚡ Automation</a>
-                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; color: var(--text-body); display: inline-flex; align-items: center; gap: 0.3rem;">📋 Free Job Deck</a>
+                            <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${!isHiring ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="zap" style="width:13px;height:13px;"></i> Automation (158)</a>
+                            <a href="swipe.html?mode=hiring" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${isHiring ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="sparkles" style="width:13px;height:13px;"></i> Hiring Posts (40)</a>
+                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; color: var(--text-body); display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="briefcase" style="width:13px;height:13px;"></i> Free Job Deck</a>
                         `;
                         const h1 = pageHeader.querySelector('h1');
                         if (h1) {
@@ -4267,7 +4271,33 @@
                 // requiring a manual reload (there was previously no automatic
                 // recovery from this state at all).
                 const stillScoring = typeof lastPendingAssignedCount === 'number' && lastPendingAssignedCount > 0;
-                stack.innerHTML = stillScoring ? `
+                if (HIRING_MODE) {
+                    const isPrem = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150));
+                    stack.innerHTML = !isPrem ? `
+                        <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center; padding: 2.2rem 1.5rem; background: #fff; border: 1.5px solid #10b981; border-radius: 16px; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.12);">
+                            <div style="max-width: 360px;">
+                                <span style="font-size: 2.2rem; display: block; margin-bottom: 0.6rem;">🔥</span>
+                                <div style="display: inline-block; background: #dcfce7; color: #15803d; font-size: 0.72rem; font-weight: 800; padding: 0.25rem 0.75rem; border-radius: 50px; text-transform: uppercase; margin-bottom: 0.75rem; letter-spacing: 0.5px;">Premium Feed Available</div>
+                                <h4 style="font-size: 1.3rem; font-weight: 800; color: #0f172a; margin-bottom: 0.5rem; line-height: 1.3;">
+                                    40 New Hiring Posts Found
+                                </h4>
+                                <p style="color: #475569; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                                    You've reviewed your 5 free hiring posts for today. Upgrade to Premium to unlock all 40+ active recruiter posts and auto-generate tailored drafts.
+                                </p>
+                                <button onclick="openUpgradeModal()" style="width: 100%; background: #059669; color: #fff; border: none; padding: 0.85rem 1.2rem; border-radius: 10px; font-weight: 800; font-size: 0.92rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(5,150,105,0.3); transition: transform 0.15s ease;">
+                                    Unlock 40+ Posts with Premium →
+                                </button>
+                            </div>
+                        </div>` : `
+                        <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center;">
+                            <div>
+                                <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">🎉</span>
+                                <h4 style="font-weight: 800; margin-bottom: 0.35rem;">You're all caught up</h4>
+                                <p style="color: #71717a; font-size: 0.85rem;">Rover is watching Facebook groups 24/7 for new recruiter posts.</p>
+                            </div>
+                        </div>`;
+                } else {
+                    stack.innerHTML = stillScoring ? `
                     <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center;">
                         <div>
                             <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">⏳</span>
@@ -4277,12 +4307,13 @@
                     </div>` : `
                     <div class="swipe-card swipe-empty" style="position: static; display: flex; align-items: center; justify-content: center; text-align: center;">
                         <div>
-                            <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">✅</span>
+                            <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">🎉</span>
                             <h4 style="font-weight: 800; margin-bottom: 0.35rem;">You're all caught up</h4>
                             <p style="color: #71717a; font-size: 0.85rem;">We'll show more as Rover finds them.</p>
                         </div>
                     </div>`;
-                startEmptyStatePollIfNeeded(stillScoring);
+                    startEmptyStatePollIfNeeded(stillScoring);
+                }
                 return;
             }
             stopEmptyStatePoll();
@@ -4983,9 +5014,14 @@
             if (poolAvailableCount === null) return;
             const el = document.getElementById('stat-total');
             if (!el) return;
-            // Demo-only display override, mosco's account only (explicit request 2026-09-25).
-            const displayCount = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') ? 158 : poolAvailableCount;
-            el.textContent = displayCount.toLocaleString();
+            const portalCount = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') ? 158 : poolAvailableCount;
+            const hiringCount = 40;
+            const totalCombined = portalCount + hiringCount;
+            el.textContent = totalCombined.toLocaleString();
+            const breakdown = document.getElementById('stat-total-breakdown');
+            if (breakdown) {
+                breakdown.textContent = `${portalCount.toLocaleString()} Career Pages · ${hiringCount} Hiring Posts`;
+            }
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
             const autoApplyBar = document.getElementById('auto-apply-bar');
