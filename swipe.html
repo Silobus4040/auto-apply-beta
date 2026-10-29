@@ -2842,7 +2842,7 @@
                 id: lead.id,
                 match_id: row.id,
                 title: lead.search_keyword || 'Role',
-                company_name: lead.company_name || lead.author_name || 'Facebook post',
+                company_name: (lead.company_name && !['facebook group', 'facebook post', 'facebook', 'company'].includes(lead.company_name.toLowerCase().trim())) ? lead.company_name : null,
                 contact_email: lead.contact_email || '',
                 location: locationStr,
                 workplace_type: socialWorkplaceLabel(lead.detected_workplace_type),
