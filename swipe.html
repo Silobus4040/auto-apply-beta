@@ -6263,15 +6263,14 @@
                     roleTitle = subj;
                 }
             }
-            if (!companyName && email.recipient) {
-                const handle = email.recipient.split('@')[0];
-                companyName = handle.replace(/[0-9_.-]/g, ' ').trim();
+            let safeCompany = '';
+            if (companyName && !['company', 'undefined', 'null'].includes(companyName.toLowerCase().trim())) {
+                safeCompany = companyName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
             }
-            if (!companyName) companyName = 'Company';
-
             const safeTitle = roleTitle.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
-            const safeCompany = companyName.replace(/[^a-z0-9]/gi, '_').substring(0, 30);
-            const atsResumeFilename = `${firstName}_${lastName}_${safeTitle}_${safeCompany}.pdf`;
+            const atsResumeFilename = safeCompany
+                ? `${firstName}_${lastName}_${safeTitle}_${safeCompany}.pdf`
+                : `${firstName}_${lastName}_${safeTitle}.pdf`;
             const resumeUrl = `https://ahpvdcdpwtdeoiatjvnq.supabase.co/storage/v1/object/public/tailored-resumes/${userId}/${atsResumeFilename}`;
 
             pane.innerHTML = `
