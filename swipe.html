@@ -1358,7 +1358,7 @@
 
     <nav id="mobile-topbar" style="display: none;">
         <button class="hamburger-btn" style="display:block;" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
-        <span style="font-weight: 800; font-size: 1rem; color: var(--text-heading);">Job Deck</span>
+        <span id="mobile-page-title" style="font-weight: 800; font-size: 1rem; color: var(--text-heading);">Career Pages — Auto-Apply</span>
         <div style="width: 34px;"></div>
     </nav>
     <span id="nav-badge" style="display:none;">⏳ Free Trial</span>
@@ -1906,7 +1906,7 @@
                     <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
                 </a>
                 <div class="sidebar-nav-item active" id="sidebar-job-deck-item">
-                    <i data-lucide="layers" class="sidebar-nav-icon"></i> Job Deck
+                    <i data-lucide="building-2" class="sidebar-nav-icon"></i> Career Pages — Auto-Apply (158)
                 </div>
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
@@ -2045,7 +2045,7 @@
 
         <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Job Deck</h1>
+            <h1 class="page-title">Career Pages — Auto-Apply</h1>
             <div style="display: flex; align-items: center; gap: 0.85rem;">
                 <div id="credit-balance-block" class="credit-balance" style="display: none; align-items: center; text-align: right;">
                     <div>
@@ -2809,9 +2809,9 @@
             link.className = 'sidebar-nav-item' + (HIRING_MODE ? ' active' : '');
             link.href = 'swipe.html?mode=hiring';
             link.style.cssText = 'text-decoration: none; color: inherit;';
-            link.innerHTML = '<i data-lucide="smartphone" class="sidebar-nav-icon"></i> Social Posts — Auto Outreach <span class="badge" style="margin-left:auto; font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40 New</span>';
+            link.innerHTML = '<i data-lucide="smartphone" class="sidebar-nav-icon"></i> Social Posts — Auto Outreach (40)';
             const manual = document.getElementById('sidebar-manual-jobs-link');
-            const anchor = manual || jobDeck;
+            const anchor = jobDeck;
             if (anchor && anchor.nextSibling) nav.insertBefore(link, anchor.nextSibling);
             else nav.appendChild(link);
             if (window.lucide && typeof window.lucide.createIcons === 'function') window.lucide.createIcons();
@@ -3187,7 +3187,7 @@
                         toggleDiv.innerHTML = `
                             <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${!isHiring && !isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Auto-Apply (158)</a>
                             <a href="swipe.html?mode=hiring" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${isHiring ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="smartphone" style="width:13px;height:13px;"></i> Social Posts — Auto Outreach (40)</a>
-                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; ${isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Apply Yourself (Free) (158)</a>
+                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; ${isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Apply Yourself (Free)</a>
                         `;
                         const h1 = pageHeader.querySelector('h1');
                         if (h1) {
@@ -3200,15 +3200,17 @@
 
                     const sidebarNav = document.querySelector('.sidebar-nav');
                     if (sidebarNav && !document.getElementById('sidebar-manual-jobs-link')) {
+                        const hiringLink = document.getElementById('sidebar-hiring-posts-link');
                         const jobDeckLink = document.getElementById('sidebar-job-deck-item') || sidebarNav.querySelector('.sidebar-nav-item.active') || sidebarNav.querySelector('a[href="swipe.html"]');
+                        const anchor = hiringLink || jobDeckLink;
                         const manualLink = document.createElement('a');
                         manualLink.id = 'sidebar-manual-jobs-link';
                         manualLink.className = 'sidebar-nav-item';
                         manualLink.href = 'jobs.html';
                         manualLink.style.cssText = 'text-decoration: none; color: inherit;';
                         manualLink.innerHTML = '<i data-lucide="building-2" class="sidebar-nav-icon"></i> Career Pages — Apply Yourself (Free)';
-                        if (jobDeckLink && jobDeckLink.nextSibling) {
-                            sidebarNav.insertBefore(manualLink, jobDeckLink.nextSibling);
+                        if (anchor && anchor.nextSibling) {
+                            sidebarNav.insertBefore(manualLink, anchor.nextSibling);
                         } else {
                             sidebarNav.appendChild(manualLink);
                         }

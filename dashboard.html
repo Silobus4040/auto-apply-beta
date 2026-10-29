@@ -1817,7 +1817,7 @@
                     <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
                 </div>
                 <a class="sidebar-nav-item" href="swipe.html" style="text-decoration: none; color: inherit;">
-                    <i data-lucide="layers" class="sidebar-nav-icon"></i> Job Deck
+                    <i data-lucide="building-2" class="sidebar-nav-icon"></i> Career Pages — Auto-Apply (158)
                 </a>
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
@@ -2870,16 +2870,16 @@
 
             // 1. Hiring Posts link in sidebar
             if (!document.getElementById('sidebar-hiring-posts-link')) {
-                const manualLink = document.getElementById('sidebar-manual-jobs-link') || sidebarNav.querySelector('a[href="swipe.html"]');
+                const autoApplyLink = sidebarNav.querySelector('a[href="swipe.html"]');
                 const hiringLink = document.createElement('a');
                 hiringLink.id = 'sidebar-hiring-posts-link';
                 hiringLink.className = 'sidebar-nav-item';
                 hiringLink.href = 'swipe.html?mode=hiring';
                 hiringLink.style.cssText = 'text-decoration: none; color: inherit;';
-                hiringLink.innerHTML = '<i data-lucide="smartphone" class="sidebar-nav-icon"></i> Social Posts — Auto Outreach <span class="badge" style="margin-left:auto; font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40 New</span>';
-                if (manualLink && manualLink.nextSibling) {
-                    sidebarNav.insertBefore(hiringLink, manualLink.nextSibling);
-                } else if (manualLink) {
+                hiringLink.innerHTML = '<i data-lucide="smartphone" class="sidebar-nav-icon"></i> Social Posts — Auto Outreach (40)';
+                if (autoApplyLink && autoApplyLink.nextSibling) {
+                    sidebarNav.insertBefore(hiringLink, autoApplyLink.nextSibling);
+                } else if (autoApplyLink) {
                     sidebarNav.appendChild(hiringLink);
                 }
             }
@@ -2954,7 +2954,7 @@
                         toggleDiv.innerHTML = `
                             <a href="swipe.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${!isHiring && !isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Auto-Apply (158)</a>
                             <a href="swipe.html?mode=hiring" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 800; text-decoration: none; ${isHiring ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="smartphone" style="width:13px;height:13px;"></i> Social Posts — Auto Outreach (40)</a>
-                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; ${isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Apply Yourself (Free) (158)</a>
+                            <a href="jobs.html" style="padding: 0.35rem 0.85rem; border-radius: 999px; font-size: 0.75rem; font-weight: 700; text-decoration: none; ${isManual ? 'background: #000; color: #fff;' : 'color: var(--text-body); background: transparent;'} display: inline-flex; align-items: center; gap: 0.3rem;"><i data-lucide="building-2" style="width:13px;height:13px;"></i> Career Pages — Apply Yourself (Free)</a>
                         `;
                         const titleArea = pageHeader.querySelector('div');
                         if (titleArea) titleArea.appendChild(toggleDiv);
@@ -2963,15 +2963,17 @@
                     // Add Manual Jobs link to sidebar
                     const sidebarNav = document.querySelector('.sidebar-nav');
                     if (sidebarNav && !document.getElementById('sidebar-manual-jobs-link')) {
-                        const jobDeckLink = sidebarNav.querySelector('a[href="swipe.html"]');
+                        const hiringLink = document.getElementById('sidebar-hiring-posts-link');
+                        const autoApplyLink = sidebarNav.querySelector('a[href="swipe.html"]');
+                        const anchor = hiringLink || autoApplyLink;
                         const manualLink = document.createElement('a');
                         manualLink.id = 'sidebar-manual-jobs-link';
                         manualLink.className = 'sidebar-nav-item';
                         manualLink.href = 'jobs.html';
                         manualLink.style.cssText = 'text-decoration: none; color: inherit;';
                         manualLink.innerHTML = '<i data-lucide="building-2" class="sidebar-nav-icon"></i> Career Pages — Apply Yourself (Free)';
-                        if (jobDeckLink && jobDeckLink.nextSibling) {
-                            sidebarNav.insertBefore(manualLink, jobDeckLink.nextSibling);
+                        if (anchor && anchor.nextSibling) {
+                            sidebarNav.insertBefore(manualLink, anchor.nextSibling);
                         } else {
                             sidebarNav.appendChild(manualLink);
                         }
