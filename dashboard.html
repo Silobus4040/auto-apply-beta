@@ -519,10 +519,14 @@
         .email-item:not(.unread)::before { display: none !important; }
         .email-item.unread { padding-left: 1.5rem; }
         .email-item.active.unread { padding-left: calc(1.5rem - 4px); }
-        .email-sender { font-size: 0.9rem; font-weight: 500; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .email-sender { font-size: 0.9rem; font-weight: 500; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5rem; }
         .email-subject { font-size: 0.85rem; font-weight: 450; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .email-preview { font-size: 0.8rem; color: #71717a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .email-time { font-size: 0.7rem; color: #71717a; font-weight: 450; position: absolute; top: 1.25rem; right: 1.25rem; }
+        
+        @media (min-width: 769px) {
+            .email-mobile-back-row { display: none !important; }
+        }
         
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
         .email-client-container.list-only .email-sidebar { display: flex !important; width: 100% !important; flex: 1 !important; border-right: none !important; }
@@ -5067,7 +5071,7 @@
             if (!pane) return;
             const recipient = email.recipient || '';
             const subject = email.subject || '(No Subject)';
-            const rawBody = (email.body_preview || email.full_html || '').trim();
+            const rawBody = (email.full_html || email.body_preview || '').trim();
             const cleanBody = rawBody.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
             const d = new Date(email.created_at);
             const dateStr = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -5218,7 +5222,7 @@
                         user_id: uid,
                         to: email.recipient,
                         subject: email.subject,
-                        body: email.body_preview || email.full_html,
+                        body: email.full_html || email.body_preview,
                         matched_job_id: email.matched_job_id
                     })
                 });

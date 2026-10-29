@@ -488,10 +488,14 @@
         .email-item:not(.unread)::before { display: none !important; }
         .email-item.unread { padding-left: 1.5rem; }
         .email-item.active.unread { padding-left: calc(1.5rem - 4px); }
-        .email-sender { font-size: 0.9rem; font-weight: 500; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .email-sender { font-size: 0.9rem; font-weight: 500; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5rem; }
         .email-subject { font-size: 0.85rem; font-weight: 450; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .email-preview { font-size: 0.8rem; color: #71717a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .email-time { font-size: 0.7rem; color: #71717a; font-weight: 450; position: absolute; top: 1.25rem; right: 1.25rem; }
+        
+        @media (min-width: 769px) {
+            .email-mobile-back-row { display: none !important; }
+        }
         
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
         .email-client-container.list-only .email-sidebar { display: flex !important; width: 100% !important; flex: 1 !important; border-right: none !important; }
@@ -3070,7 +3074,7 @@
                     const toast = document.createElement('div');
                     toast.id = 'social-draft-toast';
                     toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18181b;color:#fff;padding:0.75rem 1.4rem;border-radius:10px;font-size:0.875rem;font-weight:700;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:0.5rem;animation:fadein 0.2s ease;';
-                    toast.innerHTML = '<span>⚡ Tailoring application draft with Llama 3.3...</span>';
+                    toast.innerHTML = '<span>⚡ Tailoring your application draft...</span>';
                     document.body.appendChild(toast);
 
                     // Trigger the dedicated Llama 3.3 Social Draft Generator workflow in n8n
@@ -6216,7 +6220,7 @@
             if (!pane) return;
             const recipient = email.recipient || '';
             const subject = email.subject || '(No Subject)';
-            const rawBody = (email.body_preview || email.full_html || '').trim();
+            const rawBody = (email.full_html || email.body_preview || '').trim();
             const cleanBody = rawBody.replace(/\\r\\n/g, '\n').replace(/\\n/g, '\n');
             const d = new Date(email.created_at);
             const dateStr = d.toLocaleDateString([], {weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'}) + ' at ' + d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
@@ -6367,7 +6371,7 @@
                         user_id: uid,
                         to: email.recipient,
                         subject: email.subject,
-                        body: email.body_preview || email.full_html,
+                        body: email.full_html || email.body_preview,
                         matched_job_id: email.matched_job_id
                     })
                 });
