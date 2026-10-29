@@ -1136,3 +1136,32 @@ well inside the new ~142s ceiling, where it only reached ~48s before. Not yet re
 real 39-account burst (would mean rebuilding the synthetic test accounts again); the timing
 mechanics are directly verified, the throughput math is carried over from section 34's real
 measurement.
+
+## 36. Patience fix re-verified: 39/39 now succeed (was 23/39) -- mosco reverted to Lagos (2026-10-29)
+
+Founder asked to revert mosco and re-run the real 39-account burst test from section 34 against
+the section 35 patience fix, to prove it (not just the timing mechanics already checked).
+
+**mosco reverted:** country/state/city back to Nigeria/Lagos/Lagos (was New York for testing since
+section 22). Credits remain 31/70 used -- the section 30 refund is still the founder's own call,
+untouched.
+
+**Re-test:** rebuilt the same 30 synthetic accounts (same method as section 34: Auth Admin API,
+real profiles/resumes, one of the 10 well-tagged target roles each) + the same 9 real accounts that
+currently need a refill (`numfiverr@gmail.com` dropped again -- `generate_link` 500s for that one
+account specifically, unrelated). Ran the exact client retry loop `jobs.html` now uses (20 tries,
+backoff capped at 8s) against all 39 at the real production cap (5) at the same instant.
+
+**Result: 39/39 (100%) succeeded, 0 gave up.** Total wall clock for all 39 to settle: 67.7s (well
+under the new ~142s ceiling -- most didn't need anywhere close to the full budget, since the cap-5
+queue keeps draining as others finish). Section 34's result under the OLD ~48s budget was 23/39
+(59%). No server errors.
+
+**Cleanup verified:** all 1,500 queued jobs + 30 profiles/test_accounts/profile_target_roles/
+deck_refill_state rows deleted, all 30 auth users deleted, 0 remaining
+`freedeckloadtest*@leadscompass.ai` rows. `rr_throttle_settings` untouched throughout (cap 5, low
+20) -- confirmed before and after, same as section 34.
+
+This closes the gap flagged in section 34/35: a brand-new-signup burst at launch scale now
+succeeds for everyone within the page's own wait, at the same safe server settings that were
+already proven not to fail under load.
