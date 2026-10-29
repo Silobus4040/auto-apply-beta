@@ -1108,3 +1108,31 @@ refill call legitimately gave them (same as normal use, nothing to revert).
 change), cautiously raise the cap above 5 (cap 10 previously caused real HTTP 500s under 12-user
 load, §32), or accept the current ~41% first-try "try again" rate for the narrow empty-list-burst
 case before opening `feature_access.manual_mode` beyond mosco. Not decided or changed.
+
+## 35. Free Job Deck: wait longer instead of raising the refill cap (2026-10-29)
+
+Follow-up to section 34's finding (39 simultaneous empty-list users at the real cap-5 setting:
+23/39 succeeded within the old ~48s client retry window, 16/39 gave up). Founder asked for the
+fix; chose "make the page more patient" over "raise the cap" -- raising it was rejected again
+because section 32 already proved cap 10 causes real statement-timeout failures under load (the
+search itself gets slower when more run together, it isn't free to queue more of them).
+
+**Change (`jobs.html`, `requestRefill`):** retry budget raised from 8 tries (~48s) to 20 tries,
+backoff still ramps 2.5s/3.5s/4.5s/5.5s/6.5s/7.5s for the first few tries then holds steady at a
+capped 8s per try (`Math.min(2500 + attempt*1000, 8000)`) rather than growing forever. Added an
+`onAttempt` callback so `loadDeck()` can swap the "Finding jobs for you... this can take a few
+seconds" message to "Lots of people are searching right now... this can take a minute or two" once
+the wait has gone on a while, instead of leaving stale "a few seconds" text up for two minutes.
+
+**Verified in the real browser (mocked `rr_free_deck_refill` to always return `busy`, real
+`sleep()` timers, nothing sent to the real database for this part):** exactly 20 attempts fired,
+at 0 / 2506 / 6018 / 10522 / 16023 / 22539 / 30048ms (matches the designed ramp precisely), then a
+steady ~8003ms cadence through to attempt 20 at 142150ms total (~2.37 min) before cleanly falling
+through to the existing "Lots of people are searching... Try again" screen. No changes to the
+server, `rr_throttle_settings`, or the cap -- same cap 5, same per-search cost as sections 32/34.
+
+Math: at cap 5 and ~13s/batch (section 34), 39 people need up to ~100s for the last one to clear --
+well inside the new ~142s ceiling, where it only reached ~48s before. Not yet re-verified with a
+real 39-account burst (would mean rebuilding the synthetic test accounts again); the timing
+mechanics are directly verified, the throughput math is carried over from section 34's real
+measurement.

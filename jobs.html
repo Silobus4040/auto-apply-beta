@@ -850,13 +850,24 @@
 
         // Asks the server to refill the saved list. With waitIfBusy it keeps retrying while the
         // server says other users' refills are using every slot ('busy' / 'in_progress').
-        async function requestRefill(waitIfBusy) {
+        //
+        // Patience, not a bigger server cap (2026-10-29): a real 39-way simultaneous burst of
+        // brand-new users was measured against the real production throttle (cap 5 -- see
+        // MANUAL_MODE_PROGRESS_LOG.md section 34/35). At cap 5, ~5 people clear roughly every
+        // 13s, so the LAST person in a 39-wide queue needs up to ~100s, not the ~48s this loop
+        // used to wait before giving up (8 tries, ramp-only backoff). Raising the cap instead was
+        // tried and rejected: cap 10 caused real statement-timeout failures under load (section
+        // 32) -- the search itself gets slower when more of them run together, it doesn't just
+        // queue for free. So: wait longer here (now up to ~20 tries, backoff capped at 8s so later
+        // retries poll steadily rather than growing forever), never touch the cap.
+        async function requestRefill(waitIfBusy, onAttempt) {
             if (refillInFlight) return 'in_progress';
             refillInFlight = true;
             lastRefillAttemptAt = Date.now();
             try {
-                const maxTries = waitIfBusy ? 8 : 1;
+                const maxTries = waitIfBusy ? 20 : 1;
                 for (let attempt = 0; attempt < maxTries; attempt++) {
+                    if (onAttempt) onAttempt(attempt);
                     const { data, error } = await supabaseClient.rpc('rr_free_deck_refill');
                     if (error) {
                         console.warn('Refill request failed:', error);
@@ -867,7 +878,7 @@
                     const status = data && data.status;
                     if (status === 'busy' || status === 'in_progress') {
                         if (!waitIfBusy) return status;
-                        await sleep(2500 + attempt * 1000);
+                        await sleep(Math.min(2500 + attempt * 1000, 8000));
                         continue;
                     }
                     return status || 'unknown';
@@ -933,7 +944,13 @@
                     // Nothing saved yet (or all used up): find more, waiting politely if the server
                     // is busy with other people's refills.
                     container.innerHTML = '<div class="detail-placeholder"><p style="font-weight:700;">Finding jobs for you...</p><p style="font-size:0.85rem; margin-top:0.35rem;">This can take a few seconds.</p></div>';
-                    const status = await requestRefill(true);
+                    // After ~20s of waiting, swap to a message that explains WHY it's slow
+                    // instead of leaving the same "a few seconds" text up well past that.
+                    const status = await requestRefill(true, (attempt) => {
+                        if (attempt === 5) {
+                            container.innerHTML = '<div class="detail-placeholder"><p style="font-weight:700;">Lots of people are searching right now</p><p style="font-size:0.85rem; margin-top:0.35rem;">Hang tight — we\'re finding your jobs, this can take a minute or two.</p></div>';
+                        }
+                    });
                     ids = await fetchDeckJobIds();
                     if (!ids.length && (status === 'busy' || status === 'in_progress' || status === 'error')) {
                         deckJobs = [];
