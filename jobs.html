@@ -785,24 +785,13 @@
                     }
                 }
 
-                // Strict Gate: check feature_access for manual_mode
-                let isAllowed = (currentUser.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
-                if (!isAllowed) {
-                    const { data: featureAccess, error: faError } = await supabaseClient
-                        .from('feature_access')
-                        .select('enabled')
-                        .eq('user_id', currentUser.id)
-                        .eq('feature', 'manual_mode')
-                        .maybeSingle();
-                    if (faError) throw new Error(`feature_access check failed: ${faError.message}`);
-                    if (featureAccess && featureAccess.enabled) isAllowed = true;
-                }
-
-                if (!isAllowed) {
-                    // Non-test users are redirected back to normal dashboard
-                    window.location.href = 'dashboard.html';
-                    return;
-                }
+                // Open to every signed-in user (2026-10-29) -- the earlier mosco-only /
+                // feature_access.manual_mode gate was client-side only: rr_free_deck_ids and
+                // rr_free_deck_refill were already GRANTed to any `authenticated` user with no
+                // such check inside them (confirmed against the Supabase RLS/API-security docs --
+                // RLS does not apply to functions; access is controlled by GRANT + what's inside
+                // the function body), so the gate never actually restricted who could reach this
+                // data, only who saw the page. Removing it doesn't expose anything new.
 
                 // Fetch profile for credits + the application email tip (deck candidate
                 // selection itself reads the profile server-side inside rr_free_deck_refill,

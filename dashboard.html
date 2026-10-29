@@ -2937,16 +2937,10 @@
 
         async function checkManualModeAccess(userId) {
             try {
-                let isAllowed = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
-                if (!isAllowed) {
-                    const { data } = await supabaseClient
-                        .from('feature_access')
-                        .select('enabled')
-                        .eq('user_id', userId)
-                        .eq('feature', 'manual_mode')
-                        .maybeSingle();
-                    if (data && data.enabled) isAllowed = true;
-                }
+                // Free Job Deck is open to every signed-in user (2026-10-29) -- see jobs.html's
+                // init() for why the earlier mosco-only / feature_access gate never actually
+                // restricted the underlying data, only who saw this header link.
+                const isAllowed = true;
 
                 if (isAllowed) {
                     // Inject Mode Switcher into header
