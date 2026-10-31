@@ -2549,13 +2549,16 @@
 
   window.RR_SOCIAL_SAFETY = {
     hasAcknowledged: function() {
+      if (window.userProfile && typeof window.userProfile.has_seen_social_safety_gate === 'boolean') {
+        return window.userProfile.has_seen_social_safety_gate === true;
+      }
       try { return localStorage.getItem(SAFETY_STORAGE_KEY) === '1'; } catch (e) { return false; }
     },
     markAcknowledged: async function() {
       try { localStorage.setItem(SAFETY_STORAGE_KEY, '1'); } catch (e) {}
       try {
         if (window.userProfile) window.userProfile.has_seen_social_safety_gate = true;
-        if (window.supabaseClient && window. supabaseClient.auth) {
+        if (window.supabaseClient && window.supabaseClient.auth) {
           const { data } = await window.supabaseClient.auth.getUser();
           if (data && data.user) {
             await window.supabaseClient.from('profiles').update({ has_seen_social_safety_gate: true }).eq('id', data.user.id);
@@ -2582,11 +2585,11 @@
         <div class="rr-sv-modal" role="dialog" aria-modal="true">
           <div class="rr-sv-head">
             <div>
-              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#D4FF33;margin-bottom:4px">First-Time Social Hiring Orientation &middot; Shown Once</div>
+              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#D4FF33;margin-bottom:4px">Mandatory Social Hiring Safety Gate &middot; Blocks Feed Until Completed</div>
               <h2>Welcome to Social Hiring Signals &amp; 1-Click Verification</h2>
               <p>Why daily posts on Facebook, LinkedIn &amp; X beat the ATS trap—and how RoleRover arms you to verify every post in one click.</p>
             </div>
-            ${forceOpen ? '<button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">&times; Close</button>' : ''}
+            <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">${alreadyAcked ? '&times; Close' : 'Ignore (Posts Stay Hidden)'}</button>
           </div>
           <div class="rr-sv-body">
             <div class="rr-sv-welcome-box">
@@ -3098,6 +3101,13 @@
             }
 
             userProfile = profile;
+            window.userProfile = profile;
+            window.supabaseClient = supabaseClient;
+            if (profile.has_seen_social_safety_gate === true) {
+                try { localStorage.setItem('rr_social_hiring_safety_ack_v1', '1'); } catch (e) {}
+            } else {
+                try { localStorage.removeItem('rr_social_hiring_safety_ack_v1'); } catch (e) {}
+            }
             if (profile.has_seen_inbox_intro === true) {
                 try { localStorage.setItem(jobHuntIntroSeenKey(), '1'); } catch (e) {}
             } else if (profile.has_seen_inbox_intro === false) {
@@ -3476,36 +3486,73 @@
                     ))
                 ).map(socialLeadToJob);
                 if (window.RR_VERIFY_TOOL) window.RR_VERIFY_TOOL.registerLeads(socialLeadJobs);
-                if (!socialLeadJobs.length) {
+
+                window.__unlockSocialHiringDeck = function() {
+                    if (!socialLeadJobs.length) {
+                        if (HIRING_MODE) {
+                            hideDeckLoading();
+                            const es = document.getElementById('deck-empty-state');
+                            if (es) {
+                                es.style.display = '';
+                                es.innerHTML = '<h3>No social posts right now</h3><p>Rover is watching Facebook, LinkedIn, and X and will add matching recruiter posts here.</p>';
+                            }
+                        }
+                        return;
+                    }
+                    if (HIRING_MODE) {
+                        const isPrem = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150) || userProfile.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
+                        pooledJobs = isPrem ? socialLeadJobs.slice() : socialLeadJobs.slice(0, 5);
+                        pooledJobIndex = 0;
+                    } else {
+                        mergeSocialLeadsIntoDeck();
+                    }
+                    if (pooledJobs.length > pooledJobIndex) {
+                        hideDeckLoading();
+                        const section = document.getElementById('swipe-deck-section');
+                        if (section) section.style.display = 'block';
+                        const emptyState = document.getElementById('deck-empty-state');
+                        if (emptyState) emptyState.style.display = 'none';
+                        renderSwipeStack();
+                    }
+                };
+
+                await loadConfirmedSkills(userId);
+
+                const hasCompletedSafety = Boolean(
+                    (userProfile && userProfile.has_seen_social_safety_gate === true) ||
+                    (window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.hasAcknowledged())
+                );
+
+                if (!hasCompletedSafety) {
                     if (HIRING_MODE) {
                         hideDeckLoading();
-                        const es = document.getElementById('deck-empty-state');
-                        if (es) {
-                            es.style.display = '';
-                            const h3 = es.querySelector('h3');
-                            const p = es.querySelector('p');
-                            if (h3) h3.textContent = 'No social posts right now';
-                            if (p) p.textContent = 'Rover is watching Facebook groups and will add matching recruiter posts here.';
+                        const section = document.getElementById('swipe-deck-section');
+                        if (section) section.style.display = 'none';
+                        const emptyState = document.getElementById('deck-empty-state');
+                        if (emptyState) {
+                            emptyState.style.display = '';
+                            emptyState.innerHTML = `
+                                <div style="max-width:540px;margin:20px auto;padding:28px 24px;background:#111827;border:1px solid #283548;border-radius:16px;color:#f3f4f6;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,0.18);">
+                                    <div style="font-size:34px;margin-bottom:10px;">🛡️</div>
+                                    <h3 style="color:#fff;font-size:1.25rem;font-weight:800;margin:0 0 8px;">Social Hiring Feed Blocked — Safety Check Required</h3>
+                                    <p style="color:#94a3b8;font-size:0.9rem;line-height:1.55;margin:0 0 18px;">
+                                        Unlike pre-vetted corporate ATS Career Pages, social hiring posts come directly from open social media (Facebook, LinkedIn &amp; X).<br><br>
+                                        <strong style="color:#fbbf24;">Ignoring or closing the safety check means no social hiring posts will be shown.</strong> Click below and acknowledge all 7 anti-fraud rules to unlock your matched social hiring posts.
+                                    </p>
+                                    <button type="button" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck)" style="padding:11px 22px;border-radius:10px;border:0;background:linear-gradient(90deg,#D4FF33,#00FFCC);color:#0b0f17;font-weight:800;font-size:13.5px;cursor:pointer;">
+                                        🛡️ Complete Safety Check to Unlock Posts →
+                                    </button>
+                                </div>
+                            `;
+                        }
+                        if (window.RR_SOCIAL_SAFETY) {
+                            window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck);
                         }
                     }
                     return;
                 }
-                await loadConfirmedSkills(userId);
-                if (HIRING_MODE) {
-                    const isPrem = userProfile && (userProfile.subscription_tier === 'premium' || (userProfile.applications_limit && userProfile.applications_limit > 150) || userProfile.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
-                    pooledJobs = isPrem ? socialLeadJobs.slice() : socialLeadJobs.slice(0, 5);
-                    pooledJobIndex = 0;
-                } else {
-                    mergeSocialLeadsIntoDeck();
-                }
-                if (pooledJobs.length > pooledJobIndex) {
-                    hideDeckLoading();
-                    const section = document.getElementById('swipe-deck-section');
-                    if (section) section.style.display = 'block';
-                    const emptyState = document.getElementById('deck-empty-state');
-                    if (emptyState) emptyState.style.display = 'none';
-                    renderSwipeStack();
-                }
+
+                window.__unlockSocialHiringDeck();
             } catch (err) {
                 console.error('loadSocialLeadsIntoDeck failed', err);
             }
