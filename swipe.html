@@ -3031,18 +3031,7 @@
 
         function buildSocialBadges(job) {
             const hasRealCompany = job.company_name && !isGenericCompanyName(job.company_name);
-            let scam;
-            if (!hasRealCompany) {
-                scam = '<div class="social-lead-level-badge">Employer not named · verify before applying</div>';
-            } else if (job.fraud_check_status === 'flagged') {
-                scam = '<div class="social-lead-scam-badge scam-flagged">Possible scam reports found</div>';
-            } else if (job.fraud_check_status === 'clear') {
-                scam = '<div class="social-lead-scam-badge">No scam reports found</div>';
-            } else if (job.fraud_check_status === 'pending') {
-                scam = '<div class="social-lead-level-badge">Scam check not finished yet</div>';
-            } else {
-                scam = '<div class="social-lead-level-badge">Employer not identified · verify before applying</div>';
-            }
+            const scam = !hasRealCompany ? '<div class="social-lead-level-badge">Employer not named · use 1-Click Verify</div>' : '';
             const level = (job.detected_job_level === null || job.detected_job_level === undefined)
                 ? '<div class="social-lead-level-badge">❓ Level unclear — check before applying</div>'
                 : '';
