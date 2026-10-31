@@ -2952,9 +2952,11 @@
         this.openVerifyModal(lead, true);
       };
 
-      let dossier = (!forceRefresh && lead.verification_dossier) ? normalizeDossier(lead.verification_dossier) : null;
-      // If cached dossier is from the old schema without grounded_registration, automatically fetch fresh grounded verification
-      const needsGroundedUpgrade = dossier && dossier.checks && dossier.checks.company_registration && !('grounded_registration' in dossier.checks.company_registration);
+      const rawDossier = (!forceRefresh && lead.verification_dossier) ? lead.verification_dossier : null;
+      const isLegacySchema = Boolean(rawDossier && !rawDossier.checks);
+      let dossier = rawDossier ? normalizeDossier(rawDossier) : null;
+      // If cached dossier is from the old schema (claim1_...), automatically fetch fresh grounded verification
+      const needsGroundedUpgrade = Boolean(isLegacySchema || (dossier && dossier.checks && dossier.checks.company_registration && !('grounded_registration' in dossier.checks.company_registration)));
 
       if (!dossier || needsGroundedUpgrade || forceRefresh) {
         try {
@@ -3059,8 +3061,10 @@
               ${gr.grounding_note ? `<div style="margin-top:6px;font-size:0.76rem;color:#3f3f46;">${esc(gr.grounding_note)}</div>` : ''}
             ` : `
               <div style="font-size:0.82rem;color:#18181b;line-height:1.5">
-                ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a> &middot; ` : ''}
-                <span>${esc(c1.summary || 'No public government registration record matched.')}</span>
+                ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : ''}
+                ${c1.verified_hq ? ` &middot; <b>HQ:</b> ${esc(c1.verified_hq)}` : ''}
+                ${c1.founded_year ? ` &middot; <b>Founded:</b> ${esc(c1.founded_year)}` : ''}
+                <div style="margin-top:4px;color:#3f3f46;">${esc(c1.summary || 'No public government registration record matched.')}</div>
               </div>
             `}
           </div>
