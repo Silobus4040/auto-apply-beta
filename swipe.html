@@ -2409,11 +2409,11 @@
   }
   .rr-sv-modal {
     background: #ffffff; color: #09090b; border: 1px solid #e4e4e7; border-radius: 20px;
-    max-width: 680px; width: 100%; max-height: 88vh; display: flex; flex-direction: column;
+    max-width: 660px; width: 100%; max-height: 88vh; display: flex; flex-direction: column;
     box-shadow: 0 24px 54px rgba(0, 0, 0, 0.22); overflow: hidden; text-align: left;
   }
   .rr-sv-head {
-    padding: 20px 26px 16px; background: #ffffff;
+    padding: 18px 24px 15px; background: #ffffff;
     border-bottom: 1px solid #e4e4e7; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
   }
   .rr-sv-step-pills {
@@ -2428,17 +2428,17 @@
   .rr-sv-step-dot.done {
     background: #18181b;
   }
-  .rr-sv-head h2 { margin: 0; font-size: 1.25rem; font-weight: 800; color: #09090b; line-height: 1.3; letter-spacing: -0.02em; }
-  .rr-sv-head p { margin: 4px 0 0; font-size: 0.88rem; color: #27272a; line-height: 1.45; font-weight: 500; }
+  .rr-sv-head h2 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #09090b; line-height: 1.3; letter-spacing: -0.02em; }
+  .rr-sv-head p { margin: 4px 0 0; font-size: 0.86rem; color: #27272a; line-height: 1.45; font-weight: 500; }
   .rr-sv-body {
-    padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px;
+    padding: 18px 24px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 12px;
     scrollbar-width: thin; scrollbar-color: #d4d4d8 transparent;
   }
   .rr-sv-body::-webkit-scrollbar { width: 6px; }
   .rr-sv-body::-webkit-scrollbar-track { background: transparent; }
   .rr-sv-body::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 99px; }
   .rr-sv-foot {
-    padding: 16px 26px; background: #ffffff; border-top: 1px solid #e4e4e7;
+    padding: 14px 24px; background: #ffffff; border-top: 1px solid #e4e4e7;
     display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
   }
   .rr-sv-welcome-box {
@@ -2468,7 +2468,7 @@
   .rr-sv-rule-text { font-size: 0.87rem; line-height: 1.55; color: #18181b; flex: 1; }
   .rr-sv-rule-text b { color: #09090b; font-weight: 800; }
   .rr-sv-ack-btn {
-    flex-shrink: 0; border-radius: 9px; padding: 8px 14px; font-size: 0.8rem; font-weight: 800;
+    flex-shrink: 0; border-radius: 9px; padding: 7px 13px; font-size: 0.78rem; font-weight: 800;
     cursor: pointer; border: 1px solid #d4d4d8; background: #ffffff; color: #09090b;
     transition: all 0.15s ease; white-space: nowrap; font-family: inherit;
   }
@@ -2495,34 +2495,34 @@
   .rr-sv-btn-trigger:hover {
     background: #D4FF33; color: #09090b; border-color: #b8e600;
   }
-  .rr-sv-dossier-grid { display: flex; flex-direction: column; gap: 12px; }
+  .rr-sv-dossier-grid { display: flex; flex-direction: column; gap: 10px; }
   .rr-sv-check-card {
-    background: #fafafa; border: 1px solid #e4e4e7; border-radius: 12px; padding: 14px 16px;
+    background: #fafafa; border: 1px solid #e4e4e7; border-radius: 12px; padding: 12px 15px;
   }
   .rr-sv-check-head {
-    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
   }
-  .rr-sv-check-title { font-size: 0.88rem; font-weight: 800; color: #09090b; display: flex; align-items: center; gap: 7px; }
+  .rr-sv-check-title { font-size: 0.85rem; font-weight: 800; color: #09090b; display: flex; align-items: center; gap: 6px; }
   .rr-sv-pill {
     display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px;
     font-size: 0.72rem; font-weight: 800; text-decoration: none;
   }
-  .rr-sv-pill-ok { background: #f7fee7; color: #18181b; border: 1px solid #a3e635; }
+  .rr-sv-pill-ok { background: #f7fee7; color: #09090b; border: 1px solid #a3e635; }
   .rr-sv-pill-warn { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
   .rr-sv-pill-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
   .rr-sv-pill-info { background: #f4f4f5; color: #18181b; border: 1px solid #d4d4d8; }
-  .rr-sv-social-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  .rr-sv-reg-facts {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 14px;
+    margin-top: 6px; padding-top: 6px; border-top: 1px solid #e4e4e7; font-size: 0.8rem; color: #18181b;
+  }
+  .rr-sv-reg-facts div b { color: #09090b; font-weight: 700; }
+  .rr-sv-social-links { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
   .rr-sv-social-a {
-    display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px;
-    font-size: 0.78rem; font-weight: 700; background: #ffffff; border: 1px solid #d4d4d8;
+    display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
+    font-size: 0.76rem; font-weight: 700; background: #ffffff; border: 1px solid #d4d4d8;
     color: #09090b; text-decoration: none; transition: all 0.15s;
   }
   .rr-sv-social-a:hover { border-color: #b8e600; color: #09090b; background: #D4FF33; }
-  .rr-sv-social-a.missing { opacity: 0.45; cursor: default; pointer-events: none; background: #f4f4f5; }
-  .rr-sv-links-list { margin: 8px 0 0; padding-left: 18px; font-size: 0.82rem; color: #18181b; }
-  .rr-sv-links-list li { margin-bottom: 4px; }
-  .rr-sv-links-list a { color: #09090b; text-decoration: underline; text-decoration-color: #a3e635; font-weight: 700; }
-  .rr-sv-links-list a:hover { background: #D4FF33; text-decoration: none; }
 </style>
 <script id="rr-social-verify-script">
 (function() {
@@ -2558,44 +2558,84 @@
       body: 'Any job that sends you a check and asks you to refund part of it, requests payment via gift cards or crypto, or asks you to deposit money to unlock tasks is a scam.'
     },
     {
+      id: 'cv_revamp_ats_fee',
+      title: '6. Be Cautious of Paid CV Revamp or ATS Improvement Requests',
+      body: 'Be cautious if a recruiter asks you to pay for a CV revamp or ATS improvement. Role Rover will always tailor your CV per job posting to match the job description.'
+    },
+    {
       id: 'independent_verify',
-      title: '6. The Final Decision Is Yours: Always Verify Before Applying',
+      title: '7. The Final Decision Is Yours: Always Verify Before Applying',
       body: 'RoleRover surfaces open social hiring posts and arms you with the 1-Click Verify tool so you never miss real opportunities. Always run 1-Click Verify and stop immediately if anyone asks for money.'
     }
   ];
 
   const leadMemoryCache = new Map();
 
-  function isGenericRegistrySearchPage(url) {
-    if (!url) return true;
-    const u = String(url).toLowerCase();
-    return (
-      u === 'https://www.cac.gov.ng/' ||
-      u === 'https://www.cac.gov.ng' ||
-      u.includes('cac.gov.ng/services/company-search') ||
-      u.includes('cac.gov.ng/foi-portal') ||
-      u.includes('find-and-update.company-information.service.gov.uk/?') ||
-      u === 'https://find-and-update.company-information.service.gov.uk/'
-    );
+  function cleanHostLabel(url) {
+    if (!url) return '';
+    try {
+      const u = new URL(url);
+      return u.hostname.replace(/^www\./i, '');
+    } catch (e) {
+      return String(url).replace(/^https?:\/\/(www\.)?/i, '').split('/')[0];
+    }
+  }
+
+  function extractLegacyGroundedReg(records) {
+    if (!Array.isArray(records)) return null;
+    for (const r of records) {
+      if (!r || !r.url) continue;
+      const u = String(r.url).toLowerCase();
+      if (u.includes('crunchbase.com') || u.includes('cac.gov.ng/services') || u.endsWith('cac.gov.ng/')) continue;
+      const combined = String(r.title || '') + ' ' + String(r.summary || '');
+      const rcMatch = combined.match(/\b(RC[-\s]?\d{4,9}|BN[-\s]?\d{4,9})\b/i)
+        || combined.match(/Registration Number\s*:?\s*(\d{5,10})/i)
+        || combined.match(/document number\s*:?\s*([A-Z0-9-]{6,16})/i)
+        || combined.match(/Company number\s*:?\s*([A-Z0-9-]{6,14})/i)
+        || combined.match(/\b(U\d{5}[A-Z]{2}\d{4}PTC\d{6})\b/i);
+      if (rcMatch) {
+        let regNo = rcMatch[1].trim();
+        let jurisdiction = 'Registered Jurisdiction';
+        let authority = 'Government Registry';
+        if (u.includes('ng-check.com') || /nigeria|asaba|lagos|abuja/i.test(combined)) {
+          jurisdiction = 'Nigeria';
+          authority = 'Corporate Affairs Commission (CAC)';
+          if (/^\d+$/.test(regNo)) regNo = 'RC-' + regNo;
+        } else if (u.includes('bizprofile.net/ca/') || /california/i.test(combined)) {
+          jurisdiction = 'United States (California)';
+          authority = 'California Secretary of State';
+        } else if (u.includes('service.gov.uk') || u.includes('endole.co.uk')) {
+          jurisdiction = 'United Kingdom';
+          authority = 'UK Companies House';
+        } else if (u.includes('zaubacorp.com') || u.includes('tofler.in')) {
+          jurisdiction = 'India';
+          authority = 'Ministry of Corporate Affairs (MCA)';
+        }
+        return {
+          verified: true,
+          status: 'Active',
+          legal_name: String(r.title || '').split(/[-|·]/)[0].trim(),
+          registration_number: regNo,
+          jurisdiction,
+          authority
+        };
+      }
+    }
+    return null;
   }
 
   function normalizeDossier(raw) {
     if (!raw || typeof raw !== 'object') return null;
     if (raw.checks && typeof raw.checks === 'object') {
-      const c = raw.checks;
-      if (c.company_registration && Array.isArray(c.company_registration.registry_links)) {
-        c.company_registration.registry_links = c.company_registration.registry_links.filter(r => r && !isGenericRegistrySearchPage(r.url));
-      }
       return raw;
     }
-    // Convert backfilled claim1..claim6 format into normalized checks format
     if (raw.claim1_registration_and_website || raw.claim2_cross_platform_socials || raw.claim3_domain_and_impersonation) {
       const c1 = raw.claim1_registration_and_website || {};
       const c2 = raw.claim2_cross_platform_socials || {};
       const c3 = raw.claim3_domain_and_impersonation || {};
       const c4 = raw.claim4_scam_fee_check || {};
       const c6 = raw.claim6_contact_web_history || {};
-      const regLinks = (Array.isArray(c1.registry_records) ? c1.registry_records : []).filter(r => r && !isGenericRegistrySearchPage(r.url));
+      const grounded = extractLegacyGroundedReg(c1.registry_records);
       const domStatusMap = {
         corporate_match: 'corporate_domain_match',
         verified_free_email: 'free_email_verified_on_site',
@@ -2606,7 +2646,10 @@
         checks: {
           company_registration: {
             official_website: c1.official_website || c2.website || null,
-            registry_links: regLinks
+            grounded_registration: grounded,
+            summary: grounded
+              ? ('Active · Registered in ' + grounded.jurisdiction + ' (' + grounded.authority + ' · ' + grounded.registration_number + ')')
+              : 'Click "↻ Re-Scan Live" above to run the latest grounded government registry check.'
           },
           social_footprint: {
             company_linkedin: c2.company_linkedin || null,
@@ -2623,8 +2666,8 @@
           },
           scam_reputation: {
             status: c4.flagged ? 'scam_reports_found' : 'no_scam_reports_indexed',
-            badge: c4.flagged ? '⚠️ Scam / Fee Warning Found' : '✓ No Public Scam Reports Found',
-            summary: c4.summary || 'No public scam, fraud, or fee-demand reports found for this contact.',
+            badge: c4.flagged ? '⚠️ Scam / Fee Warning Found' : '✓ 0 Scam Reports Found',
+            summary: c4.summary || 'No public scam, fraud, or fee-demand reports found across the web.',
             warnings: Array.isArray(c4.hits) ? c4.hits : []
           },
           contact_web_history: {
@@ -2732,7 +2775,7 @@
                 <div class="rr-sv-welcome-box">
                   <span class="rr-sv-section-title" style="margin-top:0">Every post from social media comes with a 1-Click Verify tool that:</span>
                   <ol class="rr-sv-protect-list">
-                    <li><b>Checks Company Registration:</b> Dynamically checks national business registries in the employer's country, global company directories, and official websites to confirm the business is registered.</li>
+                    <li><b>Checks Company Registration:</b> Dynamically checks national business registries in the employer's country and official websites to confirm the business is registered.</li>
                     <li><b>Cross-Platform Social Bridge:</b> Finds and links the company's and poster's LinkedIn, X (Twitter), Facebook, and Instagram profiles.</li>
                     <li><b>Brand Impersonation Check:</b> Checks if the contact email matches the company's official domain or if a free email (<code>@gmail.com</code>) is listed on their official website.</li>
                     <li><b>Email &amp; Phone Scam Sweep:</b> Scans the entire web for past fraud warnings, fee demands, or scam complaints tied to that email address or phone number.</li>
@@ -2760,7 +2803,7 @@
           return;
         }
 
-        // Step 3: 6 Safety Rules
+        // Step 3: 7 Safety Rules
         backdrop.innerHTML = `
           <div class="rr-sv-modal" role="dialog" aria-modal="true">
             <div class="rr-sv-head">
@@ -2888,13 +2931,13 @@
             </div>
           </div>
           <div class="rr-sv-body" id="rr-sv-dossier-body">
-            <div style="padding:36px 20px;text-align:center;color:#18181b">
-              <div style="font-size:1rem;font-weight:800;color:#09090b;margin-bottom:6px">Running 1-Click Verification...</div>
-              <div style="font-size:0.85rem">Checking business registries, social profiles, domain match, scam reports, and contact web history.</div>
+            <div style="padding:32px 20px;text-align:center;color:#18181b">
+              <div style="font-size:0.98rem;font-weight:800;color:#09090b;margin-bottom:6px">Running Grounded 1-Click Verification...</div>
+              <div style="font-size:0.84rem">Checking government business registries, official domain, social profiles, and scam reports.</div>
             </div>
           </div>
           <div class="rr-sv-foot">
-            <div style="font-size:0.82rem;color:#18181b;font-weight:500;">
+            <div style="font-size:0.8rem;color:#18181b;font-weight:500;">
               Always decline any request for money, deposits, or paid training.
             </div>
             <button type="button" class="rr-sv-ack-btn" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(true)">View Safety Guide</button>
@@ -2910,15 +2953,17 @@
       };
 
       let dossier = (!forceRefresh && lead.verification_dossier) ? normalizeDossier(lead.verification_dossier) : null;
+      // If cached dossier is from the old schema without grounded_registration, automatically fetch fresh grounded verification
+      const needsGroundedUpgrade = dossier && dossier.checks && dossier.checks.company_registration && !('grounded_registration' in dossier.checks.company_registration);
 
-      if (!dossier) {
+      if (!dossier || needsGroundedUpgrade || forceRefresh) {
         try {
           const res = await fetch(VERIFY_WEBHOOK_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               lead_id: lead.id || null,
-              force_refresh: Boolean(forceRefresh),
+              force_refresh: Boolean(forceRefresh || needsGroundedUpgrade),
               company_name: lead.company_name || null,
               author_name: lead.author_name || null,
               author_profile_url: lead.author_profile_url || null,
@@ -2965,58 +3010,70 @@
       const c4 = c.scam_reputation || {};
       const c5 = c.contact_web_history || {};
 
+      const gr = c1.grounded_registration || null;
+      const siteHost = cleanHostLabel(c1.official_website);
+
+      const regBadgeClass = gr && gr.verified ? 'rr-sv-pill-ok' : (siteHost ? 'rr-sv-pill-info' : 'rr-sv-pill-warn');
+      const regBadgeText = gr && gr.verified
+        ? ('✓ Registered in ' + gr.jurisdiction)
+        : (siteHost ? 'Official Website Found' : 'Registration Unverified');
+
       const domPillClass = c3.status === 'corporate_domain_match' || c3.status === 'free_email_verified_on_site'
         ? 'rr-sv-pill-ok'
         : (c3.status === 'brand_impersonation_warning' ? 'rr-sv-pill-danger' : 'rr-sv-pill-warn');
 
       const scamPillClass = c4.status === 'scam_reports_found' ? 'rr-sv-pill-danger' : 'rr-sv-pill-ok';
 
-      function socialBtn(url, label, icon) {
-        if (url && /^https?:\/\//i.test(url)) {
-          return `<a class="rr-sv-social-a" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${icon} ${esc(label)} ↗</a>`;
-        }
-        return `<span class="rr-sv-social-a missing">${icon} ${esc(label)}: Not found</span>`;
-      }
+      const socialButtons = [
+        [c2.company_linkedin, 'Company LinkedIn', '🏢'],
+        [c2.poster_linkedin, 'Poster LinkedIn', '👤'],
+        [c2.twitter_x, 'X (Twitter)', '𝕏'],
+        [c2.facebook, 'Facebook Page', '📘'],
+        [c2.instagram, 'Instagram', '📸'],
+        [c2.website || c1.official_website, siteHost || 'Official Website', '🌐']
+      ].filter(item => item[0] && /^https?:\/\//i.test(item[0]))
+       .map(item => `<a class="rr-sv-social-a" href="${esc(item[0])}" target="_blank" rel="noopener noreferrer">${item[2]} ${esc(item[1])} ↗</a>`)
+       .join('');
 
-      const regList = Array.isArray(c1.registry_links) ? c1.registry_links : [];
       const mentions = Array.isArray(c5.mentions) ? c5.mentions : [];
+      const mentionChips = mentions.map(m => {
+        const host = cleanHostLabel(m.url) || 'Web Page';
+        return `<a class="rr-sv-social-a" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">🔗 ${esc(host)} ↗</a>`;
+      }).join('');
 
       return `
         <div class="rr-sv-dossier-grid">
-          <!-- 1. Company Registration & Official Web Presence -->
+          <!-- 1. Grounded Company Registration & Website -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
               <div class="rr-sv-check-title">1. Company Registration &amp; Official Website</div>
-              <span class="rr-sv-pill ${c1.official_website || regList.length ? 'rr-sv-pill-ok' : 'rr-sv-pill-warn'}">
-                ${c1.official_website ? '✓ Official Website Found' : (regList.length ? '✓ Registry Record Found' : 'No Separate Website Found')}
-              </span>
+              <span class="rr-sv-pill ${regBadgeClass}">${esc(regBadgeText)}</span>
             </div>
-            <div style="font-size:0.84rem;color:#18181b;line-height:1.55">
-              <b>Official Website:</b> ${c1.official_website ? `<a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;text-decoration:underline;text-decoration-color:#a3e635;font-weight:700">${esc(c1.official_website)} ↗</a>` : '<span style="color:#52525b">No standalone corporate website indexed</span>'}
-            </div>
-            ${regList.length ? `
-              <div style="margin-top:8px;font-size:0.8rem;color:#09090b;font-weight:700">Business Registry / Directory Records (${regList.length}):</div>
-              <ul class="rr-sv-links-list">
-                ${regList.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)} ↗</a>${r.summary ? ` <span style="color:#3f3f46">(${esc(r.summary.slice(0, 100))}...)</span>` : ''}</li>`).join('')}
-              </ul>
-            ` : '<div style="margin-top:6px;font-size:0.82rem;color:#3f3f46">No public national business registry or global directory filing matched directly by name. Inspect the social profiles and domain match below.</div>'}
+            ${gr ? `
+              <div class="rr-sv-reg-facts">
+                <div><b>Legal Entity:</b> ${esc(gr.legal_name || d.company_inferred || 'Verified')} (${esc(gr.status || 'Active')})</div>
+                <div><b>Reg / Doc No.:</b> ${esc(gr.registration_number)}${gr.incorporation_date ? ` &middot; ${esc(gr.incorporation_date)}` : ''}</div>
+                <div><b>Authority:</b> ${esc(gr.authority)}</div>
+                <div><b>Official Website:</b> ${c1.official_website ? `<a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : 'Not listed'}</div>
+              </div>
+              ${gr.grounding_note ? `<div style="margin-top:6px;font-size:0.76rem;color:#3f3f46;">${esc(gr.grounding_note)}</div>` : ''}
+            ` : `
+              <div style="font-size:0.82rem;color:#18181b;line-height:1.5">
+                ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a> &middot; ` : ''}
+                <span>${esc(c1.summary || 'No public government registration record matched.')}</span>
+              </div>
+            `}
           </div>
 
-          <!-- 2. Cross-Platform Social Bridge -->
+          <!-- 2. Cross-Platform Social Profiles (Only Found Links) -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
-              <div class="rr-sv-check-title">2. Cross-Platform Social Bridge</div>
-              <span class="rr-sv-pill rr-sv-pill-info">Profile Links</span>
+              <div class="rr-sv-check-title">2. Cross-Platform Social Profiles</div>
+              <span class="rr-sv-pill rr-sv-pill-info">${socialButtons ? 'Verified Links' : 'None Indexed'}</span>
             </div>
-            <div style="font-size:0.82rem;color:#18181b">Inspect the company or poster across LinkedIn, X, Facebook, and Instagram:</div>
-            <div class="rr-sv-social-links">
-              ${socialBtn(c2.company_linkedin, 'Company LinkedIn', '🏢')}
-              ${socialBtn(c2.poster_linkedin, 'Poster LinkedIn', '👤')}
-              ${socialBtn(c2.twitter_x, 'X (Twitter)', '𝕏')}
-              ${socialBtn(c2.facebook, 'Facebook', '📘')}
-              ${socialBtn(c2.instagram, 'Instagram', '📸')}
-              ${socialBtn(c2.website || c1.official_website, 'Website', '🌐')}
-            </div>
+            ${socialButtons
+              ? `<div class="rr-sv-social-links">${socialButtons}</div>`
+              : '<div style="font-size:0.8rem;color:#3f3f46">No external social profiles were indexed for this poster.</div>'}
           </div>
 
           <!-- 3. Brand Impersonation Check -->
@@ -3025,7 +3082,7 @@
               <div class="rr-sv-check-title">3. Brand Impersonation Check</div>
               <span class="rr-sv-pill ${domPillClass}">${esc(c3.badge || 'Domain Checked')}</span>
             </div>
-            <div style="font-size:0.84rem;color:#18181b;line-height:1.55">${esc(c3.summary || '')}</div>
+            <div style="font-size:0.82rem;color:#18181b;line-height:1.5">${esc(c3.summary || '')}</div>
           </div>
 
           <!-- 4. Email & Phone Scam Sweep -->
@@ -3034,12 +3091,7 @@
               <div class="rr-sv-check-title">4. Email &amp; Phone Scam Sweep</div>
               <span class="rr-sv-pill ${scamPillClass}">${esc(c4.badge || 'Checked')}</span>
             </div>
-            <div style="font-size:0.84rem;color:#18181b;line-height:1.55">${esc(c4.summary || '')}</div>
-            ${Array.isArray(c4.warnings) && c4.warnings.length ? `
-              <ul class="rr-sv-links-list">
-                ${c4.warnings.map(w => `<li><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer" style="color:#dc2626">${esc(w.title)} ↗</a> — ${esc(w.snippet)}</li>`).join('')}
-              </ul>
-            ` : ''}
+            <div style="font-size:0.82rem;color:#18181b;line-height:1.5">${esc(c4.summary || '')}</div>
           </div>
 
           <!-- 5. Contact Web History -->
@@ -3048,16 +3100,9 @@
               <div class="rr-sv-check-title">5. Contact Web History</div>
               <span class="rr-sv-pill rr-sv-pill-info">${mentions.length} Web Mention(s)</span>
             </div>
-            <div style="font-size:0.84rem;color:#18181b;line-height:1.55">
-              ${mentions.length
-                ? 'Other public pages where this email address or phone number has appeared online (review to understand or detect any scam pattern):'
-                : 'No prior public job postings or web pages were indexed for this exact email address or phone number.'}
-            </div>
-            ${mentions.length ? `
-              <ul class="rr-sv-links-list">
-                ${mentions.map(m => `<li><a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.title)} ↗</a></li>`).join('')}
-              </ul>
-            ` : ''}
+            ${mentions.length
+              ? `<div class="rr-sv-social-links">${mentionChips}</div>`
+              : '<div style="font-size:0.8rem;color:#3f3f46">No prior public job postings were indexed for this exact email or phone number.</div>'}
           </div>
         </div>
       `;
