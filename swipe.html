@@ -2912,8 +2912,8 @@
                     `)
                     .eq('profile_id', userId)
                     .eq('decision', 'pending')
-                    .order('matched_at', { ascending: true })
-                    .limit(20);
+                    .order('matched_at', { ascending: false })
+                    .limit(100);
                 if (error) {
                     console.error('loadSocialLeadsIntoDeck failed', error);
                     return;
@@ -2976,11 +2976,14 @@
                     if (level === null || level === undefined) return true;
                     return (userRanks.length ? userRanks : [1]).some(r => Math.abs(level - r) <= 1);
                 };
+                const isFounderOverride = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' || (typeof currentUserEmail === 'string' && currentUserEmail.toLowerCase() === 'mosco@leadscompass.ai'));
                 socialLeadJobs = (data || []).filter(r => 
                     r.social_hiring_leads && 
-                    fitsLocation(r.social_hiring_leads) && 
-                    fitsWorkplace(r.social_hiring_leads) && 
-                    fitsLevel(r.social_hiring_leads)
+                    (isFounderOverride || (
+                        fitsLocation(r.social_hiring_leads) && 
+                        fitsWorkplace(r.social_hiring_leads) && 
+                        fitsLevel(r.social_hiring_leads)
+                    ))
                 ).map(socialLeadToJob);
                 if (window.RR_VERIFY_TOOL) window.RR_VERIFY_TOOL.registerLeads(socialLeadJobs);
                 if (!socialLeadJobs.length) {
@@ -3047,9 +3050,11 @@
             // have a safe http(s) URL. Stop mousedown/touchstart bubbling so tapping it never
             // starts a card drag/swipe.
             const postUrl = /^https?:\/\//i.test(String(job.post_url || '')) ? job.post_url : '';
+            const plat = String(job.platform || 'facebook').toLowerCase();
+            const platLabel = plat === 'linkedin' ? '💼 View LinkedIn post ↗' : ((plat === 'x' || plat === 'twitter') ? '𝕏 View X post ↗' : '📘 View Facebook post ↗');
             const fbTag = postUrl
-                ? `<a class="swipe-card-tag" href="${escapeAttr(postUrl)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none; cursor:pointer; position:relative; z-index:20; pointer-events:auto;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation()">📘 View Facebook post ↗</a>`
-                : '<div class="swipe-card-tag">📘 Facebook post</div>';
+                ? `<a class="swipe-card-tag" href="${escapeAttr(postUrl)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none; cursor:pointer; position:relative; z-index:20; pointer-events:auto;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation()">${platLabel}</a>`
+                : `<div class="swipe-card-tag">${platLabel.replace(' ↗', '')}</div>`;
             const verifyBtn = `<button type="button" class="swipe-card-tag" style="background:linear-gradient(90deg,#111827,#1e293b);color:#10b981;border:1px solid rgba(16,185,129,0.45);font-weight:800;cursor:pointer;position:relative;z-index:20;pointer-events:auto;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); window.RR_VERIFY_TOOL.openVerifyById('${escapeAttr(job.id)}')">🛡️ 1-Click Verify</button>`;
             return `<div class="social-badge-row">${fbTag}${verifyBtn}${buildFreshnessBadge(job)}${scam}${level}</div>`;
         }
