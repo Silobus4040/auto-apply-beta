@@ -2403,101 +2403,109 @@
 <!-- ROLEROVER SOCIAL HIRING WELCOME GATE & 1-CLICK VERIFY ENGINE -->
 <style id="rr-social-verify-styles">
   .rr-sv-backdrop {
-    position: fixed; inset: 0; background: rgba(7, 11, 19, 0.86); backdrop-filter: blur(5px);
+    position: fixed; inset: 0; background: rgba(9, 9, 11, 0.55); backdrop-filter: blur(4px);
     display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 99999;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   }
   .rr-sv-modal {
-    background: #111827; color: #f3f4f6; border: 1px solid #283548; border-radius: 16px;
-    max-width: 780px; width: 100%; max-height: 90vh; display: flex; flex-direction: column;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.65); overflow: hidden; text-align: left;
+    background: #ffffff; color: #09090b; border: 1px solid #e4e4e7; border-radius: 20px;
+    max-width: 720px; width: 100%; max-height: 88vh; display: flex; flex-direction: column;
+    box-shadow: 0 24px 48px rgba(0, 0, 0, 0.14); overflow: hidden; text-align: left;
   }
   .rr-sv-head {
-    padding: 20px 24px; background: linear-gradient(135deg, #152238 0%, #0f172a 100%);
-    border-bottom: 1px solid #243247; display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;
+    padding: 22px 26px 18px; background: #ffffff;
+    border-bottom: 1px solid #e4e4e7; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
   }
-  .rr-sv-head h2 { margin: 0; font-size: 19px; font-weight: 800; color: #fff; line-height: 1.3; }
-  .rr-sv-head p { margin: 4px 0 0; font-size: 13px; color: #94a3b8; line-height: 1.45; }
-  .rr-sv-body { padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; }
+  .rr-sv-head h2 { margin: 0; font-size: 1.25rem; font-weight: 800; color: #09090b; line-height: 1.3; letter-spacing: -0.02em; }
+  .rr-sv-head p { margin: 4px 0 0; font-size: 0.875rem; color: #71717a; line-height: 1.45; }
+  .rr-sv-body {
+    padding: 22px 26px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;
+    scrollbar-width: thin; scrollbar-color: #d4d4d8 transparent;
+  }
+  .rr-sv-body::-webkit-scrollbar { width: 6px; }
+  .rr-sv-body::-webkit-scrollbar-track { background: transparent; }
+  .rr-sv-body::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 99px; }
   .rr-sv-foot {
-    padding: 16px 24px; background: #0d1320; border-top: 1px solid #243247;
+    padding: 16px 26px; background: #fafafa; border-top: 1px solid #e4e4e7;
     display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
   }
   .rr-sv-welcome-box {
-    background: #0d1424; border: 1px solid #26354d; border-left: 4px solid #00FFCC;
-    border-radius: 12px; padding: 15px 18px; font-size: 13px; line-height: 1.6; color: #cbd5e1;
+    background: #fafafa; border: 1px solid #e4e4e7;
+    border-radius: 14px; padding: 18px 20px; font-size: 0.9rem; line-height: 1.65; color: #3f3f46;
   }
-  .rr-sv-welcome-box b { color: #fff; }
-  .rr-sv-powers-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 12px;
+  .rr-sv-welcome-box b, .rr-sv-welcome-box strong { color: #09090b; font-weight: 700; }
+  .rr-sv-section-title {
+    font-size: 0.92rem; font-weight: 800; color: #09090b; margin: 14px 0 4px; display: block;
   }
-  .rr-sv-power-card {
-    background: #131c2e; border: 1px solid #243247; border-radius: 9px; padding: 10px 12px; font-size: 12px; line-height: 1.45;
+  .rr-sv-section-title:first-child { margin-top: 0; }
+  .rr-sv-protect-list {
+    margin: 8px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 6px;
+    font-size: 0.875rem; line-height: 1.55; color: #3f3f46;
   }
-  .rr-sv-power-card b { display: block; color: #D4FF33; font-size: 12px; margin-bottom: 3px; }
+  .rr-sv-protect-list li b { color: #09090b; }
   .rr-sv-rule-list { display: flex; flex-direction: column; gap: 10px; }
   .rr-sv-rule-item {
-    display: flex; justify-content: space-between; align-items: center; gap: 14px;
-    background: #151e30; border: 1px solid #263449; border-radius: 11px; padding: 12px 15px;
-    transition: all 0.2s ease;
-  }
-  .rr-sv-rule-item.acked {
-    background: rgba(0, 255, 204, 0.07); border-color: rgba(0, 255, 204, 0.45);
-  }
-  .rr-sv-rule-text { font-size: 13px; line-height: 1.5; color: #e2e8f0; flex: 1; }
-  .rr-sv-rule-text b { color: #fff; font-weight: 700; }
-  .rr-sv-ack-btn {
-    flex-shrink: 0; border-radius: 8px; padding: 8px 14px; font-size: 12px; font-weight: 800;
-    cursor: pointer; border: 1px solid #3b4d66; background: #0d1320; color: #e2e8f0;
-    transition: all 0.15s ease; white-space: nowrap;
-  }
-  .rr-sv-ack-btn:hover { border-color: #D4FF33; color: #D4FF33; }
-  .rr-sv-ack-btn.acked {
-    background: #00FFCC; color: #0b0f17; border-color: #00FFCC;
-  }
-  .rr-sv-unlock-btn {
-    border: 0; border-radius: 10px; padding: 11px 22px; font-size: 14px; font-weight: 800;
-    cursor: pointer; background: linear-gradient(90deg, #D4FF33, #00FFCC); color: #0b0f17;
-    transition: opacity 0.2s;
-  }
-  .rr-sv-unlock-btn:disabled { opacity: 0.38; cursor: not-allowed; }
-  .rr-sv-btn-trigger {
-    display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
-    font-size: 12px; font-weight: 800; cursor: pointer;
-    background: linear-gradient(90deg, rgba(212,255,51,0.16), rgba(0,255,204,0.16));
-    color: #00FFCC; border: 1px solid rgba(0,255,204,0.45); text-decoration: none;
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 14px 16px;
     transition: all 0.15s ease;
   }
+  .rr-sv-rule-item.acked {
+    background: #ecfdf5; border-color: #10b981;
+  }
+  .rr-sv-rule-text { font-size: 0.86rem; line-height: 1.55; color: #3f3f46; flex: 1; }
+  .rr-sv-rule-text b { color: #09090b; font-weight: 700; }
+  .rr-sv-ack-btn {
+    flex-shrink: 0; border-radius: 9px; padding: 8px 14px; font-size: 0.8rem; font-weight: 700;
+    cursor: pointer; border: 1px solid #d4d4d8; background: #ffffff; color: #18181b;
+    transition: all 0.15s ease; white-space: nowrap; font-family: inherit;
+  }
+  .rr-sv-ack-btn:hover { border-color: #09090b; background: #f4f4f5; }
+  .rr-sv-ack-btn.acked {
+    background: #10b981; color: #ffffff; border-color: #10b981;
+  }
+  .rr-sv-unlock-btn {
+    border: 0; border-radius: 10px; padding: 11px 22px; font-size: 0.88rem; font-weight: 800;
+    cursor: pointer; background: #10b981; color: #ffffff; font-family: inherit;
+    transition: background 0.15s, opacity 0.15s;
+  }
+  .rr-sv-unlock-btn:hover:not(:disabled) { background: #059669; }
+  .rr-sv-unlock-btn:disabled { background: #e4e4e7; color: #71717a; cursor: not-allowed; }
+  .rr-sv-btn-trigger {
+    display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
+    font-size: 12px; font-weight: 700; cursor: pointer;
+    background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; text-decoration: none;
+    transition: all 0.15s ease; font-family: inherit;
+  }
   .rr-sv-btn-trigger:hover {
-    background: linear-gradient(90deg, #D4FF33, #00FFCC); color: #0b0f17; border-color: transparent;
+    background: #10b981; color: #ffffff; border-color: #10b981;
   }
   .rr-sv-dossier-grid { display: flex; flex-direction: column; gap: 12px; }
   .rr-sv-check-card {
-    background: #151e30; border: 1px solid #263449; border-radius: 12px; padding: 14px 16px;
+    background: #fafafa; border: 1px solid #e4e4e7; border-radius: 12px; padding: 14px 16px;
   }
   .rr-sv-check-head {
     display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 6px;
   }
-  .rr-sv-check-title { font-size: 13px; font-weight: 800; color: #fff; display: flex; align-items: center; gap: 7px; }
+  .rr-sv-check-title { font-size: 0.88rem; font-weight: 800; color: #09090b; display: flex; align-items: center; gap: 7px; }
   .rr-sv-pill {
     display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px;
-    font-size: 11px; font-weight: 700; text-decoration: none;
+    font-size: 0.72rem; font-weight: 700; text-decoration: none;
   }
-  .rr-sv-pill-ok { background: rgba(0,255,204,0.14); color: #00FFCC; border: 1px solid rgba(0,255,204,0.4); }
-  .rr-sv-pill-warn { background: rgba(251,191,36,0.15); color: #fbbf24; border: 1px solid rgba(251,191,36,0.45); }
-  .rr-sv-pill-danger { background: rgba(248,113,113,0.16); color: #f87171; border: 1px solid rgba(248,113,113,0.45); }
-  .rr-sv-pill-info { background: rgba(96,165,250,0.15); color: #60a5fa; border: 1px solid rgba(96,165,250,0.4); }
+  .rr-sv-pill-ok { background: #ecfdf5; color: #059669; border: 1px solid #a7f3d0; }
+  .rr-sv-pill-warn { background: #fffbeb; color: #d97706; border: 1px solid #fde68a; }
+  .rr-sv-pill-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .rr-sv-pill-info { background: #eff6ff; color: #2563eb; border: 1px solid #bfdbfe; }
   .rr-sv-social-links { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
   .rr-sv-social-a {
-    display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
-    font-size: 12px; font-weight: 700; background: #0d1320; border: 1px solid #2d3d56;
-    color: #e2e8f0; text-decoration: none; transition: all 0.15s;
+    display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; border-radius: 8px;
+    font-size: 0.78rem; font-weight: 700; background: #ffffff; border: 1px solid #d4d4d8;
+    color: #18181b; text-decoration: none; transition: all 0.15s;
   }
-  .rr-sv-social-a:hover { border-color: #00FFCC; color: #00FFCC; }
-  .rr-sv-social-a.missing { opacity: 0.45; cursor: default; pointer-events: none; }
-  .rr-sv-links-list { margin: 8px 0 0; padding-left: 18px; font-size: 12px; color: #cbd5e1; }
+  .rr-sv-social-a:hover { border-color: #10b981; color: #059669; background: #ecfdf5; }
+  .rr-sv-social-a.missing { opacity: 0.45; cursor: default; pointer-events: none; background: #f4f4f5; }
+  .rr-sv-links-list { margin: 8px 0 0; padding-left: 18px; font-size: 0.8rem; color: #3f3f46; }
   .rr-sv-links-list li { margin-bottom: 4px; }
-  .rr-sv-links-list a { color: #00FFCC; text-decoration: none; font-weight: 600; }
+  .rr-sv-links-list a { color: #059669; text-decoration: none; font-weight: 700; }
   .rr-sv-links-list a:hover { text-decoration: underline; }
 </style>
 <script id="rr-social-verify-script">
@@ -2511,37 +2519,37 @@
     {
       id: 'no_payment',
       title: '1. Paying Money Under Any Guise Is Fraud',
-      body: 'A legitimate employer or small business will never ask you to pay to get a job. Any request to pay for training, a laptop, visa/registration, background check, software, "account activation," or "unlocking tasks" is 100% a scam.'
+      body: 'A legitimate employer or business will never ask you to pay to get a job. Any request to pay for training, equipment, visa processing, background checks, software, or account activation is a scam.'
     },
     {
       id: 'no_interview',
       title: '2. Job Offer Without a Real Interview Is Fraud',
-      body: 'Instant job offers with no real interview—or "interviews" conducted only by text chat on WhatsApp/Telegram where the recruiter refuses a live video call—are a major scam red flag.'
+      body: 'Instant job offers with no real interview, or interviews conducted only by text chat on WhatsApp or Telegram where the recruiter refuses a live call, are major scam red flags.'
     },
     {
       id: 'verify_gmail_sme',
       title: '3. Use 1-Click Verify on Gmail, Yahoo, WhatsApp & Small Business Posts',
-      body: 'Many genuine small businesses and independent recruiters use @gmail.com or WhatsApp, while scammers also use free emails to impersonate big brands. Always click 1-Click Verify on the card to inspect company registration, official website, and LinkedIn/X profiles before applying.'
+      body: 'Many genuine small businesses and independent recruiters hire using @gmail.com or WhatsApp, while bad actors also use free emails to impersonate big brands. Always run 1-Click Verify on the card to inspect company registration, official website, and social profiles before applying.'
     },
     {
       id: 'high_pay_urgency',
       title: '4. Unusually High Pay for Simple Work & High-Pressure Urgency',
-      body: 'Promises of unusually high or guaranteed fast pay for little work, or high-pressure demands to accept or pay "immediately before the slot closes," are classic scam tactics.'
+      body: 'Promises of unusually high or guaranteed fast pay for simple tasks, or high-pressure demands to act immediately before a slot closes, are common scam tactics.'
     },
     {
       id: 'no_sensitive_id',
       title: '5. Never Share Bank Logins or Sensitive ID Before a Verified Offer',
-      body: 'Never share your bank account details, BVN/NIN, passport, driver\'s license, or Social Security number until you have independently verified the employer and received a genuine written offer.'
+      body: 'Never share your bank account details, national ID, passport, driver\'s license, or Social Security number until you have independently verified the employer and received a genuine written offer.'
     },
     {
       id: 'fake_checks_crypto',
-      title: '6. Fake Checks, Crypto, Gift Cards & "Task/Boosting" Deposits Are Fraud',
-      body: 'Any "job" that sends you a check and asks you to refund or wire part of it, demands payment via gift cards/crypto/payment apps, or asks you to deposit money to unlock higher-paying tasks is a scam.'
+      title: '6. Fake Checks, Crypto, Gift Cards & Task Deposits Are Fraud',
+      body: 'Any job that sends you a check and asks you to refund part of it, requests payment via gift cards or crypto, or asks you to deposit money to unlock tasks is a scam.'
     },
     {
       id: 'independent_verify',
-      title: '7. The Final Decision Is Yours — Always Verify Before Sending Documents',
-      body: 'RoleRover scrapes open social hiring posts and arms you with the 1-Click Verify Tool so you never miss small-business opportunities—you must run 1-Click Verify and stop immediately if anyone asks for money.'
+      title: '7. The Final Decision Is Yours: Always Verify Before Applying',
+      body: 'RoleRover surfaces open social hiring posts and arms you with the 1-Click Verify tool so you never miss real opportunities. Always run 1-Click Verify and stop immediately if anyone asks for money.'
     }
   ];
 
@@ -2585,30 +2593,33 @@
         <div class="rr-sv-modal" role="dialog" aria-modal="true">
           <div class="rr-sv-head">
             <div>
-              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#D4FF33;margin-bottom:4px">Mandatory Social Hiring Safety Gate &middot; Blocks Feed Until Completed</div>
-              <h2>Welcome to Social Hiring Signals &amp; 1-Click Verification</h2>
-              <p>Why daily posts on Facebook, LinkedIn &amp; X beat the ATS trap—and how RoleRover arms you to verify every post in one click.</p>
+              <h2>Social Hiring &amp; 1-Click Verification</h2>
+              <p>Please review how social hiring works and acknowledge the safety rules below to unlock your feed.</p>
             </div>
-            <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">${alreadyAcked ? '&times; Close' : 'Ignore (Posts Stay Hidden)'}</button>
+            <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">${alreadyAcked ? '&times; Close' : 'Close'}</button>
           </div>
           <div class="rr-sv-body">
             <div class="rr-sv-welcome-box">
-              <b>Why Social Hiring Works (Bypassing the ATS Trap):</b><br>
-              Every day, founders, small and medium businesses (SMEs), and hiring managers post real job openings directly on <b>Facebook, LinkedIn, and X (Twitter)</b>. Unlike traditional corporate job boards where your CV gets buried inside an <b>ATS (Applicant Tracking System)</b> alongside 1,000+ applicants, social hiring lets you reach the decision-maker's inbox directly.<br><br>
-              <b>Why Posts Here Are Not Pre-Eliminated (Unlike ATS Career Pages):</b><br>
-              In RoleRover's <b>ATS Career Pages</b> feed, every job comes from a pre-vetted corporate career portal. Social media is different: genuine small businesses often hire using a <code>@gmail.com</code> address or WhatsApp number. <b>RoleRover does not pre-censor or eliminate posts for you</b>—instead, we scrape the raw opportunities and arm every card with a <b>🛡️ 1-Click Verify Tool</b> so the decision is always yours.
-              <div class="rr-sv-powers-grid">
-                <div class="rr-sv-power-card"><b>1. Company Registration &amp; Site</b>Checks CAC, Companies House, Crunchbase, BusinessList &amp; official websites.</div>
-                <div class="rr-sv-power-card"><b>2. Cross-Platform Social Bridge</b>Finds &amp; links the company's and poster's LinkedIn, X (Twitter), Facebook &amp; Instagram.</div>
-                <div class="rr-sv-power-card"><b>3. Brand Impersonation Check</b>Checks if the email matches the company's domain or if a Gmail is listed on their official site.</div>
-                <div class="rr-sv-power-card"><b>4. Email &amp; Phone Scam Sweep</b>Scans the web for past fraud warnings, fee demands, or scam complaints.</div>
-                <div class="rr-sv-power-card"><b>5. Burner Syndicate Detection</b>Detects if a phone number is secretly shared across rotating burner Gmail accounts.</div>
-                <div class="rr-sv-power-card"><b>6. Contact Web History</b>Shows where else online that exact email or phone number has posted jobs before.</div>
-              </div>
+              <span class="rr-sv-section-title">Why Social Hiring Works:</span>
+              Every day, founders, small and medium businesses (SMEs), and hiring managers post real job openings directly on <b>Facebook, LinkedIn, and X (Twitter)</b>. Unlike traditional jobs hosted on <b>Applicant Tracking Systems (ATS)</b> that are first reviewed by AI/Automations, social hiring posts let you reach the decision-maker's inbox directly.
+
+              <span class="rr-sv-section-title">Post Vetting:</span>
+              In RoleRover's <b>ATS Career Pages</b> feed, every job comes from a pre-vetted corporate career portal by the ATS vendor (Greenhouse, Workable, Zoho Recruit, etc.), so there is minimal to zero likelihood of scam job postings. However, social media is different: some open roles are posted by individuals such as recruiters, career coaches, founders, and even scam actors.
+
+              <span class="rr-sv-section-title">How Rover Protects You:</span>
+              Every post from social media comes with a <b>1-Click Verify</b> tool that:
+              <ol class="rr-sv-protect-list">
+                <li><b>Checks Company Registration:</b> Dynamically checks national business registries in the employer's country, global company directories, and official websites to confirm the business is registered.</li>
+                <li><b>Cross-Platform Social Bridge:</b> Finds and links the company's and poster's LinkedIn, X (Twitter), Facebook, and Instagram profiles.</li>
+                <li><b>Brand Impersonation Check:</b> Checks if the contact email matches the company's official domain or if a free email (<code>@gmail.com</code>) is listed on their official website.</li>
+                <li><b>Email &amp; Phone Scam Sweep:</b> Scans the entire web for past fraud warnings, fee demands, or scam complaints tied to that email address or phone number.</li>
+                <li><b>Contact Web History:</b> Shows where else online that exact email or phone number has posted jobs before, to help you understand or detect if there is any scam pattern.</li>
+              </ol>
             </div>
 
-            <div style="font-size:12px;font-weight:800;text-transform:uppercase;letter-spacing:.06em;color:#00FFCC">
-              Click "I Understand" on each anti-fraud rule below to unlock the feed (<span id="rr-sv-ack-counter">${ackSet.size} / ${SAFETY_RULES.length}</span>):
+            <div style="font-size:0.82rem;font-weight:800;color:#09090b;display:flex;justify-content:space-between;align-items:center;">
+              <span>Click "I Understand" on each safety rule below to unlock the feed:</span>
+              <span id="rr-sv-ack-counter" style="color:#059669;background:#ecfdf5;padding:3px 10px;border-radius:99px;border:1px solid #a7f3d0;">${ackSet.size} / ${SAFETY_RULES.length}</span>
             </div>
 
             <div class="rr-sv-rule-list" id="rr-sv-rule-list">
@@ -2626,11 +2637,11 @@
             </div>
           </div>
           <div class="rr-sv-foot">
-            <div style="font-size:12px;color:#94a3b8">
-              Real work pays you; scams ask you to pay them. Use <b>🛡️ 1-Click Verify</b> on every card before applying.
+            <div style="font-size:0.8rem;color:#71717a">
+              Use <b>1-Click Verify</b> on every card before applying.
             </div>
             <button type="button" class="rr-sv-unlock-btn" id="rr-sv-unlock-btn" ${ackSet.size === SAFETY_RULES.length ? '' : 'disabled'}>
-              ${ackSet.size === SAFETY_RULES.length ? 'Unlock Social Hiring Signals →' : `Click "I Understand" on all ${SAFETY_RULES.length} rules (${ackSet.size}/${SAFETY_RULES.length})`}
+              ${ackSet.size === SAFETY_RULES.length ? 'Unlock Social Hiring Feed →' : `Click "I Understand" on all ${SAFETY_RULES.length} rules (${ackSet.size}/${SAFETY_RULES.length})`}
             </button>
           </div>
         </div>
@@ -2649,7 +2660,7 @@
         const done = ackSet.size === SAFETY_RULES.length;
         unlockBtn.disabled = !done;
         unlockBtn.textContent = done
-          ? 'Unlock Social Hiring Signals →'
+          ? 'Unlock Social Hiring Feed →'
           : 'Click "I Understand" on all ' + SAFETY_RULES.length + ' rules (' + ackSet.size + '/' + SAFETY_RULES.length + ')';
       }
 
@@ -2706,45 +2717,45 @@
       backdrop.className = 'rr-sv-backdrop';
       backdrop.id = 'rr-verify-dossier-backdrop';
 
-      const title = lead.company_name || lead.author_name || lead.job_title || lead.search_keyword || 'Social Hiring Post';
-      const email = lead.contact_email || (Array.isArray(lead.emails_found) && lead.emails_found[0]) || '';
+      const compLabel = lead.company_name || lead.author_name || 'Hiring Poster';
+      const emailLabel = lead.contact_email || 'No email listed';
 
       backdrop.innerHTML = `
         <div class="rr-sv-modal" role="dialog" aria-modal="true">
           <div class="rr-sv-head">
             <div>
-              <div style="font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#00FFCC;margin-bottom:4px">🛡️ RoleRover 1-Click Verification Dossier</div>
-              <h2>${esc(title)}</h2>
-              <p>Poster: <b>${esc(lead.author_name || 'Not stated')}</b> &middot; Contact: <b>${esc(email || 'Form / Direct Link')}</b> &middot; Platform: <b>${esc((lead.platform || 'social').toUpperCase())}</b></p>
+              <h2>1-Click Verification Report</h2>
+              <p>${esc(compLabel)} &middot; <span style="color:#059669;font-weight:700">${esc(emailLabel)}</span></p>
             </div>
             <div style="display:flex;gap:8px;align-items:center">
-              <button type="button" class="rr-sv-ack-btn" id="rr-verify-refresh-btn" title="Run a fresh live check across registries, social platforms & web">↻ Live Re-Check</button>
-              <button type="button" class="rr-sv-ack-btn" id="rr-verify-close-btn">&times; Close</button>
+              <button type="button" class="rr-sv-ack-btn" id="rr-sv-refresh-btn" title="Run fresh live web verification">↻ Re-Scan Live</button>
+              <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-btn">&times; Close</button>
             </div>
           </div>
-          <div class="rr-sv-body" id="rr-verify-modal-body">
-            <div style="padding:36px 20px;text-align:center;color:#94a3b8">
-              <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">Running 6-Point Verification Check...</div>
-              <div style="font-size:12px">Checking business registries, official website, LinkedIn/X/Facebook profiles, domain match, scam reports &amp; burner phone history.</div>
+          <div class="rr-sv-body" id="rr-sv-dossier-body">
+            <div style="padding:36px 20px;text-align:center;color:#71717a">
+              <div style="font-size:1rem;font-weight:800;color:#09090b;margin-bottom:6px">Running 1-Click Verification...</div>
+              <div style="font-size:0.85rem">Checking business registries, social profiles, domain match, scam reports, and contact web history.</div>
             </div>
           </div>
           <div class="rr-sv-foot">
-            <div style="font-size:12px;color:#94a3b8">
-              Remember: Even when a company's website and socials match, <b>never pay money</b> or share sensitive bank/ID details before a verified written offer.
+            <div style="font-size:0.78rem;color:#71717a">
+              Always decline any request for money, deposits, or paid training.
             </div>
-            <button type="button" class="rr-sv-ack-btn" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(true)">Read 7 Anti-Fraud Rules</button>
+            <button type="button" class="rr-sv-ack-btn" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(true)">View Safety Guide</button>
           </div>
         </div>
       `;
 
       document.body.appendChild(backdrop);
       backdrop.onclick = (e) => { if (e.target === backdrop) backdrop.remove(); };
-      backdrop.querySelector('#rr-verify-close-btn').onclick = () => backdrop.remove();
-      backdrop.querySelector('#rr-verify-refresh-btn').onclick = () => {
-        window.RR_VERIFY_TOOL.openVerifyModal(lead, true);
+      backdrop.querySelector('#rr-sv-close-btn').onclick = () => backdrop.remove();
+      backdrop.querySelector('#rr-sv-refresh-btn').onclick = () => {
+        this.openVerifyModal(lead, true);
       };
 
-      let dossier = (!forceRefresh && lead.verification_dossier) ? lead.verification_dossier : null;
+      let dossier = (!forceRefresh && lead.verification_dossier && lead.verification_dossier.checks) ? lead.verification_dossier : null;
+
       if (!dossier) {
         try {
           const res = await fetch(VERIFY_WEBHOOK_URL, {
@@ -2752,136 +2763,144 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               lead_id: lead.id || null,
-              platform: lead.platform || 'facebook',
-              author_name: lead.author_name || '',
-              author_profile_url: lead.author_profile_url || '',
-              company_name: lead.company_name || '',
-              contact_email: email,
-              post_url: lead.post_url || '',
+              force_refresh: Boolean(forceRefresh),
+              company_name: lead.company_name || null,
+              author_name: lead.author_name || null,
+              author_profile_url: lead.author_profile_url || null,
+              contact_email: lead.contact_email || null,
               post_text: lead.post_text || lead.description_text || '',
-              force_refresh: Boolean(forceRefresh)
+              post_url: lead.post_url || '',
+              platform: lead.platform || 'social'
             })
           });
-          const data = await res.json();
-          if (data && data.dossier) {
-            dossier = data.dossier;
-            lead.verification_dossier = dossier;
-            if (lead.id) leadMemoryCache.set(String(lead.id), lead);
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.dossier) {
+              dossier = data.dossier;
+              lead.verification_dossier = dossier;
+              if (lead.id) leadMemoryCache.set(String(lead.id), lead);
+            }
           }
         } catch (err) {
-          const bodyEl = backdrop.querySelector('#rr-verify-modal-body');
-          if (bodyEl) {
-            bodyEl.innerHTML = '<div style="padding:24px;color:#f87171">Could not reach live verification service: ' + esc(err.message) + '</div>';
-          }
-          return;
+          console.warn('Live verification webhook fallback:', err);
         }
       }
 
-      const bodyEl = backdrop.querySelector('#rr-verify-modal-body');
-      if (!bodyEl || !dossier) return;
+      const bodyEl = backdrop.querySelector('#rr-sv-dossier-body');
+      if (!bodyEl) return;
 
-      const c1 = dossier.claim1_registration_and_website || {};
-      const c2 = dossier.claim2_cross_platform_socials || {};
-      const c3 = dossier.claim3_domain_and_impersonation || {};
-      const c4 = dossier.claim4_scam_fee_check || {};
-      const c5 = dossier.claim5_burner_syndicate || {};
-      const c6 = dossier.claim6_contact_web_history || {};
+      if (!dossier || !dossier.checks) {
+        bodyEl.innerHTML = `
+          <div class="rr-sv-check-card">
+            <div class="rr-sv-check-title" style="color:#d97706">Live Web Verification Unavailable</div>
+            <p style="font-size:0.82rem;color:#3f3f46;margin:6px 0 0">Could not reach the verification service right now. Please click <b>↻ Re-Scan Live</b> above to try again.</p>
+          </div>
+        `;
+        return;
+      }
 
-      const regList = Array.isArray(c1.registry_records) ? c1.registry_records : [];
-      const domPillClass = c3.status === 'corporate_match' || c3.status === 'free_email_verified_on_site' || c3.status === 'corporate_domain'
+      bodyEl.innerHTML = this.renderDossierHTML(dossier);
+    },
+
+    renderDossierHTML: function(d) {
+      const c = d.checks || {};
+      const c1 = c.company_registration || {};
+      const c2 = c.social_footprint || {};
+      const c3 = c.domain_impersonation || {};
+      const c4 = c.scam_reputation || {};
+      const c5 = c.contact_web_history || {};
+
+      const domPillClass = c3.status === 'corporate_domain_match' || c3.status === 'free_email_verified_on_site'
         ? 'rr-sv-pill-ok'
-        : (c3.status === 'free_email_domain_mismatch' ? 'rr-sv-pill-warn' : 'rr-sv-pill-info');
+        : (c3.status === 'brand_impersonation_warning' ? 'rr-sv-pill-danger' : 'rr-sv-pill-warn');
 
-      const socialBtn = (url, label, icon) => url
-        ? `<a class="rr-sv-social-a" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${icon} ${esc(label)} ↗</a>`
-        : `<span class="rr-sv-social-a missing">${icon} ${esc(label)}: Not found</span>`;
+      const scamPillClass = c4.status === 'scam_reports_found' ? 'rr-sv-pill-danger' : 'rr-sv-pill-ok';
 
-      bodyEl.innerHTML = `
+      function socialBtn(url, label, icon) {
+        if (url && /^https?:\/\//i.test(url)) {
+          return `<a class="rr-sv-social-a" href="${esc(url)}" target="_blank" rel="noopener noreferrer">${icon} ${esc(label)} ↗</a>`;
+        }
+        return `<span class="rr-sv-social-a missing">${icon} ${esc(label)}: Not found</span>`;
+      }
+
+      const regList = Array.isArray(c1.registry_links) ? c1.registry_links : [];
+      const mentions = Array.isArray(c5.mentions) ? c5.mentions : [];
+
+      return `
         <div class="rr-sv-dossier-grid">
-          <!-- 1. Company Registration & Official Website -->
+          <!-- 1. Company Registration & Official Web Presence -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
-              <div class="rr-sv-check-title">1. Company Registration &amp; Official Web Presence</div>
+              <div class="rr-sv-check-title">1. Company Registration &amp; Official Website</div>
               <span class="rr-sv-pill ${c1.official_website || regList.length ? 'rr-sv-pill-ok' : 'rr-sv-pill-warn'}">
                 ${c1.official_website ? '✓ Official Website Found' : (regList.length ? '✓ Registry Record Found' : 'No Separate Website Found')}
               </span>
             </div>
-            <div style="font-size:12px;color:#cbd5e1;line-height:1.5">
-              <b>Official Website:</b> ${c1.official_website ? `<a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#00FFCC;font-weight:700">${esc(c1.official_website)} ↗</a>` : '<span style="color:#94a3b8">No standalone corporate website indexed</span>'}
+            <div style="font-size:0.82rem;color:#3f3f46;line-height:1.5">
+              <b>Official Website:</b> ${c1.official_website ? `<a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#059669;font-weight:700">${esc(c1.official_website)} ↗</a>` : '<span style="color:#71717a">No standalone corporate website indexed</span>'}
             </div>
             ${regList.length ? `
-              <div style="margin-top:8px;font-size:12px;color:#94a3b8;font-weight:700">Public Registry / Directory Filings (${regList.length}):</div>
+              <div style="margin-top:8px;font-size:0.78rem;color:#52525b;font-weight:700">Business Registry / Directory Records (${regList.length}):</div>
               <ul class="rr-sv-links-list">
-                ${regList.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)} ↗</a>${r.summary ? ` <span style="color:#94a3b8">— ${esc(r.summary.slice(0, 110))}...</span>` : ''}</li>`).join('')}
+                ${regList.map(r => `<li><a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer">${esc(r.title)} ↗</a>${r.summary ? ` <span style="color:#71717a">(${esc(r.summary.slice(0, 100))}...)</span>` : ''}</li>`).join('')}
               </ul>
-            ` : '<div style="margin-top:6px;font-size:12px;color:#94a3b8">No public CAC / Companies House / Crunchbase filing matched directly by name — inspect social profiles &amp; domain below.</div>'}
+            ` : '<div style="margin-top:6px;font-size:0.8rem;color:#71717a">No public national business registry or global directory filing matched directly by name. Inspect the social profiles and domain match below.</div>'}
           </div>
 
-          <!-- 2. Cross-Platform Social Footprint -->
+          <!-- 2. Cross-Platform Social Bridge -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
-              <div class="rr-sv-check-title">2. Cross-Platform Social Bridge (LinkedIn, X, Facebook, Instagram)</div>
-              <span class="rr-sv-pill rr-sv-pill-info">1-Click Profile Inspection</span>
+              <div class="rr-sv-check-title">2. Cross-Platform Social Bridge</div>
+              <span class="rr-sv-pill rr-sv-pill-info">Profile Links</span>
             </div>
-            <div style="font-size:12px;color:#94a3b8">Click below to inspect the company or poster across other social platforms before applying:</div>
+            <div style="font-size:0.8rem;color:#71717a">Inspect the company or poster across LinkedIn, X, Facebook, and Instagram:</div>
             <div class="rr-sv-social-links">
               ${socialBtn(c2.company_linkedin, 'Company LinkedIn', '🏢')}
               ${socialBtn(c2.poster_linkedin, 'Poster LinkedIn', '👤')}
               ${socialBtn(c2.twitter_x, 'X (Twitter)', '𝕏')}
-              ${socialBtn(c2.facebook, 'Facebook Page/Profile', '📘')}
+              ${socialBtn(c2.facebook, 'Facebook', '📘')}
               ${socialBtn(c2.instagram, 'Instagram', '📸')}
-              ${socialBtn(c2.website || c1.official_website, 'Official Website', '🌐')}
+              ${socialBtn(c2.website || c1.official_website, 'Website', '🌐')}
             </div>
           </div>
 
-          <!-- 3. Brand Impersonation & Domain Match -->
+          <!-- 3. Brand Impersonation Check -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
-              <div class="rr-sv-check-title">3. Brand Impersonation &amp; Email Domain Match</div>
+              <div class="rr-sv-check-title">3. Brand Impersonation Check</div>
               <span class="rr-sv-pill ${domPillClass}">${esc(c3.badge || 'Domain Checked')}</span>
             </div>
-            <div style="font-size:12px;color:#cbd5e1;line-height:1.5">${esc(c3.summary || '')}</div>
+            <div style="font-size:0.82rem;color:#3f3f46;line-height:1.5">${esc(c3.summary || '')}</div>
           </div>
 
-          <!-- 4. Email & Phone Scam / Fee Reputation -->
+          <!-- 4. Email & Phone Scam Sweep -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
-              <div class="rr-sv-check-title">4. Email &amp; Phone Scam / Fee Complaint Sweep</div>
-              <span class="rr-sv-pill ${c4.flagged ? 'rr-sv-pill-danger' : 'rr-sv-pill-ok'}">
-                ${c4.flagged ? '⚠️ Warning Reports Found' : '✓ No Scam Reports Found'}
-              </span>
+              <div class="rr-sv-check-title">4. Email &amp; Phone Scam Sweep</div>
+              <span class="rr-sv-pill ${scamPillClass}">${esc(c4.badge || 'Checked')}</span>
             </div>
-            <div style="font-size:12px;color:#cbd5e1;line-height:1.5">${esc(c4.summary || 'No public scam or fee complaints found.')}</div>
-            ${Array.isArray(c4.hits) && c4.hits.length ? `
+            <div style="font-size:0.82rem;color:#3f3f46;line-height:1.5">${esc(c4.summary || '')}</div>
+            ${Array.isArray(c4.warnings) && c4.warnings.length ? `
               <ul class="rr-sv-links-list">
-                ${c4.hits.map(h => `<li><a href="${esc(h.url)}" target="_blank" rel="noopener noreferrer" style="color:#f87171">${esc(h.title)} ↗</a></li>`).join('')}
+                ${c4.warnings.map(w => `<li><a href="${esc(w.url)}" target="_blank" rel="noopener noreferrer" style="color:#dc2626">${esc(w.title)} ↗</a> — ${esc(w.snippet)}</li>`).join('')}
               </ul>
             ` : ''}
           </div>
 
-          <!-- 5. Phone & Burner-Email Syndicate Check -->
+          <!-- 5. Contact Web History -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
-              <div class="rr-sv-check-title">5. Phone Number &amp; Burner-Email Syndicate Check</div>
-              <span class="rr-sv-pill ${c5.syndicate_alert ? 'rr-sv-pill-danger' : 'rr-sv-pill-ok'}">
-                ${c5.syndicate_alert ? '⚠️ Burner Rotation Detected' : (c5.phone_checked ? '✓ Phone Checked (' + esc(c5.phone_checked) + ')' : 'No Phone in Post')}
-              </span>
+              <div class="rr-sv-check-title">5. Contact Web History</div>
+              <span class="rr-sv-pill rr-sv-pill-info">${mentions.length} Web Mention(s)</span>
             </div>
-            <div style="font-size:12px;color:#cbd5e1;line-height:1.5">${esc(c5.summary || '')}</div>
-          </div>
-
-          <!-- 6. Contact Web History -->
-          <div class="rr-sv-check-card">
-            <div class="rr-sv-check-head">
-              <div class="rr-sv-check-title">6. Contact Web History (Where Else This Email/Phone Appears)</div>
-              <span class="rr-sv-pill ${(c6.public_mentions_count || 0) > 0 ? 'rr-sv-pill-ok' : 'rr-sv-pill-info'}">
-                ${c6.public_mentions_count || 0} Public Mention(s)
-              </span>
+            <div style="font-size:0.82rem;color:#3f3f46;line-height:1.5">
+              ${mentions.length
+                ? 'Other public pages where this email address or phone number has appeared online (review to understand or detect any scam pattern):'
+                : 'No prior public job postings or web pages were indexed for this exact email address or phone number.'}
             </div>
-            <div style="font-size:12px;color:#cbd5e1;line-height:1.5">${esc(c6.summary || '')}</div>
-            ${Array.isArray(c6.mentions) && c6.mentions.length ? `
+            ${mentions.length ? `
               <ul class="rr-sv-links-list">
-                ${c6.mentions.map(m => `<li><a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.title)} ↗</a></li>`).join('')}
+                ${mentions.map(m => `<li><a href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">${esc(m.title)} ↗</a></li>`).join('')}
               </ul>
             ` : ''}
           </div>
@@ -3341,7 +3360,7 @@
                 if (careerChevron) careerChevron.style.transform = 'rotate(-90deg)';
                 const title = document.querySelector('.page-title');
                 if (title) {
-                    title.innerHTML = 'Social Posts — Auto Outreach <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800;background:#111827;color:#00FFCC;border:1px solid rgba(0,255,204,0.4);cursor:pointer;vertical-align:middle">🛡️ Safety &amp; 1-Click Verify Guide</button>';
+                    title.innerHTML = 'Social Posts — Auto Outreach <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:700;background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
                 }
                 const mobileTitle = document.getElementById('mobile-page-title');
                 if (mobileTitle) mobileTitle.textContent = 'Social Posts — Auto Outreach';
@@ -3532,15 +3551,13 @@
                         if (emptyState) {
                             emptyState.style.display = '';
                             emptyState.innerHTML = `
-                                <div style="max-width:540px;margin:20px auto;padding:28px 24px;background:#111827;border:1px solid #283548;border-radius:16px;color:#f3f4f6;text-align:center;box-shadow:0 16px 40px rgba(0,0,0,0.18);">
-                                    <div style="font-size:34px;margin-bottom:10px;">🛡️</div>
-                                    <h3 style="color:#fff;font-size:1.25rem;font-weight:800;margin:0 0 8px;">Social Hiring Feed Blocked — Safety Check Required</h3>
-                                    <p style="color:#94a3b8;font-size:0.9rem;line-height:1.55;margin:0 0 18px;">
-                                        Unlike pre-vetted corporate ATS Career Pages, social hiring posts come directly from open social media (Facebook, LinkedIn &amp; X).<br><br>
-                                        <strong style="color:#fbbf24;">Ignoring or closing the safety check means no social hiring posts will be shown.</strong> Click below and acknowledge all 7 anti-fraud rules to unlock your matched social hiring posts.
+                                <div style="max-width:520px;margin:24px auto;padding:32px 28px;background:#ffffff;border:1px solid #e4e4e7;border-radius:20px;color:#09090b;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,0.06);">
+                                    <h3 style="color:#09090b;font-size:1.2rem;font-weight:800;margin:0 0 10px;">Social Hiring Safety Check Required</h3>
+                                    <p style="color:#52525b;font-size:0.92rem;line-height:1.6;margin:0 0 20px;">
+                                        Please complete the Social Hiring &amp; 1-Click Verification safety check to unlock your matched social posts. If you close or ignore the check, no social hiring posts will be shown.
                                     </p>
-                                    <button type="button" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck)" style="padding:11px 22px;border-radius:10px;border:0;background:linear-gradient(90deg,#D4FF33,#00FFCC);color:#0b0f17;font-weight:800;font-size:13.5px;cursor:pointer;">
-                                        🛡️ Complete Safety Check to Unlock Posts →
+                                    <button type="button" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck)" style="padding:11px 22px;border-radius:10px;border:0;background:#10b981;color:#ffffff;font-weight:800;font-size:0.9rem;cursor:pointer;font-family:inherit;">
+                                        Complete Safety Check to Unlock Posts →
                                     </button>
                                 </div>
                             `;
@@ -3581,7 +3598,7 @@
             const fbTag = postUrl
                 ? `<a class="swipe-card-tag" href="${escapeAttr(postUrl)}" target="_blank" rel="noopener noreferrer" style="text-decoration:none; cursor:pointer; position:relative; z-index:20; pointer-events:auto;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation()">${platLabel}</a>`
                 : `<div class="swipe-card-tag">${platLabel.replace(' ↗', '')}</div>`;
-            const verifyBtn = `<button type="button" class="swipe-card-tag" style="background:linear-gradient(90deg,#111827,#1e293b);color:#10b981;border:1px solid rgba(16,185,129,0.45);font-weight:800;cursor:pointer;position:relative;z-index:20;pointer-events:auto;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); window.RR_VERIFY_TOOL.openVerifyById('${escapeAttr(job.id)}')">🛡️ 1-Click Verify</button>`;
+            const verifyBtn = `<button type="button" class="swipe-card-tag" style="background:#ecfdf5;color:#059669;border:1px solid #a7f3d0;font-weight:700;cursor:pointer;position:relative;z-index:20;pointer-events:auto;" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()" onclick="event.stopPropagation(); window.RR_VERIFY_TOOL.openVerifyById('${escapeAttr(job.id)}')">🛡️ 1-Click Verify</button>`;
             return `<div class="social-badge-row">${fbTag}${verifyBtn}${buildFreshnessBadge(job)}${scam}${level}</div>`;
         }
 
