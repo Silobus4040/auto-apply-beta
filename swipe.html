@@ -2955,8 +2955,8 @@
       const rawDossier = (!forceRefresh && lead.verification_dossier) ? lead.verification_dossier : null;
       const isLegacySchema = Boolean(rawDossier && !rawDossier.checks);
       let dossier = rawDossier ? normalizeDossier(rawDossier) : null;
-      // If cached dossier is from the old schema (claim1_...), automatically fetch fresh grounded verification
-      const needsGroundedUpgrade = Boolean(isLegacySchema || (dossier && dossier.checks && dossier.checks.company_registration && !('grounded_registration' in dossier.checks.company_registration)));
+      // If cached dossier is from an older schema without what_to_ask_employer, automatically fetch fresh grounded verification
+      const needsGroundedUpgrade = Boolean(isLegacySchema || (dossier && dossier.checks && dossier.checks.company_registration && !('what_to_ask_employer' in dossier.checks.company_registration)));
 
       if (!dossier || needsGroundedUpgrade || forceRefresh) {
         try {
@@ -3064,7 +3064,12 @@
                 ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : ''}
                 ${c1.verified_hq ? ` &middot; <b>HQ:</b> ${esc(c1.verified_hq)}` : ''}
                 ${c1.founded_year ? ` &middot; <b>Founded:</b> ${esc(c1.founded_year)}` : ''}
-                <div style="margin-top:4px;color:#3f3f46;">${esc(c1.summary || 'No public government registration record matched.')}</div>
+                <div style="margin-top:6px;color:#27272a;">${esc(c1.summary || 'No public government registration record matched.')}</div>
+                ${c1.what_to_ask_employer ? `
+                  <div style="margin-top:8px;padding:8px 11px;background:#f7fee7;border:1px solid #a3e635;border-radius:8px;color:#09090b;font-size:0.79rem;line-height:1.45;">
+                    <b>💡 What to Ask the Employer:</b> ${esc(c1.what_to_ask_employer)}
+                  </div>
+                ` : ''}
               </div>
             `}
           </div>
