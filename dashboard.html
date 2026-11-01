@@ -6253,6 +6253,10 @@
       const dirRec = c1.directory_record || null;
       const dba = c1.dba_guidance || null;
       const siteHost = cleanHostLabel(c1.official_website);
+      const hostClean = siteHost ? siteHost.replace(/^www\./, '').split('.')[0] : '';
+      const isGenericHost = !hostClean || ['gmail', 'yahoo', 'outlook', 'hotmail', 'company'].includes(hostClean.toLowerCase());
+      const hostBrand = isGenericHost ? '' : hostClean.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      const derivedBrand = (d.company_inferred && d.company_inferred.toLowerCase() !== 'company') ? d.company_inferred : (hostBrand || 'No company name found');
 
       const hasVerifiedFootprint = !gr && siteHost && (c1.verified_hq || dirRec) && c4.status !== 'scam_reports_found';
 
@@ -6294,7 +6298,7 @@
             </div>
             ${(gr && gr.verified) ? `
               <div class="rr-sv-reg-facts">
-                <div><b>Legal Entity:</b> ${esc(gr.legal_name || d.company_inferred || 'Verified')} (${esc(gr.status || 'Active')})</div>
+                <div><b>Legal Entity:</b> ${esc(gr.legal_name || (derivedBrand !== 'No company name found' ? derivedBrand : null) || 'Verified')} (${esc(gr.status || 'Active')})</div>
                 <div><b>Reg / Doc No.:</b> ${esc(gr.registration_number)}${gr.incorporation_date ? ` &middot; ${esc(gr.incorporation_date)}` : ''}</div>
                 <div><b>Authority:</b> ${esc(gr.authority)}</div>
                 <div><b>Official Website:</b> ${c1.official_website ? `<a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : 'Not listed'}</div>
@@ -6309,7 +6313,7 @@
               ` : ''}
             ` : (hasVerifiedFootprint ? `
               <div class="rr-sv-reg-facts">
-                <div><b>Operating Brand:</b> ${esc(d.company_inferred || 'Company')}</div>
+                <div><b>Operating Brand:</b> ${esc(derivedBrand)}</div>
                 ${c1.verified_hq ? `<div><b>Physical Office / HQ:</b> ${esc(c1.verified_hq)}</div>` : ''}
                 ${c1.official_website ? `<div><b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a></div>` : ''}
                 ${dirRec ? `<div><b>Corporate Directory:</b> <a href="${esc(dirRec.url)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:700;text-decoration:underline;">✓ Verified on ${esc(dirRec.source)}${dirRec.employee_count ? ' (' + esc(dirRec.employee_count) + ')' : ''} ↗</a></div>` : ''}
