@@ -2577,8 +2577,10 @@
       ];
     }
 
-    const defaultAsk = "Hi! Before we move to the contracting stage, could you please share your company\'s registered legal entity name and state or country of incorporation for our compliance records?";
-    const rawAsk = (customAskText && customAskText.trim().length > 10) ? customAskText.trim().replace(/'/g, "\\'") : defaultAsk;
+    const isPlural = regList.length > 1;
+    const noteText = isPlural
+      ? "You don't need to copy or save these registries—they will always be accessible in your email section when communicating with the recruiter."
+      : "You don't need to copy or save this registry—it will always be accessible in your email section when communicating with the recruiter.";
 
     return `
       <div style="margin-top:10px;padding:10px 12px;background:#ffffff;border:1px solid #bbf7d0;border-radius:8px;">
@@ -2592,11 +2594,9 @@
             </a>
           `).join('')}
         </div>
-        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-          <button type="button" onclick="navigator.clipboard.writeText('${rawAsk}'); const b = this; const orig = b.innerHTML; b.innerHTML = '✓ Copied Message!'; setTimeout(() => { b.innerHTML = orig; }, 2500);" style="display:inline-flex;align-items:center;gap:5px;background:#166534;color:#ffffff;border:none;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.74rem;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#166534'">
-            📋 Copy Message to Ask Recruiter
-          </button>
-          <span style="font-size:0.72rem;color:#6b7280;">Once recruiter shares legal entity name, search any registry above.</span>
+        <div style="font-size:0.75rem;color:#15803d;line-height:1.45;display:flex;align-items:flex-start;gap:6px;">
+          <span>💡</span>
+          <span>${esc(noteText)}</span>
         </div>
       </div>
     `;
@@ -2677,7 +2677,7 @@
         }
       } catch (e) {}
     },
-    openWelcomeGate: function(forceOpen, onComplete) {
+    openWelcomeGate: function(forceOpen, onComplete, initialStep) {
       if (!forceOpen && this.hasAcknowledged()) {
         if (typeof onComplete === 'function') onComplete();
         return;
@@ -2685,9 +2685,10 @@
       const existing = document.getElementById('rr-social-safety-gate-backdrop');
       if (existing) existing.remove();
 
+      const isDirectGuide = (initialStep === 3);
       const alreadyAcked = this.hasAcknowledged();
       const ackSet = new Set(alreadyAcked ? SAFETY_RULES.map(r => r.id) : []);
-      let currentStep = 1;
+      let currentStep = isDirectGuide ? 3 : 1;
 
       const backdrop = document.createElement('div');
       backdrop.className = 'rr-sv-backdrop';
@@ -2782,6 +2783,41 @@
         }
 
         // Step 3: 7 Safety Rules
+        if (isDirectGuide) {
+          backdrop.innerHTML = `
+            <div class="rr-sv-modal" role="dialog" aria-modal="true">
+              <div class="rr-sv-head">
+                <div>
+                  <div class="rr-sv-step-pills"><span style="font-size:0.75rem;font-weight:700;color:#15803d;background:#dcfce7;border:1px solid #86efac;padding:3px 8px;border-radius:6px;display:inline-block;">Safety Guidelines</span></div>
+                  <h2>Social Hiring Safety Checklist</h2>
+                  <p>Core safety rules and best practices when communicating with recruiters.</p>
+                </div>
+                <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">✕ Close</button>
+              </div>
+              <div class="rr-sv-body">
+                <div class="rr-sv-rule-list" id="rr-sv-rule-list">
+                  ${SAFETY_RULES.map(r => `
+                    <div class="rr-sv-rule-item acked" data-rule-id="${r.id}">
+                      <div class="rr-sv-rule-text">
+                        <b>${esc(r.title)}</b><br>
+                        <span>${esc(r.body)}</span>
+                      </div>
+                      <span style="font-size:0.78rem;font-weight:700;color:#15803d;background:#dcfce7;border:1px solid #86efac;padding:4px 8px;border-radius:6px;white-space:nowrap;display:inline-flex;align-items:center;gap:4px;">✓ Protected</span>
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+              <div class="rr-sv-foot" style="justify-content:flex-end;">
+                <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-bottom" style="padding:9px 20px;font-weight:800;background:#09090b;color:#ffffff;border:none;border-radius:8px;cursor:pointer;">Close Safety Guide</button>
+              </div>
+            </div>
+          `;
+          backdrop.querySelector('#rr-sv-close-guide').onclick = () => backdrop.remove();
+          const closeBottom = backdrop.querySelector('#rr-sv-close-bottom');
+          if (closeBottom) closeBottom.onclick = () => backdrop.remove();
+          return;
+        }
+
         backdrop.innerHTML = `
           <div class="rr-sv-modal" role="dialog" aria-modal="true">
             <div class="rr-sv-head">
@@ -2918,7 +2954,7 @@
             <div style="font-size:0.8rem;color:#18181b;font-weight:500;">
               Always decline any request for money, deposits, or paid training.
             </div>
-            <button type="button" class="rr-sv-ack-btn" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(true)">View Safety Guide</button>
+            <button type="button" class="rr-sv-ack-btn" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(true, null, 3)">View Safety Guide</button>
           </div>
         </div>
       `;
