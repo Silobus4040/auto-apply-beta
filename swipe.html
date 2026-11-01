@@ -3739,14 +3739,30 @@
                     return (userRanks.length ? userRanks : [1]).some(r => Math.abs(level - r) <= 1);
                 };
                 const isFounderOverride = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' || (typeof currentUserEmail === 'string' && currentUserEmail.toLowerCase() === 'mosco@leadscompass.ai'));
-                socialLeadJobs = (data || []).filter(r => 
-                    r.social_hiring_leads && 
-                    (isFounderOverride || (
-                        fitsLocation(r.social_hiring_leads) && 
-                        fitsWorkplace(r.social_hiring_leads) && 
-                        fitsLevel(r.social_hiring_leads)
-                    ))
-                ).map(socialLeadToJob);
+                
+                // Deduplicate leads by contact_email and post_url so recruiter posts matched across multiple search keywords never appear twice
+                const seenLeadEmails = new Set();
+                const seenLeadUrls = new Set();
+                const filteredRows = (data || []).filter(r => {
+                    const lead = r.social_hiring_leads;
+                    if (!lead) return false;
+                    const em = String(lead.contact_email || '').toLowerCase().trim();
+                    const pu = String(lead.post_url || '').toLowerCase().trim();
+                    if (em && seenLeadEmails.has(em)) return false;
+                    if (pu && seenLeadUrls.has(pu)) return false;
+                    const allowed = isFounderOverride || (
+                        fitsLocation(lead) && 
+                        fitsWorkplace(lead) && 
+                        fitsLevel(lead)
+                    );
+                    if (allowed) {
+                        if (em) seenLeadEmails.add(em);
+                        if (pu) seenLeadUrls.add(pu);
+                        return true;
+                    }
+                    return false;
+                });
+                socialLeadJobs = filteredRows.map(socialLeadToJob);
                 if (window.RR_VERIFY_TOOL) window.RR_VERIFY_TOOL.registerLeads(socialLeadJobs);
 
                 window.__unlockSocialHiringDeck = function() {
@@ -3917,7 +3933,13 @@
             card.style.transition = 'transform 0.35s ease, opacity 0.35s ease';
             card.style.transform = decision === 'apply' ? 'translateX(600px) rotate(20deg)' : 'translateX(-600px) rotate(-20deg)';
             card.style.opacity = '0';
-            pooledJobIndex++;
+            // Splice the swiped card out of pooledJobs and socialLeadJobs immediately so it never lingers in memory
+            const pIdx = pooledJobs.findIndex(j => (j && j.match_id && j.match_id === job.match_id) || (j && j.id && j.id === job.id));
+            if (pIdx !== -1) {
+                pooledJobs.splice(pIdx, 1);
+            } else {
+                pooledJobIndex++;
+            }
             socialLeadJobs = socialLeadJobs.filter(j => j.match_id !== job.match_id);
             if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
             setTimeout(renderSwipeStack, 280);
