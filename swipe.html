@@ -2986,7 +2986,8 @@
               contact_email: lead.contact_email || null,
               post_text: lead.post_text || lead.description_text || '',
               post_url: lead.post_url || '',
-              platform: lead.platform || 'social'
+              platform: lead.platform || 'social',
+              detected_countries: lead.detected_countries || null
             })
           });
           if (res.ok) {
@@ -3029,16 +3030,17 @@
       const gr = c1.grounded_registration || null;
       const offReg = c1.official_registry || null;
       const dirRec = c1.directory_record || null;
+      const dirList = Array.isArray(c1.directory_records) && c1.directory_records.length ? c1.directory_records : (dirRec ? [dirRec] : []);
       const dba = c1.dba_guidance || null;
       const siteHost = cleanHostLabel(c1.official_website);
       const derivedBrand = (d.company_inferred && d.company_inferred.toLowerCase() !== 'company') ? d.company_inferred : 'No company name found';
 
-      const hasVerifiedFootprint = !gr && siteHost && (c1.verified_hq || dirRec) && c4.status !== 'scam_reports_found';
+      const hasVerifiedFootprint = !gr && (siteHost || dirList.length > 0) && (c1.verified_hq || dirList.length > 0) && c4.status !== 'scam_reports_found';
 
       const regBadgeClass = (gr && gr.verified) ? 'rr-sv-pill-ok' : (hasVerifiedFootprint ? 'rr-sv-pill-ok' : (siteHost ? 'rr-sv-pill-info' : 'rr-sv-pill-warn'));
       const regBadgeText = (gr && gr.verified)
         ? ('✓ Registered in ' + gr.jurisdiction)
-        : (hasVerifiedFootprint ? '✓ Verified Business Footprint' : (siteHost ? 'Official Website Found' : 'Registration Unverified'));
+        : (hasVerifiedFootprint ? (dirList.length > 0 ? '✓ Verified Business Directory Listing' : '✓ Verified Business Footprint') : (siteHost ? 'Official Website Found' : 'Registration Unverified'));
 
       const domPillClass = c3.status === 'corporate_domain_match' || c3.status === 'free_email_verified_on_site'
         ? 'rr-sv-pill-ok'
@@ -3091,24 +3093,35 @@
                 <div><b>Operating Brand:</b> ${esc(derivedBrand)}</div>
                 ${c1.verified_hq ? `<div><b>Physical Office / HQ:</b> ${esc(c1.verified_hq)}</div>` : ''}
                 ${c1.official_website ? `<div><b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a></div>` : ''}
-                ${dirRec ? `<div><b>Corporate Directory:</b> <a href="${esc(dirRec.url)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:700;text-decoration:underline;">✓ Verified on ${esc(dirRec.source)}${dirRec.employee_count ? ' (' + esc(dirRec.employee_count) + ')' : ''} ↗</a></div>` : ''}
               </div>
 
-              <!-- Educational DBA & Safe Application Guidance -->
-              <div style="margin-top:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:0.79rem;line-height:1.45;color:#14532d;">
-                <div style="font-weight:750;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+              <!-- Verified Business Directory Listings (Clear Differentiator) -->
+              ${dirList.length ? `
+                <div style="margin-top:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;">
+                  <div style="font-weight:750;font-size:0.8rem;color:#14532d;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                    <span>✓ Verified Business Directory Profiles</span>
+                  </div>
+                  <div style="font-size:0.75rem;color:#166534;line-height:1.45;margin-bottom:8px;">
+                    Independent commercial registries &amp; corporate intelligence platforms verifying company presence:
+                  </div>
+                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                    ${dirList.map(d => `
+                      <a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#14532d;border:1px solid #86efac;padding:6px 12px;border-radius:6px;font-size:0.78rem;font-weight:700;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.15s ease;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#ffffff'">
+                        📊 ${esc(d.source)}${d.employee_count ? ' (' + esc(d.employee_count) + ')' : ''} ↗
+                      </a>
+                    `).join('')}
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Educational DBA & Official Government Registries -->
+              <div style="margin-top:10px;padding:10px 12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;font-size:0.79rem;line-height:1.45;color:#334155;">
+                <div style="font-weight:750;margin-bottom:4px;display:flex;align-items:center;gap:6px;color:#0f172a;">
                   <span>🏛️ Trade Name / DBA Guidance</span>
                 </div>
                 <div>${esc(dba?.notice || 'Many established organizations operate publicly under a trade name, brand, or DBA ("Doing Business As") while their corporate registration is filed under a founder, parent holding, or operating entity name.')}</div>
-                <div style="margin-top:6px;font-weight:700;color:#166534;">✓ Safe to submit your initial application with your CV/resume.</div>
+                <div style="margin-top:6px;font-weight:700;color:#15803d;">✓ Safe to submit your initial application with your CV/resume.</div>
                 <div style="margin-top:4px;">${esc(dba?.action_before_sensitive_data || 'Before signing an employment contract or sharing sensitive identity, banking, or tax documents, request the employer\'s registered legal entity name and registration number to verify directly on their official registry.')}</div>
-                ${offReg && offReg.registry_url ? `
-                  <div style="margin-top:8px;">
-                    <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#15803d;color:#ffffff;padding:6px 12px;border-radius:6px;font-weight:700;font-size:0.78rem;text-decoration:none;">
-                      🏛️ Search ${esc(offReg.authority_name)} ↗
-                    </a>
-                  </div>
-                ` : ''}
                 ${renderRegistryVerificationToolkit(c1.verified_hq || gr?.jurisdiction, c1.what_to_ask_employer)}
               </div>
             ` : `
@@ -3768,12 +3781,15 @@
             } else if (countryNames.length) {
                 locationStr = countryNames.join(', ');
             }
+            const leadDossier = lead.verification_dossier || {};
+            const inferredComp = (leadDossier.company_inferred && !['company', 'no company name found'].includes(leadDossier.company_inferred.toLowerCase().trim())) ? leadDossier.company_inferred : null;
+            const finalComp = (lead.company_name && !['facebook group', 'facebook post', 'facebook', 'company', 'unknown', 'n/a', 'none', 'no company name on post'].includes(lead.company_name.toLowerCase().trim())) ? lead.company_name : inferredComp;
             return {
                 is_social: true,
                 id: lead.id,
                 match_id: row.id,
                 title: row.matched_role || (Array.isArray(lead.detected_roles) && lead.detected_roles[0]) || lead.search_keyword || 'Role',
-                company_name: (lead.company_name && !['facebook group', 'facebook post', 'facebook', 'company'].includes(lead.company_name.toLowerCase().trim())) ? lead.company_name : null,
+                company_name: finalComp,
                 contact_email: lead.contact_email || '',
                 location: locationStr,
                 workplace_type: socialWorkplaceLabel(lead.detected_workplace_type),
@@ -3787,6 +3803,7 @@
                 fraud_check_status: lead.fraud_check_status,
                 verification_dossier: lead.verification_dossier || null,
                 detected_job_level: lead.detected_job_level,
+                detected_countries: lead.detected_countries || [],
                 fit_reason: row.fit_reason || '',
                 fit_missing_skills: Array.isArray(row.fit_missing_skills) ? row.fit_missing_skills : []
             };
