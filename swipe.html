@@ -456,11 +456,21 @@
         
         /* Email Client UI */
         .email-client-container { display: flex; width: 100%; height: 100vh; background: #fff; border-radius: 0; overflow: hidden; border: none; box-shadow: none; }
-        .email-sidebar { width: 350px; border-right: 1px solid var(--border); background: #fafafa; display: flex; flex-direction: column; }
+        .email-sidebar { width: 540px; min-width: 540px; border-right: 1px solid var(--border); background: #fafafa; display: flex; flex-direction: column; }
+        @media (min-width: 1200px) {
+            .email-sidebar { width: 560px; min-width: 560px; }
+            .email-folder-nav { width: 200px; min-width: 200px; flex: 0 0 200px; }
+            .email-list { flex: 1; min-width: 360px; }
+        }
+        @media (min-width: 769px) and (max-width: 1199px) {
+            .email-sidebar { width: 490px; min-width: 490px; }
+            .email-folder-nav { width: 180px; min-width: 180px; flex: 0 0 180px; }
+            .email-list { flex: 1; min-width: 310px; }
+        }
         .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
         .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
         .email-mailbox-main { display: flex; flex: 1; min-width: 0; min-height: 0; }
-        .email-folder-nav { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; position: static; top: auto; z-index: auto; width: 215px; min-width: 215px; flex: 0 0 215px; padding: 0.8rem; border: 0; border-right: 1px solid var(--border); background: #fafafa; backdrop-filter: none; overflow-y: auto; box-sizing: border-box; }
+        .email-folder-nav { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; position: static; top: auto; z-index: auto; width: 200px; min-width: 180px; flex: 0 0 200px; padding: 0.8rem; border: 0; border-right: 1px solid var(--border); background: #fafafa; backdrop-filter: none; overflow-y: auto; box-sizing: border-box; }
         .email-folder-label { margin: 0.35rem 0.7rem 0.65rem; color: #71717a; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
         .email-folder-btn { width: 100%; flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-start; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
         .email-folder-btn:hover { background: #f1f5f4; color: #111827; }
@@ -481,17 +491,17 @@
         .email-folder-divider { height: 1px; margin: 0.65rem 0.45rem; background: var(--border); }
         .folder-label-mobile { display: none; }
         .email-list { flex: 1; min-width: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y; }
-        .email-item { padding: 1.25rem; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s; position: relative; touch-action: pan-y; }
-        .email-item:hover { background: #f4f4f5; }
-        .email-item.active { background: rgba(0, 255, 204, 0.1); border-left: 4px solid var(--secondary); padding-left: calc(1.25rem - 4px); }
-        .email-item.unread::before { content: ''; position: absolute; top: 1.25rem; left: 0.5rem; width: 8px; height: 8px; background: var(--secondary); border-radius: 50%; }
+        .email-item { padding: 0.85rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s ease; position: relative; display: flex; flex-direction: column; gap: 0.2rem; box-sizing: border-box; background: #fff; }
+        .email-item:hover { background: #f8fafc; }
+        .email-item.active { background: #f0fdf4 !important; border-left: 3px solid #059669; padding-left: calc(1rem - 3px); }
+        .email-item.unread::before { content: ''; position: absolute; top: 1rem; left: 0.35rem; width: 6px; height: 6px; background: #10b981; border-radius: 50%; }
         .email-item:not(.unread)::before { display: none !important; }
-        .email-item.unread { padding-left: 1.5rem; }
-        .email-item.active.unread { padding-left: calc(1.5rem - 4px); }
-        .email-sender { font-size: 0.9rem; font-weight: 500; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 5rem; }
-        .email-subject { font-size: 0.85rem; font-weight: 450; color: #52525b; margin-bottom: 0.25rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .email-preview { font-size: 0.8rem; color: #71717a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        .email-time { font-size: 0.7rem; color: #71717a; font-weight: 450; position: absolute; top: 1.25rem; right: 1.25rem; }
+        .email-item-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%; }
+        .email-sender { font-size: 0.88rem; font-weight: 750; color: #09090b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; flex: 1; min-width: 0; padding-right: 0; margin-bottom: 0; }
+        .email-time { font-size: 0.72rem; color: #94a3b8; font-weight: 500; white-space: nowrap; position: static; flex-shrink: 0; }
+        .email-body-line { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.35; width: 100%; }
+        .email-subject { font-size: 0.82rem; font-weight: 600; color: #334155; margin-bottom: 0; }
+        .email-preview { font-size: 0.78rem; color: #64748b; font-weight: 400; }
         
         @media (min-width: 769px) {
             .email-mobile-back-row { display: none !important; }
@@ -6625,6 +6635,10 @@
         let currentEmails = [];
         
         async function openEmailClient(initialTab = null) {
+            // Dismiss any lingering bottom toasts
+            const toast = document.querySelector('.gap-toast') || document.getElementById('gap-toast');
+            if (toast) { toast.innerHTML = ''; toast.style.display = 'none'; }
+
             document.body.style.overflow = 'hidden';
             document.getElementById('email-client-modal').classList.add('active');
             const container = document.querySelector('.email-client-container');
@@ -7068,12 +7082,14 @@
                 // was HTML-entity-encoded in the source email must be re-escaped
                 // here or it would parse as real markup on this second insertion).
                 el.innerHTML = `
-                    <div class="email-sender">${escapeHtml(icon + prefix + displayName)}</div>
+                    <div class="email-item-header">
+                        <div class="email-sender">${escapeHtml(icon + prefix + displayName)}</div>
+                        <div class="email-time">${displayTime}</div>
+                    </div>
                     <div class="email-body-line">
                         <span class="email-subject">${escapeHtml(displaySubject)}</span>
-                        <span class="email-preview">&nbsp;-&nbsp;${escapeHtml(displayPreview)}</span>
+                        <span class="email-preview">&nbsp;·&nbsp;${escapeHtml(displayPreview)}</span>
                     </div>
-                    <div class="email-time">${displayTime}</div>
                 `;
                 listEl.appendChild(el);
             });
@@ -7219,6 +7235,8 @@
                         </div>
                     </div>
 
+                    <div id="draft-verification-banner-container"></div>
+
                     <div style="padding: 1.5rem; flex: 1;">
                         <a href="${resumeUrl}" target="_blank" rel="noopener noreferrer" onclick="handleDraftResumeClick(event, '${resumeUrl}', '${baseResumeUrl}')" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 0.5rem 0.85rem; font-size: 0.85rem; font-weight: 600; color: #18181b; text-decoration: none; margin-bottom: 1.5rem; transition: all 0.15s ease;" onmouseover="this.style.borderColor='#3b82f6';this.style.background='#f8fafc';" onmouseout="this.style.borderColor='var(--border)';this.style.background='#fff';" title="Click to view attached resume">
                             <i data-lucide="paperclip" style="width: 15px; height: 15px; color: #2563eb;"></i>
@@ -7239,6 +7257,40 @@
                 </div>
             `;
             if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Populate verification banner for this draft
+            const matchedJobId = email.matched_job_id;
+            let foundLead = (typeof pooledJobs !== 'undefined' && Array.isArray(pooledJobs))
+                ? pooledJobs.find(j => (matchedJobId && j.id === matchedJobId) || (companyName && j.company_name && j.company_name.toLowerCase().includes(companyName.toLowerCase())) || (recipient && j.contact_email && j.contact_email.toLowerCase() === recipient.toLowerCase()))
+                : null;
+            const bannerEl = document.getElementById('draft-verification-banner-container');
+            if (foundLead && bannerEl) {
+                bannerEl.innerHTML = renderEmailVerificationBannerHtml(foundLead);
+            } else if (typeof supabaseClient !== 'undefined' && matchedJobId) {
+                supabaseClient.from('social_hiring_leads')
+                    .select('id, company_name, verification_dossier, contact_email')
+                    .eq('id', matchedJobId)
+                    .maybeSingle()
+                    .then(({ data }) => {
+                        const bEl = document.getElementById('draft-verification-banner-container');
+                        if (data && bEl) {
+                            bEl.innerHTML = renderEmailVerificationBannerHtml(data);
+                        }
+                    });
+            } else if (typeof supabaseClient !== 'undefined' && recipient) {
+                supabaseClient.from('social_hiring_leads')
+                    .select('id, company_name, verification_dossier, contact_email')
+                    .eq('contact_email', recipient)
+                    .order('created_at', { ascending: false })
+                    .limit(1)
+                    .maybeSingle()
+                    .then(({ data }) => {
+                        const bEl = document.getElementById('draft-verification-banner-container');
+                        if (data && bEl) {
+                            bEl.innerHTML = renderEmailVerificationBannerHtml(data);
+                        }
+                    });
+            }
         }
 
         function toggleEditDraft(index) {
