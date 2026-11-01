@@ -5802,6 +5802,59 @@
     return null;
   }
 
+  
+  function renderRegistryVerificationToolkit(jurisdictionOrHq, customAskText) {
+    const text = String(jurisdictionOrHq || '').toLowerCase();
+    let regList = [];
+    if (text.includes('uk') || text.includes('united kingdom') || text.includes('england') || text.includes('london')) {
+      regList = [
+        { name: 'UK Companies House Registry', url: 'https://find-and-update.company-information.service.gov.uk/' },
+        { name: 'OpenCorporates Global', url: 'https://opencorporates.com/companies' }
+      ];
+    } else if (text.includes('canada') || text.includes('ontario') || text.includes('toronto') || text.includes('vancouver')) {
+      regList = [
+        { name: 'Corporations Canada Registry', url: 'https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html' },
+        { name: 'OpenCorporates (Canada)', url: 'https://opencorporates.com/companies?jurisdiction_code=ca' }
+      ];
+    } else if (text.includes('australia') || text.includes('sydney') || text.includes('melbourne')) {
+      regList = [
+        { name: 'ASIC National Registers (Australia)', url: 'https://connectonline.asic.gov.au/' },
+        { name: 'OpenCorporates (Australia)', url: 'https://opencorporates.com/companies?jurisdiction_code=au' }
+      ];
+    } else {
+      // United States / Default
+      regList = [
+        { name: 'US State SOS Database (OpenCorporates)', url: 'https://opencorporates.com/companies?jurisdiction_code=us' },
+        { name: 'SEC EDGAR (Public US Companies)', url: 'https://www.sec.gov/edgar/searchedgar/companysearch' },
+        { name: 'OpenCorporates Global (200M+ Firms)', url: 'https://opencorporates.com/companies' }
+      ];
+    }
+
+    const defaultAsk = "Hi! Before we move to the contracting stage, could you please share your company\'s registered legal entity name and state or country of incorporation for our compliance records?";
+    const rawAsk = (customAskText && customAskText.trim().length > 10) ? customAskText.trim().replace(/'/g, "\\'") : defaultAsk;
+
+    return `
+      <div style="margin-top:10px;padding:10px 12px;background:#ffffff;border:1px solid #bbf7d0;border-radius:8px;">
+        <div style="font-weight:750;font-size:0.77rem;color:#166534;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
+          <span>🏛️ Official Government Business Registries to Verify:</span>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+          ${regList.map(r => `
+            <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:4px 9px;border-radius:6px;font-weight:700;font-size:0.74rem;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+              🔍 ${esc(r.name)} ↗
+            </a>
+          `).join('')}
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <button type="button" onclick="navigator.clipboard.writeText('${rawAsk}'); const b = this; const orig = b.innerHTML; b.innerHTML = '✓ Copied Message!'; setTimeout(() => { b.innerHTML = orig; }, 2500);" style="display:inline-flex;align-items:center;gap:5px;background:#166534;color:#ffffff;border:none;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.74rem;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#14532d'" onmouseout="this.style.background='#166534'">
+            📋 Copy Message to Ask Recruiter
+          </button>
+          <span style="font-size:0.72rem;color:#6b7280;">Once recruiter shares legal entity name, search any registry above.</span>
+        </div>
+      </div>
+    `;
+  }
+
   function normalizeDossier(raw) {
     if (!raw || typeof raw !== 'object') return null;
     if (raw.checks && typeof raw.checks === 'object') {
@@ -6272,6 +6325,7 @@
                     </a>
                   </div>
                 ` : ''}
+                ${renderRegistryVerificationToolkit(c1.verified_hq || gr?.jurisdiction, c1.what_to_ask_employer)}
               </div>
             ` : `
               <div style="font-size:0.82rem;color:#18181b;line-height:1.5">
