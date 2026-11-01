@@ -3339,11 +3339,21 @@
         // and disappear depending on which fetch finishes first.
         var HIRING_MODE = new URLSearchParams(window.location.search).get('mode') === 'hiring';
         (async function authGuard() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
+            let { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
 
-            if (!session) {
-                window.location.href = 'login.html';
-                return;
+            if (!session || (sessionError && sessionError.message && sessionError.message.includes('JWT'))) {
+                try {
+                    const { data: ref, error: refErr } = await supabaseClient.auth.refreshSession();
+                    if (!refErr && ref && ref.session) {
+                        session = ref.session;
+                    } else {
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                } catch(e) {
+                    window.location.href = 'login.html';
+                    return;
+                }
             }
 
             const user = session.user;
@@ -3358,13 +3368,25 @@
                 return;
             }
 
-            const { data: profile } = await supabaseClient
+            let { data: profile, error: profErr } = await supabaseClient
                 .from('profiles')
                 .select('id, onboarding_complete, launch_waitlisted_at, initial_scrape_requested_at, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, social_free_sends_used, experience_level_bucket, has_seen_gap_caveat, has_seen_social_safety_gate, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro')
                 .eq('id', user.id)
                 .single();
 
-            if (!profile || !profile.onboarding_complete) {
+            if (profErr && (profErr.message && (profErr.message.includes('JWT') || profErr.message.includes('expired')) || profErr.status === 401)) {
+                try {
+                    const { data: ref } = await supabaseClient.auth.refreshSession();
+                    if (ref && ref.session) {
+                        session = ref.session;
+                        const retry = await supabaseClient.from('profiles').select('id, onboarding_complete, launch_waitlisted_at, initial_scrape_requested_at, Application_email, master_resume, target_job_titles, target_location, country, workplace_type, scraper_status, deck_ready, first_name, last_name, subscription_tier, applications_limit, application_credit_used, social_free_sends_used, experience_level_bucket, has_seen_gap_caveat, has_seen_social_safety_gate, auto_apply_enabled, auto_apply_min_score, has_seen_inbox_intro').eq('id', user.id).single();
+                        profile = retry.data;
+                        profErr = retry.error;
+                    }
+                } catch(e) {}
+            }
+
+            if (profile && profile.onboarding_complete === false) {
                 window.location.href = 'onboarding.html';
                 return;
             }
@@ -6773,8 +6795,17 @@
 
         async function fetchEmails() {
             try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (!session) return;
+                let { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+                if (!session || (sessionError && sessionError.message && sessionError.message.includes('JWT'))) {
+                    try {
+                        const { data: ref } = await supabaseClient.auth.refreshSession();
+                        if (ref && ref.session) session = ref.session;
+                    } catch(e) {}
+                }
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
                 updateDraftsBadgeVisibility(session);
 
                 let query = supabaseClient
@@ -6788,7 +6819,22 @@
                     ? query.or('category.eq.inbox,category.is.null')
                     : query.eq('category', category);
 
-                const { data, error } = await query;
+                let { data, error } = await query;
+                if (error && (error.message && (error.message.includes('JWT') || error.message.includes('expired')) || error.status === 401)) {
+                    try {
+                        const { data: ref } = await supabaseClient.auth.refreshSession();
+                        if (ref && ref.session) {
+                            session = ref.session;
+                            const retry = await supabaseClient
+                                .from('emails')
+                                .select('*')
+                                .eq('user_id', session.user.id)
+                                .order('created_at', { ascending: false });
+                            data = retry.data;
+                            error = retry.error;
+                        }
+                    } catch(e) {}
+                }
                     
                 if (error) throw error;
                 currentEmails = data || [];
