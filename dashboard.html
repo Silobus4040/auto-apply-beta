@@ -5811,6 +5811,11 @@
         { name: 'UK Companies House Registry', url: 'https://find-and-update.company-information.service.gov.uk/' },
         { name: 'OpenCorporates Global', url: 'https://opencorporates.com/companies' }
       ];
+    } else if (text.includes('nigeria') || text.includes('lagos') || text.includes('abuja')) {
+      regList = [
+        { name: 'Nigeria CAC Public Search', url: 'https://search.cac.gov.ng/' },
+        { name: 'OpenCorporates Global', url: 'https://opencorporates.com/companies' }
+      ];
     } else if (text.includes('canada') || text.includes('ontario') || text.includes('toronto') || text.includes('vancouver')) {
       regList = [
         { name: 'Corporations Canada Registry', url: 'https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html' },
@@ -6344,6 +6349,7 @@
                     </a>
                   </div>
                 ` : ''}
+                ${renderRegistryVerificationToolkit(c1.verified_hq || gr?.jurisdiction, c1.what_to_ask_employer)}
               </div>
             `)}
           </div>

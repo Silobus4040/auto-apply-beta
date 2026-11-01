@@ -2553,6 +2553,11 @@
         { name: 'UK Companies House Registry', url: 'https://find-and-update.company-information.service.gov.uk/' },
         { name: 'OpenCorporates Global', url: 'https://opencorporates.com/companies' }
       ];
+    } else if (text.includes('nigeria') || text.includes('lagos') || text.includes('abuja')) {
+      regList = [
+        { name: 'Nigeria CAC Public Search', url: 'https://search.cac.gov.ng/' },
+        { name: 'OpenCorporates Global', url: 'https://opencorporates.com/companies' }
+      ];
     } else if (text.includes('canada') || text.includes('ontario') || text.includes('toronto') || text.includes('vancouver')) {
       regList = [
         { name: 'Corporations Canada Registry', url: 'https://ised-isde.canada.ca/cc/lgcy/fdrlCrpDtls.html' },
@@ -3086,6 +3091,7 @@
                     </a>
                   </div>
                 ` : ''}
+                ${renderRegistryVerificationToolkit(c1.verified_hq || gr?.jurisdiction, c1.what_to_ask_employer)}
               </div>
             `)}
           </div>
@@ -3651,10 +3657,26 @@
 
         function extractStatedLocation(text) {
             if (!text) return null;
-            const m = text.match(/(?:Location|Based in|Office in)\s*[:\-]\s*([^\r\n|]+)/i);
+            // Pattern 1: Explicit prefixes like Location: ..., Based in ..., Office: ..., Site: ...
+            let m = text.match(/(?:Location|Based in|Office in|Located in|Site|Office)\s*[:\-]\s*([^\r\n|.,]+(?:,\s*[^\r\n|.,]+)?)/i);
             if (m && m[1]) {
-                let loc = m[1].replace(/#\S+/g, '').trim();
-                loc = loc.replace(/[.,;]+$/, '').trim();
+                let loc = m[1].replace(/#\S+/g, '').trim().replace(/[.,;]+$/, '').trim();
+                if (loc.length >= 2 && !/^(remote|wfh|work from home|onsite|on-site|hybrid)$/i.test(loc)) {
+                    return loc;
+                }
+            }
+            // Pattern 2: Title / em-dash format: "— Oxford, UK (hybrid)"
+            m = text.match(/(?:[—–-]\s*)([A-Z][a-zA-Z\s]+,\s*(?:[A-Z]{2}|[A-Z][a-zA-Z]+))(?:\s*\(?(?:hybrid|onsite|on-site|remote)\)?)?/);
+            if (m && m[1]) {
+                let loc = m[1].replace(/#\S+/g, '').trim().replace(/[.,;]+$/, '').trim();
+                if (loc.length >= 2 && !/^(remote|wfh|work from home|onsite|on-site|hybrid)$/i.test(loc)) {
+                    return loc;
+                }
+            }
+            // Pattern 3: "in Lagos, Nigeria" or "near Oxford, UK"
+            m = text.match(/\b(?:in|near)\s+([A-Z][a-zA-Z\s]+,\s*(?:[A-Z]{2}|[A-Z][a-zA-Z]+))\b/);
+            if (m && m[1]) {
+                let loc = m[1].replace(/#\S+/g, '').trim().replace(/[.,;]+$/, '').trim();
                 if (loc.length >= 2 && !/^(remote|wfh|work from home|onsite|on-site|hybrid)$/i.test(loc)) {
                     return loc;
                 }
@@ -3668,11 +3690,41 @@
             const text = lead.post_text || '';
             const statedLoc = extractStatedLocation(text);
             const countryNames = countries.map(c => ISO_TO_COUNTRY[c.toUpperCase()] || c.toUpperCase());
+            const wp = (lead.detected_workplace_type || '').toLowerCase().trim();
+            const wpLabel = wp === 'hybrid' ? 'Hybrid' : (wp === 'onsite' || wp === 'on-site' ? 'On-site' : (wp === 'remote' ? 'Remote' : ''));
             
             let locationStr = 'Location not verified';
-            if (lead.says_anywhere) {
-                locationStr = 'Worldwide (Remote)';
-            } else if (statedLoc) {
+
+            // 1. If On-site or Hybrid, ALWAYS show physical location + (On-site / Hybrid). NEVER Worldwide!
+            if (wp === 'hybrid' || wp === 'onsite' || wp === 'on-site') {
+                let baseLoc = '';
+                if (statedLoc) {
+                    const firstCountry = countryNames[0] || '';
+                    const alreadyHasCountry = firstCountry && statedLoc.toLowerCase().includes(firstCountry.toLowerCase());
+                    baseLoc = alreadyHasCountry ? statedLoc : (firstCountry ? `${statedLoc}, ${firstCountry}` : statedLoc);
+                } else if (countryNames.length) {
+                    baseLoc = countryNames.join(', ');
+                } else {
+                    baseLoc = 'Physical Location';
+                }
+                locationStr = wpLabel ? `${baseLoc} (${wpLabel})` : baseLoc;
+            } 
+            // 2. If Remote:
+            else if (wp === 'remote' || lead.says_anywhere) {
+                if (lead.says_anywhere && (!countries.length || (lead.detected_regions && lead.detected_regions.includes('anywhere')))) {
+                    locationStr = 'Worldwide (Remote)';
+                } else if (lead.detected_regions && lead.detected_regions.length) {
+                    locationStr = `${lead.detected_regions.join(', ').toUpperCase()} (Remote)`;
+                } else if (statedLoc) {
+                    locationStr = `${statedLoc} (Remote)`;
+                } else if (countryNames.length) {
+                    locationStr = `${countryNames.join(', ')} (Remote)`;
+                } else {
+                    locationStr = 'Remote';
+                }
+            } 
+            // 3. Fallback when workplace type is unstated:
+            else if (statedLoc) {
                 const firstCountry = countryNames[0] || '';
                 const alreadyHasCountry = firstCountry && statedLoc.toLowerCase().includes(firstCountry.toLowerCase());
                 locationStr = alreadyHasCountry ? statedLoc : (firstCountry ? `${statedLoc}, ${firstCountry}` : statedLoc);
