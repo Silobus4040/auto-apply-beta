@@ -3683,7 +3683,7 @@
                 is_social: true,
                 id: lead.id,
                 match_id: row.id,
-                title: row.matched_role || (Array.isArray(lead.detected_roles) && lead.detected_roles[0]) || 'Role',
+                title: row.matched_role || (Array.isArray(lead.detected_roles) && lead.detected_roles[0]) || lead.search_keyword || 'Role',
                 company_name: (lead.company_name && !['facebook group', 'facebook post', 'facebook', 'company'].includes(lead.company_name.toLowerCase().trim())) ? lead.company_name : null,
                 contact_email: lead.contact_email || '',
                 location: locationStr,
@@ -3798,7 +3798,7 @@
                     if (pu && seenLeadUrls.has(pu)) return false;
                     const leadRoles = Array.isArray(lead.detected_roles) ? lead.detected_roles.filter(Boolean) : [];
                     // ABSOLUTE RULE: No detected roles means NO job! Drop immediately.
-                    if (!r.matched_role && !leadRoles.length) return false;
+                    if (!isFounderOverride && !r.matched_role && !leadRoles.length) return false;
 
                     const allowed = isFounderOverride || (
                         fitsLocation(lead) && 
