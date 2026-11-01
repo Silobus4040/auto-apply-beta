@@ -3013,12 +3013,17 @@
       const c5 = c.contact_web_history || {};
 
       const gr = c1.grounded_registration || null;
+      const offReg = c1.official_registry || null;
+      const dirRec = c1.directory_record || null;
+      const dba = c1.dba_guidance || null;
       const siteHost = cleanHostLabel(c1.official_website);
 
-      const regBadgeClass = gr && gr.verified ? 'rr-sv-pill-ok' : (siteHost ? 'rr-sv-pill-info' : 'rr-sv-pill-warn');
-      const regBadgeText = gr && gr.verified
+      const hasVerifiedFootprint = !gr && siteHost && (c1.verified_hq || dirRec) && c4.status !== 'scam_reports_found';
+
+      const regBadgeClass = (gr && gr.verified) ? 'rr-sv-pill-ok' : (hasVerifiedFootprint ? 'rr-sv-pill-ok' : (siteHost ? 'rr-sv-pill-info' : 'rr-sv-pill-warn'));
+      const regBadgeText = (gr && gr.verified)
         ? ('✓ Registered in ' + gr.jurisdiction)
-        : (siteHost ? 'Official Website Found' : 'Registration Unverified');
+        : (hasVerifiedFootprint ? '✓ Verified Business Footprint' : (siteHost ? 'Official Website Found' : 'Registration Unverified'));
 
       const domPillClass = c3.status === 'corporate_domain_match' || c3.status === 'free_email_verified_on_site'
         ? 'rr-sv-pill-ok'
@@ -3051,7 +3056,7 @@
               <div class="rr-sv-check-title">1. Company Registration &amp; Official Website</div>
               <span class="rr-sv-pill ${regBadgeClass}">${esc(regBadgeText)}</span>
             </div>
-            ${gr ? `
+            ${(gr && gr.verified) ? `
               <div class="rr-sv-reg-facts">
                 <div><b>Legal Entity:</b> ${esc(gr.legal_name || d.company_inferred || 'Verified')} (${esc(gr.status || 'Active')})</div>
                 <div><b>Reg / Doc No.:</b> ${esc(gr.registration_number)}${gr.incorporation_date ? ` &middot; ${esc(gr.incorporation_date)}` : ''}</div>
@@ -3059,19 +3064,56 @@
                 <div><b>Official Website:</b> ${c1.official_website ? `<a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : 'Not listed'}</div>
               </div>
               ${gr.grounding_note ? `<div style="margin-top:6px;font-size:0.76rem;color:#3f3f46;">${esc(gr.grounding_note)}</div>` : ''}
+              ${offReg && offReg.registry_url ? `
+                <div style="margin-top:8px;">
+                  <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#f4f4f5;border:1px solid #d4d4d8;color:#09090b;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.77rem;text-decoration:none;">
+                    🏛️ Verify on ${esc(offReg.authority_name)} ↗
+                  </a>
+                </div>
+              ` : ''}
+            ` : (hasVerifiedFootprint ? `
+              <div class="rr-sv-reg-facts">
+                <div><b>Operating Brand:</b> ${esc(d.company_inferred || 'Company')}</div>
+                ${c1.verified_hq ? `<div><b>Physical Office / HQ:</b> ${esc(c1.verified_hq)}</div>` : ''}
+                ${c1.official_website ? `<div><b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a></div>` : ''}
+                ${dirRec ? `<div><b>Corporate Directory:</b> <a href="${esc(dirRec.url)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:700;text-decoration:underline;">✓ Verified on ${esc(dirRec.source)}${dirRec.employee_count ? ' (' + esc(dirRec.employee_count) + ')' : ''} ↗</a></div>` : ''}
+              </div>
+
+              <!-- Educational DBA & Safe Application Guidance -->
+              <div style="margin-top:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:0.79rem;line-height:1.45;color:#14532d;">
+                <div style="font-weight:750;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                  <span>🏛️ Trade Name / DBA Guidance</span>
+                </div>
+                <div>${esc(dba?.notice || 'Many established organizations operate publicly under a trade name, brand, or DBA ("Doing Business As") while their corporate registration is filed under a founder, parent holding, or operating entity name.')}</div>
+                <div style="margin-top:6px;font-weight:700;color:#166534;">✓ Safe to submit your initial application with your CV/resume.</div>
+                <div style="margin-top:4px;">${esc(dba?.action_before_sensitive_data || 'Before signing an employment contract or sharing sensitive identity, banking, or tax documents, request the employer\'s registered legal entity name and registration number to verify directly on their official registry.')}</div>
+                ${offReg && offReg.registry_url ? `
+                  <div style="margin-top:8px;">
+                    <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#15803d;color:#ffffff;padding:6px 12px;border-radius:6px;font-weight:700;font-size:0.78rem;text-decoration:none;">
+                      🏛️ Search ${esc(offReg.authority_name)} ↗
+                    </a>
+                  </div>
+                ` : ''}
+              </div>
             ` : `
               <div style="font-size:0.82rem;color:#18181b;line-height:1.5">
                 ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : ''}
                 ${c1.verified_hq ? ` &middot; <b>HQ:</b> ${esc(c1.verified_hq)}` : ''}
-                ${c1.founded_year ? ` &middot; <b>Founded:</b> ${esc(c1.founded_year)}` : ''}
                 <div style="margin-top:6px;color:#27272a;">${esc(c1.summary || 'No public government registration record matched.')}</div>
                 ${c1.what_to_ask_employer ? `
-                  <div style="margin-top:8px;padding:8px 11px;background:#f7fee7;border:1px solid #a3e635;border-radius:8px;color:#09090b;font-size:0.79rem;line-height:1.45;">
+                  <div style="margin-top:8px;padding:8px 11px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
                     <b>💡 What to Ask the Employer:</b> ${esc(c1.what_to_ask_employer)}
                   </div>
                 ` : ''}
+                ${offReg && offReg.registry_url ? `
+                  <div style="margin-top:8px;">
+                    <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#f4f4f5;border:1px solid #d4d4d8;color:#09090b;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.77rem;text-decoration:none;">
+                      🏛️ Official Search Portal: ${esc(offReg.authority_name)} ↗
+                    </a>
+                  </div>
+                ` : ''}
               </div>
-            `}
+            `)}
           </div>
 
           <!-- 2. Cross-Platform Social Profiles (Only Found Links) -->
@@ -7319,6 +7361,57 @@
             }
         }
 
+        function renderEmailVerificationBannerHtml(lead) {
+            if (!lead) return '';
+            const dossier = lead.verification_dossier || {};
+            const checks = dossier.checks || {};
+            const c1 = checks.company_registration || {};
+            const c4 = checks.scam_reputation || {};
+            const gr = c1.grounded_registration || null;
+            const offReg = c1.official_registry || null;
+            const dirRec = c1.directory_record || null;
+            const company = lead.company_name || dossier.company_inferred || 'Employer';
+            const hq = c1.verified_hq || '';
+            const site = c1.official_website ? c1.official_website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] : '';
+            const leadId = lead.id;
+
+            const hasVerifiedFootprint = !gr && site && (hq || dirRec) && c4.status !== 'scam_reports_found';
+            const statusText = (gr && gr.verified)
+                ? ('Registered in ' + gr.jurisdiction)
+                : (hasVerifiedFootprint ? 'Verified Business Footprint' : (site ? 'Official Website Match' : 'Unverified Poster'));
+
+            const regUrl = offReg ? offReg.registry_url : null;
+            const authName = offReg ? offReg.authority_name : 'Official Corporate Registry';
+
+            return `
+                <div style="margin: 0.75rem 1.5rem 0.25rem; padding: 0.75rem 1rem; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span style="font-size: 1.15rem; line-height: 1;">🛡️</span>
+                        <div>
+                            <div style="font-size: 0.82rem; font-weight: 750; color: #14532d;">
+                                ${escapeHtml(company)} &middot; <span style="font-weight: 600; color: #166534;">✓ ${escapeHtml(statusText)}</span>
+                            </div>
+                            <div style="font-size: 0.74rem; color: #374151;">
+                                ${hq ? `HQ: ${escapeHtml(hq)} &middot; ` : ''}Verify official legal entity before sharing sensitive personal, banking, or tax details.
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                        ${regUrl ? `
+                            <a href="${escapeHtml(regUrl)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px; background: #166534; color: #ffffff; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; text-decoration: none;">
+                                🏛️ Search ${escapeHtml(authName)} ↗
+                            </a>
+                        ` : ''}
+                        ${leadId ? `
+                            <button onclick="window.RoleRoverSocialVerify.openModal('${escapeHtml(leadId)}')" style="display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid #86efac; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">
+                                View Dossier
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+
         async function showEmailContent(index, demoDisplayIndex = index) {
             // Update active state in list
             document.querySelectorAll('.email-item').forEach((el, i) => {
@@ -7444,6 +7537,7 @@
                             <div class="email-content-date">${displayFullDate}</div>
                         </div>
                     </div>
+                    <div id="email-verification-banner-container"></div>
                     <div class="email-iframe-container" style="flex: 1; min-height: 400px;">
                         <iframe id="email-body-iframe" class="email-iframe" sandbox=""></iframe>
                     </div>
@@ -7451,6 +7545,29 @@
                 </div>
             `;
             if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Populate verification banner if this email corresponds to a social hiring lead
+            const matchedJobId = email.matched_job_id;
+            if (matchedJobId) {
+                let foundLead = (typeof pooledJobs !== 'undefined' && Array.isArray(pooledJobs))
+                    ? pooledJobs.find(j => j.id === matchedJobId)
+                    : null;
+                const bannerEl = document.getElementById('email-verification-banner-container');
+                if (foundLead && bannerEl) {
+                    bannerEl.innerHTML = renderEmailVerificationBannerHtml(foundLead);
+                } else if (typeof supabaseClient !== 'undefined') {
+                    supabaseClient.from('social_hiring_leads')
+                        .select('id, company_name, verification_dossier, contact_email')
+                        .eq('id', matchedJobId)
+                        .maybeSingle()
+                        .then(({ data }) => {
+                            const bEl = document.getElementById('email-verification-banner-container');
+                            if (data && bEl) {
+                                bEl.innerHTML = renderEmailVerificationBannerHtml(data);
+                            }
+                        });
+                }
+            }
 
             // Render the email body in a fully sandboxed iframe: sandbox="" (no
             // allow-scripts, no allow-same-origin) means anything in email.full_html
