@@ -3594,11 +3594,45 @@
             return String(raw || '').split(',').map(s => map[s.trim()] || '').filter(Boolean).join(' / ');
         }
 
+        const ISO_TO_COUNTRY = {
+            NG: 'Nigeria', KE: 'Kenya', GH: 'Ghana', ZA: 'South Africa',
+            PH: 'Philippines', US: 'United States', GB: 'United Kingdom',
+            UK: 'United Kingdom', CA: 'Canada', AE: 'UAE', SA: 'Saudi Arabia',
+            EG: 'Egypt', IN: 'India', DE: 'Germany', FR: 'France',
+            NL: 'Netherlands', ES: 'Spain', IT: 'Italy', BR: 'Brazil',
+            AU: 'Australia', NZ: 'New Zealand', IE: 'Ireland', SG: 'Singapore'
+        };
+
+        function extractStatedLocation(text) {
+            if (!text) return null;
+            const m = text.match(/(?:Location|Based in|Office in)\s*[:\-]\s*([^\r\n|]+)/i);
+            if (m && m[1]) {
+                let loc = m[1].replace(/#\S+/g, '').trim();
+                loc = loc.replace(/[.,;]+$/, '').trim();
+                if (loc.length >= 2 && !/^(remote|wfh|work from home|onsite|on-site|hybrid)$/i.test(loc)) {
+                    return loc;
+                }
+            }
+            return null;
+        }
+
         function socialLeadToJob(row) {
             const lead = row.social_hiring_leads;
             const countries = Array.isArray(lead.detected_countries) ? lead.detected_countries : [];
             const text = lead.post_text || '';
-            const locationStr = lead.says_anywhere ? 'Worldwide (Remote)' : (countries.length ? countries.join(', ') : 'Location not verified');
+            const statedLoc = extractStatedLocation(text);
+            const countryNames = countries.map(c => ISO_TO_COUNTRY[c.toUpperCase()] || c.toUpperCase());
+            
+            let locationStr = 'Location not verified';
+            if (lead.says_anywhere) {
+                locationStr = 'Worldwide (Remote)';
+            } else if (statedLoc) {
+                const firstCountry = countryNames[0] || '';
+                const alreadyHasCountry = firstCountry && statedLoc.toLowerCase().includes(firstCountry.toLowerCase());
+                locationStr = alreadyHasCountry ? statedLoc : (firstCountry ? `${statedLoc}, ${firstCountry}` : statedLoc);
+            } else if (countryNames.length) {
+                locationStr = countryNames.join(', ');
+            }
             return {
                 is_social: true,
                 id: lead.id,
