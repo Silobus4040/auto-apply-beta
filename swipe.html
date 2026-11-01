@@ -7153,6 +7153,28 @@
             }
         }
 
+        function backToDraftsList() {
+            closeMobileEmailDetail();
+            const container = document.querySelector('.email-client-container');
+            if (container) {
+                container.classList.remove('mobile-show-content');
+            }
+            document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+            const pane = document.getElementById('email-content-pane');
+            if (pane && window.innerWidth > 768) {
+                pane.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #71717a; padding: 3rem; text-align: center;">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div style="font-weight: 800; color: #09090b; font-size: 1.15rem; margin-bottom: 0.35rem;">Drafts Mailbox</div>
+                        <div style="font-size: 0.88rem; color: #71717a; max-width: 340px; line-height: 1.45;">Select any application draft from the list on the left to review, edit, or dispatch.</div>
+                    </div>
+                `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
         function renderDraftDetailView(email, index) {
             const pane = document.getElementById('email-content-pane');
             if (!pane) return;
@@ -7205,7 +7227,7 @@
                     <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
                         <div>
                             <div style="margin-bottom: 0.85rem;" class="email-mobile-back-row">
-                                <button class="email-content-back-btn" onclick="closeMobileEmailDetail()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Drafts</button>
+                                <button class="email-content-back-btn" onclick="backToDraftsList()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Drafts</button>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
                                 <span style="background: #fef3c7; color: #b45309; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 50px; text-transform: uppercase;">Application Draft</span>
@@ -7223,8 +7245,8 @@
                             <button id="edit-draft-btn-${index}" onclick="toggleEditDraft(${index})" style="background: #f4f4f5; color: #18181b; border: 1px solid #e4e4e7; padding: 0.75rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                 <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> Edit text
                             </button>
-                            <button onclick="discardDraft(${index})" style="background: transparent; color: #ef4444; border: 1px solid #fecaca; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
-                                Discard
+                            <button type="button" onclick="backToDraftsList()" style="background: #f4f4f5; color: #3f3f46; border: 1px solid #e4e4e7; padding: 0.75rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: background 0.15s;" onmouseover="this.style.background='#e4e4e7'" onmouseout="this.style.background='#f4f4f5'">
+                                <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Back to Drafts
                             </button>
                         </div>
                     </div>
