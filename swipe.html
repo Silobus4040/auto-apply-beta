@@ -3637,7 +3637,7 @@
                 is_social: true,
                 id: lead.id,
                 match_id: row.id,
-                title: lead.search_keyword || 'Role',
+                title: row.matched_role || lead.search_keyword || 'Role',
                 company_name: (lead.company_name && !['facebook group', 'facebook post', 'facebook', 'company'].includes(lead.company_name.toLowerCase().trim())) ? lead.company_name : null,
                 contact_email: lead.contact_email || '',
                 location: locationStr,
@@ -3669,8 +3669,8 @@
                 const { data, error } = await supabaseClient
                     .from('social_hiring_lead_matches')
                     .select(`
-                        id, decision, matched_at, fit_reason, fit_missing_skills,
-                        social_hiring_leads ( id, platform, search_keyword, post_url, post_text, posted_at, author_name, author_profile_url, company_name, contact_email, fraud_check_status, fraud_check_notes, verification_dossier, verified_at, detected_job_level, detected_countries, detected_workplace_type, says_anywhere, status )
+                        id, decision, matched_at, fit_reason, fit_missing_skills, matched_role,
+                        social_hiring_leads ( id, platform, search_keyword, post_url, post_text, posted_at, author_name, author_profile_url, company_name, contact_email, fraud_check_status, fraud_check_notes, verification_dossier, verified_at, detected_job_level, detected_countries, detected_workplace_type, says_anywhere, status, detected_roles )
                     `)
                     .eq('profile_id', userId)
                     .eq('decision', 'pending')
