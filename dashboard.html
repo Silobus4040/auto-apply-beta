@@ -485,24 +485,106 @@
             background: #00FFCC;
         }
         
-        /* Email Client UI */
+                /* Email Client UI */
         .email-client-container { display: flex; width: 100%; height: 100vh; background: #fff; border-radius: 0; overflow: hidden; border: none; box-shadow: none; }
-        .email-sidebar { width: 350px; border-right: 1px solid var(--border); background: var(--surface-color); display: flex; flex-direction: column; }
-        .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: var(--surface-color); display: flex; justify-content: space-between; align-items: center; }
-        .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: var(--text-heading); text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
+        .email-sidebar { width: 540px; min-width: 540px; border-right: 1px solid var(--border); background: #fafafa; display: flex; flex-direction: column; }
+        @media (min-width: 1200px) {
+            .email-sidebar { width: 560px; min-width: 560px; }
+            .email-folder-nav { width: 200px; min-width: 200px; flex: 0 0 200px; }
+            .email-list { flex: 1; min-width: 360px; }
+        }
+        @media (min-width: 769px) and (max-width: 1199px) {
+            .email-sidebar { width: 490px; min-width: 490px; }
+            .email-folder-nav { width: 180px; min-width: 180px; flex: 0 0 180px; }
+            .email-list { flex: 1; min-width: 310px; }
+        }
+        .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
+        .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
         .email-mailbox-main { display: flex; flex: 1; min-width: 0; min-height: 0; }
-        .email-folder-nav { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; position: static; top: auto; z-index: auto; width: 215px; min-width: 215px; flex: 0 0 215px; padding: 0.8rem; border: 0; border-right: 1px solid var(--border); background: #fafafa; backdrop-filter: none; overflow-y: auto; box-sizing: border-box; }
+        .email-folder-nav { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; position: static; top: auto; z-index: auto; width: 200px; min-width: 180px; flex: 0 0 200px; padding: 0.8rem; border: 0; border-right: 1px solid var(--border); background: #fafafa; backdrop-filter: none; overflow-y: auto; box-sizing: border-box; }
         .email-folder-label { margin: 0.35rem 0.7rem 0.65rem; color: #71717a; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
         .email-folder-btn { width: 100%; flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-start; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
         .email-folder-btn:hover { background: #f1f5f4; color: #111827; }
         .email-folder-btn.active { background: rgba(16, 185, 129, 0.12); color: #111827; font-weight: 800; }
-        /* Per-tab active state - consistent brand green matching Invites */
         #tab-interviews.active, #tab-inbox.active,
-        #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active {
+        #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active, #tab-drafts.active {
             background: rgba(5, 150, 105, 0.12);
             color: #059669;
         }
         @media (max-width: 768px) {
+            #tab-interviews.active, #tab-inbox.active,
+            #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active, #tab-drafts.active {
+                border-bottom: 2px solid #059669;
+            }
+        }
+        .email-folder-btn i { width: 16px; height: 16px; }
+        .email-folder-divider { height: 1px; margin: 0.65rem 0.45rem; background: var(--border); }
+        .folder-label-mobile { display: none; }
+        .email-list { flex: 1; min-width: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y; }
+        .email-item { padding: 0.85rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s ease; position: relative; display: flex; flex-direction: column; gap: 0.2rem; box-sizing: border-box; background: #fff; }
+        .email-item:hover { background: #f8fafc; }
+        .email-item.active { background: #f0fdf4 !important; border-left: 3px solid #059669; padding-left: calc(1rem - 3px); }
+        .email-item.unread::before { content: ''; position: absolute; top: 1rem; left: 0.35rem; width: 6px; height: 6px; background: #10b981; border-radius: 50%; }
+        .email-item:not(.unread)::before { display: none !important; }
+        .email-item-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%; }
+        .email-sender { font-size: 0.88rem; font-weight: 750; color: #09090b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; flex: 1; min-width: 0; padding-right: 0; margin-bottom: 0; }
+        .email-time { font-size: 0.72rem; color: #94a3b8; font-weight: 500; white-space: nowrap; position: static; flex-shrink: 0; }
+        .email-body-line { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.35; width: 100%; }
+        .email-subject { font-size: 0.82rem; font-weight: 600; color: #334155; margin-bottom: 0; }
+        .email-preview { font-size: 0.78rem; color: #64748b; font-weight: 400; }
+        
+        .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; min-width: 0; min-height: 0; overflow-y: auto; }
+
+        /* Unread: bold black typography with unread dot */
+        .email-item.unread .email-sender {
+            font-weight: 800 !important;
+            color: #000000 !important;
+        }
+        .email-item.unread .email-subject {
+            font-weight: 800 !important;
+            color: #000000 !important;
+        }
+        .email-item.unread .email-preview {
+            color: #52525b !important;
+        }
+        .email-item.unread .email-time {
+            font-weight: 750 !important;
+            color: #000000 !important;
+        }
+
+        /* Read/Opened: softer, normal non-bold typography, no dot */
+        .email-item:not(.unread) .email-sender {
+            font-weight: 500 !important;
+            color: #52525b !important;
+        }
+        .email-item:not(.unread) .email-subject {
+            font-weight: 450 !important;
+            color: #52525b !important;
+        }
+        .email-item:not(.unread) .email-preview {
+            color: #71717a !important;
+        }
+        .email-item:not(.unread) .email-time {
+            font-weight: 450 !important;
+            color: #71717a !important;
+        }
+
+        /* Dark mode overrides */
+        [data-theme=" dark\] .email-item.unread .email-sender,
+ [data-theme=\dark\] .email-item.unread .email-subject,
+ [data-theme=\dark\] .email-item.unread .email-time {
+ color: #ffffff !important;
+ }
+ [data-theme=\dark\] .email-item:not(.unread) .email-sender,
+ [data-theme=\dark\] .email-item:not(.unread) .email-subject {
+ color: #a1a1aa !important;
+ }
+ [data-theme=\dark\] .email-item:not(.unread) .email-preview,
+ [data-theme=\dark\] .email-item:not(.unread) .email-time {
+ color: #71717a !important;
+ }
+
+ @media (max-width: 768px) {
             #tab-interviews.active, #tab-inbox.active,
             #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active {
                 border-bottom: 2px solid #059669;
@@ -524,144 +606,10 @@
         .email-preview { font-size: 0.8rem; color: #71717a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .email-time { font-size: 0.7rem; color: #71717a; font-weight: 450; position: absolute; top: 1.25rem; right: 1.25rem; }
         
-        @media (min-width: 769px) {
-            .email-mobile-back-row { display: none !important; }
-        }
+        /* Keep back button visible everywhere */
         
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
-        .email-client-container.list-only .email-sidebar { display: flex !important; width: 100% !important; flex: 1 !important; border-right: none !important; }
-        .email-client-container.list-only .email-content { display: none !important; }
-        .email-client-container.show-detail .email-sidebar { display: none !important; }
-        .email-client-container.show-detail .email-content { display: flex !important; flex: 1 !important; width: 100% !important; min-height: 0 !important; }
-        .email-client-container.list-only .email-item {
-            display: flex;
-            align-items: center;
-            height: 48px;
-            min-height: 48px;
-            box-sizing: border-box;
-            padding: 0 1.25rem 0 1.75rem;
-            gap: 1.25rem;
-            transition: background 0.1s, box-shadow 0.1s;
-        }
-        .email-client-container.list-only .email-item:hover {
-            box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
-            z-index: 1;
-        }
-        .email-client-container.list-only .email-item.unread::before {
-            top: 50%;
-            transform: translateY(-50%);
-            left: 0.6rem;
-        }
-        .email-client-container.list-only .email-sender {
-            width: 200px;
-            min-width: 200px;
-            flex-shrink: 0;
-            margin: 0;
-            font-size: 0.94rem;
-            font-weight: 500;
-            color: #52525b;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            letter-spacing: -0.2px;
-        }
-        .email-client-container.list-only .email-body-line {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            align-items: baseline;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.94rem;
-        }
-        .email-client-container.list-only .email-subject {
-            font-weight: 450;
-            color: #52525b;
-            margin: 0;
-            flex-shrink: 0;
-            letter-spacing: -0.2px;
-        }
-        .email-client-container.list-only .email-preview {
-            color: #71717a;
-            margin: 0;
-            margin-left: 0.35rem;
-            font-size: 0.92rem;
-            font-weight: 400;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-            min-width: 0;
-        }
-        .email-client-container.list-only .email-time {
-            width: 90px;
-            min-width: 90px;
-            flex-shrink: 0;
-            text-align: right;
-            position: static;
-            margin: 0;
-            font-size: 0.8rem;
-            font-weight: 450;
-            color: #71717a;
-        }
-
-        /* Unread: bold black typography with unread dot */
-        .email-client-container.list-only .email-item.unread .email-sender,
-        .email-item.unread .email-sender {
-            font-weight: 800 !important;
-            color: #000000 !important;
-        }
-        .email-client-container.list-only .email-item.unread .email-subject,
-        .email-item.unread .email-subject {
-            font-weight: 800 !important;
-            color: #000000 !important;
-        }
-        .email-client-container.list-only .email-item.unread .email-preview,
-        .email-item.unread .email-preview {
-            color: #52525b !important;
-        }
-        .email-client-container.list-only .email-item.unread .email-time,
-        .email-item.unread .email-time {
-            font-weight: 750 !important;
-            color: #000000 !important;
-        }
-
-        /* Read/Opened: softer, normal non-bold typography, no dot */
-        .email-client-container.list-only .email-item:not(.unread) .email-sender,
-        .email-item:not(.unread) .email-sender {
-            font-weight: 500 !important;
-            color: #52525b !important;
-        }
-        .email-client-container.list-only .email-item:not(.unread) .email-subject,
-        .email-item:not(.unread) .email-subject {
-            font-weight: 450 !important;
-            color: #52525b !important;
-        }
-        .email-client-container.list-only .email-item:not(.unread) .email-preview,
-        .email-item:not(.unread) .email-preview {
-            color: #71717a !important;
-        }
-        .email-client-container.list-only .email-item:not(.unread) .email-time,
-        .email-item:not(.unread) .email-time {
-            font-weight: 450 !important;
-            color: #71717a !important;
-        }
-
-        /* Dark mode overrides */
-        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-sender,
-        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-subject,
-        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-time {
-            color: #ffffff !important;
-        }
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-sender,
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-subject {
-            color: #a1a1aa !important;
-        }
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-preview,
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-time {
-            color: #71717a !important;
-        }
+        /* Clean email client view */
 
         @media (max-width: 768px) {
             .email-mailbox-main { display: flex !important; flex-direction: column !important; flex: 1 1 0% !important; height: auto !important; min-height: 0 !important; overflow: hidden !important; }
@@ -678,10 +626,7 @@
             #tab-inbox { order: 5; }
             #tab-codes { order: 6; }
             /* Mobile: keep single-line Gmail-style flex row, tuned for narrow screens */
-            .email-client-container.list-only .email-item { display: flex !important; align-items: center !important; height: 44px !important; min-height: 44px !important; padding: 0 0.6rem 0 1.5rem !important; gap: 0.6rem !important; touch-action: pan-y !important; -webkit-tap-highlight-color: rgba(0, 0, 0, 0.04); }
-            .email-client-container.list-only .email-sender { width: 110px; min-width: 110px; font-size: 0.8rem; }
-            .email-client-container.list-only .email-body-line { font-size: 0.8rem; }
-            .email-client-container.list-only .email-time { width: 66px; min-width: 66px; font-size: 0.73rem; position: static; }
+            /* Mobile email list */
             /* Inbox tab hidden on mobile */
             #tab-inbox { display: none !important; }
             .email-list { flex: 1 1 0% !important; height: auto !important; min-height: 0 !important; overflow-y: auto !important; overflow-x: hidden !important; -webkit-overflow-scrolling: touch !important; overscroll-behavior-y: contain !important; touch-action: pan-y !important; padding-bottom: 2rem !important; }
@@ -1771,6 +1716,129 @@
       posthog.init('phc_y8V9oWKixnvrna8PEWUFYkWrkVoeJBSWuKdj74iq7956',{api_host:'https://eu.i.posthog.com',person_profiles:'identified_only'})
     </script>
     <!-- End PostHog -->
+<style id="rr-social-verify-styles">
+  .rr-sv-backdrop {
+    position: fixed; inset: 0; background: rgba(9, 9, 11, 0.64); backdrop-filter: blur(5px);
+    display: flex; align-items: center; justify-content: center; padding: 20px; z-index: 99999;
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+  .rr-sv-modal {
+    background: #ffffff; color: #09090b; border: 1px solid #e4e4e7; border-radius: 20px;
+    max-width: 660px; width: 100%; max-height: 88vh; display: flex; flex-direction: column;
+    box-shadow: 0 24px 54px rgba(0, 0, 0, 0.22); overflow: hidden; text-align: left;
+  }
+  .rr-sv-head {
+    padding: 18px 24px 15px; background: #ffffff;
+    border-bottom: 1px solid #e4e4e7; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  }
+  .rr-sv-step-pills {
+    display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;
+  }
+  .rr-sv-step-dot {
+    height: 6px; border-radius: 99px; background: #e4e4e7; width: 22px; transition: all 0.2s ease;
+  }
+  .rr-sv-step-dot.active {
+    background: #D4FF33; border: 1px solid #a3e635; width: 34px;
+  }
+  .rr-sv-step-dot.done {
+    background: #18181b;
+  }
+  .rr-sv-head h2 { margin: 0; font-size: 1.2rem; font-weight: 800; color: #09090b; line-height: 1.3; letter-spacing: -0.02em; }
+  .rr-sv-head p { margin: 4px 0 0; font-size: 0.86rem; color: #27272a; line-height: 1.45; font-weight: 500; }
+  .rr-sv-body {
+    padding: 18px 24px; overflow-y: auto; overflow-x: hidden; display: flex; flex-direction: column; gap: 12px;
+    scrollbar-width: thin; scrollbar-color: #d4d4d8 transparent;
+  }
+  .rr-sv-body::-webkit-scrollbar { width: 6px; }
+  .rr-sv-body::-webkit-scrollbar-track { background: transparent; }
+  .rr-sv-body::-webkit-scrollbar-thumb { background: #d4d4d8; border-radius: 99px; }
+  .rr-sv-foot {
+    padding: 14px 24px; background: #ffffff; border-top: 1px solid #e4e4e7;
+    display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
+  }
+  .rr-sv-welcome-box {
+    background: #fafafa; border: 1px solid #e4e4e7; border-left: 4px solid #D4FF33;
+    border-radius: 14px; padding: 20px 22px; font-size: 0.94rem; line-height: 1.7; color: #18181b;
+  }
+  .rr-sv-welcome-box b, .rr-sv-welcome-box strong { color: #09090b; font-weight: 800; }
+  .rr-sv-section-title {
+    font-size: 1rem; font-weight: 800; color: #09090b; margin: 18px 0 6px; display: block;
+  }
+  .rr-sv-section-title:first-child { margin-top: 0; }
+  .rr-sv-protect-list {
+    margin: 10px 0 0; padding-left: 20px; display: flex; flex-direction: column; gap: 10px;
+    font-size: 0.91rem; line-height: 1.6; color: #18181b;
+  }
+  .rr-sv-protect-list li b { color: #09090b; font-weight: 800; }
+  .rr-sv-rule-list { display: flex; flex-direction: column; gap: 10px; }
+  .rr-sv-rule-item {
+    display: flex; justify-content: space-between; align-items: center; gap: 16px;
+    background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 13px 16px;
+    transition: all 0.15s ease;
+  }
+  .rr-sv-rule-item:hover { border-color: #cbd5e1; }
+  .rr-sv-rule-item.acked {
+    background: #f7fee7; border-color: #a3e635;
+  }
+  .rr-sv-rule-text { font-size: 0.87rem; line-height: 1.55; color: #18181b; flex: 1; }
+  .rr-sv-rule-text b { color: #09090b; font-weight: 800; }
+  .rr-sv-ack-btn {
+    flex-shrink: 0; border-radius: 9px; padding: 7px 13px; font-size: 0.78rem; font-weight: 800;
+    cursor: pointer; border: 1px solid #d4d4d8; background: #ffffff; color: #09090b;
+    transition: all 0.15s ease; white-space: nowrap; font-family: inherit;
+  }
+  .rr-sv-ack-btn:hover { border-color: #09090b; background: #f4f4f5; }
+  .rr-sv-ack-btn.acked {
+    background: #D4FF33; color: #09090b; border-color: #b8e600;
+  }
+  .rr-sv-unlock-btn {
+    border: 1.5px solid #b8e600; border-radius: 10px; padding: 11px 22px; font-size: 0.9rem; font-weight: 800;
+    cursor: pointer; background: #D4FF33; color: #09090b; font-family: inherit;
+    box-shadow: 0 4px 14px rgba(212, 255, 51, 0.45);
+    transition: all 0.15s ease;
+  }
+  .rr-sv-unlock-btn:hover:not(:disabled) { background: #c8f526; transform: translateY(-1px); }
+  .rr-sv-unlock-btn:disabled {
+    background: #18181b; color: #D4FF33; border-color: #18181b; box-shadow: none; cursor: not-allowed;
+  }
+  .rr-sv-btn-trigger {
+    display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
+    font-size: 12px; font-weight: 800; cursor: pointer;
+    background: #f7fee7; color: #18181b; border: 1px solid #a3e635; text-decoration: none;
+    transition: all 0.15s ease; font-family: inherit;
+  }
+  .rr-sv-btn-trigger:hover {
+    background: #D4FF33; color: #09090b; border-color: #b8e600;
+  }
+  .rr-sv-dossier-grid { display: flex; flex-direction: column; gap: 10px; }
+  .rr-sv-check-card {
+    background: #fafafa; border: 1px solid #e4e4e7; border-radius: 12px; padding: 12px 15px;
+  }
+  .rr-sv-check-head {
+    display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
+  }
+  .rr-sv-check-title { font-size: 0.85rem; font-weight: 800; color: #09090b; display: flex; align-items: center; gap: 6px; }
+  .rr-sv-pill {
+    display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px;
+    font-size: 0.72rem; font-weight: 800; text-decoration: none;
+  }
+  .rr-sv-pill-ok { background: #f7fee7; color: #09090b; border: 1px solid #a3e635; }
+  .rr-sv-pill-warn { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
+  .rr-sv-pill-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
+  .rr-sv-pill-info { background: #f4f4f5; color: #18181b; border: 1px solid #d4d4d8; }
+  .rr-sv-reg-facts {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 6px 14px;
+    margin-top: 6px; padding-top: 6px; border-top: 1px solid #e4e4e7; font-size: 0.8rem; color: #18181b;
+  }
+  .rr-sv-reg-facts div b { color: #09090b; font-weight: 700; }
+  .rr-sv-social-links { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 6px; }
+  .rr-sv-social-a {
+    display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
+    font-size: 0.76rem; font-weight: 700; background: #ffffff; border: 1px solid #d4d4d8;
+    color: #09090b; text-decoration: none; transition: all 0.15s;
+  }
+  .rr-sv-social-a:hover { border-color: #b8e600; color: #09090b; background: #D4FF33; }
+</style>
 </head>
 <body>
     <div class="background-blob blob-1"></div>
@@ -4586,9 +4654,7 @@
             const listEl = document.getElementById('email-list');
             if (listEl) listEl.classList.remove('intro-gated');
             const emailClient = document.querySelector('.email-client-container');
-            if (emailClient) emailClient.classList.add('list-only');
-            const pane = document.getElementById('email-content-pane');
-            if (pane) pane.innerHTML = '';
+            if (emailClient) emailClient.classList.remove('list-only');
             renderEmailList();
 
             // Persist cross-device confirmation to Supabase so it never reappears on other devices
@@ -4608,14 +4674,35 @@
             const html = getInboxIntroHtml();
             const pane = document.getElementById('email-content-pane');
             const seenIntro = hasSeenJobHuntIntro();
-            if (pane) pane.innerHTML = seenIntro ? '' : html;
+            if (pane) {
+                if (!seenIntro) {
+                    pane.innerHTML = html;
+                } else if (currentEmailTab === 'drafts') {
+                    pane.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #71717a; padding: 3rem; text-align: center;">
+                            <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                            </div>
+                            <div style="font-weight: 800; color: #09090b; font-size: 1.15rem; margin-bottom: 0.35rem;">Drafts Mailbox</div>
+                            <div style="font-size: 0.88rem; color: #71717a; max-width: 340px; line-height: 1.45;">Select any application draft from the list on the left to review, edit, or dispatch.</div>
+                        </div>
+                    `;
+                } else {
+                    pane.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #a1a1aa; padding: 3rem; text-align: center;">
+                            <div style="width: 52px; height: 52px; border-radius: 50%; background: #f4f4f5; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #71717a;">
+                                <i data-lucide="mail-open" style="width: 26px; height: 26px;"></i>
+                            </div>
+                            <div style="font-weight: 700; color: #52525b; font-size: 1.05rem; margin-bottom: 0.25rem;">Select an email</div>
+                            <div style="font-size: 0.85rem; color: #a1a1aa;">Choose a message from the list on the left to read.</div>
+                        </div>
+                    `;
+                }
+            }
             const listEl = document.getElementById('email-list');
-            if (listEl) listEl.classList.toggle('intro-gated', !seenIntro);
+            if (listEl) listEl.classList.remove('intro-gated');
             const emailClient = document.querySelector('.email-client-container');
-            if (emailClient) emailClient.classList.toggle('list-only', seenIntro);
-            // Mobile pins this above the email list (see .email-mobile-intro),
-            // which otherwise crowded the list out of view on every single
-            // open. Show it once per user, then remember the dismissal.
+            if (emailClient) emailClient.classList.remove('list-only');
             const mobileIntro = document.getElementById('email-mobile-intro');
             if (mobileIntro) {
                 if (seenIntro) {
@@ -4627,30 +4714,56 @@
                 }
             }
             if (typeof lucide !== 'undefined') lucide.createIcons();
+
+            // Populate verification banner for this draft
+            const matchedJobId = email.matched_job_id;
+            const bannerEl = document.getElementById('draft-verification-banner-container');
+            if (typeof supabaseClient !== 'undefined' && matchedJobId) {
+                supabaseClient.from('social_hiring_leads')
+                    .select('id, company_name, verification_dossier, contact_email')
+                    .eq('id', matchedJobId)
+                    .maybeSingle()
+                    .then(({ data }) => {
+                        const bEl = document.getElementById('draft-verification-banner-container');
+                        if (data && bEl) {
+                            bEl.innerHTML = renderEmailVerificationBannerHtml(data);
+                        }
+                    });
+            } else if (typeof supabaseClient !== 'undefined' && recipient) {
+                supabaseClient.from('social_hiring_leads')
+                    .select('id, company_name, verification_dossier, contact_email')
+                    .eq('contact_email', recipient)
+                    .maybeSingle()
+                    .then(({ data }) => {
+                        const bEl = document.getElementById('draft-verification-banner-container');
+                        if (data && bEl) {
+                            bEl.innerHTML = renderEmailVerificationBannerHtml(data);
+                        }
+                    });
+            }
+    
         }
 
         async function openEmailClient(initialTab = null) {
             document.body.style.overflow = 'hidden';
             document.getElementById('email-client-modal').classList.add('active');
             const container = document.querySelector('.email-client-container');
-            container.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
-            container.classList.add('list-only');
+            if (container) {
+                container.classList.remove('mobile-show-content', 'show-detail', 'is-composing', 'list-only');
+            }
             
             const { data: { session } } = await supabaseClient.auth.getSession();
             await updateDraftsBadgeVisibility(session);
 
-            if (initialTab) {
-                await switchEmailTab(initialTab);
-            } else {
-                renderInboxIntro();
-                await fetchEmails();
-            }
+            const targetTab = initialTab || currentEmailTab || 'inbox';
+            await switchEmailTab(targetTab);
         }
 
         function closeMobileEmailDetail() {
             const container = document.querySelector('.email-client-container');
-            container.classList.remove('mobile-show-content', 'show-detail');
-            container.classList.add('list-only');
+            if (container) {
+                container.classList.remove('mobile-show-content', 'show-detail');
+            }
         }
         
         function closeEmailClient() {
@@ -4670,8 +4783,17 @@
 
         async function fetchEmails() {
             try {
-                const { data: { session } } = await supabaseClient.auth.getSession();
-                if (!session) return;
+                let { data: { session }, error: sessionError } = await supabaseClient.auth.getSession();
+                if (!session || (sessionError && sessionError.message && sessionError.message.includes('JWT'))) {
+                    try {
+                        const { data: ref } = await supabaseClient.auth.refreshSession();
+                        if (ref && ref.session) session = ref.session;
+                    } catch(e) {}
+                }
+                if (!session) {
+                    window.location.href = 'login.html';
+                    return;
+                }
 
                 let query = supabaseClient
                     .from('emails')
@@ -4689,9 +4811,7 @@
                 if (error) throw error;
                 currentEmails = data || [];
                 renderEmailList();
-                if (currentEmailTab === 'drafts' && currentEmails.length > 0 && window.innerWidth > 768) {
-                    showEmailContent(0, 0);
-                }
+                // Don't auto-open draft 0; preserve draft list overview
                 
                 // Update Badge
                 const { count: unreadCount, error: unreadError } = await supabaseClient
@@ -4714,7 +4834,18 @@
                 }
             } catch (err) {
                 console.error('Error fetching emails:', err);
-                document.getElementById('email-list').innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;font-size:0.9rem;">Failed to load emails.<br>${err.message}</div>`;
+                const isJwt = err && err.message && (err.message.includes('JWT') || err.message.includes('expired') || err.message.includes('token'));
+                if (isJwt) {
+                    document.getElementById('email-list').innerHTML = `
+                        <div style="padding:2.5rem 1.5rem;text-align:center;">
+                            <div style="font-size:1.05rem;font-weight:800;color:#09090b;margin-bottom:0.5rem;">Session Expired</div>
+                            <div style="font-size:0.85rem;color:#71717a;margin-bottom:1.25rem;">Your secure login token expired. Please log in again to continue.</div>
+                            <button onclick="window.location.href='login.html'" style="background:#059669;color:#fff;border:none;padding:0.6rem 1.4rem;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;">Log in</button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('email-list').innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;font-size:0.9rem;">Failed to load emails.<br>${err.message}</div>`;
+                }
             }
         }
         
@@ -4863,12 +4994,51 @@
             });
             
             const emailClient = document.querySelector('.email-client-container');
-            emailClient.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
-            emailClient.classList.add('list-only');
+            if (emailClient) {
+                emailClient.classList.remove('mobile-show-content', 'show-detail', 'is-composing', 'list-only');
+            }
             renderInboxIntro();
             await fetchEmails();
-            if (tab === 'drafts' && currentEmails.length > 0 && window.innerWidth > 768) {
-                showEmailContent(0, 0);
+            if (window.innerWidth > 768) {
+                const pane = document.getElementById('email-content-pane');
+                if (tab === 'drafts') {
+                    if (pane) {
+                        pane.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #71717a; padding: 3rem; text-align: center;">
+                                <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                    <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                                </div>
+                                <div style="font-weight: 800; color: #09090b; font-size: 1.15rem; margin-bottom: 0.35rem;">Drafts Mailbox</div>
+                                <div style="font-size: 0.88rem; color: #71717a; max-width: 340px; line-height: 1.45;">Select any application draft from the list on the left to review, edit, or dispatch.</div>
+                            </div>
+                        `;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                } else {
+                    const selectedCategory = mailboxCategoryByTab[tab] || 'inbox';
+                    const hasMatchingEmails = currentEmails && currentEmails.some(email => {
+                        const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
+                        if (tab === 'inbox') {
+                            if (isOutbound) return false;
+                            return (email.category || 'inbox') === 'inbox';
+                        }
+                        return (email.category || 'inbox') === selectedCategory;
+                    });
+                    if (hasMatchingEmails) {
+                        showEmailContent(0, 0);
+                    } else if (pane) {
+                        pane.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #a1a1aa; padding: 3rem; text-align: center;">
+                                <div style="width: 52px; height: 52px; border-radius: 50%; background: #f4f4f5; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #71717a;">
+                                    <i data-lucide="mail" style="width: 26px; height: 26px;"></i>
+                                </div>
+                                <div style="font-weight: 700; color: #3f3f46; font-size: 1.05rem;">No emails in this folder</div>
+                                <div style="font-size: 0.85rem; color: #71717a; margin-top: 0.35rem;">When messages arrive, they will appear here.</div>
+                            </div>
+                        `;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                }
             }
         }
 
@@ -4978,12 +5148,14 @@
                 // was HTML-entity-encoded in the source email must be re-escaped
                 // here or it would parse as real markup on this second insertion).
                 el.innerHTML = `
-                    <div class="email-sender">${escapeHtml(icon + prefix + displayName)}</div>
+                    <div class="email-item-header">
+                        <div class="email-sender">${escapeHtml(icon + prefix + displayName)}</div>
+                        <div class="email-time">${displayTime}</div>
+                    </div>
                     <div class="email-body-line">
                         <span class="email-subject">${escapeHtml(displaySubject)}</span>
-                        <span class="email-preview">&nbsp;-&nbsp;${escapeHtml(displayPreview)}</span>
+                        <span class="email-preview">&nbsp;&middot;&nbsp;${escapeHtml(displayPreview)}</span>
                     </div>
-                    <div class="email-time">${displayTime}</div>
                 `;
                 listEl.appendChild(el);
             });
@@ -5058,6 +5230,95 @@
             }
         }
 
+        function backToDraftsList() {
+            closeMobileEmailDetail();
+            const container = document.querySelector('.email-client-container');
+            if (container) {
+                container.classList.remove('mobile-show-content', 'show-detail');
+            }
+            document.querySelectorAll('.email-item').forEach(el => el.classList.remove('active'));
+            const pane = document.getElementById('email-content-pane');
+            if (pane && window.innerWidth > 768) {
+                pane.innerHTML = `
+                    <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #71717a; padding: 3rem; text-align: center;">
+                        <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                            <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                        </div>
+                        <div style="font-weight: 800; color: #09090b; font-size: 1.15rem; margin-bottom: 0.35rem;">Drafts Mailbox</div>
+                        <div style="font-size: 0.88rem; color: #71717a; max-width: 340px; line-height: 1.45;">Select any application draft from the list on the left to review, edit, or dispatch.</div>
+                    </div>
+                `;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        }
+
+        
+        window.openDraftDossier = function(id) {
+            let lead = null;
+            if (window.RR_VERIFY_TOOL) {
+                lead = window.RR_VERIFY_TOOL.getLead(id);
+            }
+            if (window.RR_VERIFY_TOOL) {
+                window.RR_VERIFY_TOOL.openVerifyById(id, lead);
+            } else if (window.RoleRoverSocialVerify) {
+                window.RoleRoverSocialVerify.openModal(id);
+            }
+        };
+
+        function renderEmailVerificationBannerHtml(lead) {
+            if (!lead) return '';
+            if (window.RR_VERIFY_TOOL && lead.id) {
+                window.RR_VERIFY_TOOL.registerLeads([lead]);
+            }
+            const dossier = lead.verification_dossier || {};
+            const checks = dossier.checks || {};
+            const c1 = checks.company_registration || {};
+            const c4 = checks.scam_reputation || {};
+            const gr = c1.grounded_registration || null;
+            const offReg = c1.official_registry || null;
+            const dirRec = c1.directory_record || null;
+            const company = lead.company_name || dossier.company_inferred || 'Employer';
+            const hq = c1.verified_hq || '';
+            const site = c1.official_website ? c1.official_website.replace(/^https?:\/\/(www\.)?/, '').split('/')[0] : '';
+            const leadId = lead.id;
+
+            const hasVerifiedFootprint = !gr && site && (hq || dirRec) && c4.status !== 'scam_reports_found';
+            const statusText = (gr && gr.verified)
+                ? ('Registered in ' + gr.jurisdiction)
+                : (hasVerifiedFootprint ? 'Verified Business Footprint' : (site ? 'Official Website Match' : 'Unverified Poster'));
+
+            const regUrl = offReg ? offReg.registry_url : null;
+            const authName = offReg ? offReg.authority_name : 'Official Corporate Registry';
+
+            return `
+                <div style="margin: 0.75rem 1.5rem 0.25rem; padding: 0.75rem 1rem; background: #f0fdf4; border: 1px solid #86efac; border-radius: 8px; display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap;">
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span style="font-size: 1.15rem; line-height: 1;">🛡️</span>
+                        <div>
+                            <div style="font-size: 0.82rem; font-weight: 750; color: #14532d;">
+                                ${escapeHtml(company)} &middot; <span style="font-weight: 600; color: #166534;">✓ ${escapeHtml(statusText)}</span>
+                            </div>
+                            <div style="font-size: 0.74rem; color: #374151;">
+                                ${hq ? `HQ: ${escapeHtml(hq)} &middot; ` : ''}Verify official legal entity before sharing sensitive personal, banking, or tax details.
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 0.45rem; flex-wrap: wrap;">
+                        ${regUrl ? `
+                            <a href="${escapeHtml(regUrl)}" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 4px; background: #166534; color: #ffffff; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; text-decoration: none;">
+                                🏛️ Search ${escapeHtml(authName)} ↗
+                            </a>
+                        ` : ''}
+                        ${leadId ? `
+                            <button type="button" onclick="window.openDraftDossier('${escapeHtml(leadId)}')" style="display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid #86efac; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer; transition: background 0.15s;" onmouseover="this.style.background='#f0fdf4'" onmouseout="this.style.background='#ffffff'">
+                                View Dossier
+                            </button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }
+    
         function renderDraftDetailView(email, index) {
             const pane = document.getElementById('email-content-pane');
             if (!pane) return;
@@ -5110,7 +5371,7 @@
                     <div style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
                         <div>
                             <div style="margin-bottom: 0.85rem;" class="email-mobile-back-row">
-                                <button class="email-content-back-btn" onclick="closeMobileEmailDetail()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Drafts</button>
+                                <button class="email-content-back-btn" onclick="backToDraftsList()"><i data-lucide="arrow-left" style="width: 15px; height: 15px;"></i> Back to Drafts</button>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.4rem;">
                                 <span style="background: #fef3c7; color: #b45309; font-size: 0.75rem; font-weight: 800; padding: 0.2rem 0.65rem; border-radius: 50px; text-transform: uppercase;">Application Draft</span>
@@ -5128,8 +5389,8 @@
                             <button id="edit-draft-btn-${index}" onclick="toggleEditDraft(${index})" style="background: #f4f4f5; color: #18181b; border: 1px solid #e4e4e7; padding: 0.75rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
                                 <i data-lucide="edit-3" style="width: 14px; height: 14px;"></i> Edit text
                             </button>
-                            <button onclick="discardDraft(${index})" style="background: transparent; color: #ef4444; border: 1px solid #fecaca; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;">
-                                Discard
+                            <button type="button" onclick="backToDraftsList()" style="background: #f4f4f5; color: #3f3f46; border: 1px solid #e4e4e7; padding: 0.75rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem; transition: background 0.15s;" onmouseover="this.style.background='#e4e4e7'" onmouseout="this.style.background='#f4f4f5'">
+                                <i data-lucide="arrow-left" style="width: 14px; height: 14px;"></i> Back to Drafts
                             </button>
                         </div>
                     </div>
@@ -5314,8 +5575,14 @@
             }
             
             const emailClient = document.querySelector('.email-client-container');
-            emailClient.classList.add('mobile-show-content', 'show-detail');
-            emailClient.classList.remove('is-composing', 'list-only');
+            if (emailClient) {
+                if (window.innerWidth <= 768) {
+                    emailClient.classList.add('mobile-show-content');
+                } else {
+                    emailClient.classList.remove('mobile-show-content');
+                }
+                emailClient.classList.remove('is-composing', 'list-only', 'show-detail');
+            }
 
             if (email.category === 'draft' || currentEmailTab === 'drafts') {
                 renderDraftDetailView(email, index);
@@ -5435,7 +5702,652 @@
                 </head>
                 <body>
                     ${displayHtml}
-                </body>
+                <script id="rr-social-verify-script">
+(function() {
+  const SAFETY_STORAGE_KEY = 'rr_social_hiring_safety_ack_v1';
+  const VERIFY_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/rr-verify-lead';
+
+  const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  const SAFETY_RULES = [
+    {
+      id: 'no_payment',
+      title: '1. Paying Money Under Any Guise Is Fraud',
+      body: 'A legitimate employer or business will never ask you to pay to get a job. Any request to pay for training, equipment, visa processing, background checks, software, or account activation is a scam.'
+    },
+    {
+      id: 'no_interview',
+      title: '2. Job Offer Without a Real Interview Is Fraud',
+      body: 'Instant job offers with no real interview, or interviews conducted only by text chat on WhatsApp or Telegram where the recruiter refuses a live call, are major scam red flags.'
+    },
+    {
+      id: 'high_pay_urgency',
+      title: '3. Unusually High Pay for Simple Work & High-Pressure Urgency',
+      body: 'Promises of unusually high or guaranteed fast pay for simple tasks, or high-pressure demands to act immediately before a slot closes, are common scam tactics.'
+    },
+    {
+      id: 'no_sensitive_id',
+      title: '4. Never Share Bank Logins or Sensitive ID Before a Verified Offer',
+      body: 'Never share your bank account details, national ID, passport, driver\'s license, or any identity number until you have independently verified the employer and received a genuine written offer.'
+    },
+    {
+      id: 'fake_checks_crypto',
+      title: '5. Fake Checks, Crypto, Gift Cards & Task Deposits Are Fraud',
+      body: 'Any job that sends you a check and asks you to refund part of it, requests payment via gift cards or crypto, or asks you to deposit money to unlock tasks is a scam.'
+    },
+    {
+      id: 'cv_revamp_ats_fee',
+      title: '6. Be Cautious of Paid CV Revamp or ATS Improvement Requests',
+      body: 'Be cautious if a recruiter asks you to pay for a CV revamp or ATS improvement. Role Rover will always tailor your CV per job posting to match the job description.'
+    },
+    {
+      id: 'independent_verify',
+      title: '7. The Final Decision Is Yours: Always Verify Before Applying',
+      body: 'RoleRover surfaces open social hiring posts and arms you with the 1-Click Verify tool so you never miss real opportunities. Always run 1-Click Verify and stop immediately if anyone asks for money.'
+    }
+  ];
+
+  const leadMemoryCache = new Map();
+
+  function cleanHostLabel(url) {
+    if (!url) return '';
+    try {
+      const u = new URL(url);
+      return u.hostname.replace(/^www\./i, '');
+    } catch (e) {
+      return String(url).replace(/^https?:\/\/(www\.)?/i, '').split('/')[0];
+    }
+  }
+
+  function extractLegacyGroundedReg(records) {
+    if (!Array.isArray(records)) return null;
+    for (const r of records) {
+      if (!r || !r.url) continue;
+      const u = String(r.url).toLowerCase();
+      if (u.includes('crunchbase.com') || u.includes('cac.gov.ng/services') || u.endsWith('cac.gov.ng/')) continue;
+      const combined = String(r.title || '') + ' ' + String(r.summary || '');
+      const rcMatch = combined.match(/\b(RC[-\s]?\d{4,9}|BN[-\s]?\d{4,9})\b/i)
+        || combined.match(/Registration Number\s*:?\s*(\d{5,10})/i)
+        || combined.match(/document number\s*:?\s*([A-Z0-9-]{6,16})/i)
+        || combined.match(/Company number\s*:?\s*([A-Z0-9-]{6,14})/i)
+        || combined.match(/\b(U\d{5}[A-Z]{2}\d{4}PTC\d{6})\b/i);
+      if (rcMatch) {
+        let regNo = rcMatch[1].trim();
+        let jurisdiction = 'Registered Jurisdiction';
+        let authority = 'Government Registry';
+        if (u.includes('ng-check.com') || /nigeria|asaba|lagos|abuja/i.test(combined)) {
+          jurisdiction = 'Nigeria';
+          authority = 'Corporate Affairs Commission (CAC)';
+          if (/^\d+$/.test(regNo)) regNo = 'RC-' + regNo;
+        } else if (u.includes('bizprofile.net/ca/') || /california/i.test(combined)) {
+          jurisdiction = 'United States (California)';
+          authority = 'California Secretary of State';
+        } else if (u.includes('service.gov.uk') || u.includes('endole.co.uk')) {
+          jurisdiction = 'United Kingdom';
+          authority = 'UK Companies House';
+        } else if (u.includes('zaubacorp.com') || u.includes('tofler.in')) {
+          jurisdiction = 'India';
+          authority = 'Ministry of Corporate Affairs (MCA)';
+        }
+        return {
+          verified: true,
+          status: 'Active',
+          legal_name: String(r.title || '').split(/[-|·]/)[0].trim(),
+          registration_number: regNo,
+          jurisdiction,
+          authority
+        };
+      }
+    }
+    return null;
+  }
+
+  function normalizeDossier(raw) {
+    if (!raw || typeof raw !== 'object') return null;
+    if (raw.checks && typeof raw.checks === 'object') {
+      return raw;
+    }
+    if (raw.claim1_registration_and_website || raw.claim2_cross_platform_socials || raw.claim3_domain_and_impersonation) {
+      const c1 = raw.claim1_registration_and_website || {};
+      const c2 = raw.claim2_cross_platform_socials || {};
+      const c3 = raw.claim3_domain_and_impersonation || {};
+      const c4 = raw.claim4_scam_fee_check || {};
+      const c6 = raw.claim6_contact_web_history || {};
+      const grounded = extractLegacyGroundedReg(c1.registry_records);
+      const domStatusMap = {
+        corporate_match: 'corporate_domain_match',
+        verified_free_email: 'free_email_verified_on_site',
+        impersonation_risk: 'brand_impersonation_warning'
+      };
+      return {
+        verified_at: raw.verified_at || new Date().toISOString(),
+        checks: {
+          company_registration: {
+            official_website: c1.official_website || c2.website || null,
+            grounded_registration: grounded,
+            summary: grounded
+              ? ('Active · Registered in ' + grounded.jurisdiction + ' (' + grounded.authority + ' · ' + grounded.registration_number + ')')
+              : 'Click "↻ Re-Scan Live" above to run the latest grounded government registry check.'
+          },
+          social_footprint: {
+            company_linkedin: c2.company_linkedin || null,
+            poster_linkedin: c2.poster_linkedin || null,
+            twitter_x: c2.twitter_x || null,
+            facebook: c2.facebook || null,
+            instagram: c2.instagram || null,
+            website: c2.website || c1.official_website || null
+          },
+          domain_impersonation: {
+            status: domStatusMap[c3.status] || c3.status || 'checked',
+            badge: c3.badge || 'Domain Checked',
+            summary: c3.summary || ''
+          },
+          scam_reputation: {
+            status: c4.flagged ? 'scam_reports_found' : 'no_scam_reports_indexed',
+            badge: c4.flagged ? '⚠️ Scam / Fee Warning Found' : '✓ 0 Scam Reports Found',
+            summary: c4.summary || 'No public scam, fraud, or fee-demand reports found across the web.',
+            warnings: Array.isArray(c4.hits) ? c4.hits : []
+          },
+          contact_web_history: {
+            count: Array.isArray(c6.mentions) ? c6.mentions.length : 0,
+            mentions: Array.isArray(c6.mentions) ? c6.mentions : []
+          }
+        }
+      };
+    }
+    return null;
+  }
+
+  window.RR_SOCIAL_SAFETY = {
+    hasAcknowledged: function() {
+      if (window.userProfile && typeof window.userProfile.has_seen_social_safety_gate === 'boolean') {
+        return window.userProfile.has_seen_social_safety_gate === true;
+      }
+      try { return localStorage.getItem(SAFETY_STORAGE_KEY) === '1'; } catch (e) { return false; }
+    },
+    markAcknowledged: async function() {
+      try { localStorage.setItem(SAFETY_STORAGE_KEY, '1'); } catch (e) {}
+      try {
+        if (window.userProfile) window.userProfile.has_seen_social_safety_gate = true;
+        if (window.supabaseClient && window.supabaseClient.auth) {
+          const { data } = await window.supabaseClient.auth.getUser();
+          if (data && data.user) {
+            await window.supabaseClient.from('profiles').update({ has_seen_social_safety_gate: true }).eq('id', data.user.id);
+          }
+        }
+      } catch (e) {}
+    },
+    openWelcomeGate: function(forceOpen, onComplete) {
+      if (!forceOpen && this.hasAcknowledged()) {
+        if (typeof onComplete === 'function') onComplete();
+        return;
+      }
+      const existing = document.getElementById('rr-social-safety-gate-backdrop');
+      if (existing) existing.remove();
+
+      const alreadyAcked = this.hasAcknowledged();
+      const ackSet = new Set(alreadyAcked ? SAFETY_RULES.map(r => r.id) : []);
+      let currentStep = 1;
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'rr-sv-backdrop';
+      backdrop.id = 'rr-social-safety-gate-backdrop';
+      document.body.appendChild(backdrop);
+
+      function renderStep() {
+        const stepDots = [1, 2, 3].map(s =>
+          `<span class="rr-sv-step-dot ${s === currentStep ? 'active' : (s < currentStep ? 'done' : '')}"></span>`
+        ).join('');
+
+        if (currentStep === 1) {
+          backdrop.innerHTML = `
+            <div class="rr-sv-modal" role="dialog" aria-modal="true">
+              <div class="rr-sv-head">
+                <div>
+                  <div class="rr-sv-step-pills">${stepDots} <span style="font-size:0.75rem;font-weight:800;color:#18181b;margin-left:4px;">Step 1 of 3</span></div>
+                  <h2>Welcome to Social Hiring</h2>
+                  <p>How daily social hiring posts work compared to traditional corporate career pages.</p>
+                </div>
+                <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">Close</button>
+              </div>
+              <div class="rr-sv-body">
+                <div class="rr-sv-welcome-box">
+                  <span class="rr-sv-section-title">Social Hiring Posts</span>
+                  <p style="margin:0 0 12px;">Every day, founders, small and medium-sized businesses (SMEs), and hiring managers post real job openings directly on Facebook, LinkedIn, and X (formerly Twitter).</p>
+                  <p style="margin:0;">Unlike traditional job listings hosted on Applicant Tracking Systems like Greenhouse, Workday, Workable, etc., where applications are often filtered or screened first by AI, social hiring posts with emails give you a direct route to get your application reviewed by a human first instead of an AI.</p>
+
+                  <span class="rr-sv-section-title">Post Vetting</span>
+                  <p style="margin:0;">In RoleRover's ATS Career Pages feed, every job comes from a pre-vetted corporate career portal by the ATS vendor (Greenhouse, Workable, Zoho Recruit, etc.), so there is minimal to zero likelihood of scam job postings. However, social media is different: some open roles are posted by individuals such as recruiters, career coaches, founders, and even <span style="color:#dc2626;font-weight:700;">scam actors</span>.</p>
+                </div>
+              </div>
+              <div class="rr-sv-foot">
+                <div style="font-size:0.84rem;color:#18181b;font-weight:600;">
+                  Next: See how RoleRover arms you to verify every post.
+                </div>
+                <button type="button" class="rr-sv-unlock-btn" id="rr-sv-next-step2">
+                  See How Rover Protects You →
+                </button>
+              </div>
+            </div>
+          `;
+          backdrop.querySelector('#rr-sv-close-guide').onclick = () => backdrop.remove();
+          backdrop.querySelector('#rr-sv-next-step2').onclick = () => {
+            currentStep = 2;
+            renderStep();
+          };
+          return;
+        }
+
+        if (currentStep === 2) {
+          backdrop.innerHTML = `
+            <div class="rr-sv-modal" role="dialog" aria-modal="true">
+              <div class="rr-sv-head">
+                <div>
+                  <div class="rr-sv-step-pills">${stepDots} <span style="font-size:0.75rem;font-weight:800;color:#18181b;margin-left:4px;">Step 2 of 3</span></div>
+                  <h2>How Rover Protects You</h2>
+                  <p>Every social media post in your feed is armed with a 1-Click Verify tool.</p>
+                </div>
+                <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">Close</button>
+              </div>
+              <div class="rr-sv-body">
+                <div class="rr-sv-welcome-box">
+                  <span class="rr-sv-section-title" style="margin-top:0">Every post from social media comes with a 1-Click Verify tool that:</span>
+                  <ol class="rr-sv-protect-list">
+                    <li><b>Checks Company Registration:</b> Dynamically checks national business registries in the employer's country and official websites to confirm the business is registered.</li>
+                    <li><b>Cross-Platform Social Bridge:</b> Finds and links the company's and poster's LinkedIn, X (Twitter), Facebook, and Instagram profiles.</li>
+                    <li><b>Brand Impersonation Check:</b> Checks if the contact email matches the company's official domain or if a free email (<code>@gmail.com</code>) is listed on their official website.</li>
+                    <li><b>Email &amp; Phone Scam Sweep:</b> Scans the entire web for past fraud warnings, fee demands, or scam complaints tied to that email address or phone number.</li>
+                    <li><b>Contact Web History:</b> Shows where else online that exact email or phone number has posted jobs before, to help you understand or detect if there is any scam pattern.</li>
+                  </ol>
+                </div>
+              </div>
+              <div class="rr-sv-foot">
+                <button type="button" class="rr-sv-ack-btn" id="rr-sv-back-step1">← Back</button>
+                <button type="button" class="rr-sv-unlock-btn" id="rr-sv-next-step3">
+                  Continue to Safety Checklist →
+                </button>
+              </div>
+            </div>
+          `;
+          backdrop.querySelector('#rr-sv-close-guide').onclick = () => backdrop.remove();
+          backdrop.querySelector('#rr-sv-back-step1').onclick = () => {
+            currentStep = 1;
+            renderStep();
+          };
+          backdrop.querySelector('#rr-sv-next-step3').onclick = () => {
+            currentStep = 3;
+            renderStep();
+          };
+          return;
+        }
+
+        // Step 3: 7 Safety Rules
+        backdrop.innerHTML = `
+          <div class="rr-sv-modal" role="dialog" aria-modal="true">
+            <div class="rr-sv-head">
+              <div>
+                <div class="rr-sv-step-pills">${stepDots} <span style="font-size:0.75rem;font-weight:800;color:#18181b;margin-left:4px;">Step 3 of 3</span></div>
+                <h2>Social Hiring Safety Checklist</h2>
+                <p>Click "I Understand" on each safety rule below to unlock your social hiring feed.</p>
+              </div>
+              <div style="display:flex;align-items:center;gap:8px;">
+                <span id="rr-sv-ack-counter" style="color:#09090b;background:#D4FF33;padding:5px 12px;border-radius:99px;border:1px solid #b8e600;font-size:0.8rem;font-weight:800;">${ackSet.size} / ${SAFETY_RULES.length}</span>
+                <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">Close</button>
+              </div>
+            </div>
+            <div class="rr-sv-body">
+              <div class="rr-sv-rule-list" id="rr-sv-rule-list">
+                ${SAFETY_RULES.map(r => `
+                  <div class="rr-sv-rule-item ${ackSet.has(r.id) ? 'acked' : ''}" data-rule-id="${r.id}">
+                    <div class="rr-sv-rule-text">
+                      <b>${esc(r.title)}</b><br>
+                      <span>${esc(r.body)}</span>
+                    </div>
+                    <button type="button" class="rr-sv-ack-btn ${ackSet.has(r.id) ? 'acked' : ''}" data-ack-btn="${r.id}">
+                      ${ackSet.has(r.id) ? '✓ I Understand' : 'I Understand'}
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            <div class="rr-sv-foot">
+              <button type="button" class="rr-sv-ack-btn" id="rr-sv-back-step2">← Back</button>
+              <button type="button" class="rr-sv-unlock-btn" id="rr-sv-unlock-btn" ${ackSet.size === SAFETY_RULES.length ? '' : 'disabled'}>
+                ${ackSet.size === SAFETY_RULES.length ? 'Unlock Social Hiring Feed →' : `Click "I Understand" on all ${SAFETY_RULES.length} rules (${ackSet.size}/${SAFETY_RULES.length})`}
+              </button>
+            </div>
+          </div>
+        `;
+
+        backdrop.querySelector('#rr-sv-close-guide').onclick = () => backdrop.remove();
+        backdrop.querySelector('#rr-sv-back-step2').onclick = () => {
+          currentStep = 2;
+          renderStep();
+        };
+
+        const unlockBtn = backdrop.querySelector('#rr-sv-unlock-btn');
+        const counterEl = backdrop.querySelector('#rr-sv-ack-counter');
+
+        function syncAckUI() {
+          if (counterEl) counterEl.textContent = ackSet.size + ' / ' + SAFETY_RULES.length;
+          const done = ackSet.size === SAFETY_RULES.length;
+          unlockBtn.disabled = !done;
+          unlockBtn.textContent = done
+            ? 'Unlock Social Hiring Feed →'
+            : 'Click "I Understand" on all ' + SAFETY_RULES.length + ' rules (' + ackSet.size + '/' + SAFETY_RULES.length + ')';
+        }
+
+        backdrop.querySelectorAll('[data-ack-btn]').forEach(btn => {
+          btn.onclick = () => {
+            const id = btn.getAttribute('data-ack-btn');
+            const row = backdrop.querySelector('[data-rule-id="' + id + '"]');
+            if (ackSet.has(id)) {
+              ackSet.delete(id);
+              btn.classList.remove('acked');
+              btn.textContent = 'I Understand';
+              if (row) row.classList.remove('acked');
+            } else {
+              ackSet.add(id);
+              btn.classList.add('acked');
+              btn.textContent = '✓ I Understand';
+              if (row) row.classList.add('acked');
+            }
+            syncAckUI();
+          };
+        });
+
+        unlockBtn.onclick = async () => {
+          if (ackSet.size < SAFETY_RULES.length) return;
+          unlockBtn.disabled = true;
+          unlockBtn.textContent = 'Unlocking...';
+          await window.RR_SOCIAL_SAFETY.markAcknowledged();
+          backdrop.remove();
+          if (typeof onComplete === 'function') onComplete();
+        };
+      }
+
+      renderStep();
+    }
+  };
+
+  window.RR_VERIFY_TOOL = {
+    registerLeads: function(leads) {
+      if (!Array.isArray(leads)) return;
+      leads.forEach(l => {
+        if (l && l.id) leadMemoryCache.set(String(l.id), l);
+      });
+    },
+    getLead: function(id) {
+      return leadMemoryCache.get(String(id)) || null;
+    },
+    openVerifyById: function(id, fallbackObj) {
+      const lead = this.getLead(id) || fallbackObj || { id };
+      this.openVerifyModal(lead);
+    },
+    openVerifyModal: async function(lead, forceRefresh) {
+      if (!lead) return;
+      const existing = document.getElementById('rr-verify-dossier-backdrop');
+      if (existing) existing.remove();
+
+      const backdrop = document.createElement('div');
+      backdrop.className = 'rr-sv-backdrop';
+      backdrop.id = 'rr-verify-dossier-backdrop';
+
+      const compLabel = lead.company_name || lead.author_name || 'Hiring Poster';
+      const emailLabel = lead.contact_email || 'No email listed';
+
+      backdrop.innerHTML = `
+        <div class="rr-sv-modal" role="dialog" aria-modal="true">
+          <div class="rr-sv-head">
+            <div>
+              <h2>1-Click Verification Report</h2>
+              <p>${esc(compLabel)} &middot; <span style="color:#09090b;background:#f7fee7;padding:2px 8px;border-radius:6px;border:1px solid #a3e635;font-weight:700">${esc(emailLabel)}</span></p>
+            </div>
+            <div style="display:flex;gap:8px;align-items:center">
+              <button type="button" class="rr-sv-ack-btn" id="rr-sv-refresh-btn" title="Run fresh live web verification">↻ Re-Scan Live</button>
+              <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-btn">&times; Close</button>
+            </div>
+          </div>
+          <div class="rr-sv-body" id="rr-sv-dossier-body">
+            <div style="padding:32px 20px;text-align:center;color:#18181b">
+              <div style="font-size:0.98rem;font-weight:800;color:#09090b;margin-bottom:6px">Running Grounded 1-Click Verification...</div>
+              <div style="font-size:0.84rem">Checking government business registries, official domain, social profiles, and scam reports.</div>
+            </div>
+          </div>
+          <div class="rr-sv-foot">
+            <div style="font-size:0.8rem;color:#18181b;font-weight:500;">
+              Always decline any request for money, deposits, or paid training.
+            </div>
+            <button type="button" class="rr-sv-ack-btn" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(true)">View Safety Guide</button>
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(backdrop);
+      backdrop.onclick = (e) => { if (e.target === backdrop) backdrop.remove(); };
+      backdrop.querySelector('#rr-sv-close-btn').onclick = () => backdrop.remove();
+      backdrop.querySelector('#rr-sv-refresh-btn').onclick = () => {
+        this.openVerifyModal(lead, true);
+      };
+
+      const rawDossier = (!forceRefresh && lead.verification_dossier) ? lead.verification_dossier : null;
+      const isLegacySchema = Boolean(rawDossier && !rawDossier.checks);
+      let dossier = rawDossier ? normalizeDossier(rawDossier) : null;
+      // If cached dossier is from an older schema without what_to_ask_employer, automatically fetch fresh grounded verification
+      const needsGroundedUpgrade = Boolean(isLegacySchema || (dossier && dossier.checks && dossier.checks.company_registration && !('what_to_ask_employer' in dossier.checks.company_registration)));
+
+      if (!dossier || needsGroundedUpgrade || forceRefresh) {
+        try {
+          const res = await fetch(VERIFY_WEBHOOK_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              lead_id: lead.id || null,
+              force_refresh: Boolean(forceRefresh || needsGroundedUpgrade),
+              company_name: lead.company_name || null,
+              author_name: lead.author_name || null,
+              author_profile_url: lead.author_profile_url || null,
+              contact_email: lead.contact_email || null,
+              post_text: lead.post_text || lead.description_text || '',
+              post_url: lead.post_url || '',
+              platform: lead.platform || 'social'
+            })
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data && data.dossier) {
+              dossier = normalizeDossier(data.dossier);
+              lead.verification_dossier = dossier;
+              if (lead.id) leadMemoryCache.set(String(lead.id), lead);
+            }
+          }
+        } catch (err) {
+          console.warn('Live verification webhook fallback:', err);
+        }
+      }
+
+      const bodyEl = backdrop.querySelector('#rr-sv-dossier-body');
+      if (!bodyEl) return;
+
+      if (!dossier || !dossier.checks) {
+        bodyEl.innerHTML = `
+          <div class="rr-sv-check-card">
+            <div class="rr-sv-check-title" style="color:#b45309">Live Web Verification Unavailable</div>
+            <p style="font-size:0.84rem;color:#18181b;margin:6px 0 0">Could not reach the verification service right now. Please click <b>↻ Re-Scan Live</b> above to try again.</p>
+          </div>
+        `;
+        return;
+      }
+
+      bodyEl.innerHTML = this.renderDossierHTML(dossier);
+    },
+
+    renderDossierHTML: function(d) {
+      const c = d.checks || {};
+      const c1 = c.company_registration || {};
+      const c2 = c.social_footprint || {};
+      const c3 = c.domain_impersonation || {};
+      const c4 = c.scam_reputation || {};
+      const c5 = c.contact_web_history || {};
+
+      const gr = c1.grounded_registration || null;
+      const offReg = c1.official_registry || null;
+      const dirRec = c1.directory_record || null;
+      const dba = c1.dba_guidance || null;
+      const siteHost = cleanHostLabel(c1.official_website);
+
+      const hasVerifiedFootprint = !gr && siteHost && (c1.verified_hq || dirRec) && c4.status !== 'scam_reports_found';
+
+      const regBadgeClass = (gr && gr.verified) ? 'rr-sv-pill-ok' : (hasVerifiedFootprint ? 'rr-sv-pill-ok' : (siteHost ? 'rr-sv-pill-info' : 'rr-sv-pill-warn'));
+      const regBadgeText = (gr && gr.verified)
+        ? ('✓ Registered in ' + gr.jurisdiction)
+        : (hasVerifiedFootprint ? '✓ Verified Business Footprint' : (siteHost ? 'Official Website Found' : 'Registration Unverified'));
+
+      const domPillClass = c3.status === 'corporate_domain_match' || c3.status === 'free_email_verified_on_site'
+        ? 'rr-sv-pill-ok'
+        : (c3.status === 'brand_impersonation_warning' ? 'rr-sv-pill-danger' : 'rr-sv-pill-warn');
+
+      const scamPillClass = c4.status === 'scam_reports_found' ? 'rr-sv-pill-danger' : 'rr-sv-pill-ok';
+
+      const socialButtons = [
+        [c2.company_linkedin, 'Company LinkedIn', '🏢'],
+        [c2.poster_linkedin, 'Poster LinkedIn', '👤'],
+        [c2.twitter_x, 'X (Twitter)', '𝕏'],
+        [c2.facebook, 'Facebook Page', '📘'],
+        [c2.instagram, 'Instagram', '📸'],
+        [c2.website || c1.official_website, siteHost || 'Official Website', '🌐']
+      ].filter(item => item[0] && /^https?:\/\//i.test(item[0]))
+       .map(item => `<a class="rr-sv-social-a" href="${esc(item[0])}" target="_blank" rel="noopener noreferrer">${item[2]} ${esc(item[1])} ↗</a>`)
+       .join('');
+
+      const mentions = Array.isArray(c5.mentions) ? c5.mentions : [];
+      const mentionChips = mentions.map(m => {
+        const host = cleanHostLabel(m.url) || 'Web Page';
+        return `<a class="rr-sv-social-a" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">🔗 ${esc(host)} ↗</a>`;
+      }).join('');
+
+      return `
+        <div class="rr-sv-dossier-grid">
+          <!-- 1. Grounded Company Registration & Website -->
+          <div class="rr-sv-check-card">
+            <div class="rr-sv-check-head">
+              <div class="rr-sv-check-title">1. Company Registration &amp; Official Website</div>
+              <span class="rr-sv-pill ${regBadgeClass}">${esc(regBadgeText)}</span>
+            </div>
+            ${(gr && gr.verified) ? `
+              <div class="rr-sv-reg-facts">
+                <div><b>Legal Entity:</b> ${esc(gr.legal_name || d.company_inferred || 'Verified')} (${esc(gr.status || 'Active')})</div>
+                <div><b>Reg / Doc No.:</b> ${esc(gr.registration_number)}${gr.incorporation_date ? ` &middot; ${esc(gr.incorporation_date)}` : ''}</div>
+                <div><b>Authority:</b> ${esc(gr.authority)}</div>
+                <div><b>Official Website:</b> ${c1.official_website ? `<a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : 'Not listed'}</div>
+              </div>
+              ${gr.grounding_note ? `<div style="margin-top:6px;font-size:0.76rem;color:#3f3f46;">${esc(gr.grounding_note)}</div>` : ''}
+              ${offReg && offReg.registry_url ? `
+                <div style="margin-top:8px;">
+                  <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#f4f4f5;border:1px solid #d4d4d8;color:#09090b;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.77rem;text-decoration:none;">
+                    🏛️ Verify on ${esc(offReg.authority_name)} ↗
+                  </a>
+                </div>
+              ` : ''}
+            ` : (hasVerifiedFootprint ? `
+              <div class="rr-sv-reg-facts">
+                <div><b>Operating Brand:</b> ${esc(d.company_inferred || 'Company')}</div>
+                ${c1.verified_hq ? `<div><b>Physical Office / HQ:</b> ${esc(c1.verified_hq)}</div>` : ''}
+                ${c1.official_website ? `<div><b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a></div>` : ''}
+                ${dirRec ? `<div><b>Corporate Directory:</b> <a href="${esc(dirRec.url)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:700;text-decoration:underline;">✓ Verified on ${esc(dirRec.source)}${dirRec.employee_count ? ' (' + esc(dirRec.employee_count) + ')' : ''} ↗</a></div>` : ''}
+              </div>
+
+              <!-- Educational DBA & Safe Application Guidance -->
+              <div style="margin-top:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;font-size:0.79rem;line-height:1.45;color:#14532d;">
+                <div style="font-weight:750;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
+                  <span>🏛️ Trade Name / DBA Guidance</span>
+                </div>
+                <div>${esc(dba?.notice || 'Many established organizations operate publicly under a trade name, brand, or DBA ("Doing Business As") while their corporate registration is filed under a founder, parent holding, or operating entity name.')}</div>
+                <div style="margin-top:6px;font-weight:700;color:#166534;">✓ Safe to submit your initial application with your CV/resume.</div>
+                <div style="margin-top:4px;">${esc(dba?.action_before_sensitive_data || 'Before signing an employment contract or sharing sensitive identity, banking, or tax documents, request the employer\'s registered legal entity name and registration number to verify directly on their official registry.')}</div>
+                ${offReg && offReg.registry_url ? `
+                  <div style="margin-top:8px;">
+                    <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#15803d;color:#ffffff;padding:6px 12px;border-radius:6px;font-weight:700;font-size:0.78rem;text-decoration:none;">
+                      🏛️ Search ${esc(offReg.authority_name)} ↗
+                    </a>
+                  </div>
+                ` : ''}
+              </div>
+            ` : `
+              <div style="font-size:0.82rem;color:#18181b;line-height:1.5">
+                ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : ''}
+                ${c1.verified_hq ? ` &middot; <b>HQ:</b> ${esc(c1.verified_hq)}` : ''}
+                <div style="margin-top:6px;color:#27272a;">${esc(c1.summary || 'No public government registration record matched.')}</div>
+                ${c1.what_to_ask_employer ? `
+                  <div style="margin-top:8px;padding:8px 11px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
+                    <b>💡 What to Ask the Employer:</b> ${esc(c1.what_to_ask_employer)}
+                  </div>
+                ` : ''}
+                ${offReg && offReg.registry_url ? `
+                  <div style="margin-top:8px;">
+                    <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#f4f4f5;border:1px solid #d4d4d8;color:#09090b;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.77rem;text-decoration:none;">
+                      🏛️ Official Search Portal: ${esc(offReg.authority_name)} ↗
+                    </a>
+                  </div>
+                ` : ''}
+              </div>
+            `)}
+          </div>
+
+          <!-- 2. Cross-Platform Social Profiles (Only Found Links) -->
+          <div class="rr-sv-check-card">
+            <div class="rr-sv-check-head">
+              <div class="rr-sv-check-title">2. Cross-Platform Social Profiles</div>
+              <span class="rr-sv-pill rr-sv-pill-info">${socialButtons ? 'Verified Links' : 'None Indexed'}</span>
+            </div>
+            ${socialButtons
+              ? `<div class="rr-sv-social-links">${socialButtons}</div>`
+              : '<div style="font-size:0.8rem;color:#3f3f46">No external social profiles were indexed for this poster.</div>'}
+          </div>
+
+          <!-- 3. Brand Impersonation Check -->
+          <div class="rr-sv-check-card">
+            <div class="rr-sv-check-head">
+              <div class="rr-sv-check-title">3. Brand Impersonation Check</div>
+              <span class="rr-sv-pill ${domPillClass}">${esc(c3.badge || 'Domain Checked')}</span>
+            </div>
+            <div style="font-size:0.82rem;color:#18181b;line-height:1.5">${esc(c3.summary || '')}</div>
+          </div>
+
+          <!-- 4. Email & Phone Scam Sweep -->
+          <div class="rr-sv-check-card">
+            <div class="rr-sv-check-head">
+              <div class="rr-sv-check-title">4. Email &amp; Phone Scam Sweep</div>
+              <span class="rr-sv-pill ${scamPillClass}">${esc(c4.badge || 'Checked')}</span>
+            </div>
+            <div style="font-size:0.82rem;color:#18181b;line-height:1.5">${esc(c4.summary || '')}</div>
+          </div>
+
+          <!-- 5. Contact Web History -->
+          <div class="rr-sv-check-card">
+            <div class="rr-sv-check-head">
+              <div class="rr-sv-check-title">5. Contact Web History</div>
+              <span class="rr-sv-pill rr-sv-pill-info">${mentions.length} Web Mention(s)</span>
+            </div>
+            ${mentions.length
+              ? `<div class="rr-sv-social-links">${mentionChips}</div>`
+              : '<div style="font-size:0.8rem;color:#3f3f46">No prior public job postings were indexed for this exact email or phone number.</div>'}
+          </div>
+        </div>
+      `;
+    }
+  };
+
+  window.RoleRoverSocialVerify = {
+    openModal: function(id) {
+      if (window.RR_VERIFY_TOOL) {
+        window.RR_VERIFY_TOOL.openVerifyById(id);
+      }
+    }
+  };
+})();
+</script>
+</body>
                 </html>
             `;
         }

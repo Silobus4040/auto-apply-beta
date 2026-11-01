@@ -503,9 +503,7 @@
         .email-subject { font-size: 0.82rem; font-weight: 600; color: #334155; margin-bottom: 0; }
         .email-preview { font-size: 0.78rem; color: #64748b; font-weight: 400; }
         
-        @media (min-width: 769px) {
-            .email-mobile-back-row { display: none !important; }
-        }
+        /* Keep back button visible everywhere */
         
         .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; min-width: 0; min-height: 0; overflow-y: auto; }
 
@@ -572,11 +570,7 @@
             #tab-sent { order: 4; }
             #tab-inbox { order: 5; }
             #tab-codes { order: 6; }
-            /* Mobile: keep single-line Gmail-style flex row, tuned for narrow screens */
-            .email-client-container.list-only .email-item { display: flex !important; align-items: center !important; height: 44px !important; min-height: 44px !important; padding: 0 0.6rem 0 1.5rem !important; gap: 0.6rem !important; touch-action: pan-y !important; -webkit-tap-highlight-color: rgba(0, 0, 0, 0.04); }
-            .email-client-container.list-only .email-sender { width: 110px; min-width: 110px; font-size: 0.8rem; }
-            .email-client-container.list-only .email-body-line { font-size: 0.8rem; }
-            .email-client-container.list-only .email-time { width: 66px; min-width: 66px; font-size: 0.73rem; position: static; }
+            /* Mobile email item styling */
             /* Inbox tab hidden on mobile */
             #tab-inbox { display: none !important; }
             .email-mobile-intro {
@@ -6665,9 +6659,7 @@
             const listEl = document.getElementById('email-list');
             if (listEl) listEl.classList.remove('intro-gated');
             const emailClient = document.querySelector('.email-client-container');
-            if (emailClient) emailClient.classList.add('list-only');
-            const pane = document.getElementById('email-content-pane');
-            if (pane) pane.innerHTML = '';
+            if (emailClient) emailClient.classList.remove('list-only');
             renderEmailList();
 
             // Persist cross-device confirmation to Supabase so it never reappears on other devices
@@ -6687,11 +6679,35 @@
             const html = getInboxIntroHtml();
             const pane = document.getElementById('email-content-pane');
             const seenIntro = hasSeenJobHuntIntro();
-            if (pane) pane.innerHTML = seenIntro ? '' : html;
+            if (pane) {
+                if (!seenIntro) {
+                    pane.innerHTML = html;
+                } else if (currentEmailTab === 'drafts') {
+                    pane.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #71717a; padding: 3rem; text-align: center;">
+                            <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                            </div>
+                            <div style="font-weight: 800; color: #09090b; font-size: 1.15rem; margin-bottom: 0.35rem;">Drafts Mailbox</div>
+                            <div style="font-size: 0.88rem; color: #71717a; max-width: 340px; line-height: 1.45;">Select any application draft from the list on the left to review, edit, or dispatch.</div>
+                        </div>
+                    `;
+                } else {
+                    pane.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #a1a1aa; padding: 3rem; text-align: center;">
+                            <div style="width: 52px; height: 52px; border-radius: 50%; background: #f4f4f5; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #71717a;">
+                                <i data-lucide="mail-open" style="width: 26px; height: 26px;"></i>
+                            </div>
+                            <div style="font-weight: 700; color: #52525b; font-size: 1.05rem; margin-bottom: 0.25rem;">Select an email</div>
+                            <div style="font-size: 0.85rem; color: #a1a1aa;">Choose a message from the list on the left to read.</div>
+                        </div>
+                    `;
+                }
+            }
             const listEl = document.getElementById('email-list');
-            if (listEl) listEl.classList.toggle('intro-gated', !seenIntro);
+            if (listEl) listEl.classList.remove('intro-gated');
             const emailClient = document.querySelector('.email-client-container');
-            if (emailClient) emailClient.classList.toggle('list-only', seenIntro);
+            if (emailClient) emailClient.classList.remove('list-only');
             const mobileIntro = document.getElementById('email-mobile-intro');
             if (mobileIntro) {
                 if (seenIntro) {
@@ -6761,9 +6777,7 @@
                 if (error) throw error;
                 currentEmails = data || [];
                 renderEmailList();
-                if (currentEmailTab === 'drafts' && currentEmails.length > 0 && window.innerWidth > 768) {
-                    showEmailContent(0, 0);
-                }
+                // Don't auto-open draft 0; preserve draft list overview
                 
                 // Update Badge
                 const { count: unreadCount, error: unreadError } = await supabaseClient
@@ -6786,7 +6800,18 @@
                 }
             } catch (err) {
                 console.error('Error fetching emails:', err);
-                document.getElementById('email-list').innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;font-size:0.9rem;">Failed to load emails.<br>${err.message}</div>`;
+                const isJwt = err && err.message && (err.message.includes('JWT') || err.message.includes('expired') || err.message.includes('token'));
+                if (isJwt) {
+                    document.getElementById('email-list').innerHTML = `
+                        <div style="padding:2.5rem 1.5rem;text-align:center;">
+                            <div style="font-size:1.05rem;font-weight:800;color:#09090b;margin-bottom:0.5rem;">Session Expired</div>
+                            <div style="font-size:0.85rem;color:#71717a;margin-bottom:1.25rem;">Your secure login token expired. Please log in again to continue.</div>
+                            <button onclick="window.location.href='login.html'" style="background:#059669;color:#fff;border:none;padding:0.6rem 1.4rem;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;">Log in</button>
+                        </div>
+                    `;
+                } else {
+                    document.getElementById('email-list').innerHTML = `<div style="padding:2rem;text-align:center;color:#ef4444;font-size:0.9rem;">Failed to load emails.<br>${err.message}</div>`;
+                }
             }
         }
         
@@ -6941,20 +6966,33 @@
             renderInboxIntro();
             await fetchEmails();
             if (window.innerWidth > 768) {
-                const selectedCategory = mailboxCategoryByTab[tab] || 'inbox';
-                const hasMatchingEmails = currentEmails && currentEmails.some(email => {
-                    const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
-                    if (tab === 'inbox') {
-                        if (isOutbound) return false;
-                        return (email.category || 'inbox') === 'inbox';
-                    }
-                    return (email.category || 'inbox') === selectedCategory;
-                });
-                if (hasMatchingEmails) {
-                    showEmailContent(0, 0);
-                } else {
-                    const pane = document.getElementById('email-content-pane');
+                const pane = document.getElementById('email-content-pane');
+                if (tab === 'drafts') {
                     if (pane) {
+                        pane.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #71717a; padding: 3rem; text-align: center;">
+                                <div style="width: 56px; height: 56px; border-radius: 50%; background: #fef3c7; color: #b45309; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+                                    <i data-lucide="file-text" style="width: 28px; height: 28px;"></i>
+                                </div>
+                                <div style="font-weight: 800; color: #09090b; font-size: 1.15rem; margin-bottom: 0.35rem;">Drafts Mailbox</div>
+                                <div style="font-size: 0.88rem; color: #71717a; max-width: 340px; line-height: 1.45;">Select any application draft from the list on the left to review, edit, or dispatch.</div>
+                            </div>
+                        `;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                } else {
+                    const selectedCategory = mailboxCategoryByTab[tab] || 'inbox';
+                    const hasMatchingEmails = currentEmails && currentEmails.some(email => {
+                        const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
+                        if (tab === 'inbox') {
+                            if (isOutbound) return false;
+                            return (email.category || 'inbox') === 'inbox';
+                        }
+                        return (email.category || 'inbox') === selectedCategory;
+                    });
+                    if (hasMatchingEmails) {
+                        showEmailContent(0, 0);
+                    } else if (pane) {
                         pane.innerHTML = `
                             <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #a1a1aa; padding: 3rem; text-align: center;">
                                 <div style="width: 52px; height: 52px; border-radius: 50%; background: #f4f4f5; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #71717a;">
@@ -7429,6 +7467,22 @@
             }
         }
 
+        
+        window.openDraftDossier = function(id) {
+            let lead = null;
+            if (window.RR_VERIFY_TOOL) {
+                lead = window.RR_VERIFY_TOOL.getLead(id);
+            }
+            if (!lead && typeof pooledJobs !== 'undefined' && Array.isArray(pooledJobs)) {
+                lead = pooledJobs.find(j => String(j.id) === String(id));
+            }
+            if (window.RR_VERIFY_TOOL) {
+                window.RR_VERIFY_TOOL.openVerifyById(id, lead);
+            } else if (window.RoleRoverSocialVerify) {
+                window.RoleRoverSocialVerify.openModal(id);
+            }
+        };
+    
         function renderEmailVerificationBannerHtml(lead) {
             if (!lead) return '';
             if (window.RR_VERIFY_TOOL && lead.id) {
@@ -7474,7 +7528,7 @@
                             </a>
                         ` : ''}
                         ${leadId ? `
-                            <button type="button" onclick="if (window.RR_VERIFY_TOOL) { window.RR_VERIFY_TOOL.openVerifyById('${escapeHtml(leadId)}'); } else if (window.RoleRoverSocialVerify) { window.RoleRoverSocialVerify.openModal('${escapeHtml(leadId)}'); }" style="display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid #86efac; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">
+                            <button type="button" onclick="window.openDraftDossier('${escapeHtml(leadId)}')" style="display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid #86efac; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">
                                 View Dossier
                             </button>
                         ` : ''}
@@ -7521,8 +7575,14 @@
             }
             
             const emailClient = document.querySelector('.email-client-container');
-            emailClient.classList.add('mobile-show-content');
-            emailClient.classList.remove('list-only');
+            if (emailClient) {
+                if (window.innerWidth <= 768) {
+                    emailClient.classList.add('mobile-show-content');
+                } else {
+                    emailClient.classList.remove('mobile-show-content');
+                }
+                emailClient.classList.remove('list-only', 'show-detail', 'is-composing');
+            }
 
             if (email.category === 'draft' || currentEmailTab === 'drafts') {
                 renderDraftDetailView(email, index);
