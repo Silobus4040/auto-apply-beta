@@ -507,138 +507,54 @@
             .email-mobile-back-row { display: none !important; }
         }
         
-        .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; }
-        .email-client-container.list-only .email-sidebar { display: flex !important; width: 100% !important; flex: 1 !important; border-right: none !important; }
-        .email-client-container.list-only .email-content { display: none !important; }
-        .email-client-container.show-detail .email-sidebar { display: none !important; }
-        .email-client-container.show-detail .email-content { display: flex !important; flex: 1 !important; width: 100% !important; min-height: 0 !important; }
-        .email-client-container.list-only .email-item {
-            display: flex;
-            align-items: center;
-            height: 48px;
-            min-height: 48px;
-            box-sizing: border-box;
-            padding: 0 1.25rem 0 1.75rem;
-            gap: 1.25rem;
-            transition: background 0.1s, box-shadow 0.1s;
-        }
-        .email-client-container.list-only .email-item:hover {
-            box-shadow: inset 1px 0 0 #dadce0, inset -1px 0 0 #dadce0, 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
-            z-index: 1;
-        }
-        .email-client-container.list-only .email-item.unread::before {
-            top: 50%;
-            transform: translateY(-50%);
-            left: 0.6rem;
-        }
-        .email-client-container.list-only .email-sender {
-            width: 200px;
-            min-width: 200px;
-            flex-shrink: 0;
-            margin: 0;
-            font-size: 0.94rem;
-            font-weight: 500;
-            color: #52525b;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            letter-spacing: -0.2px;
-        }
-        .email-client-container.list-only .email-body-line {
-            flex: 1;
-            min-width: 0;
-            display: flex;
-            align-items: baseline;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            font-size: 0.94rem;
-        }
-        .email-client-container.list-only .email-subject {
-            font-weight: 450;
-            color: #52525b;
-            margin: 0;
-            flex-shrink: 0;
-            letter-spacing: -0.2px;
-        }
-        .email-client-container.list-only .email-preview {
-            color: #71717a;
-            margin: 0;
-            margin-left: 0.35rem;
-            font-size: 0.92rem;
-            font-weight: 400;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            flex: 1;
-            min-width: 0;
-        }
-        .email-client-container.list-only .email-time {
-            width: 90px;
-            min-width: 90px;
-            flex-shrink: 0;
-            text-align: right;
-            position: static;
-            margin: 0;
-            font-size: 0.8rem;
-            font-weight: 450;
-            color: #71717a;
-        }
+        .email-content { flex: 1; display: flex; flex-direction: column; background: #fff; min-width: 0; min-height: 0; overflow-y: auto; }
 
         /* Unread: bold black typography with unread dot */
-        .email-client-container.list-only .email-item.unread .email-sender,
         .email-item.unread .email-sender {
             font-weight: 800 !important;
             color: #000000 !important;
         }
-        .email-client-container.list-only .email-item.unread .email-subject,
         .email-item.unread .email-subject {
             font-weight: 800 !important;
             color: #000000 !important;
         }
-        .email-client-container.list-only .email-item.unread .email-preview,
         .email-item.unread .email-preview {
             color: #52525b !important;
         }
-        .email-client-container.list-only .email-item.unread .email-time,
         .email-item.unread .email-time {
             font-weight: 750 !important;
             color: #000000 !important;
         }
 
         /* Read/Opened: softer, normal non-bold typography, no dot */
-        .email-client-container.list-only .email-item:not(.unread) .email-sender,
         .email-item:not(.unread) .email-sender {
             font-weight: 500 !important;
             color: #52525b !important;
         }
-        .email-client-container.list-only .email-item:not(.unread) .email-subject,
         .email-item:not(.unread) .email-subject {
             font-weight: 450 !important;
             color: #52525b !important;
         }
-        .email-client-container.list-only .email-item:not(.unread) .email-preview,
         .email-item:not(.unread) .email-preview {
             color: #71717a !important;
         }
-        .email-client-container.list-only .email-item:not(.unread) .email-time,
         .email-item:not(.unread) .email-time {
             font-weight: 450 !important;
             color: #71717a !important;
         }
 
         /* Dark mode overrides */
-        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-sender,
-        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-subject,
-        [data-theme="dark"] .email-client-container.list-only .email-item.unread .email-time {
+        [data-theme="dark"] .email-item.unread .email-sender,
+        [data-theme="dark"] .email-item.unread .email-subject,
+        [data-theme="dark"] .email-item.unread .email-time {
             color: #ffffff !important;
         }
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-sender,
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-subject {
+        [data-theme="dark"] .email-item:not(.unread) .email-sender,
+        [data-theme="dark"] .email-item:not(.unread) .email-subject {
             color: #a1a1aa !important;
         }
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-preview,
-        [data-theme="dark"] .email-client-container.list-only .email-item:not(.unread) .email-time {
+        [data-theme="dark"] .email-item:not(.unread) .email-preview,
+        [data-theme="dark"] .email-item:not(.unread) .email-time {
             color: #71717a !important;
         }
 
@@ -3167,6 +3083,14 @@
           </div>
         </div>
       `;
+    }
+  };
+
+  window.RoleRoverSocialVerify = {
+    openModal: function(id) {
+      if (window.RR_VERIFY_TOOL) {
+        window.RR_VERIFY_TOOL.openVerifyById(id);
+      }
     }
   };
 })();
@@ -6664,18 +6588,15 @@
             document.body.style.overflow = 'hidden';
             document.getElementById('email-client-modal').classList.add('active');
             const container = document.querySelector('.email-client-container');
-            container.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
-            container.classList.add('list-only');
+            if (container) {
+                container.classList.remove('mobile-show-content', 'show-detail', 'is-composing', 'list-only');
+            }
             
             const { data: { session } } = await supabaseClient.auth.getSession();
             await updateDraftsBadgeVisibility(session);
 
-            if (initialTab) {
-                await switchEmailTab(initialTab);
-            } else {
-                renderInboxIntro();
-                await fetchEmails();
-            }
+            const targetTab = initialTab || currentEmailTab || 'inbox';
+            await switchEmailTab(targetTab);
         }
 
         function closeEmailClient() {
@@ -6685,8 +6606,9 @@
 
         function closeMobileEmailDetail() {
             const container = document.querySelector('.email-client-container');
-            container.classList.remove('mobile-show-content', 'show-detail');
-            container.classList.add('list-only');
+            if (container) {
+                container.classList.remove('mobile-show-content', 'show-detail');
+            }
         }
 
         function getInboxIntroHtml() {
@@ -7013,12 +6935,38 @@
             });
             
             const emailClient = document.querySelector('.email-client-container');
-            emailClient.classList.remove('mobile-show-content', 'show-detail', 'is-composing');
-            emailClient.classList.add('list-only');
+            if (emailClient) {
+                emailClient.classList.remove('mobile-show-content', 'show-detail', 'is-composing', 'list-only');
+            }
             renderInboxIntro();
             await fetchEmails();
-            if (tab === 'drafts' && currentEmails.length > 0 && window.innerWidth > 768) {
-                showEmailContent(0, 0);
+            if (window.innerWidth > 768) {
+                const selectedCategory = mailboxCategoryByTab[tab] || 'inbox';
+                const hasMatchingEmails = currentEmails && currentEmails.some(email => {
+                    const isOutbound = (typeof userProfile !== 'undefined' && email.sender === userProfile.Application_email);
+                    if (tab === 'inbox') {
+                        if (isOutbound) return false;
+                        return (email.category || 'inbox') === 'inbox';
+                    }
+                    return (email.category || 'inbox') === selectedCategory;
+                });
+                if (hasMatchingEmails) {
+                    showEmailContent(0, 0);
+                } else {
+                    const pane = document.getElementById('email-content-pane');
+                    if (pane) {
+                        pane.innerHTML = `
+                            <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; color: #a1a1aa; padding: 3rem; text-align: center;">
+                                <div style="width: 52px; height: 52px; border-radius: 50%; background: #f4f4f5; display: flex; align-items: center; justify-content: center; margin-bottom: 1rem; color: #71717a;">
+                                    <i data-lucide="mail" style="width: 26px; height: 26px;"></i>
+                                </div>
+                                <div style="font-weight: 700; color: #3f3f46; font-size: 1.05rem;">No emails in this folder</div>
+                                <div style="font-size: 0.85rem; color: #71717a; margin-top: 0.35rem;">When messages arrive, they will appear here.</div>
+                            </div>
+                        `;
+                        if (typeof lucide !== 'undefined') lucide.createIcons();
+                    }
+                }
             }
         }
 
@@ -7461,6 +7409,9 @@
 
         function renderEmailVerificationBannerHtml(lead) {
             if (!lead) return '';
+            if (window.RR_VERIFY_TOOL && lead.id) {
+                window.RR_VERIFY_TOOL.registerLeads([lead]);
+            }
             const dossier = lead.verification_dossier || {};
             const checks = dossier.checks || {};
             const c1 = checks.company_registration || {};
@@ -7501,7 +7452,7 @@
                             </a>
                         ` : ''}
                         ${leadId ? `
-                            <button onclick="window.RoleRoverSocialVerify.openModal('${escapeHtml(leadId)}')" style="display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid #86efac; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">
+                            <button type="button" onclick="if (window.RR_VERIFY_TOOL) { window.RR_VERIFY_TOOL.openVerifyById('${escapeHtml(leadId)}'); } else if (window.RoleRoverSocialVerify) { window.RoleRoverSocialVerify.openModal('${escapeHtml(leadId)}'); }" style="display: inline-flex; align-items: center; gap: 4px; background: #ffffff; border: 1px solid #86efac; color: #166534; padding: 5px 10px; border-radius: 6px; font-weight: 700; font-size: 0.75rem; cursor: pointer;">
                                 View Dossier
                             </button>
                         ` : ''}
