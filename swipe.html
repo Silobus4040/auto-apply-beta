@@ -3683,7 +3683,7 @@
                 is_social: true,
                 id: lead.id,
                 match_id: row.id,
-                title: row.matched_role || lead.search_keyword || 'Role',
+                title: row.matched_role || (Array.isArray(lead.detected_roles) && lead.detected_roles[0]) || 'Role',
                 company_name: (lead.company_name && !['facebook group', 'facebook post', 'facebook', 'company'].includes(lead.company_name.toLowerCase().trim())) ? lead.company_name : null,
                 contact_email: lead.contact_email || '',
                 location: locationStr,
@@ -3796,6 +3796,10 @@
                     const pu = String(lead.post_url || '').toLowerCase().trim();
                     if (em && seenLeadEmails.has(em)) return false;
                     if (pu && seenLeadUrls.has(pu)) return false;
+                    const leadRoles = Array.isArray(lead.detected_roles) ? lead.detected_roles.filter(Boolean) : [];
+                    // ABSOLUTE RULE: No detected roles means NO job! Drop immediately.
+                    if (!r.matched_role && !leadRoles.length) return false;
+
                     const allowed = isFounderOverride || (
                         fitsLocation(lead) && 
                         fitsWorkplace(lead) && 
@@ -3937,7 +3941,7 @@
             }
 
             let reasonHtml = '';
-            const rawReason = job.fit_reason ? humanizeFitReason(job.fit_reason) : `Your profile directly matches the core operational responsibilities for ${job.search_keyword || 'this role'}.`;
+            const rawReason = job.fit_reason ? humanizeFitReason(job.fit_reason) : `Your profile directly matches the core operational responsibilities for ${job.title || 'this role'}.`;
             const { preview, needsMore } = truncateReasonWords(rawReason);
             reasonHtml = `
                 <div class="swipe-card-fit-reason-wrap">
@@ -5272,7 +5276,7 @@
                 .replace(/\bthe candidate\b/gi, 'you')
                 .replace(/\bStrong candidate foundation\b/gi, 'Your background provides a strong foundation')
                 .replace(/\bcandidate\b/gi, 'you')
-                : `Your profile directly matches the core operational responsibilities for ${job.search_keyword || 'this role'}.`;
+                : `Your profile directly matches the core operational responsibilities for ${job.title || 'this role'}.`;
             modalText.innerText = reason;
             document.getElementById('desc-modal').classList.add('active');
         }

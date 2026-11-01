@@ -2981,7 +2981,7 @@
                     .from('social_hiring_lead_matches')
                     .select(`
                         id, sent_at,
-                        social_hiring_leads ( search_keyword, company_name, post_url, contact_email )
+                        social_hiring_leads ( company_name, post_url, contact_email, detected_roles ), matched_role
                     `)
                     .eq('profile_id', userId)
                     .eq('decision', 'send')
@@ -3002,7 +3002,7 @@
                         <div style="background: var(--surface-color); border: 1px solid var(--border); border-radius: 14px; padding: 0.9rem 1.1rem; margin-bottom: 0.7rem; display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
                             <div>
                                 <div style="font-size: 0.75rem; color: #71717A;">${escapeHtml(lead.company_name || 'Facebook post')} · via Facebook</div>
-                                <div style="font-weight: 800;">${escapeHtml(lead.search_keyword || 'Role')}</div>
+                                <div style="font-weight: 800;">${escapeHtml(row.matched_role || (lead.detected_roles && lead.detected_roles[0]) || 'Role')}</div>
                                 <div style="font-size: 0.75rem; color: #71717A; margin-top: 0.2rem;">Sent to ${escapeHtml(lead.contact_email || '')}${sentDate ? ' · ' + sentDate : ''}</div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 0.6rem;">
