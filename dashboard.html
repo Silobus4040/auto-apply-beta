@@ -570,19 +570,19 @@
         }
 
         /* Dark mode overrides */
-        [data-theme=" dark\] .email-item.unread .email-sender,
- [data-theme=\dark\] .email-item.unread .email-subject,
- [data-theme=\dark\] .email-item.unread .email-time {
- color: #ffffff !important;
- }
- [data-theme=\dark\] .email-item:not(.unread) .email-sender,
- [data-theme=\dark\] .email-item:not(.unread) .email-subject {
- color: #a1a1aa !important;
- }
- [data-theme=\dark\] .email-item:not(.unread) .email-preview,
- [data-theme=\dark\] .email-item:not(.unread) .email-time {
- color: #71717a !important;
- }
+        [data-theme="dark"] .email-item.unread .email-sender,
+        [data-theme="dark"] .email-item.unread .email-subject,
+        [data-theme="dark"] .email-item.unread .email-time {
+            color: #ffffff !important;
+        }
+        [data-theme="dark"] .email-item:not(.unread) .email-sender,
+        [data-theme="dark"] .email-item:not(.unread) .email-subject {
+            color: #a1a1aa !important;
+        }
+        [data-theme="dark"] .email-item:not(.unread) .email-preview,
+        [data-theme="dark"] .email-item:not(.unread) .email-time {
+            color: #71717a !important;
+        }
 
  @media (max-width: 768px) {
             #tab-interviews.active, #tab-inbox.active,
@@ -4718,26 +4718,27 @@
             if (typeof lucide !== 'undefined') lucide.createIcons();
 
             // Populate verification banner for this draft
-            const matchedJobId = email.matched_job_id;
-            const bannerEl = document.getElementById('draft-verification-banner-container');
-            if (typeof supabaseClient !== 'undefined' && matchedJobId) {
-                supabaseClient.from('social_hiring_leads')
-                    .select('id, company_name, verification_dossier, contact_email')
-                    .eq('id', matchedJobId)
+            const matchedJobId = (typeof email !== "undefined" && email) ? email.matched_job_id : null;
+            const targetRecipient = (typeof email !== "undefined" && email) ? email.recipient : (typeof recipient !== "undefined" ? recipient : null);
+            const bannerEl = document.getElementById("draft-verification-banner-container");
+            if (typeof supabaseClient !== "undefined" && matchedJobId) {
+                supabaseClient.from("social_hiring_leads")
+                    .select("id, company_name, verification_dossier, contact_email")
+                    .eq("id", matchedJobId)
                     .maybeSingle()
                     .then(({ data }) => {
-                        const bEl = document.getElementById('draft-verification-banner-container');
+                        const bEl = document.getElementById("draft-verification-banner-container");
                         if (data && bEl) {
                             bEl.innerHTML = renderEmailVerificationBannerHtml(data);
                         }
                     });
-            } else if (typeof supabaseClient !== 'undefined' && recipient) {
-                supabaseClient.from('social_hiring_leads')
-                    .select('id, company_name, verification_dossier, contact_email')
-                    .eq('contact_email', recipient)
+            } else if (typeof supabaseClient !== "undefined" && targetRecipient) {
+                supabaseClient.from("social_hiring_leads")
+                    .select("id, company_name, verification_dossier, contact_email")
+                    .eq("contact_email", targetRecipient)
                     .maybeSingle()
                     .then(({ data }) => {
-                        const bEl = document.getElementById('draft-verification-banner-container');
+                        const bEl = document.getElementById("draft-verification-banner-container");
                         if (data && bEl) {
                             bEl.innerHTML = renderEmailVerificationBannerHtml(data);
                         }
