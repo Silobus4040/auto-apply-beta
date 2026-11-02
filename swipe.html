@@ -3062,8 +3062,13 @@
       const mentions = Array.isArray(c5.mentions) ? c5.mentions : [];
       const seenMentionUrls = new Set();
       const uniqueMentions = [];
+      const siteHostLower = siteHost ? siteHost.toLowerCase() : '';
       for (const m of mentions) {
         const u = String(m.url || '').trim();
+        const ul = u.toLowerCase();
+        if (siteHostLower && ul.includes(siteHostLower)) continue;
+        if (ul.includes('linkedin.com/')) continue;
+        if (ul.includes('facebook.com/') || ul.includes('twitter.com/') || ul.includes('x.com/') || ul.includes('instagram.com/')) continue;
         if (u && !seenMentionUrls.has(u)) {
           seenMentionUrls.add(u);
           uniqueMentions.push(m);
@@ -3119,32 +3124,41 @@
                 ${c1.official_website ? `<div><b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a></div>` : ''}
               </div>
 
-              <!-- Verified Business Directory Listings -->
+              <!-- Local Business Directory Profile (Max 1 Local Directory Pill) -->
               ${dirList.length ? `
                 <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e4e4e7;">
                   <div style="font-weight:750;font-size:0.76rem;color:#09090b;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-                    <span>📊 Verified Business Directory Profiles:</span>
+                    <span>📊 Local Business Directory Profile:</span>
                   </div>
                   <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                    ${dirList.map(d => `
-                      <a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="rr-sv-social-a" style="font-size:0.74rem;padding:4px 10px;">
-                        📈 ${esc(d.source)}${d.employee_count ? ' (' + esc(d.employee_count) + ')' : ''} ↗
-                      </a>
-                    `).join('')}
+                    <a href="${esc(dirList[0].url)}" target="_blank" rel="noopener noreferrer" class="rr-sv-social-a" style="font-size:0.74rem;padding:4px 10px;">
+                      📈 ${esc(dirList[0].source)}${dirList[0].employee_count ? ' (' + esc(dirList[0].employee_count) + ')' : ''} ↗
+                    </a>
                   </div>
                 </div>
               ` : ''}
 
-              <!-- Educational DBA & Official Government Registries -->
+              <!-- Educational DBA & Official Government Registry -->
               <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e4e4e7;">
                 <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
                   <span style="font-weight:750;font-size:0.77rem;color:#09090b;">🏛️ Trade Name / DBA Guidance</span>
                   <span style="font-size:0.69rem;font-weight:800;color:#15803d;background:#dcfce7;border:1px solid #86efac;padding:1px 7px;border-radius:99px;">✓ Safe to Apply</span>
                 </div>
                 <div style="font-size:0.76rem;color:#52525b;line-height:1.45;margin-bottom:6px;">
-                  Operates publicly under this trade brand. Safe to submit your resume; verify registered legal entity before signing contracts or sharing banking details.
+                  Operating under trade brand. Safe to apply; verify registered corporate entity before signing contracts or sharing banking info.
                 </div>
-                ${renderRegistryVerificationToolkit(c1.verified_hq || gr?.jurisdiction, c1.what_to_ask_employer)}
+                ${offReg && offReg.registry_url ? `
+                  <div style="margin-top:6px;">
+                    <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" class="rr-sv-social-a" style="font-size:0.75rem;padding:4px 10px;">
+                      🏛️ Verify on ${esc(offReg.authority_name)} ↗
+                    </a>
+                  </div>
+                ` : ''}
+                ${c1.what_to_ask_employer ? `
+                  <div style="margin-top:8px;padding:8px 11px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
+                    <b>💡 What to Ask the Employer:</b> ${esc(c1.what_to_ask_employer)}
+                  </div>
+                ` : ''}
               </div>
             ` : `
               <div style="font-size:0.82rem;color:#18181b;line-height:1.5">
@@ -3163,7 +3177,6 @@
                     </a>
                   </div>
                 ` : ''}
-                ${renderRegistryVerificationToolkit(c1.verified_hq || gr?.jurisdiction, c1.what_to_ask_employer)}
               </div>
             `)}
           </div>
@@ -3197,15 +3210,15 @@
             <div style="font-size:0.82rem;color:#18181b;line-height:1.5">${esc(c4.summary || '')}</div>
           </div>
 
-          <!-- 5. Contact Web History -->
+          <!-- 5. Contact Web History (External Footprint Only) -->
           <div class="rr-sv-check-card">
             <div class="rr-sv-check-head">
               <div class="rr-sv-check-title">5. Contact Web History</div>
-              <span class="rr-sv-pill rr-sv-pill-info">${mentions.length} Web Mention(s)</span>
+              <span class="rr-sv-pill rr-sv-pill-info">${uniqueMentions.length} Web Mention(s)</span>
             </div>
-            ${mentions.length
+            ${uniqueMentions.length
               ? `<div class="rr-sv-social-links">${mentionChips}</div>`
-              : '<div style="font-size:0.8rem;color:#3f3f46">No prior public job postings were indexed for this exact email or phone number.</div>'}
+              : '<div style="font-size:0.8rem;color:#3f3f46">Contact email is exclusive to official company domain with no external third-party listings.</div>'}
           </div>
         </div>
       `;
