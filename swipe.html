@@ -2583,18 +2583,18 @@
       : "You don't need to copy or save this registry—it will always be accessible in your email section when communicating with the recruiter.";
 
     return `
-      <div style="margin-top:10px;padding:10px 12px;background:#ffffff;border:1px solid #bbf7d0;border-radius:8px;">
-        <div style="font-weight:750;font-size:0.77rem;color:#166534;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
-          <span>🏛️ Official Government Business Registries to Verify:</span>
+      <div style="margin-top:8px;">
+        <div style="font-weight:750;font-size:0.75rem;color:#18181b;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
+          <span>🏛️ Official Government Registries to Verify:</span>
         </div>
-        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;">
+        <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:6px;">
           ${regList.map(r => `
-            <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:4px;background:#f0fdf4;border:1px solid #86efac;color:#15803d;padding:4px 9px;border-radius:6px;font-weight:700;font-size:0.74rem;text-decoration:none;transition:background 0.15s;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#f0fdf4'">
+            <a href="${esc(r.url)}" target="_blank" rel="noopener noreferrer" class="rr-sv-social-a" style="font-size:0.74rem;padding:4px 10px;">
               🔍 ${esc(r.name)} ↗
             </a>
           `).join('')}
         </div>
-        <div style="font-size:0.75rem;color:#15803d;line-height:1.45;display:flex;align-items:flex-start;gap:6px;">
+        <div style="font-size:0.72rem;color:#71717a;line-height:1.4;display:flex;align-items:flex-start;gap:5px;">
           <span>💡</span>
           <span>${esc(noteText)}</span>
         </div>
@@ -3060,9 +3060,33 @@
        .join('');
 
       const mentions = Array.isArray(c5.mentions) ? c5.mentions : [];
-      const mentionChips = mentions.map(m => {
-        const host = cleanHostLabel(m.url) || 'Web Page';
-        return `<a class="rr-sv-social-a" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">🔗 ${esc(host)} ↗</a>`;
+      const seenMentionUrls = new Set();
+      const uniqueMentions = [];
+      for (const m of mentions) {
+        const u = String(m.url || '').trim();
+        if (u && !seenMentionUrls.has(u)) {
+          seenMentionUrls.add(u);
+          uniqueMentions.push(m);
+        }
+      }
+
+      function cleanPageLabel(url) {
+        if (!url) return 'Web Page';
+        try {
+          const parsed = new URL(url);
+          const host = parsed.hostname.replace(/^www\./, '');
+          const path = parsed.pathname.replace(/\/$/, '');
+          if (!path || path === '') return host;
+          const cleanPath = path.length > 22 ? path.slice(0, 20) + '…' : path;
+          return host + cleanPath;
+        } catch (e) {
+          return cleanHostLabel(url) || 'Web Page';
+        }
+      }
+
+      const mentionChips = uniqueMentions.map(m => {
+        const label = cleanPageLabel(m.url);
+        return `<a class="rr-sv-social-a" href="${esc(m.url)}" target="_blank" rel="noopener noreferrer">🔗 ${esc(label)} ↗</a>`;
       }).join('');
 
       return `
@@ -3083,7 +3107,7 @@
               ${gr.grounding_note ? `<div style="margin-top:6px;font-size:0.76rem;color:#3f3f46;">${esc(gr.grounding_note)}</div>` : ''}
               ${offReg && offReg.registry_url ? `
                 <div style="margin-top:8px;">
-                  <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#f4f4f5;border:1px solid #d4d4d8;color:#09090b;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.77rem;text-decoration:none;">
+                  <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" class="rr-sv-social-a" style="font-size:0.75rem;padding:4px 10px;">
                     🏛️ Verify on ${esc(offReg.authority_name)} ↗
                   </a>
                 </div>
@@ -3095,19 +3119,16 @@
                 ${c1.official_website ? `<div><b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a></div>` : ''}
               </div>
 
-              <!-- Verified Business Directory Listings (Clear Differentiator) -->
+              <!-- Verified Business Directory Listings -->
               ${dirList.length ? `
-                <div style="margin-top:10px;padding:10px 12px;background:#f0fdf4;border:1px solid #86efac;border-radius:8px;">
-                  <div style="font-weight:750;font-size:0.8rem;color:#14532d;margin-bottom:4px;display:flex;align-items:center;gap:6px;">
-                    <span>✓ Verified Business Directory Profiles</span>
+                <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e4e4e7;">
+                  <div style="font-weight:750;font-size:0.76rem;color:#09090b;margin-bottom:6px;display:flex;align-items:center;gap:5px;">
+                    <span>📊 Verified Business Directory Profiles:</span>
                   </div>
-                  <div style="font-size:0.75rem;color:#166534;line-height:1.45;margin-bottom:8px;">
-                    Independent commercial registries &amp; corporate intelligence platforms verifying company presence:
-                  </div>
-                  <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
                     ${dirList.map(d => `
-                      <a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:6px;background:#ffffff;color:#14532d;border:1px solid #86efac;padding:6px 12px;border-radius:6px;font-size:0.78rem;font-weight:700;text-decoration:none;box-shadow:0 1px 2px rgba(0,0,0,0.04);transition:all 0.15s ease;" onmouseover="this.style.background='#dcfce7'" onmouseout="this.style.background='#ffffff'">
-                        📊 ${esc(d.source)}${d.employee_count ? ' (' + esc(d.employee_count) + ')' : ''} ↗
+                      <a href="${esc(d.url)}" target="_blank" rel="noopener noreferrer" class="rr-sv-social-a" style="font-size:0.74rem;padding:4px 10px;">
+                        📈 ${esc(d.source)}${d.employee_count ? ' (' + esc(d.employee_count) + ')' : ''} ↗
                       </a>
                     `).join('')}
                   </div>
@@ -3115,13 +3136,14 @@
               ` : ''}
 
               <!-- Educational DBA & Official Government Registries -->
-              <div style="margin-top:10px;padding:10px 12px;background:#f8fafc;border:1px solid #cbd5e1;border-radius:8px;font-size:0.79rem;line-height:1.45;color:#334155;">
-                <div style="font-weight:750;margin-bottom:4px;display:flex;align-items:center;gap:6px;color:#0f172a;">
-                  <span>🏛️ Trade Name / DBA Guidance</span>
+              <div style="margin-top:10px;padding-top:10px;border-top:1px solid #e4e4e7;">
+                <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                  <span style="font-weight:750;font-size:0.77rem;color:#09090b;">🏛️ Trade Name / DBA Guidance</span>
+                  <span style="font-size:0.69rem;font-weight:800;color:#15803d;background:#dcfce7;border:1px solid #86efac;padding:1px 7px;border-radius:99px;">✓ Safe to Apply</span>
                 </div>
-                <div>${esc(dba?.notice || 'Many established organizations operate publicly under a trade name, brand, or DBA ("Doing Business As") while their corporate registration is filed under a founder, parent holding, or operating entity name.')}</div>
-                <div style="margin-top:6px;font-weight:700;color:#15803d;">✓ Safe to submit your initial application with your CV/resume.</div>
-                <div style="margin-top:4px;">${esc(dba?.action_before_sensitive_data || 'Before signing an employment contract or sharing sensitive identity, banking, or tax documents, request the employer\'s registered legal entity name and registration number to verify directly on their official registry.')}</div>
+                <div style="font-size:0.76rem;color:#52525b;line-height:1.45;margin-bottom:6px;">
+                  Operates publicly under this trade brand. Safe to submit your resume; verify registered legal entity before signing contracts or sharing banking details.
+                </div>
                 ${renderRegistryVerificationToolkit(c1.verified_hq || gr?.jurisdiction, c1.what_to_ask_employer)}
               </div>
             ` : `
