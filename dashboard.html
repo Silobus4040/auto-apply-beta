@@ -1814,8 +1814,10 @@
   }
   .rr-sv-dossier-grid { display: flex; flex-direction: column; gap: 10px; }
   .rr-sv-check-card {
-    background: #fafafa; border: 1px solid #e4e4e7; border-radius: 12px; padding: 12px 15px;
+    background: #ffffff; border: 1.5px solid #a3e635; border-radius: 12px; padding: 13px 16px;
+    transition: all 0.15s ease;
   }
+  .rr-sv-check-card:hover { border-color: #84cc16; }
   .rr-sv-check-head {
     display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
   }
@@ -5876,7 +5878,7 @@
     },
     {
       id: 'no_sensitive_id',
-      title: '4. Never Share Bank Logins or Sensitive ID Before a Verified Offer',
+      title: '4. Never Share Bank Details or Sensitive ID Before a Verified Offer',
       body: 'Never share your bank account details, national ID, passport, driver\'s license, or any identity number until you have independently verified the employer and received a genuine written offer.'
     },
     {
