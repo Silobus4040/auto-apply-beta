@@ -1023,6 +1023,8 @@
             #stats-bar[style*="flex"] { display: grid !important; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.65rem; margin-bottom: 1rem !important; }
             .stat { min-width: 0; padding: 0.8rem 0.9rem !important; border-radius: 14px; }
             .stats-bar .stat:first-child { grid-column: 1 / -1; gap: 0.45rem !important; }
+        }
+
         @media (min-width: 769px) {
             .card-back-cell { display: none !important; }
             .mobile-qa-cell { display: none !important; }
@@ -5702,7 +5704,153 @@
                 </head>
                 <body>
                     ${displayHtml}
-                <script id="rr-social-verify-script">
+                </body>
+                </html>
+            `;
+        }
+
+        async function openReplyComposer(index) {
+            const email = currentEmails[index];
+            const pane = document.getElementById('email-content-pane');
+            const originalSubject = email.subject || '(No Subject)';
+            const replySubject = originalSubject.startsWith('Re:') ? originalSubject : `Re: ${originalSubject}`;
+            
+            document.querySelector('.email-client-container').classList.add('is-composing');
+            pane.innerHTML = `
+                <div style="display: flex; flex-direction: column; height: 100%; background: #fff;">
+                    <div class="reply-composer-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <h3 class="reply-composer-title" style="font-weight: 800; font-size: 1.25rem; margin: 0;">Secure Reply</h3>
+                        <button onclick="showEmailContent(${index})" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #71717A; font-weight: 600; padding: 0.5rem; transition: color 0.2s;">Cancel</button>
+                    </div>
+                    <div class="reply-composer-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
+                        <div class="reply-field reply-to-field" style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
+                            <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">To:</span>
+                            <input type="text" id="reply-to" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
+                            <span class="reply-lock-label" style="font-size: 0.8rem; color: #10B981; font-weight: 700;">Locked</span>
+                        </div>
+                        <div class="reply-field reply-subject-field" style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
+                            <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">Subject:</span>
+                            <input type="text" id="reply-subject" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
+                        </div>
+                        <div style="flex: 1; display: flex; flex-direction: column; margin-top: 1rem;">
+                            <textarea id="reply-body" placeholder="Write your reply here..." style="flex: 1; border: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: none; color: #27272a; min-height: 300px;"></textarea>
+                        </div>
+                    </div>
+                    <div class="reply-composer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
+                        <button id="send-reply-btn" class="reply-send-btn" onclick="sendReply(${index})" style="background: #059669; color: #fff; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(5,150,105,0.2); transition: opacity 0.2s;">
+                            Send Securely
+                        </button>
+                    </div>
+                </div>
+            `;
+            // Set via .value (a DOM property, not an HTML attribute) rather than
+            // interpolating email.sender/replySubject into value="..." above --
+            // email.sender is inbound-mail-controlled and could otherwise contain a
+            // `"` that breaks out of the attribute and injects new attributes/markup.
+            document.getElementById('reply-to').value = email.sender;
+            document.getElementById('reply-subject').value = replySubject;
+        }
+
+        async function sendReply(index) {
+            const email = currentEmails[index];
+            const subject = document.getElementById('reply-subject').value;
+            let body = document.getElementById('reply-body').value;
+            const btn = document.getElementById('send-reply-btn');
+            
+            if (!body.trim()) {
+                alert("Please write a message first!");
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerText = "Sending...";
+            
+            // Format body with line breaks
+            body = body.replace(/\n/g, '<br>');
+            
+            try {
+                const { data: { session: replySession } } = await supabaseClient.auth.getSession();
+                const uId = (typeof userProfile !== 'undefined' && userProfile?.id) ? userProfile.id : replySession?.user?.id;
+                const userAppEmail = (typeof userProfile !== 'undefined' && userProfile?.Application_email) ? userProfile.Application_email : (replySession?.user?.email || 'user@myrolerover.com');
+
+                // If replying to the founder, also record directly in feedback table so Obruche gets it immediately
+                if (email.sender && email.sender.toLowerCase().includes('obruche@myrolerover.com')) {
+                    try {
+                        await supabaseClient.from('feedback').insert([{
+                            user_id: uId,
+                            email: userAppEmail,
+                            message: `[REPLY TO FOUNDER] Subject: ${subject}\n\n${document.getElementById('reply-body').value.trim()}`,
+                            type: 'founder_reply'
+                        }]);
+                    } catch (fbErr) {
+                        console.warn('Feedback fallback error:', fbErr);
+                    }
+                }
+
+                // Insert sent record into emails table so candidate sees their reply in the 'Sent' mailbox tab
+                try {
+                    await supabaseClient.from('emails').insert([{
+                        user_id: uId,
+                        sender: userAppEmail,
+                        recipient: email.sender,
+                        subject: subject,
+                        body_preview: document.getElementById('reply-body').value.trim().substring(0, 120),
+                        full_html: `<div style="font-family: sans-serif; font-size: 15px; line-height: 1.6; color: #18181b;">${body}</div>`,
+                        category: 'sent',
+                        email_type: 'outbound_reply',
+                        is_read: true,
+                        created_at: new Date().toISOString()
+                    }]);
+                } catch (sentErr) {
+                    console.warn('Sent email record error:', sentErr);
+                }
+
+                try {
+                    await fetch('https://n8n.leadscompass.ai/webhook/dashboard-reply', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${replySession ? replySession.access_token : ''}`
+                        },
+                        body: JSON.stringify({
+                            user_id: uId,
+                            sender: userAppEmail,
+                            recipient: email.sender,
+                            subject: subject,
+                            html: body
+                        })
+                    });
+                } catch (n8nErr) {
+                    console.warn('n8n webhook error:', n8nErr);
+                }
+                
+                alert("Message sent! Obruche has received your reply.");
+                await switchEmailTab('sent');
+                
+            } catch (err) {
+                console.error(err);
+                alert("Message sent! Obruche has received your reply.");
+                btn.disabled = false;
+                btn.innerText = "Send Securely";
+                await switchEmailTab('sent');
+            }
+        }
+
+        
+        // Fetch initially to populate badge
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchEmails();
+        });
+
+        // Initialize Lucide Icons
+        document.addEventListener("DOMContentLoaded", function() {
+            if (typeof lucide !== "undefined") {
+                lucide.createIcons();
+            }
+        });
+    </script>
+
+    <script id="rr-social-verify-script">
 (function() {
   const SAFETY_STORAGE_KEY = 'rr_social_hiring_safety_ack_v1';
   const VERIFY_WEBHOOK_URL = 'https://n8n.leadscompass.ai/webhook/rr-verify-lead';
@@ -6493,151 +6641,6 @@
   };
 })();
 </script>
-</body>
-                </html>
-            `;
-        }
-
-        async function openReplyComposer(index) {
-            const email = currentEmails[index];
-            const pane = document.getElementById('email-content-pane');
-            const originalSubject = email.subject || '(No Subject)';
-            const replySubject = originalSubject.startsWith('Re:') ? originalSubject : `Re: ${originalSubject}`;
-            
-            document.querySelector('.email-client-container').classList.add('is-composing');
-            pane.innerHTML = `
-                <div style="display: flex; flex-direction: column; height: 100%; background: #fff;">
-                    <div class="reply-composer-header" style="padding: 1.5rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
-                        <h3 class="reply-composer-title" style="font-weight: 800; font-size: 1.25rem; margin: 0;">Secure Reply</h3>
-                        <button onclick="showEmailContent(${index})" style="background: none; border: none; font-size: 0.9rem; cursor: pointer; color: #71717A; font-weight: 600; padding: 0.5rem; transition: color 0.2s;">Cancel</button>
-                    </div>
-                    <div class="reply-composer-body" style="padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; flex: 1; overflow-y: auto;">
-                        <div class="reply-field reply-to-field" style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
-                            <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">To:</span>
-                            <input type="text" id="reply-to" readonly style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent; cursor: not-allowed;" title="Locked for security">
-                            <span class="reply-lock-label" style="font-size: 0.8rem; color: #10B981; font-weight: 700;">Locked</span>
-                        </div>
-                        <div class="reply-field reply-subject-field" style="display: flex; align-items: center; border-bottom: 1px solid #e4e4e7; padding-bottom: 0.5rem;">
-                            <span style="color: #71717A; font-weight: 600; width: 80px; font-size: 0.9rem;">Subject:</span>
-                            <input type="text" id="reply-subject" style="border: none; outline: none; flex: 1; font-family: inherit; font-size: 0.95rem; font-weight: 600; color: #000; background: transparent;">
-                        </div>
-                        <div style="flex: 1; display: flex; flex-direction: column; margin-top: 1rem;">
-                            <textarea id="reply-body" placeholder="Write your reply here..." style="flex: 1; border: none; outline: none; font-family: inherit; font-size: 0.95rem; line-height: 1.6; resize: none; color: #27272a; min-height: 300px;"></textarea>
-                        </div>
-                    </div>
-                    <div class="reply-composer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
-                        <button id="send-reply-btn" class="reply-send-btn" onclick="sendReply(${index})" style="background: #059669; color: #fff; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(5,150,105,0.2); transition: opacity 0.2s;">
-                            Send Securely
-                        </button>
-                    </div>
-                </div>
-            `;
-            // Set via .value (a DOM property, not an HTML attribute) rather than
-            // interpolating email.sender/replySubject into value="..." above --
-            // email.sender is inbound-mail-controlled and could otherwise contain a
-            // `"` that breaks out of the attribute and injects new attributes/markup.
-            document.getElementById('reply-to').value = email.sender;
-            document.getElementById('reply-subject').value = replySubject;
-        }
-
-        async function sendReply(index) {
-            const email = currentEmails[index];
-            const subject = document.getElementById('reply-subject').value;
-            let body = document.getElementById('reply-body').value;
-            const btn = document.getElementById('send-reply-btn');
-            
-            if (!body.trim()) {
-                alert("Please write a message first!");
-                return;
-            }
-            
-            btn.disabled = true;
-            btn.innerText = "Sending...";
-            
-            // Format body with line breaks
-            body = body.replace(/\n/g, '<br>');
-            
-            try {
-                const { data: { session: replySession } } = await supabaseClient.auth.getSession();
-                const uId = (typeof userProfile !== 'undefined' && userProfile?.id) ? userProfile.id : replySession?.user?.id;
-                const userAppEmail = (typeof userProfile !== 'undefined' && userProfile?.Application_email) ? userProfile.Application_email : (replySession?.user?.email || 'user@myrolerover.com');
-
-                // If replying to the founder, also record directly in feedback table so Obruche gets it immediately
-                if (email.sender && email.sender.toLowerCase().includes('obruche@myrolerover.com')) {
-                    try {
-                        await supabaseClient.from('feedback').insert([{
-                            user_id: uId,
-                            email: userAppEmail,
-                            message: `[REPLY TO FOUNDER] Subject: ${subject}\n\n${document.getElementById('reply-body').value.trim()}`,
-                            type: 'founder_reply'
-                        }]);
-                    } catch (fbErr) {
-                        console.warn('Feedback fallback error:', fbErr);
-                    }
-                }
-
-                // Insert sent record into emails table so candidate sees their reply in the 'Sent' mailbox tab
-                try {
-                    await supabaseClient.from('emails').insert([{
-                        user_id: uId,
-                        sender: userAppEmail,
-                        recipient: email.sender,
-                        subject: subject,
-                        body_preview: document.getElementById('reply-body').value.trim().substring(0, 120),
-                        full_html: `<div style="font-family: sans-serif; font-size: 15px; line-height: 1.6; color: #18181b;">${body}</div>`,
-                        category: 'sent',
-                        email_type: 'outbound_reply',
-                        is_read: true,
-                        created_at: new Date().toISOString()
-                    }]);
-                } catch (sentErr) {
-                    console.warn('Sent email record error:', sentErr);
-                }
-
-                try {
-                    await fetch('https://n8n.leadscompass.ai/webhook/dashboard-reply', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Bearer ${replySession ? replySession.access_token : ''}`
-                        },
-                        body: JSON.stringify({
-                            user_id: uId,
-                            sender: userAppEmail,
-                            recipient: email.sender,
-                            subject: subject,
-                            html: body
-                        })
-                    });
-                } catch (n8nErr) {
-                    console.warn('n8n webhook error:', n8nErr);
-                }
-                
-                alert("Message sent! Obruche has received your reply.");
-                await switchEmailTab('sent');
-                
-            } catch (err) {
-                console.error(err);
-                alert("Message sent! Obruche has received your reply.");
-                btn.disabled = false;
-                btn.innerText = "Send Securely";
-                await switchEmailTab('sent');
-            }
-        }
-
-        
-        // Fetch initially to populate badge
-        document.addEventListener('DOMContentLoaded', () => {
-            fetchEmails();
-        });
-
-        // Initialize Lucide Icons
-        document.addEventListener("DOMContentLoaded", function() {
-            if (typeof lucide !== "undefined") {
-                lucide.createIcons();
-            }
-        });
-    </script>
 </body>
 </html>
 
