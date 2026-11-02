@@ -1730,8 +1730,27 @@
     box-shadow: 0 24px 54px rgba(0, 0, 0, 0.22); overflow: hidden; text-align: left;
   }
   .rr-sv-head {
-    padding: 18px 24px 15px; background: #ffffff;
-    border-bottom: 1px solid #e4e4e7; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+    padding: 16px 20px 14px; background: #ffffff;
+    border-bottom: 1px solid #e4e4e7; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px;
+  }
+  .rr-sv-head-actions {
+    display: flex; gap: 6px; align-items: center; flex-shrink: 0;
+  }
+  @media (max-width: 480px) {
+    .rr-sv-head {
+      padding: 12px 14px 10px;
+      flex-wrap: wrap;
+    }
+    .rr-sv-head > div:first-child {
+      flex: 1 1 100%;
+      margin-bottom: 6px;
+    }
+    .rr-sv-head h2 { font-size: 1.1rem; }
+    .rr-sv-head-actions {
+      width: 100%;
+      justify-content: flex-end;
+      gap: 6px;
+    }
   }
   .rr-sv-step-pills {
     display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px;
@@ -6344,12 +6363,12 @@
       backdrop.innerHTML = `
         <div class="rr-sv-modal" role="dialog" aria-modal="true">
           <div class="rr-sv-head">
-            <div>
+            <div style="min-width:0;flex:1 1 auto;">
               <h2>1-Click Verification Report</h2>
-              <p>${esc(compLabel)} &middot; <span style="color:#09090b;background:#f7fee7;padding:2px 8px;border-radius:6px;border:1px solid #a3e635;font-weight:700">${esc(emailLabel)}</span></p>
+              <p style="overflow-wrap:anywhere;">${esc(compLabel)} &middot; <span style="color:#09090b;background:#f7fee7;padding:2px 8px;border-radius:6px;border:1px solid #a3e635;font-weight:700;display:inline-block;max-width:100%;overflow:hidden;text-overflow:ellipsis;vertical-align:bottom;">${esc(emailLabel)}</span></p>
             </div>
-            <div style="display:flex;gap:8px;align-items:center">
-              <button type="button" class="rr-sv-ack-btn" id="rr-sv-refresh-btn" title="Run fresh live web verification">↻ Re-Scan Live</button>
+            <div class="rr-sv-head-actions">
+              <button type="button" class="rr-sv-ack-btn" id="rr-sv-refresh-btn" title="Run fresh live web verification">↻ Re-Scan</button>
               <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-btn">&times; Close</button>
             </div>
           </div>
