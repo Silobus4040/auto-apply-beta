@@ -1857,14 +1857,6 @@
                     <span class="badge" style="font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40</span>
                 </a>
 
-                <!-- Scraper Command Center (Admin / Coverage) -->
-                <a class="sidebar-nav-item" href="https://gtm.myrolerover.com/jobsearch/linkedin.html" target="_blank" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 0.75rem;">
-                        <i data-lucide="radio" class="sidebar-nav-icon" style="color: #10B981;"></i>
-                        <span>Scraper Command Center</span>
-                    </div>
-                    <span class="badge" style="font-size:0.68rem; background:rgba(212,255,51,0.18); color:#000; border:1px solid #d4ff33; padding:2px 7px; border-radius:6px; font-weight:800;">DEMAND</span>
-                </a>
 
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
@@ -3394,8 +3386,8 @@
             }
         }
 
-        const SUPABASE_URL = 'https://ahpvdcdpwtdeoiatjvnq.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_HL0ieV-xdZzKkXIcUPK1MQ_4Unh8e_1';
+        const SUPABASE_URL = 'https://core-ffnrirrrrnwoo3837q2b9x.myrolerover.com';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkzNjM1MjQxLCJleHAiOjE5NTEzMTUyNDF9.fBMO3bKfgpe2o-Y87baP1PHbgN14BBosx75QdAAQL0k';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let currentJobs = [];
@@ -7486,7 +7478,7 @@
             const atsResumeFilename = safeCompany
                 ? `${firstName}_${lastName}_${safeTitle}_${safeCompany}.pdf`
                 : `${firstName}_${lastName}_${safeTitle}.pdf`;
-            const resumeUrl = `https://ahpvdcdpwtdeoiatjvnq.supabase.co/storage/v1/object/public/tailored-resumes/${userId}/${atsResumeFilename}`;
+            const resumeUrl = `https://core-ffnrirrrrnwoo3837q2b9x.myrolerover.com/storage/v1/object/public/tailored-resumes/${userId}/${atsResumeFilename}`;
             const baseResumeUrl = (typeof userProfile !== 'undefined' && userProfile?.resume_url) ? userProfile.resume_url : resumeUrl;
 
             pane.innerHTML = `

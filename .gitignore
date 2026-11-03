@@ -30,3 +30,5 @@ scratch/
 mobile-audit/
 debug.log
 .claude/settings.local.json
+
+*.cloud_backup
