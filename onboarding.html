@@ -587,37 +587,45 @@
                             <input type="text" id="portfolio" placeholder="www.yourwebsite.com">
                         </div>
 
-                        <div class="row-grid">
-                            <div class="form-group">
-                                <label>Authorized to work in selected location?</label>
-                                <div class="select-wrapper">
-                                    <select id="auth-work">
-                                        <option value="Yes">Yes</option>
-                                        <option value="No">No</option>
-                                    </select>
-                                </div>
+                        <div class="form-group" style="margin-bottom: 1.25rem;">
+                            <label>Work Authorization &amp; Visa Status <span style="color: #FF6B4A;">*</span></label>
+                            <div class="select-wrapper">
+                                <select id="work-auth-status">
+                                    <option value="remote_contract">International Remote Only (Contract / EOR — No Visa Needed)</option>
+                                    <option value="authorized">Legally Authorized to Work (Citizen, PR, or Valid Work Permit)</option>
+                                    <option value="need_sponsorship">Need Visa Sponsorship to Relocate</option>
+                                </select>
                             </div>
-                            <div class="form-group">
-                                <label>Require Visa Sponsorship?</label>
-                                <div class="select-wrapper">
-                                    <select id="sponsorship">
-                                        <option value="No">No</option>
-                                        <option value="Yes">Yes</option>
-                                    </select>
-                                </div>
-                            </div>
+                            <p class="form-hint" style="margin-top: 0.35rem; line-height: 1.4;">
+                                Most international remote workers should select <strong>"International Remote Only"</strong> so employers know you are available for remote contract/B2B roles without needing a local visa.
+                            </p>
                         </div>
+
+                        <!-- Shown only if user selects "Legally Authorized" -->
+                        <div class="form-group" id="auth-country-group" style="display: none; margin-bottom: 1.25rem;">
+                            <label>Country Where You Hold Work Authorization <span style="color: #FF6B4A;">*</span></label>
+                            <div class="industry-combobox" id="auth-country-combobox">
+                                <input type="text" id="auth-country-input" placeholder="Type country name (e.g. United States, Canada, United Kingdom)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="auth-countries-list">
+                                <button type="button" class="industry-toggle" id="auth-country-toggle" aria-label="Show country options" aria-controls="auth-countries-list" tabindex="-1"></button>
+                                <div id="auth-countries-list" class="industry-options" role="listbox" hidden></div>
+                            </div>
+                            <p class="form-hint" style="margin-top: 0.35rem;">Start typing to search and autofill the country where you have citizenship or a valid work visa.</p>
+                        </div>
+
+                        <!-- Preserved for ATS backend payload compatibility (work_authorization & requires_sponsorship) -->
+                        <input type="hidden" id="auth-work" value="No">
+                        <input type="hidden" id="sponsorship" value="No">
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>Desired Annual Salary</label>
+                                <label>Desired Annual Salary <span style="color: #FF6B4A;">*</span></label>
                                 <div style="position: relative;">
                                     <span id="salary-currency-symbol" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem; white-space: nowrap;">$</span>
-                                    <input type="text" id="salary" placeholder="120000" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
+                                    <input type="text" id="salary" required placeholder="120000" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Target Currency</label>
+                                <label>Target Currency <span style="color: #FF6B4A;">*</span></label>
                                 <div class="select-wrapper">
                                     <select id="target-currency">
                                         <!-- Covers exactly the 38 currencies used across RoleRover's
@@ -1362,6 +1370,166 @@
 
         document.addEventListener('pointerdown', event => {
             if (!industryCombobox.contains(event.target)) closeIndustryOptions();
+        });
+
+        // --- Work Authorization & Authorized Country Combobox Logic ---
+        const workAuthSelect = document.getElementById('work-auth-status');
+        const authCountryGroup = document.getElementById('auth-country-group');
+        const authCountryCombobox = document.getElementById('auth-country-combobox');
+        const authCountryInput = document.getElementById('auth-country-input');
+        const authCountryToggle = document.getElementById('auth-country-toggle');
+        const authCountriesList = document.getElementById('auth-countries-list');
+        const hiddenAuthWork = document.getElementById('auth-work');
+        const hiddenSponsorship = document.getElementById('sponsorship');
+
+        // Populate countries list from KNOWN_COUNTRY_NAMES
+        function initAuthCountriesList() {
+            if (!authCountriesList) return;
+            authCountriesList.replaceChildren();
+            const sortedCountries = [...KNOWN_COUNTRY_NAMES].sort((a, b) => a.localeCompare(b));
+            sortedCountries.forEach((country, index) => {
+                const btn = document.createElement('button');
+                btn.type = 'button';
+                btn.className = 'industry-option auth-country-option';
+                btn.role = 'option';
+                btn.id = `auth-country-option-${index}`;
+                btn.dataset.value = country;
+                btn.textContent = country;
+                btn.setAttribute('aria-selected', 'false');
+                btn.addEventListener('click', () => selectAuthCountry(country));
+                authCountriesList.appendChild(btn);
+            });
+        }
+        initAuthCountriesList();
+
+        function syncAuthHiddenFields() {
+            const status = workAuthSelect.value;
+            if (status === 'authorized') {
+                authCountryGroup.style.display = 'block';
+                hiddenAuthWork.value = 'Yes';
+                hiddenSponsorship.value = 'No';
+            } else if (status === 'need_sponsorship') {
+                authCountryGroup.style.display = 'none';
+                hiddenAuthWork.value = 'No';
+                hiddenSponsorship.value = 'Yes';
+            } else {
+                // remote_contract (International remote)
+                authCountryGroup.style.display = 'none';
+                hiddenAuthWork.value = 'No';
+                hiddenSponsorship.value = 'No';
+            }
+            localStorage.setItem('onb_work-auth-status', status);
+            localStorage.setItem('onb_auth-work', hiddenAuthWork.value);
+            localStorage.setItem('onb_sponsorship', hiddenSponsorship.value);
+        }
+
+        workAuthSelect.addEventListener('change', syncAuthHiddenFields);
+
+        // Restore saved status if any
+        const savedAuthStatus = localStorage.getItem('onb_work-auth-status');
+        if (savedAuthStatus) {
+            workAuthSelect.value = savedAuthStatus;
+        }
+        const savedAuthCountry = localStorage.getItem('onb_auth-country-input');
+        if (savedAuthCountry && authCountryInput) {
+            authCountryInput.value = savedAuthCountry;
+        }
+        syncAuthHiddenFields();
+
+        let activeAuthCountryIndex = -1;
+        function visibleAuthCountryOptions() {
+            return Array.from(authCountriesList.querySelectorAll('.auth-country-option')).filter(opt => !opt.hidden);
+        }
+
+        function filterAuthCountryOptions(query = '') {
+            const trimmed = query.trim().toLowerCase();
+            const options = authCountriesList.querySelectorAll('.auth-country-option');
+            let firstMatch = null;
+            options.forEach(opt => {
+                const text = opt.dataset.value.toLowerCase();
+                const matches = trimmed.length === 0 || text.includes(trimmed);
+                opt.hidden = !matches;
+                opt.classList.remove('is-active');
+                if (matches && !firstMatch) firstMatch = opt;
+            });
+            activeAuthCountryIndex = -1;
+            authCountryInput.removeAttribute('aria-activedescendant');
+            return firstMatch;
+        }
+
+        function openAuthCountryOptions(showAll = false) {
+            filterAuthCountryOptions(showAll ? '' : authCountryInput.value);
+            authCountriesList.hidden = false;
+            authCountryInput.setAttribute('aria-expanded', 'true');
+        }
+
+        function closeAuthCountryOptions() {
+            authCountriesList.hidden = true;
+            authCountryInput.setAttribute('aria-expanded', 'false');
+            activeAuthCountryIndex = -1;
+        }
+
+        function selectAuthCountry(country) {
+            authCountryInput.value = country;
+            localStorage.setItem('onb_auth-country-input', country);
+            authCountryInput.classList.remove('field-error');
+            authCountryInput.dispatchEvent(new Event('input', { bubbles: true }));
+            authCountryInput.dispatchEvent(new Event('change', { bubbles: true }));
+            closeAuthCountryOptions();
+            authCountryInput.focus();
+        }
+
+        authCountryInput.addEventListener('focus', () => openAuthCountryOptions(true));
+        authCountryInput.addEventListener('input', () => {
+            const val = authCountryInput.value;
+            localStorage.setItem('onb_auth-country-input', val);
+            openAuthCountryOptions(false);
+
+            // Autofill helper when user types at least 3 letters
+            if (val.trim().length >= 3) {
+                const prefix = val.trim().toLowerCase();
+                const options = visibleAuthCountryOptions();
+                const exactOrPrefixMatch = options.find(opt => opt.dataset.value.toLowerCase().startsWith(prefix));
+                if (exactOrPrefixMatch) {
+                    exactOrPrefixMatch.classList.add('is-active');
+                }
+            }
+        });
+        authCountryInput.addEventListener('blur', () => {
+            setTimeout(closeAuthCountryOptions, 200);
+        });
+        authCountryToggle.addEventListener('pointerdown', e => e.preventDefault());
+        authCountryToggle.addEventListener('click', () => {
+            if (authCountriesList.hidden) {
+                openAuthCountryOptions(true);
+                authCountryInput.focus();
+            } else {
+                closeAuthCountryOptions();
+            }
+        });
+
+        authCountryInput.addEventListener('keydown', (e) => {
+            const visible = visibleAuthCountryOptions();
+            if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (authCountriesList.hidden) openAuthCountryOptions(false);
+                const step = e.key === 'ArrowDown' ? 1 : -1;
+                activeAuthCountryIndex = visible.length ? ((activeAuthCountryIndex + step) % visible.length + visible.length) % visible.length : -1;
+                visible.forEach((opt, idx) => opt.classList.toggle('is-active', idx === activeAuthCountryIndex));
+                if (activeAuthCountryIndex >= 0) visible[activeAuthCountryIndex].scrollIntoView({ block: 'nearest' });
+            } else if (e.key === 'Enter') {
+                if (!authCountriesList.hidden && visible.length > 0) {
+                    e.preventDefault();
+                    const chosen = activeAuthCountryIndex >= 0 ? visible[activeAuthCountryIndex] : visible[0];
+                    if (chosen) selectAuthCountry(chosen.dataset.value);
+                }
+            } else if (e.key === 'Escape') {
+                closeAuthCountryOptions();
+            }
+        });
+
+        document.addEventListener('pointerdown', event => {
+            if (authCountryCombobox && !authCountryCombobox.contains(event.target)) closeAuthCountryOptions();
         });
 
         // Resume-first onboarding: extract text in the browser so the user can
@@ -2453,10 +2621,18 @@
                 { id: 'nationality', label: 'Nationality' },
                 { id: 'phone-code', label: 'Country Code' },
                 { id: 'phone', label: 'Phone Number' },
+                { id: 'salary', label: 'Desired Annual Salary' },
+                { id: 'target-currency', label: 'Target Currency' },
                 { id: 'industry', label: 'Industry' },
                 { id: 'notice-period', label: 'Availability / Notice Period' },
                 { id: 'start-date', label: 'Earliest Available Start Date' }
             ];
+
+            // If user selected "Legally Authorized", the authorized country input is also required
+            const authStatus = document.getElementById('work-auth-status')?.value;
+            if (authStatus === 'authorized') {
+                requiredFields.push({ id: 'auth-country-input', label: 'Country of Work Authorization' });
+            }
 
             const missing = [];
             let firstMissingEl = null;
@@ -2481,6 +2657,19 @@
                     }
                 }
             });
+
+            const currencyEl = document.getElementById('target-currency');
+            if (currencyEl && currencyEl.value === 'CUSTOM') {
+                const customCode = document.getElementById('target-currency-custom')?.value.trim().toUpperCase() || '';
+                if (!/^[A-Z]{3}$/.test(customCode)) {
+                    missing.push('Valid 3-letter Currency Code');
+                    const customInput = document.getElementById('target-currency-custom');
+                    if (customInput) {
+                        customInput.classList.add('field-error');
+                        if (!firstMissingEl) firstMissingEl = customInput;
+                    }
+                }
+            }
 
             if (missing.length > 0) {
                 errorMsg.textContent = `Please fill out all required fields (*): ${missing.join(', ')}.`;
