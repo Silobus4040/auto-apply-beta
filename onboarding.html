@@ -2091,29 +2091,53 @@
                     ? "We'll save your .doc file, but can't automatically read the older Word format yet — please fill in the fields below, or upload a PDF/DOCX instead for auto-fill."
                     : 'Resume selected. We could not read its text automatically, so please complete the profile fields below.';
                 status.style.color = '#A16207';
+                status.style.display = 'block';
                 renderExtractionSummary();
                 setReviewVisibility(true);
+                document.getElementById('btn-resume-continue').hidden = false;
             }
         });
 
         document.getElementById('btn-resume-continue').addEventListener('click', async () => {
-            const file = document.getElementById('resume-file').files[0];
-            if (!file) return;
+            const fileInput = document.getElementById('resume-file');
+            const file = fileInput?.files?.[0] || selectedResumeFile;
+            if (!file) {
+                window.location.href = 'onboarding.html?step=details';
+                return;
+            }
             const button = document.getElementById('btn-resume-continue');
+            const status = document.getElementById('resume-status');
             button.disabled = true;
             button.textContent = 'Saving resume…';
             try {
+                if (!currentUserId) {
+                    const { data: sessionData } = await supabaseClient.auth.getSession();
+                    if (sessionData?.session?.user) {
+                        currentUserId = sessionData.session.user.id;
+                    }
+                }
                 const ext = (file.name.split('.').pop() || 'pdf').toLowerCase();
-                const fileName = `${currentUserId}_${Date.now()}.${ext}`;
-                const { error } = await supabaseClient.storage.from('resumes').upload(fileName, file);
+                const fileName = `${currentUserId || 'resume'}_${Date.now()}.${ext}`;
+                const { error } = await supabaseClient.storage.from('resumes').upload(fileName, file, { upsert: true });
                 if (error) throw error;
                 const { data } = supabaseClient.storage.from('resumes').getPublicUrl(fileName);
-                localStorage.setItem('onb_resume_url', data.publicUrl);
+                if (data?.publicUrl) {
+                    localStorage.setItem('onb_resume_url', data.publicUrl);
+                }
                 window.location.href = 'onboarding.html?step=details';
             } catch (error) {
+                console.error('Resume upload error:', error);
                 button.disabled = false;
                 button.textContent = 'Continue to profile setup →';
-                document.getElementById('resume-status').textContent = `Could not save resume: ${error.message}`;
+                if (status) {
+                    status.textContent = `Could not save resume: ${error.message || error}. Proceeding to profile setup…`;
+                    status.style.color = '#B45309';
+                    status.style.display = 'block';
+                }
+                // Never trap the user on step 1: proceed after 1.5s
+                setTimeout(() => {
+                    window.location.href = 'onboarding.html?step=details';
+                }, 1500);
             }
         });
 
