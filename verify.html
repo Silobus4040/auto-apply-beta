@@ -146,7 +146,7 @@
     <div class="container">
         <div class="header">
             <h1>Verify Your Email</h1>
-            <p>We sent an 8-digit code to <span class="email-highlight" id="user-email">your email</span>. Enter it below to activate your account.</p>
+            <p>We sent a verification code to <span class="email-highlight" id="user-email">your email</span>. Enter it below to activate your account.</p>
         </div>
 
         <div class="card">
@@ -154,7 +154,7 @@
             <div class="success-msg" id="success-msg"></div>
 
             <div class="otp-container" id="otp-container">
-                <input type="text" maxlength="8" class="otp-input" id="otp-code" inputmode="numeric" autocomplete="one-time-code" aria-label="8-digit verification code">
+                <input type="text" maxlength="8" class="otp-input" id="otp-code" inputmode="numeric" autocomplete="one-time-code" aria-label="Verification code">
             </div>
 
             <button class="btn btn-primary" id="verify-btn" onclick="verifyOtp()">Verify & Continue &rarr;</button>
@@ -259,7 +259,7 @@
         otpInput.addEventListener('input', () => {
             otpInput.value = otpInput.value.replace(/\D/g, '').slice(0, 8);
             otpInput.classList.toggle('filled', otpInput.value.length > 0);
-            if (otpInput.value.length === 8) verifyOtp();
+            if (otpInput.value.length === 6 || otpInput.value.length === 8) verifyOtp();
         });
 
         function getOtpValue() {
@@ -269,8 +269,8 @@
         // ─── Verify OTP ───
         async function verifyOtp() {
             const token = getOtpValue();
-            if (token.length !== 8) {
-                showError('Please enter the full 8-digit code.');
+            if (token.length !== 6 && token.length !== 8) {
+                showError('Please enter the verification code.');
                 shakeInputs();
                 return;
             }
