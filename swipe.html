@@ -6031,6 +6031,13 @@
             if (breakdown) {
                 breakdown.textContent = `${portalCount.toLocaleString()} Career Pages · ${hiringCount} Social Posts`;
             }
+            // Sidebar badges were static placeholder text in the markup (158 / 40,
+            // never updated by any script) -- keep them in sync with the real
+            // counts shown just above, instead of two unrelated numbers.
+            const sidebarCareerCount = document.getElementById('sidebar-career-count');
+            if (sidebarCareerCount) sidebarCareerCount.textContent = portalCount.toLocaleString();
+            const sidebarHiringBadge = document.querySelector('#sidebar-hiring-posts-link .badge');
+            if (sidebarHiringBadge) sidebarHiringBadge.textContent = hiringCount;
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
             const autoApplyBar = document.getElementById('auto-apply-bar');
