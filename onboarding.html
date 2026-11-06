@@ -553,17 +553,14 @@
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.25rem;">
-                            <label>Work Authorization &amp; Visa Status <span style="color: #DC2626;">*</span></label>
+                            <label>Do you need a visa to work for this employer? <span style="color: #DC2626;">*</span></label>
                             <div class="select-wrapper">
                                 <select id="work-auth-status">
-                                    <option value="remote_contract">International Remote Only (Contract / EOR — No Visa Needed)</option>
-                                    <option value="authorized">Legally Authorized to Work (Citizen, PR, or Valid Work Permit)</option>
-                                    <option value="need_sponsorship">Need Visa Sponsorship to Relocate</option>
+                                    <option value="remote_contract">No — I just want remote work, I'm not relocating</option>
+                                    <option value="authorized">No — I'm already authorized to work there (citizen, resident, or valid work permit)</option>
+                                    <option value="need_sponsorship">Yes — I'd need them to sponsor a visa so I can relocate</option>
                                 </select>
                             </div>
-                            <p class="form-hint" style="margin-top: 0.35rem; line-height: 1.4;">
-                                Most international remote workers should select <strong>"International Remote Only"</strong> so employers know you are available for remote contract/B2B roles without needing a local visa.
-                            </p>
                         </div>
 
                         <!-- Shown only if user selects "Legally Authorized" -->
@@ -574,7 +571,6 @@
                                 <button type="button" class="industry-toggle" id="auth-country-toggle" aria-label="Show country options" aria-controls="auth-countries-list" tabindex="-1"></button>
                                 <div id="auth-countries-list" class="industry-options" role="listbox" hidden></div>
                             </div>
-                            <p class="form-hint" style="margin-top: 0.35rem;">Start typing to search and autofill the country where you have citizenship or a valid work visa.</p>
                         </div>
 
                         <!-- Preserved for ATS backend payload compatibility (work_authorization & requires_sponsorship) -->
