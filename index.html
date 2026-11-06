@@ -642,7 +642,7 @@
                             </div>
                             <div class="rr-badges">
                                 <span class="rr-tag"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>View LinkedIn post</span>
-                                <span class="rr-verify"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>1-Click Verify</span>
+                                <button type="button" class="rr-verify" aria-haspopup="dialog" aria-controls="rr-verify-modal" onclick="RRVerifyDemo.open(this)"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>1-Click Verify</button>
                                 <span class="rr-fresh"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Found 12 min after posting</span>
                             </div>
                             <div class="rr-fit"><span class="rr-fit-reason">Matches what this recruiter is asking for… <span class="rr-more">more</span></span></div>
@@ -1269,6 +1269,71 @@
         </div>
     </footer>
 
+    <!-- 1-Click Verify report modal (Social Hiring Posts demo card) -->
+    <div class="verify-modal-overlay" id="rr-verify-overlay" onclick="if (event.target === this) RRVerifyDemo.close()">
+        <div class="verify-modal" id="rr-verify-modal" role="dialog" aria-modal="true" aria-labelledby="rr-verify-title">
+            <div class="verify-modal-head">
+                <div class="verify-modal-head-text">
+                    <h3 id="rr-verify-title">1-Click Verification Report</h3>
+                    <p>Northwind Studio &middot; <span class="verify-email-chip">careers@northwindstudio.co</span></p>
+                </div>
+                <button type="button" class="verify-modal-close" id="rr-verify-close" aria-label="Close verification report">&times;</button>
+            </div>
+            <div class="verify-modal-body">
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">1. Company registration &amp; official website</span>
+                        <span class="verify-pill verify-pill-ok">Registered in Nigeria</span>
+                    </div>
+                    <div class="verify-check-facts">
+                        <div><b>Legal entity:</b> Northwind Studio Ltd (Active)</div>
+                        <div><b>Reg. number:</b> RC-1894732 &middot; Corporate Affairs Commission (CAC)</div>
+                        <div><b>Official website:</b> <span class="verify-link">northwindstudio.co</span></div>
+                    </div>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">2. Cross-platform social profiles</span>
+                        <span class="verify-pill verify-pill-info">3 verified links</span>
+                    </div>
+                    <div class="verify-social-links">
+                        <span class="verify-social-chip">🏢 Company LinkedIn ↗</span>
+                        <span class="verify-social-chip">👤 Poster LinkedIn ↗</span>
+                        <span class="verify-social-chip">🌐 northwindstudio.co ↗</span>
+                    </div>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">3. Brand impersonation check</span>
+                        <span class="verify-pill verify-pill-ok">Domain matches</span>
+                    </div>
+                    <p class="verify-check-summary">Contact email's domain matches the company's official website. No free-mail address (e.g. @gmail.com) is being used to represent this brand.</p>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">4. Email &amp; phone scam sweep</span>
+                        <span class="verify-pill verify-pill-ok">0 scam reports found</span>
+                    </div>
+                    <p class="verify-check-summary">No fraud warnings, fee demands, or scam complaints found anywhere on the web tied to this email address.</p>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">5. Contact web history</span>
+                        <span class="verify-pill verify-pill-info">2 web mentions</span>
+                    </div>
+                    <div class="verify-social-links">
+                        <span class="verify-social-chip">🔗 northwindstudio.co/careers ↗</span>
+                        <span class="verify-social-chip">🔗 linkedin.com/company/northwind-studio ↗</span>
+                    </div>
+                </div>
+            </div>
+            <div class="verify-modal-foot">
+                <span>Always decline any request for money, deposits, or paid training.</span>
+                <span class="verify-modal-tag">Example report — runs for real on every Social Hiring Posts match</span>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Dynamic Pricing Logic
         async function setLocalPricing() {
@@ -1325,6 +1390,40 @@
             document.getElementById('mobile-nav-overlay').classList.toggle('active');
         }
 
+    </script>
+    <script>
+        // 1-Click Verify report modal (Social Hiring Posts demo card): static
+        // example of the real report shown in the app (swipe.html). No live
+        // lookup here — it is the same report every visitor sees.
+        var RRVerifyDemo = (function () {
+            var overlay, modal, closeBtn, lastFocused = null;
+            function els() {
+                overlay = overlay || document.getElementById('rr-verify-overlay');
+                modal = modal || document.getElementById('rr-verify-modal');
+                closeBtn = closeBtn || document.getElementById('rr-verify-close');
+            }
+            function onKeydown(e) { if (e.key === 'Escape') close(); }
+            function open(trigger) {
+                els();
+                if (!overlay) return;
+                lastFocused = trigger || document.activeElement;
+                overlay.classList.add('active');
+                document.addEventListener('keydown', onKeydown);
+                if (closeBtn) closeBtn.focus();
+            }
+            function close() {
+                els();
+                if (!overlay) return;
+                overlay.classList.remove('active');
+                document.removeEventListener('keydown', onKeydown);
+                if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                els();
+                if (closeBtn) closeBtn.addEventListener('click', close);
+            });
+            return { open: open, close: close };
+        })();
     </script>
     <script>
     // Hero deck: same stacked-card behaviour as swipe.html. Auto-advances; the buttons swipe by hand.
