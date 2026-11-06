@@ -3709,23 +3709,12 @@
         }
 
         async function checkSocialHiringAccess(userId) {
+            // Social Hiring Posts is now a general feature for every user
+            // (was founder-only for staging/testing; promoted to general
+            // 2026-11-06 — the workflow has been validated on that account).
             try {
-                let isAllowed = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
-                if (!isAllowed) {
-                    const { data } = await supabaseClient
-                        .from('feature_access')
-                        .select('enabled')
-                        .eq('user_id', userId)
-                        .eq('feature', 'social_hiring')
-                        .maybeSingle();
-                    if (data && data.enabled) isAllowed = true;
-                }
-                if (isAllowed) {
-                    injectHiringPostsNav();
-                    if (HIRING_MODE) await loadSocialLeadsIntoDeck(userId);
-                } else if (HIRING_MODE) {
-                    window.location.replace('swipe.html');
-                }
+                injectHiringPostsNav();
+                if (HIRING_MODE) await loadSocialLeadsIntoDeck(userId);
             } catch (err) {
                 console.error('checkSocialHiringAccess failed', err);
             }
@@ -4183,11 +4172,13 @@
             socialLeadJobs = socialLeadJobs.filter(j => j.match_id !== job.match_id);
             if (cachedUserId) cacheDeckJobs(cachedUserId, pooledJobs, pooledJobIndex);
             setTimeout(renderSwipeStack, 280);
-            const isFounderAccount = (user.id === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' || (userProfile && (userProfile.email === 'mosco@leadscompass.ai' || userProfile.Application_email === 'mosco@careermailing.com')));
 
             if (decision === 'apply') {
-                if (isFounderAccount) {
-                    // Show active draft generation toast
+                // Show active draft generation toast
+                // (promoted from founder-only staging to general 2026-11-06:
+                // every user now gets a drafted application, not just mosco's
+                // test account — the staging/testing period is over.)
+                {
                     const toast = document.createElement('div');
                     toast.id = 'social-draft-toast';
                     toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#18181b;color:#fff;padding:0.75rem 1.4rem;border-radius:10px;font-size:0.875rem;font-weight:700;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,0.2);display:flex;align-items:center;gap:0.5rem;animation:fadein 0.2s ease;';
@@ -4246,12 +4237,6 @@
                             toast.remove();
                         }
                     });
-                } else {
-                    // Standard send path for non-founder accounts
-                    await supabaseClient
-                        .from('social_hiring_lead_matches')
-                        .update({ decision: 'send', decided_at: new Date().toISOString() })
-                        .eq('id', job.match_id);
                 }
             } else {
                 // Skip decision
@@ -7375,36 +7360,24 @@
             });
         }
 
-        function isFounderTestAccount(optSession) {
-            const user = optSession?.user || optSession;
-            const uid = user?.id || (typeof cachedUserId !== 'undefined' ? cachedUserId : null);
-            const email = (user?.email || (typeof currentUserEmail !== 'undefined' ? currentUserEmail : '')).toLowerCase();
-            const profEmail = (typeof userProfile !== 'undefined' && userProfile?.Application_email) ? userProfile.Application_email.toLowerCase() : '';
-            const profId = (typeof userProfile !== 'undefined' && userProfile?.id) ? userProfile.id : '';
-            return uid === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ||
-                   profId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ||
-                   email === 'mosco@leadscompass.ai' ||
-                   profEmail === 'mosco@careermailing.com';
-        }
-
         async function updateDraftsBadgeVisibility(session) {
+            // Drafts tab is now shown for every user (was founder-only for
+            // staging/testing; promoted to general 2026-11-06, alongside the
+            // Social Hiring Posts draft-generation workflow it belongs to).
             if (!session && typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
                 try {
                     const res = await supabaseClient.auth.getSession();
                     session = res?.data?.session;
                 } catch(e) {}
             }
-            const isFounder = isFounderTestAccount(session);
-            
-            const draftsTab = document.getElementById('tab-drafts');
-            if (draftsTab) {
-                draftsTab.style.display = isFounder ? 'flex' : 'none';
-            }
 
-            if (!isFounder) return;
+            const draftsTab = document.getElementById('tab-drafts');
+            if (draftsTab) draftsTab.style.display = 'flex';
+
+            const uid = session?.user?.id || (typeof cachedUserId !== 'undefined' ? cachedUserId : null);
+            if (!uid) return;
 
             try {
-                const uid = session?.user?.id || cachedUserId || 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
                 const { count } = await supabaseClient
                     .from('emails')
                     .select('id', { count: 'exact', head: true })

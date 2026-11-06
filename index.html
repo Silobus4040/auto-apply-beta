@@ -95,7 +95,7 @@
 
         .hero { max-width: 1400px; margin: 6rem auto 4rem; padding: 0 5%; text-align: left; display: flex; flex-direction: column; align-items: flex-start; }
         h1 { color: var(--text-heading); font-size: clamp(3.5rem, 7vw, 6rem); font-weight: 900; line-height: 1; letter-spacing: -2px; margin-bottom: 1.5rem; max-width: 1100px; text-transform: uppercase; }
-        .highlight { background: linear-gradient(135deg, rgba(212, 255, 51, 0.15) 0%, rgba(0, 255, 204, 0.15) 100%); color: #000000; padding: 0.2rem 0.8rem; display: inline-block; border-radius: 12px; border: 1px solid rgba(212, 255, 51, 0.4); }
+        .highlight { background: linear-gradient(135deg, rgba(212, 255, 51, 0.15) 0%, rgba(15, 118, 110, 0.15) 100%); color: #000000; padding: 0.2rem 0.8rem; display: inline-block; border-radius: 12px; border: 1px solid rgba(212, 255, 51, 0.4); }
         p.hero-sub { font-size: 1.25rem; max-width: 800px; margin-bottom: 3rem; color: #52525B; font-weight: 500; }
 
         /* Problem rotator: 4 problems reveal one at a time instead of stacking as a block of text */
@@ -147,7 +147,7 @@
         
         /* Collapsible FAQ Styling */
         .faq-grid { max-width: 1000px; margin: 0 auto; display: flex; flex-direction: column; gap: 1.25rem; }
-        .faq-item { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 16px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 20px rgba(0, 255, 204, 0.02); text-align: left; }
+        .faq-item { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 12px; overflow: hidden; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 4px 20px rgba(0, 255, 204, 0.02); text-align: left; }
         .faq-item:hover { border-color: #00FFCC; box-shadow: 0 10px 30px rgba(0, 255, 204, 0.08); transform: translateY(-2px); }
         .faq-item summary { padding: 1.5rem 2rem; font-size: 1.1rem; font-weight: 800; color: #000000; cursor: pointer; user-select: none; display: flex; justify-content: space-between; align-items: center; list-style: none; text-transform: uppercase; letter-spacing: -0.5px; outline: none; }
         .faq-item summary::-webkit-details-marker { display: none; }
@@ -156,7 +156,7 @@
         .faq-item p { padding: 0 2.25rem 1.75rem; color: #52525B; font-weight: 500; font-size: 0.98rem; line-height: 1.65; }
         
         .pricing-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2.5rem; align-items: stretch; }
-        .price-card { background: #ffffff; border: 1px solid rgba(212, 255, 51, 0.3); border-radius: 24px; padding: 4rem 3rem; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(212, 255, 51, 0.04); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+        .price-card { background: #ffffff; border: 1px solid rgba(212, 255, 51, 0.3); border-radius: 20px; padding: 4rem 3rem; display: flex; flex-direction: column; position: relative; box-shadow: 0 20px 40px rgba(212, 255, 51, 0.04); transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .price-card:hover { transform: translateY(-6px); border-color: #D4FF33; box-shadow: 0 30px 60px rgba(212, 255, 51, 0.15); }
         .price-card .price-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; color: #000000; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
         .price-card .price-amount { font-size: 4.5rem; font-weight: 950; color: #000000; margin-bottom: 0.75rem; line-height: 1; letter-spacing: -2px; }
@@ -180,13 +180,13 @@
 
         /* Mockup Dashboard Preview */
         .mockup-section { max-width: 1400px; margin: 8rem auto; padding: 0 5%; }
-        .mockup-container { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 24px; padding: 2.5rem; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.04); overflow: hidden; position: relative; }
+        .mockup-container { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 20px; padding: 2.5rem; box-shadow: 0 25px 60px rgba(0, 0, 0, 0.04); overflow: hidden; position: relative; }
         .mockup-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f4f4f5; padding-bottom: 1.5rem; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem; }
         .mockup-logo { font-size: 1.25rem; font-weight: 900; color: #000; letter-spacing: -1px; text-transform: uppercase; display: flex; align-items: center; gap: 0.35rem; }
         .mockup-logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000; padding: 0.15rem 0.5rem; font-size: 0.95rem; font-weight: 800; border-radius: 6px; }
         .mockup-badge { background: rgba(16, 185, 129, 0.06); color: #10B981; border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.4rem 0.9rem; border-radius: 6px; font-size: 0.8rem; font-weight: 700; text-transform: uppercase; }
         
-        .mockup-agent-card { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 16px; padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
+        .mockup-agent-card { background: #ffffff; border: 1px solid #e4e4e7; border-radius: 12px; padding: 2rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem; }
         .mockup-agent-info { flex: 1; min-width: 280px; }
         .mockup-agent-status { background: rgba(212, 255, 51, 0.03); border: 1px dashed #e4e4e7; border-radius: 12px; padding: 1.25rem; text-align: center; width: 100%; max-width: 300px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         .mockup-dot { width: 10px; height: 10px; background: #D4FF33; border-radius: 50%; margin-bottom: 0.5rem; box-shadow: 0 0 8px #D4FF33; animation: mockup-pulse 1.5s infinite; }
@@ -224,7 +224,7 @@
         .mockup-salary { color: #10B981; font-weight: 600; font-size: 0.875rem; background: rgba(16, 185, 129, 0.06); padding: 0.2rem 0.6rem; border-radius: 4px; border: 1px solid rgba(16, 185, 129, 0.15); display: inline-block; }
         
         .mockup-pill { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.82rem; font-weight: 600; display: inline-flex; align-items: center; gap: 0.35rem; text-transform: uppercase; border: 1px solid transparent; }
-        .mockup-pill.queued { background: rgba(0, 255, 204, 0.08); color: #00b38f; border-color: rgba(0, 255, 204, 0.2); }
+        .mockup-pill.queued { background: rgba(0, 255, 204, 0.08); color: #0F766E; border-color: rgba(0, 255, 204, 0.2); }
         .mockup-pill.applied { background: rgba(245, 158, 11, 0.08); color: #b45309; border-color: rgba(245, 158, 11, 0.15); }
         
         .mockup-btn { background: transparent; border: 1px solid #e4e4e7; color: #27272A; padding: 0.45rem 0.9rem; font-size: 0.875rem; font-weight: 600; cursor: pointer; border-radius: 6px; text-transform: uppercase; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; text-decoration: none; white-space: nowrap; }
@@ -241,331 +241,9 @@
             .hero-right { display: none !important; }
         }
 
-        /* ===== Inline Video in How It Works (mobile only) ===== */
-        .hiw-video-wrap {
-            display: none;
-            justify-content: center;
-            margin: 0 auto 3rem;
-        }
-        @media (max-width: 900px) {
-            .hiw-video-wrap { display: flex; }
-        }
-        .hiw-phone-shell {
-            position: relative;
-            width: 100%;
-            max-width: 280px;
-            aspect-ratio: 9 / 18.5;
-            background: transparent;
-            border-radius: 40px;
-            overflow: hidden;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
-        }
-        .hiw-phone-shell video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            border-radius: 40px;
-        }
-        .hiw-video-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.28);
-            z-index: 2;
-            border-radius: 40px;
-            transition: opacity 0.25s ease;
-        }
-        .hiw-video-overlay.playing {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .hiw-play-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.72);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: none;
-            color: #ffffff;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .hiw-play-btn:hover { transform: scale(1.08); background: rgba(0, 0, 0, 0.88); }
-        .hiw-play-tag {
-            background: rgba(0, 0, 0, 0.78);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            padding: 0.38rem 1rem;
-            color: #ffffff;
-            font-size: 0.8rem;
-            font-weight: 750;
-            letter-spacing: 0.3px;
-            white-space: nowrap;
-        }
         .hero-left { display: flex; flex-direction: column; align-items: flex-start; }
         .hero-eyebrow { display: inline-flex; align-items: center; gap: 0.5rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.08); border-radius: 30px; padding: 0.4rem 1rem; font-size: 0.78rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #18181b; margin-bottom: 1.5rem; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
         .hero-eyebrow .live-dot { width: 8px; height: 8px; border-radius: 50%; background: #10B981; box-shadow: 0 0 8px #10B981; animation: mockup-pulse 1.5s infinite; }
-
-        /* Hero Right: Video Container (Video already has native phone frame) */
-        .hero-right { display: flex; justify-content: center; align-items: center; width: 100%; }
-        .hero-phone-shell {
-            position: relative;
-            width: 100%;
-            max-width: 300px;
-            aspect-ratio: 9 / 18.5;
-            background: transparent;
-            border-radius: 40px;
-            padding: 0;
-            border: none;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.12);
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            user-select: none;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .hero-phone-shell:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 28px 65px rgba(0, 0, 0, 0.18);
-        }
-        .hero-phone-screen {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            border-radius: 40px;
-            overflow: hidden;
-            background: transparent;
-            cursor: pointer;
-        }
-        .hero-video-player {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-            border-radius: 40px;
-        }
-        .hero-video-overlay {
-            position: absolute;
-            inset: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            background: rgba(0, 0, 0, 0.28);
-            z-index: 2;
-            padding: 1.25rem;
-            border-radius: 40px;
-            transition: opacity 0.25s ease, background 0.25s ease;
-        }
-        .hero-video-overlay.playing {
-            opacity: 0;
-            pointer-events: none;
-        }
-        .hero-play-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: rgba(0, 0, 0, 0.72);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1.5px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff;
-            border: none;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .hero-phone-screen:hover .hero-play-btn {
-            transform: scale(1.08);
-            background: rgba(0, 0, 0, 0.88);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55);
-        }
-        .hero-play-btn svg {
-            margin-left: 2px;
-        }
-        .hero-play-tag {
-            background: rgba(0, 0, 0, 0.78);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 30px;
-            padding: 0.38rem 1rem;
-            color: #ffffff;
-            font-size: 0.8rem;
-            font-weight: 750;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            letter-spacing: 0.3px;
-            box-shadow: 0 4px 14px rgba(0,0,0,0.3);
-            white-space: nowrap;
-        }
-        .video-mute-btn {
-            position: absolute;
-            top: 14px;
-            right: 14px;
-            background: rgba(0, 0, 0, 0.65);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border-radius: 30px;
-            padding: 0.32rem 0.75rem;
-            font-size: 0.72rem;
-            font-weight: 750;
-            letter-spacing: 0.3px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            cursor: pointer;
-            z-index: 10;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            user-select: none;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
-        }
-        .video-mute-btn:hover {
-            background: rgba(0, 0, 0, 0.88);
-            border-color: rgba(255, 255, 255, 0.4);
-            transform: scale(1.04);
-        }
-        .video-mute-btn svg {
-            width: 14px;
-            height: 14px;
-            fill: currentColor;
-            display: block;
-        }
-
-        /* Player Controls Bottom Bar - Auto-hiding */
-        .hero-player-controls {
-            position: absolute;
-            bottom: 12px;
-            left: 12px;
-            right: 12px;
-            background: rgba(9, 9, 11, 0.88);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            border-radius: 20px;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            z-index: 15;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
-            user-select: none;
-            opacity: 0;
-            pointer-events: none;
-            transform: translateY(8px);
-            transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .hero-player-controls.visible {
-            opacity: 1;
-            pointer-events: auto;
-            transform: translateY(0);
-        }
-        .player-ctrl-btn {
-            background: transparent;
-            border: none;
-            color: #ffffff;
-            width: 28px;
-            height: 28px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            border-radius: 50%;
-            transition: all 0.2s ease;
-            flex-shrink: 0;
-            padding: 0;
-        }
-        .player-ctrl-btn:hover {
-            color: #00FFCC;
-            transform: scale(1.12);
-        }
-        .player-ctrl-btn svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-        }
-        .player-scrub-bar {
-            flex: 1;
-            height: 6px;
-            background: rgba(255, 255, 255, 0.25);
-            border-radius: 4px;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        .player-progress {
-            height: 100%;
-            width: 0%;
-            background: linear-gradient(90deg, #D4FF33, #00FFCC);
-            border-radius: 4px;
-            transition: width 0.1s linear;
-        }
-        .player-time {
-            color: #e4e4e7;
-            font-size: 0.72rem;
-            font-weight: 700;
-            white-space: nowrap;
-            letter-spacing: 0.3px;
-        }
-
-        /* Center Overlay Skip Buttons */
-        .overlay-controls-group {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-        .overlay-skip-btn {
-            background: rgba(0, 0, 0, 0.72);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            color: #ffffff;
-            border-radius: 50%;
-            width: 44px;
-            height: 44px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
-            font-size: 0.62rem;
-            font-weight: 800;
-            letter-spacing: -0.2px;
-            padding: 0;
-        }
-        .overlay-skip-btn:hover {
-            background: rgba(0, 0, 0, 0.9);
-            color: #00FFCC;
-            border-color: #00FFCC;
-            transform: scale(1.1);
-        }
-        .overlay-skip-btn svg {
-            width: 16px;
-            height: 16px;
-            fill: currentColor;
-            margin-bottom: -1px;
-        }
 
         /* ===== How It Works & Inline Demo Section ===== */
         .how-it-works {
@@ -627,7 +305,7 @@
 
         /* Proof stats strip */
         .proof-strip { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; max-width: 1400px; margin: 3rem auto 0; padding: 0 5%; }
-        .proof-cell { background: #ffffff; border: 1px solid var(--border); border-radius: 16px; padding: 1.5rem; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.03); }
+        .proof-cell { background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.03); }
         .proof-num { font-size: 2rem; font-weight: 950; color: #000; letter-spacing: -1px; display: block; line-height: 1.1; }
         .proof-lbl { font-size: 0.75rem; font-weight: 750; text-transform: uppercase; letter-spacing: 0.8px; color: #71717a; }
 
@@ -700,7 +378,7 @@
             .compare-table { min-width: 0 !important; width: 100% !important; }
             .compare-table thead { display: none; }
             .compare-table, .compare-table tbody, .compare-table tr, .compare-table td { display: block; width: 100% !important; }
-            .compare-table tr { margin-bottom: 1.25rem; border: 1px solid #e4e4e7; border-radius: 16px; overflow: hidden; background: #ffffff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03); }
+            .compare-table tr { margin-bottom: 1.25rem; border: 1px solid #e4e4e7; border-radius: 12px; overflow: hidden; background: #ffffff; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.03); }
             .compare-table td { border-left: none !important; border-right: none !important; text-align: left !important; padding: 0.9rem 1.25rem !important; font-size: 0.9rem !important; }
             .compare-table td[data-label]::before { content: attr(data-label); display: block; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; color: #a1a1aa; margin-bottom: 0.3rem; }
             .compare-table td:first-child { background: #fafafa; font-size: 1rem !important; padding: 1.1rem 1.25rem !important; border-bottom: 1px solid #f4f4f5 !important; }
@@ -720,6 +398,8 @@
         .mobile-nav-panel a { color: #000; text-decoration: none; font-weight: 700; font-size: 1rem; padding: 0.75rem 0; border-bottom: 1px solid #f0f0f0; }
         .mobile-nav-panel .mobile-nav-cta { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000; text-align: center; border: none; border-radius: 8px; padding: 0.75rem; font-weight: 800; margin-top: 0.5rem; }
     </style>
+    <link rel="stylesheet" href="assets/tokens.css">
+    <noscript><style>.reveal { opacity: 1 !important; transform: none !important; }</style></noscript>
     <!-- Cloudflare Web Analytics -->
     <script type='module' src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "e283f8a57d564d11a0e493125628363a"}'></script>
     <!-- End Cloudflare Web Analytics -->
@@ -745,85 +425,134 @@
 <div class="mobile-nav-panel" id="mobile-nav-panel">
   <button class="mobile-nav-close" onclick="toggleMobileNav()">&times;</button>
   <a href="#how-it-works">How it works</a>
-  <a href="#roles">Supported Roles</a>
-  <a href="#countries">Supported Countries</a>
+  <a href="#sourcing">Social Hiring Posts</a>
+  <a href="#roles">Supported roles</a>
+  <a href="#countries">Supported countries</a>
   <a href="#pricing">Pricing</a>
   <!-- <a href="job-for-you.html">Jobs for you</a> -->
-  <a href="login.html" onclick="toggleMobileNav()">Log In</a>
-  <a href="signup.html" onclick="toggleMobileNav()" class="mobile-nav-cta">Try for Free</a>
+  <a href="login.html" onclick="toggleMobileNav()">Log in</a>
+  <a href="signup.html" onclick="toggleMobileNav()" class="mobile-nav-cta">Try for free</a>
 </div>
 
         <div class="nav-links">
             <div class="nav-primary">
                 <a href="#how-it-works" class="nav-link">How it works</a>
-                <a href="#roles" class="nav-link">Supported Roles</a>
-                <a href="#countries" class="nav-link">Supported Countries</a>
+                <a href="#sourcing" class="nav-link">Social Hiring Posts</a>
+                <a href="#roles" class="nav-link">Supported roles</a>
+                <a href="#countries" class="nav-link">Supported countries</a>
                 <a href="#pricing" class="nav-link">Pricing</a>
                 <!-- <a href="job-for-you.html" class="nav-link">Jobs for you</a> -->
             </div>
             <div class="nav-actions">
-                <a href="login.html" class="nav-link">Log In</a>
-                <a href="signup.html" class="btn btn-primary btn-nav">Try for Free</a>
+                <a href="login.html" class="nav-link">Log in</a>
+                <a href="signup.html" class="btn btn-primary btn-nav">Try for free</a>
             </div>
         </div>
     </nav>
 
     <section class="hero hero-grid">
         <div class="hero-left">
-            <span class="hero-eyebrow"><span class="live-dot"></span> Your AI Career Agent is ready</span>
-            <h1 style="font-size: 2.2rem; line-height: 1.3; margin-bottom: 1.1rem;"><span class="highlight">Your job search,</span><br>on autopilot.</h1>
-            <p style="font-size: 1.05rem; line-height: 1.6; color: #52525B; margin-bottom: 2.2rem; max-width: 32rem;">
-                Rover finds matching roles from companies' career pages, tailors your résumé, and applies on your behalf while you focus on landing your next interview.
+            <h1><span class="highlight">Your job search,</span><br>on autopilot.</h1>
+            <p style="font-size: 1.05rem; line-height: 1.6; color: #52525B; margin-bottom: 2rem; max-width: 32rem;">
+                Spend your time preparing for interviews not filling out Job applications. Rover finds matching roles on career pages and in recruiters' posts on LinkedIn, X and Facebook, tailors your résumé, and applies for you.
             </p>
             <div class="cta-group">
-                <a href="signup.html" class="btn btn-primary">Try for Free</a>
-                <a href="#how-it-works" class="btn" style="background: #ffffff; color: #000; border: 1px solid rgba(0,0,0,0.12);">See How It Works</a>
+                <a href="signup.html" class="btn btn-primary">Try for free</a>
+                <a href="#how-it-works" class="btn" style="background: #ffffff; color: #000; border: 1px solid rgba(0,0,0,0.12);">See how it works</a>
             </div>
             <p style="font-size: 0.8rem; color: #71717A; margin-top: 0.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
                 <span>✓ Free to start</span> <span>✓ No credit card required</span> <span>✓ Set up in 2 minutes</span>
             </p>
         </div>
         <div class="hero-right">
-            <div class="hero-phone-shell">
-                <button id="hero-mute-btn" class="video-mute-btn" onclick="toggleHeroVideoMute(event)" aria-label="Toggle sound">
-                    <svg class="sound-off-icon" style="display:none;" viewBox="0 0 24 24"><path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/></svg>
-                    <svg class="sound-on-icon" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
-                    <span class="mute-text">Sound</span>
-                </button>
-                <div class="hero-phone-screen" onmousemove="showHeroControls()" onmouseenter="showHeroControls()" onmouseleave="hideHeroControls()" ontouchstart="showHeroControls()">
-                    <video id="hero-demo-video" class="hero-video-player" playsinline webkit-playsinline preload="metadata" poster="assets/demo_thumbnail.jpg" onclick="toggleHeroVideoPlay(event)">
-                        <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                    <div id="hero-video-overlay" class="hero-video-overlay" onclick="toggleHeroVideoPlay(event)">
-                        <button class="hero-play-btn" aria-label="Play demo video">
-                            <svg class="hero-play-icon" viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
-                            <svg class="hero-pause-icon" style="display:none;" viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                        </button>
-                        <span class="hero-play-tag">Watch Demo (38s)</span>
-                    </div>
-                    <!-- Bottom Player Controls Bar -->
-                    <div id="hero-player-controls" class="hero-player-controls">
-                        <button class="player-ctrl-btn" onclick="toggleHeroVideoPlay(event)" aria-label="Play or pause">
-                            <svg class="ctrl-play-icon" viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg>
-                            <svg class="ctrl-pause-icon" style="display:none;" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
-                        </button>
-                        <button class="player-ctrl-btn" onclick="skipHeroVideo(-5, event)" aria-label="Rewind 5 seconds" title="Rewind 5s">
-                            <svg viewBox="0 0 24 24"><path d="M12 5V1L7 6l5 5V7c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/></svg>
-                        </button>
-                        <div class="player-scrub-bar" onclick="seekHeroVideo(event)" title="Seek">
-                            <div id="player-progress" class="player-progress"></div>
+            <div class="hero-jobs">
+                <div class="rr-phone">
+                    <div class="rr-screen">
+                        <span class="rr-notch" aria-hidden="true"></span>
+                        <div class="rr-status" aria-hidden="true">
+                            <span class="rr-time">9:41</span>
+                            <span class="rr-sys">
+                                <svg viewBox="0 0 18 12" width="18" height="12" fill="currentColor"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5" width="3" height="7" rx="1"/><rect x="10" y="2.5" width="3" height="9.5" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+                                <svg viewBox="0 0 27 13" width="26" height="13" fill="none"><rect x="0.5" y="0.5" width="22" height="12" rx="3.5" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="19" height="9" rx="2.2" fill="currentColor"/><rect x="24" y="4" width="2" height="5" rx="1" fill="currentColor" opacity=".45"/></svg>
+                            </span>
                         </div>
-                        <button class="player-ctrl-btn" onclick="skipHeroVideo(5, event)" aria-label="Forward 5 seconds" title="Forward 5s">
-                            <svg viewBox="0 0 24 24"><path d="M12 5V1l5 5-5 5V7c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6h2c0 4.42-3.58 8-8 8s-8-3.58-8-8 3.58-8 8-8z"/></svg>
-                        </button>
-                        <span id="player-time" class="player-time">0:00 / 0:38</span>
+                        <div class="rr-appbar" aria-hidden="true">
+                            <span class="rr-appbar-left"><svg class="rr-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/></svg><strong>Career Pages</strong></span>
+                            <span class="rr-auto"><svg class="rr-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg><span>Auto-Apply</span><span class="rr-switch"></span></span>
+                        </div>
+                        <span class="rr-swiped-toast" id="rr-swiped-toast" aria-hidden="true">Swiped</span>
+                    <div class="rr-deck" id="rr-deck" aria-label="Example job cards, tap Apply or Decline to swipe">
+                        <div class="rr-stack">
+                        <div class="rr-card" data-i="0">
+                            <div class="rr-stamp pass">Decline</div>
+                            <div class="rr-stamp apply">Apply</div>
+                            <div class="rr-head"><span class="rr-logo" aria-hidden="true">M</span><div class="rr-company">Moniepoint</div></div>
+                            <div class="rr-title">Staff Product Designer</div>
+                            <div class="rr-info">
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>Remote, Nigeria</span></div>
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg><span class="rr-salary">Salary not stated</span></div>
+                            </div>
+                            <div class="rr-geo"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Remote — open to Nigeria (checked)</div>
+                            <div class="rr-fit"><span class="rr-fit-score">90%</span><span class="rr-fit-reason">Your product design background matches the core responsibilities of this role, including… <span class="rr-more">more</span></span></div>
+                            <div class="rr-gaps">2 gaps →</div>
+                            <div class="rr-jd">Job Description →</div>
+                        </div>
+                        <div class="rr-card" data-i="1">
+                            <div class="rr-stamp pass">Decline</div>
+                            <div class="rr-stamp apply">Apply</div>
+                            <div class="rr-head"><span class="rr-logo" aria-hidden="true">W</span><div class="rr-company">Wikimedia Foundation</div></div>
+                            <div class="rr-title">Senior UX Designer</div>
+                            <div class="rr-info">
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>Remote</span></div>
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg><span class="rr-salary">$116,633-$181,243/yr</span></div>
+                            </div>
+                            <div class="rr-geo"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Remote — open to Kenya (checked)</div>
+                            <div class="rr-fit"><span class="rr-fit-score">92%</span><span class="rr-fit-reason">Your UX research and design systems experience lines up closely with what this role needs… <span class="rr-more">more</span></span></div>
+                            <div class="rr-gaps">1 gap →</div>
+                            <div class="rr-jd">Job Description →</div>
+                        </div>
+                        <div class="rr-card" data-i="2">
+                            <div class="rr-stamp pass">Decline</div>
+                            <div class="rr-stamp apply">Apply</div>
+                            <div class="rr-head"><span class="rr-logo" aria-hidden="true">F</span><div class="rr-company">Figma</div></div>
+                            <div class="rr-title">Product Designer, AI Models</div>
+                            <div class="rr-info">
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>United States · Remote</span></div>
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg><span class="rr-salary">$169,000 — $303,000 USD</span></div>
+                            </div>
+                            <div class="rr-geo"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Remote — US only</div>
+                            <div class="rr-fit"><span class="rr-fit-score">94%</span><span class="rr-fit-reason">Your end-to-end product design work and portfolio are a strong match for this team… <span class="rr-more">more</span></span></div>
+                            <div class="rr-gaps">3 gaps →</div>
+                            <div class="rr-jd">Job Description →</div>
+                        </div>
+                        <div class="rr-card" data-i="3">
+                            <div class="rr-stamp pass">Decline</div>
+                            <div class="rr-stamp apply">Apply</div>
+                            <div class="rr-head"><span class="rr-logo" aria-hidden="true">C</span><div class="rr-company">Canonical</div></div>
+                            <div class="rr-title">UX Designer - Design systems</div>
+                            <div class="rr-info">
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>Home based - EMEA</span></div>
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg><span class="rr-salary">Salary not stated</span></div>
+                            </div>
+                            <div class="rr-geo"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Remote — EMEA only</div>
+                            <div class="rr-fit"><span class="rr-fit-score">91%</span><span class="rr-fit-reason">Your design systems and component library experience matches the core of this role… <span class="rr-more">more</span></span></div>
+                            <div class="rr-gaps">2 gaps →</div>
+                            <div class="rr-jd">Job Description →</div>
+                        </div>
+                        </div>
+                        <div class="rr-actions">
+                            <button type="button" class="rr-btn pass" data-dir="pass"><svg class="rr-bico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg> Decline</button>
+                            <button type="button" class="rr-btn later" data-dir="later"><svg class="rr-bico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 17 5-5-5-5M13 17l5-5-5-5"/></svg> Skip for now</button>
+                            <button type="button" class="rr-btn apply" data-dir="apply"><svg class="rr-bico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg> Apply</button>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- Two places jobs hide -->
     <!-- Notable companies marquee -->
     <div class="logo-marquee-wrap reveal">
         <p class="logo-marquee-eyebrow">Among the companies Rover watches, 24/7</p>
@@ -872,52 +601,179 @@
     <!-- How It Works Section -->
     <section id="how-it-works" class="how-it-works reveal">
         <div class="how-it-works-header">
-            <span class="section-badge">How It Works</span>
-            <h2 class="section-title">Four steps to automated applications</h2>
-            <p class="section-sub">Here’s how Rover takes you from uploading your résumé to submitting tailored applications 24/7.</p>
-        </div>
-
-        <!-- Mobile-only inline demo video -->
-        <div class="hiw-video-wrap">
-            <div class="hiw-phone-shell">
-                <video id="hiw-demo-video" playsinline webkit-playsinline preload="metadata" poster="assets/demo_thumbnail.jpg" onclick="toggleHiwVideo()">
-                    <source src="assets/role_rover_mobile_demo.mp4" type="video/mp4">
-                </video>
-                <div id="hiw-video-overlay" class="hiw-video-overlay" onclick="toggleHiwVideo()">
-                    <button class="hiw-play-btn" aria-label="Play demo video">
-                        <svg viewBox="0 0 24 24" width="26" height="26" fill="currentColor"><polygon points="6,4 20,12 6,20"/></svg>
-                    </button>
-                    <span class="hiw-play-tag">Watch Demo (38s)</span>
-                </div>
-            </div>
+            <h2 class="section-title">How Rover applies for you</h2>
+            <p class="section-sub">From a two-minute setup to an application landing somewhere — here is exactly what happens at each step, in order.</p>
         </div>
 
         <div class="steps-grid">
-            <div class="step-card">
-                <div class="step-num">01</div>
-                <h3>Sourcing Jobs 24/7</h3>
-                <p>Rover monitors company career pages 24/7. The second a role matching your target title is posted, it is captured instantly—ensuring you are always first in line.</p>
+            <div class="step-card wide setup">
+                <div class="step-text">
+                    <div class="step-num">01</div>
+                    <h3>Set up your profile — once</h3>
+                    <p>Add your résumé, your target roles and the countries you want to work in. About two minutes, and you only do it once. Everything after this is Rover's job, not yours.</p>
+                </div>
             </div>
-            <div class="step-card">
-                <div class="step-num">02</div>
-                <h3>ATS-Friendly Resume</h3>
-                <p>Automatically aligns your skills, achievements, and formatting with the job's critical keywords to score high and clear automated screening filters.</p>
+            <div class="step-card wide stack" id="sourcing">
+                <div class="step-text">
+                    <div class="step-num">02</div>
+                    <h3>Two decks, each watching where roles actually get posted</h3>
+                    <p>The <strong>Career Pages</strong> deck watches company career pages around the clock. The <strong>Social Hiring Posts</strong> deck reads hiring posts recruiters put straight on LinkedIn, X and Facebook — most of which never reach a job board at all. You can't check both, all day, every day. Rover does, and shows you a match the moment one appears.</p>
+                </div>
+                <div class="demo demo-sources" role="group" aria-label="Example: a card from the Career Pages deck, and a card from the Social Hiring Posts deck">
+                    <div class="demo-sources-col">
+                        <span class="demo-sources-label">Career Pages deck</span>
+                        <div class="rr-card rr-static rr-mini">
+                            <div class="rr-head"><span class="rr-logo" aria-hidden="true">M</span><div class="rr-company">Moniepoint</div></div>
+                            <div class="rr-title">Staff Product Designer</div>
+                            <div class="rr-info">
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>Remote, Nigeria</span></div>
+                            </div>
+                            <div class="rr-geo"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Remote — open to Nigeria (checked)</div>
+                            <div class="rr-fit"><span class="rr-fit-score">90%</span><span class="rr-fit-reason">Matches your product design background… <span class="rr-more">more</span></span></div>
+                        </div>
+                    </div>
+                    <div class="demo-sources-col">
+                        <span class="demo-sources-label">Social Hiring Posts deck</span>
+                        <div class="rr-card rr-static rr-mini">
+                            <div class="rr-head"><span class="rr-logo" aria-hidden="true">N</span><div class="rr-company">Northwind Studio</div></div>
+                            <div class="rr-title">Senior Product Designer</div>
+                            <div class="rr-info">
+                                <div class="rr-row"><svg class="rr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span>Lagos, Nigeria (Remote)</span></div>
+                            </div>
+                            <div class="rr-badges">
+                                <span class="rr-tag"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>View LinkedIn post</span>
+                                <button type="button" class="rr-verify" aria-haspopup="dialog" aria-controls="rr-verify-modal" onclick="RRVerifyDemo.open(this)"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>1-Click Verify</button>
+                                <span class="rr-fresh"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>Found 12 min after posting</span>
+                            </div>
+                            <div class="rr-fit"><span class="rr-fit-reason">Matches what this recruiter is asking for… <span class="rr-more">more</span></span></div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="step-card">
-                <div class="step-num">03</div>
-                <h3>Custom Cover Letter</h3>
-                <p>Generates natural, persuasive cover letters that connect your real experience to the job description and explain any gaps without robotic buzzwords or generic fluff.</p>
+            <div class="step-card wide">
+                <div class="step-text">
+                    <div class="step-num">03</div>
+                    <h3>Swipe, and Rover rewrites your résumé for that exact role</h3>
+                    <p>No generic résumé sent to every job. The moment you tap Apply, Rover rewrites it around what this specific role is asking for — using only what's already true about you.</p>
+                </div>
+                <div class="demo demo-flow" role="group" aria-label="Example of a resume bullet before and after tailoring">
+                    <div class="demo-col">
+                        <span class="demo-label">Before</span>
+                        <p class="demo-before">Worked on app design and helped with research.</p>
+                    </div>
+                    <svg class="demo-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    <div class="demo-col demo-out">
+                        <span class="demo-label">Tailored for this role</span>
+                        <div class="doc-viewer">
+                            <div class="doc-toolbar"><span class="doc-pdf-badge">PDF</span><span class="doc-filename">Ada_Okafor_Resume.pdf</span></div>
+                            <div class="doc-canvas">
+                                <div class="doc-page">
+                                    <div class="doc-page-body">
+                                        <p class="doc-heading">Experience</p>
+                                        <p class="doc-bullet">Led the <mark>design system</mark> rebuild and <mark>user research</mark> for a payments app; shipped <mark>accessible</mark>, <mark>mobile-first</mark> screens.</p>
+                                    </div>
+                                    <div class="doc-page-foot">Page 1 of 1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="step-card">
-                <div class="step-num">04</div>
-                <h3>Smart Auto-Fill</h3>
-                <p>Handles the entire application form. It uploads documents, answers standard and custom questions smartly, and registers candidate profiles on job application portals requiring signups.</p>
+            <div class="step-card wide">
+                <div class="step-text">
+                    <div class="step-num">04</div>
+                    <h3>It writes a cover letter that actually reads like you</h3>
+                    <p>Not a template with your name dropped in. Rover reads the job post, pulls out what it's really asking for, and writes a letter that answers it with your real experience.</p>
+                </div>
+                <div class="demo demo-flow demo-letter" role="group" aria-label="Example of a cover letter tailored to a job description">
+                    <div class="demo-col">
+                        <span class="demo-label">The job description</span>
+                        <p>We're hiring a Senior Product Designer to own our <mark>design system</mark> and lead <mark>user research</mark> for a payments app. You'll ship <mark>accessible</mark>, <mark>mobile-first</mark> experiences with our engineers across Nigeria and Kenya.</p>
+                    </div>
+                    <svg class="demo-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+                    <div class="demo-col demo-out">
+                        <span class="demo-label">Your cover letter, written by Rover</span>
+                        <div class="doc-viewer">
+                            <div class="doc-toolbar"><span class="doc-pdf-badge">PDF</span><span class="doc-filename">Ada_Okafor_Cover_Letter.pdf</span></div>
+                            <div class="doc-canvas">
+                                <div class="doc-page">
+                                    <div class="doc-page-body">
+                                        <p class="doc-greeting">Dear Hiring Team,</p>
+                                        <p>At Flux Commerce, I rebuilt the <mark>design system</mark> for a <mark>payments</mark> app used across three countries — the kind of <mark>accessible</mark>, <mark>mobile-first</mark> work this role needs. It cut new-screen build time by 40%.</p>
+                                        <p>I haven't run formal user research studies, but I've led structured interviews with merchants myself, which gave my team the same evidence a dedicated research function would.</p>
+                                        <p>I'd welcome the chance to talk about bringing that to Northwind's payments team.</p>
+                                        <p class="doc-sign">Best,<br>Ada</p>
+                                    </div>
+                                    <div class="doc-page-foot">Page 1 of 1</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div class="step-card">
-                <div class="step-num">05</div>
-                <span style="position: absolute; top: 1.25rem; right: 1.5rem; z-index: 2; background: #000; color: #fff; padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Coming Soon</span>
-                <h3>Recruiter Follow-Ups</h3>
-                <p>To ensure your application doesn't get lost in the pile, our agent automatically drafts and sends a professional follow-up email directly to the hiring manager to get you noticed.</p>
+            <div class="step-card wide stack">
+                <div class="step-text">
+                    <div class="step-num">05</div>
+                    <h3>Then Rover finishes the job — differently for each deck</h3>
+                    <p>From the <strong>Career Pages</strong> deck, it fills in the form and submits the whole application automatically — nothing left for you to do. From the <strong>Social Hiring Posts</strong> deck, it drafts the email with your tailored résumé attached, and you read it over and hit send.</p>
+                </div>
+                <div class="demo demo-finish" role="group" aria-label="Example: what happens after you swipe, for each deck">
+                    <div class="finish-col">
+                        <span class="demo-sources-label">Career Pages</span>
+                        <div class="demo-field"><span>Resume</span><b>Ada_Okafor_Resume.pdf</b><svg class="demo-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+                        <div class="demo-field"><span>Why this role?</span><b>Answer drafted</b><svg class="demo-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+                        <div class="demo-field"><span>Authorized to work in Nigeria?</span><b>Yes</b><svg class="demo-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></div>
+                        <span class="finish-done"><svg class="demo-tick" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>Submitted automatically</span>
+                    </div>
+                    <div class="finish-col">
+                        <span class="demo-sources-label">Social Hiring Posts</span>
+                        <div class="rr-draft rr-draft-mini">
+                            <div class="rr-draft-top"><span class="rr-draft-badge">Application draft</span></div>
+                            <h4 class="rr-draft-subject">Application for Senior Product Designer</h4>
+                            <div class="rr-draft-attach"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l8.57-8.57A4 4 0 1 1 18 8.84l-8.59 8.57a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg><span>Ada_Okafor_Senior_Product_Designer.pdf</span></div>
+                            <div class="rr-draft-actions"><span class="rr-send"><svg class="rr-gico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>Send Application</span></div>
+                        </div>
+                        <span class="finish-review">You review this before it sends.</span>
+                    </div>
+                </div>
+            </div>
+            <div class="step-card wide">
+                <div class="step-text">
+                    <div class="step-num">06</div>
+                    <h3>A dedicated inbox for your job hunt</h3>
+                    <p>Every reply a recruiter sends lands in your own Rover mailbox, not your personal email. Read it and reply from there, so every recruiter conversation stays in one place, separate from the rest of your inbox.</p>
+                </div>
+                <div class="demo inbox-demo" role="group" aria-label="Example of recruiter replies in a dedicated mailbox">
+                    <div class="inbox-card">
+                        <div class="inbox-row">
+                            <span class="inbox-dot" aria-hidden="true"></span>
+                            <div class="inbox-row-main">
+                                <div class="inbox-row-top"><strong class="inbox-sender">A. Reyes</strong><span class="inbox-time">14:02</span></div>
+                                <p class="inbox-subject">Interview invitation: next steps<span class="inbox-preview"> · Good news — the hiring team would like to…</span></p>
+                            </div>
+                        </div>
+                        <div class="inbox-row">
+                            <span class="inbox-dot" aria-hidden="true"></span>
+                            <div class="inbox-row-main">
+                                <div class="inbox-row-top"><strong class="inbox-sender">Recruiter</strong><span class="inbox-time">Nov 4</span></div>
+                                <p class="inbox-subject">Invitation to schedule your interview<span class="inbox-preview"> · We reviewed your application and…</span></p>
+                            </div>
+                        </div>
+                        <div class="inbox-row">
+                            <span class="inbox-dot" aria-hidden="true"></span>
+                            <div class="inbox-row-main">
+                                <div class="inbox-row-top"><strong class="inbox-sender">J. Okoro</strong><span class="inbox-time">Nov 3</span></div>
+                                <p class="inbox-subject">Your application has been selected<span class="inbox-preview"> · Please choose a time for…</span></p>
+                            </div>
+                        </div>
+                        <div class="inbox-tabs">
+                            <span class="inbox-tab active">Invites <span class="inbox-tab-count">9</span></span>
+                            <span class="inbox-tab">Offers <span class="inbox-tab-count">1</span></span>
+                            <span class="inbox-tab">Rejections</span>
+                            <span class="inbox-tab">Sent</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </section>
@@ -947,10 +803,10 @@
 
     <!-- Comparison Section -->
     <section class="comparison" style="max-width: 1400px; margin: 6rem auto; padding: 0 5%;">
-        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Why Us?</h2>
+        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Why us?</h2>
         <p style="font-size: 0.95rem; color: #52525B; text-align: center; margin-bottom: 4rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">How we compare to traditional applying and basic AI tools.</p>
         
-        <div class="compare-wrapper" style="width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: 24px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.02); background: #ffffff;">
+        <div class="compare-wrapper" style="width: 100%; overflow-x: auto; border: 1px solid #e4e4e7; border-radius: 20px; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.02); background: #ffffff;">
             <table class="compare-table" style="width: 100%; border-collapse: collapse; text-align: left; min-width: 800px;">
                 <thead>
                     <tr style="border-bottom: 1px solid #e4e4e7;">
@@ -959,7 +815,7 @@
                             <span style="display: block; font-size: 0.7rem; color: #71717A; letter-spacing: 1px; font-weight: 700; margin-bottom: 0.25rem;">MANUAL APPLYING</span>
                             Traditional Way
                         </th>
-                        <th style="padding: 2.3rem 1.5rem; font-size: 1.15rem; font-weight: 900; color: #00b38f; text-transform: uppercase; background: rgba(0, 255, 204, 0.04); position: relative; border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; width: 24%;">
+                        <th style="padding: 2.3rem 1.5rem; font-size: 1.15rem; font-weight: 900; color: #0F766E; text-transform: uppercase; background: rgba(15, 118, 110, 0.05); position: relative; border-left: 1px solid rgba(15, 118, 110, 0.15); border-right: 1px solid rgba(15, 118, 110, 0.15); text-align: center; width: 24%;">
                             Our Platform
                         </th>
                         <th style="padding: 2rem 1.5rem; font-size: 1.1rem; font-weight: 800; color: #52525B; text-transform: uppercase; text-align: center; width: 24%;">
@@ -969,31 +825,31 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Row 1: Dynamic CV Customization -->
+                    <!-- Row 1: Where Rover finds roles -->
+                    <tr style="border-bottom: 1px solid #f4f4f5;">
+                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Where it finds roles</td>
+                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Manual search across a few job boards
+                        </td>
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(15, 118, 110, 0.05); border-left: 1px solid rgba(15, 118, 110, 0.15); border-right: 1px solid rgba(15, 118, 110, 0.15); text-align: center; font-weight: 600; color: #115E59; font-size: 0.9rem;">
+                            <span style="color: #0F766E; font-weight: 900; margin-right: 0.25rem;">✓</span> Company career pages and recruiters' hiring posts, 24/7
+                        </td>
+                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
+                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No internet/active search features
+                        </td>
+                    </tr>
+
+                    <!-- Row 2: Dynamic CV Customization -->
                     <tr style="border-bottom: 1px solid #f4f4f5;">
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Dynamic CV & Resume Customization</td>
                         <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Single generic file for all roles
                         </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Custom-tailored for every single job
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(15, 118, 110, 0.05); border-left: 1px solid rgba(15, 118, 110, 0.15); border-right: 1px solid rgba(15, 118, 110, 0.15); text-align: center; font-weight: 600; color: #115E59; font-size: 0.9rem;">
+                            <span style="color: #0F766E; font-weight: 900; margin-right: 0.25rem;">✓</span> Custom-tailored for every single job
                         </td>
                         <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Requires manual prompting & edits
-                        </td>
-                    </tr>
-
-                    <!-- Row 2: Average Application Time -->
-                    <tr style="border-bottom: 1px solid #f4f4f5;">
-                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Average Application Time</td>
-                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> 30+ minutes per application
-                        </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Under 3 seconds
-                        </td>
-                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
-                            <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> 5 to 10 minutes
                         </td>
                     </tr>
 
@@ -1003,109 +859,25 @@
                         <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Written manually or completely skipped
                         </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Formatted & tailored on autopilot
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(15, 118, 110, 0.05); border-left: 1px solid rgba(15, 118, 110, 0.15); border-right: 1px solid rgba(15, 118, 110, 0.15); text-align: center; font-weight: 600; color: #115E59; font-size: 0.9rem;">
+                            <span style="color: #0F766E; font-weight: 900; margin-right: 0.25rem;">✓</span> Formatted & tailored on autopilot
                         </td>
                         <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
                             <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Copy-paste and manual edits required
                         </td>
                     </tr>
 
-                    <!-- Row 4: Auto-Emailing Hiring Managers -->
-                    <tr style="border-bottom: 1px solid #f4f4f5;">
-                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Auto-Emailing Hiring Managers</td>
-                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Requires manual outreach setups
-                        </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #52525B; font-size: 0.9rem;">
-                            <span style="background: #000; color: #fff; padding: 0.15rem 0.55rem; border-radius: 12px; font-size: 0.68rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; margin-right: 0.4rem; display: inline-block;">Coming Soon</span> Automatic draft & outbound dispatch
-                        </td>
-                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No active emailing capability
-                        </td>
-                    </tr>
-
-                    <!-- Row 5: Unified Job Hunt Dashboard -->
-                    <tr style="border-bottom: 1px solid #f4f4f5;">
-                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Unified Job Hunt Dashboard</td>
-                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Scattered browser tabs and sheets
-                        </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Sourcing, tracking & applying in one view
-                        </td>
-                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Messy separate chat conversations
-                        </td>
-                    </tr>
-
-                    <!-- Row 6: Live Job Board Sourcing -->
-                    <tr style="border-bottom: 1px solid #f4f4f5;">
-                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Live Job Board Sourcing</td>
-                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
-                            <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Manual search across boards only
-                        </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Checks 100k+ company sites 24/7
-                        </td>
-                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No internet/active search features
-                        </td>
-                    </tr>
-
-                    <!-- Row 7: End-to-End Autopilot Applying -->
-                    <tr style="border-bottom: 1px solid #f4f4f5;">
+                    <!-- Row 4: End-to-End Autopilot Applying -->
+                    <tr>
                         <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">End-to-End Autopilot Applying</td>
                         <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Hours of typing and clicking forms
                         </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Completely automated form submissions
+                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(15, 118, 110, 0.05); border-left: 1px solid rgba(15, 118, 110, 0.15); border-right: 1px solid rgba(15, 118, 110, 0.15); text-align: center; font-weight: 600; color: #115E59; font-size: 0.9rem;">
+                            <span style="color: #0F766E; font-weight: 900; margin-right: 0.25rem;">✓</span> Completely automated form submissions
                         </td>
                         <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
                             <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Manual entry in browser is required
-                        </td>
-                    </tr>
-
-                    <!-- Row 8: Intelligent Job Matching -->
-                    <tr style="border-bottom: 1px solid #f4f4f5;">
-                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Intelligent Job Matching</td>
-                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Requires manual description parsing
-                        </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Matches based on target titles & background
-                        </td>
-                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No persistent context memory
-                        </td>
-                    </tr>
-
-                    <!-- Row 9: Real-Time Tracking & Logging -->
-                    <tr style="border-bottom: 1px solid #f4f4f5;">
-                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Real-Time Tracking & Logging</td>
-                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> Must maintain tracking spreadsheet manually
-                        </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Logs every submission & interview phase
-                        </td>
-                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #a1a1aa; font-size: 0.9rem;">
-                            <span style="color: #ef4444; font-weight: 900; margin-right: 0.25rem;">✕</span> No execution logs maintained
-                        </td>
-                    </tr>
-
-                    <!-- Row 10: Polished Application Quality -->
-                    <tr>
-                        <td style="padding: 1.5rem; font-weight: 700; color: #000000; font-size: 0.95rem;">Polished Application Quality</td>
-                        <td data-label="Traditional Way" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
-                            <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> High quality, but manually slow and exhausting
-                        </td>
-                        <td data-label="Our Platform" style="padding: 1.5rem; background: rgba(0, 255, 204, 0.04); border-left: 1px solid rgba(0, 255, 204, 0.15); border-right: 1px solid rgba(0, 255, 204, 0.15); text-align: center; font-weight: 600; color: #008066; font-size: 0.9rem;">
-                            <span style="color: #00b38f; font-weight: 900; margin-right: 0.25rem;">✓</span> Tailored, clean formatting at scale
-                        </td>
-                        <td data-label="ChatGPT / Claude" style="padding: 1.5rem; text-align: center; font-weight: 500; color: #52525B; font-size: 0.9rem;">
-                            <span style="color: #10b981; font-weight: 900; margin-right: 0.25rem;">✓</span> Good output, but requires editing review
                         </td>
                     </tr>
                 </tbody>
@@ -1114,182 +886,61 @@
     </section>
 
     <!-- Dashboard Mockup Section -->
-    <section class="mockup-section" hidden>
-        <h2 class="section-title" style="text-align: center; margin-bottom: 1rem;">Inside the Autopilot Dashboard</h2>
-        <p style="font-size: 0.95rem; color: #52525B; text-align: center; margin-bottom: 4rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Monitor live sourcing, AI customization, and auto-applied status in real time.</p>
-        
-        <div class="mockup-container">
-            <!-- Mockup Header -->
-            <div class="mockup-header">
-                
-<div class="mockup-logo" style="display: flex; align-items: center; gap: 0px; color: #000000;">
-  <img src="assets/role_rover_logo.png" alt="Role Rover" style="height: 36px; width: auto; display: inline-block; vertical-align: middle;" />
-</div>
-
-                <div style="display: flex; align-items: center; gap: 1rem;">
-                    <div class="mockup-badge">✅ Premium Active</div>
-                    <div style="width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid #e4e4e7;">JD</div>
+    <section class="tracker reveal">
+        <div class="tracker-head">
+            <h2 class="section-title">Track every application in one place</h2>
+            <p class="section-sub">See what Rover found, what you've applied to, and where you stand — without a spreadsheet.</p>
+        </div>
+        <div class="tracker-stats">
+            <div class="tracker-stat"><span class="tracker-stat-label">Jobs found</span><strong class="tracker-stat-val">212</strong></div>
+            <div class="tracker-stat"><span class="tracker-stat-label">Applied</span><strong class="tracker-stat-val">150</strong></div>
+            <div class="tracker-stat"><span class="tracker-stat-label">Interview</span><strong class="tracker-stat-val">9</strong></div>
+            <div class="tracker-stat"><span class="tracker-stat-label">Offer</span><strong class="tracker-stat-val">1</strong></div>
+        </div>
+        <p class="tracker-recent-label">Recent applications</p>
+        <div class="tracker-list">
+            <article class="tracker-card">
+                <div class="tracker-card-top">
+                    <div><span class="tracker-co">Moniepoint</span><h3 class="tracker-role">Staff Product Designer</h3></div>
+                    <span class="tracker-pill applied">Applied</span>
                 </div>
-            </div>
-            
-            <!-- Stats Cards -->
-            <div class="mockup-stats">
-                <div class="mockup-stat-card" style="border-left: 3px solid #00FFCC;">
-                    <span class="mockup-stat-val">12</span>
-                    <span class="mockup-stat-lbl">Jobs Sourced</span>
+                <div class="tracker-actions">
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg> Tailored Resume</span>
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Tailored Cover Letter</span>
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg> Submitted form</span>
                 </div>
-                <div class="mockup-stat-card" style="border-left: 3px solid #00b38f;">
-                    <span class="mockup-stat-val">4</span>
-                    <span class="mockup-stat-lbl">In Queue</span>
+                <span class="tracker-link"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> View posting</span>
+            </article>
+            <article class="tracker-card">
+                <div class="tracker-card-top">
+                    <div><span class="tracker-co">Wikimedia Foundation</span><h3 class="tracker-role">Senior UX Designer</h3></div>
+                    <span class="tracker-pill interview">Interview</span>
                 </div>
-                <div class="mockup-stat-card" style="border-left: 3px solid #10B981;">
-                    <span class="mockup-stat-val">8</span>
-                    <span class="mockup-stat-lbl">Auto-Applied</span>
+                <div class="tracker-actions">
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg> Tailored Resume</span>
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Tailored Cover Letter</span>
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><path d="m9 14 2 2 4-4"/></svg> Submitted form</span>
                 </div>
-            </div>
-            
-            <!-- Mock Table -->
-            <div class="mockup-table-container">
-                <table class="mockup-table">
-                    <thead>
-                        <tr>
-                            <th>Company</th>
-                            <th>Location</th>
-                            <th>Employment Type</th>
-                            <th>Role</th>
-                            <th>Application Details</th>
-                            <th>Tailored Resume</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>
-                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Google</div>
-                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">google.com</div>
-                            </td>
-                            <td style="font-weight: 600; color: #27272A;">Mountain View, CA</td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <span class="mockup-tag remote">Remote</span>
-                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Full-time</div>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Senior Software Engineer</div>
-                                <span class="mockup-salary">$190,000 - $250,000</span>
-                            </td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <div style="font-weight: 600; color: #52525B;">Just now</div>
-                                    <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
-                            </td>
-                            <td>
-                                <span class="mockup-pill applied" style="background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15);">✅ Applied</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Stripe</div>
-                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">stripe.com</div>
-                            </td>
-                            <td style="font-weight: 600; color: #27272A;">San Francisco, CA</td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <span class="mockup-tag hybrid">Hybrid</span>
-                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Full-time</div>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Full Stack Engineer</div>
-                                <span class="mockup-salary">$160,000 - $210,000</span>
-                            </td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <div style="font-weight: 600; color: #52525B;">2 hours ago</div>
-                                    <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
-                            </td>
-                            <td>
-                                <span class="mockup-pill applied" style="background: rgba(16, 185, 129, 0.08); color: #047857; border-color: rgba(16, 185, 129, 0.15);">✅ Applied</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Netflix</div>
-                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">netflix.com</div>
-                            </td>
-                            <td style="font-weight: 600; color: #27272A;">Los Gatos, CA</td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <span class="mockup-tag remote">Remote</span>
-                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Contract</div>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Senior Frontend Architect</div>
-                                <span class="mockup-salary">$220,000 - $310,000</span>
-                            </td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <div style="font-weight: 600; color: #52525B;">5 hours ago</div>
-                                    <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
-                            </td>
-                            <td>
-                                <span class="mockup-pill queued">⏳ In Queue</span>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>
-                                <div style="font-weight: 700; color: #000000; font-size: 0.95rem;">Airbnb</div>
-                                <div style="color: #71717A; font-size: 0.8rem; margin-top: 0.15rem; font-weight: 550;">airbnb.com</div>
-                            </td>
-                            <td style="font-weight: 600; color: #27272A;">San Francisco, CA</td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <span class="mockup-tag onsite">On-Site</span>
-                                    <div style="font-size: 0.78rem; color: #52525B; font-weight: 600; margin-top: 0.15rem;">Full-time</div>
-                                </div>
-                            </td>
-                            <td>
-                                <div style="font-weight: 600; color: #000000; margin-bottom: 0.35rem;">Staff Product Engineer</div>
-                                <span class="mockup-salary">$200,000 - $260,000</span>
-                            </td>
-                            <td>
-                                <div style="display: flex; flex-direction: column; gap: 0.25rem; align-items: flex-start;">
-                                    <div style="font-weight: 600; color: #52525B;">Yesterday</div>
-                                    <a href="#" class="mockup-btn mockup-btn-sm" style="background: rgba(0, 255, 204, 0.04); border-color: rgba(0, 255, 204, 0.25); color: #008066; font-weight: 700;">Application Link</a>
-                                </div>
-                            </td>
-                            <td>
-                                <button class="mockup-btn mockup-btn-sm" style="font-weight: 700;">View Resume</button>
-                            </td>
-                            <td>
-                                <span class="mockup-pill queued">⏳ In Queue</span>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                <span class="tracker-link"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> View posting</span>
+            </article>
+            <article class="tracker-card">
+                <div class="tracker-card-top">
+                    <div><span class="tracker-co">Figma</span><h3 class="tracker-role">Product Designer, AI Models</h3></div>
+                    <span class="tracker-pill queued">Queued</span>
+                </div>
+                <div class="tracker-actions">
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/></svg> Tailored Resume</span>
+                    <span class="tracker-btn primary"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg> Tailored Cover Letter</span>
+                </div>
+                <span class="tracker-link"><svg class="" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg> View posting</span>
+            </article>
         </div>
     </section>
 
+
     <section class="mission" style="max-width: 1400px; margin: 4rem auto 0; padding: 0 5%;">
-        <div style="background: linear-gradient(135deg, rgba(212, 255, 51, 0.03) 0%, rgba(0, 255, 204, 0.03) 100%); border: 1px solid rgba(212, 255, 51, 0.15); border-radius: 24px; padding: 3.5rem; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.02); position: relative; overflow: hidden;">
-            <div style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: radial-gradient(circle, rgba(212,255,51,0.2) 0%, transparent 70%); pointer-events: none;"></div>
-            <span style="color: #000000; background: #ffffff; border: 1px solid rgba(0,0,0,0.1); font-weight: 800; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; display: inline-block; margin-bottom: 1.5rem; padding: 0.35rem 0.9rem; border-radius: 30px; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">Our Goal</span>
-            <h2 style="color: #000000; font-size: clamp(2rem, 4vw, 3rem); font-weight: 900; line-height: 1.1; text-transform: uppercase; margin-bottom: 1.5rem; letter-spacing: -1px;">Land Interviews Effortlessly.</h2>
+        <div style="background: #ffffff; border: 1px solid var(--border); border-radius: 20px; padding: 3.5rem;">
+            <h2 style="color: var(--ink); font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 600; line-height: 1.12; margin-bottom: 1.5rem; letter-spacing: -0.02em;">Land interviews effortlessly.</h2>
             <p style="font-size: 1.15rem; color: #3f3f46; max-width: 900px; line-height: 1.7; margin-bottom: 0.75rem; font-weight: 500;">
                 We built this so you never have to waste your valuable time filling out tedious application forms or miss out on life-changing opportunities again.
             </p>
@@ -1301,9 +952,9 @@
 
 
     <section id="countries" class="countries" style="max-width: 1400px; margin: 8rem auto; padding: 0 5%;">
-        <h2 class="section-title">Supported Countries</h2>
+        <h2 class="section-title">Supported countries</h2>
         <p style="font-size: 0.95rem; color: #52525B; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Sourcing and applying dynamically in 50 countries.</p>
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 24px; padding: 3rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02); font-weight: 600; font-size: 0.9rem; color: #18181B;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 1rem; background: #ffffff; border: 1px solid rgba(0,0,0,0.06); border-radius: 20px; padding: 3rem; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.02); font-weight: 600; font-size: 0.9rem; color: #18181B;">
             <div>Australia</div>
             <div>Austria</div>
             <div>Belgium</div>
@@ -1372,6 +1023,40 @@
                 <p>Account Executive, Business Development Representative, Sales Development Representative, Account Manager, Partnerships Manager</p>
             </details>
             <details class="faq-item">
+                <summary>Customer Success & Support</summary>
+                <p>Customer Success Manager, Customer Support Specialist, Client Services Manager, Implementation Manager, Technical Support Engineer</p>
+            </details>
+            <details class="faq-item">
+                <summary>Data & Analytics</summary>
+                <p>Data Analyst, Business Intelligence Analyst, Product Analyst, Analytics Engineer, Data Scientist</p>
+            </details>
+            <details class="faq-item">
+                <summary>Marketing & Growth</summary>
+                <p>Growth Marketer, Digital Marketing Manager, Performance Marketing Manager, SEO Specialist, Lifecycle Marketing Manager</p>
+            </details>
+            <details class="faq-item">
+                <summary>Product Management</summary>
+                <p>Product Manager, Product Owner, Technical Product Manager, Growth Product Manager, Product Operations Manager</p>
+            </details>
+            <details class="faq-item">
+                <summary>Software Engineering</summary>
+                <p>Software Engineer, Application Developer, Software Developer, QA Automation Engineer, Solutions Developer</p>
+            </details>
+            <details class="faq-item">
+                <summary>Finance & Accounting</summary>
+                <p>Financial Analyst, Accountant, Bookkeeper, Finance Manager, Accounts Payable Specialist</p>
+            </details>
+            <details class="faq-item">
+                <summary>Human Resources</summary>
+                <p>HR Generalist, HR Business Partner, People Operations Specialist, Compensation Analyst, People Manager</p>
+            </details>
+            <details class="faq-item">
+                <summary>Operations & Supply Chain</summary>
+                <p>Operations Manager, Supply Chain Analyst, Logistics Coordinator, Procurement Specialist, Business Operations Analyst</p>
+            </details>
+        </div>
+        <div class="faq-grid roles-more" id="roles-more" hidden>
+            <details class="faq-item">
                 <summary>Administrative & Executive Support</summary>
                 <p>Executive Assistant, Administrative Assistant, Office Manager, Virtual Assistant, Executive Coordinator</p>
             </details>
@@ -1388,16 +1073,8 @@
                 <p>Content Writer, Copywriter, Technical Writer, Documentation Specialist, Content Strategist</p>
             </details>
             <details class="faq-item">
-                <summary>Customer Success & Support</summary>
-                <p>Customer Success Manager, Customer Support Specialist, Client Services Manager, Implementation Manager, Technical Support Engineer</p>
-            </details>
-            <details class="faq-item">
                 <summary>Cybersecurity & Security Operations</summary>
                 <p>Cybersecurity Analyst, Security Engineer, SOC Analyst, Incident Response Analyst, Application Security Engineer</p>
-            </details>
-            <details class="faq-item">
-                <summary>Data & Analytics</summary>
-                <p>Data Analyst, Business Intelligence Analyst, Product Analyst, Analytics Engineer, Data Scientist</p>
             </details>
             <details class="faq-item">
                 <summary>Data Engineering</summary>
@@ -1416,10 +1093,6 @@
                 <p>Engineering Manager, Technical Lead, Director of Engineering, VP of Engineering, Head of Engineering</p>
             </details>
             <details class="faq-item">
-                <summary>Finance & Accounting</summary>
-                <p>Financial Analyst, Accountant, Bookkeeper, Finance Manager, Accounts Payable Specialist</p>
-            </details>
-            <details class="faq-item">
                 <summary>AI Data Labelling & Evaluation</summary>
                 <p>AI Trainer, Data Annotator, AI Evaluator, Data Labeling Specialist, Model Quality Analyst</p>
             </details>
@@ -1432,20 +1105,8 @@
                 <p>Full Stack Engineer, Full Stack Developer, Product Engineer, Web Application Developer, Software Developer</p>
             </details>
             <details class="faq-item">
-                <summary>Human Resources</summary>
-                <p>HR Generalist, HR Business Partner, People Operations Specialist, Compensation Analyst, People Manager</p>
-            </details>
-            <details class="faq-item">
-                <summary>Marketing & Growth</summary>
-                <p>Growth Marketer, Digital Marketing Manager, Performance Marketing Manager, SEO Specialist, Lifecycle Marketing Manager</p>
-            </details>
-            <details class="faq-item">
                 <summary>Motion Design & VFX</summary>
                 <p>Motion Designer, Visual Effects Artist, 3D Artist, Animator, Video Editor</p>
-            </details>
-            <details class="faq-item">
-                <summary>Operations & Supply Chain</summary>
-                <p>Operations Manager, Supply Chain Analyst, Logistics Coordinator, Procurement Specialist, Business Operations Analyst</p>
             </details>
             <details class="faq-item">
                 <summary>Platform & DevOps Engineering</summary>
@@ -1456,20 +1117,12 @@
                 <p>Product Designer, UX Designer, UI Designer, UX Researcher, Interaction Designer</p>
             </details>
             <details class="faq-item">
-                <summary>Product Management</summary>
-                <p>Product Manager, Product Owner, Technical Product Manager, Growth Product Manager, Product Operations Manager</p>
-            </details>
-            <details class="faq-item">
                 <summary>Project & Program Management</summary>
                 <p>Project Manager, Program Manager, Delivery Manager, Scrum Master, PMO Analyst</p>
             </details>
             <details class="faq-item">
                 <summary>Quantitative Finance & Trading</summary>
                 <p>Quantitative Analyst, Quantitative Researcher, Quant Developer, Trading Analyst, Risk Analyst</p>
-            </details>
-            <details class="faq-item">
-                <summary>Software Engineering</summary>
-                <p>Software Engineer, Application Developer, Software Developer, QA Automation Engineer, Solutions Developer</p>
             </details>
             <details class="faq-item">
                 <summary>Solutions Engineering & Pre-Sales</summary>
@@ -1500,6 +1153,28 @@
                 <p>Hardware Engineer, Robotics Engineer, Embedded Hardware Engineer, Robotics Software Engineer, Electrical Engineer</p>
             </details>
         </div>
+        <button type="button" class="roles-toggle-btn" id="roles-toggle" onclick="toggleRolesMore()" aria-expanded="false" aria-controls="roles-more">
+            <span class="roles-toggle-label">Show all 33 career areas</span>
+            <svg class="roles-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <script>
+            function toggleRolesMore() {
+                var more = document.getElementById('roles-more');
+                var btn = document.getElementById('roles-toggle');
+                var label = btn.querySelector('.roles-toggle-label');
+                var expanding = more.hasAttribute('hidden');
+                if (expanding) {
+                    more.removeAttribute('hidden');
+                    btn.setAttribute('aria-expanded', 'true');
+                    label.textContent = 'Show fewer career areas';
+                } else {
+                    more.setAttribute('hidden', '');
+                    btn.setAttribute('aria-expanded', 'false');
+                    label.textContent = 'Show all 33 career areas';
+                    btn.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                }
+            }
+        </script>
     </section>
 
     <section id="pricing" class="pricing">
@@ -1508,48 +1183,56 @@
             
             <!-- Free Trial Card -->
             <div class="price-card" style="text-align: center;">
-                <div class="price-name">Free Trial</div>
+                <div class="price-name">Free trial</div>
                 <div class="price-amount" style="font-size: 3.5rem;">Free</div>
-                <div class="price-sub">Experience the Automation</div>
+                <div class="price-sub">Experience the automation</div>
                 <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
                     <li>24/7 active scanning for matching roles</li>
                     <li>ATS-optimized resume for every role</li>
                     <li>Custom cover letters for every role</li>
                     <li>Swipe-to-Apply or Auto-apply to 10 remote jobs (no form filling + credits never expire)</li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="background: #ffffff; color: #000000; border: 1px solid rgba(0,0,0,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 1.5rem;">Automate Your Job Hunt for Free &rarr;</a>
+                <a href="signup.html" class="btn btn-primary" style="background: #ffffff; color: #000000; border: 1px solid rgba(0,0,0,0.12); box-shadow: 0 4px 12px rgba(0,0,0,0.03); margin-top: 1.5rem;">Automate your job hunt for free &rarr;</a>
             </div>
 
             <!-- Pro Card -->
             <div class="price-card popular" style="text-align: center;">
-                <div class="popular-badge">Full Automation</div>
-                <div class="price-name">Auto-Apply Engine</div>
+                <div class="popular-badge">Full automation</div>
+                <div class="price-name">Auto-apply engine</div>
                 <div style="font-size: 0.85rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0 1rem;">
                     <span id="price-unit-sym">$</span><span id="price-unit-val">0.15</span> per job
                 </div>
                 <div class="price-amount"><span id="price-sym">$</span><span id="price-val">15</span></div>
-                <div class="price-sub">100 Applications</div>
+                <div class="price-sub">100 applications</div>
                 <ul class="price-features" style="text-align: left; margin: 0 auto; display: inline-block; width: 100%;">
                     <li>24/7 active scanning for matching roles</li>
                     <li>ATS-optimized resume for every role</li>
                     <li>Custom cover letters for every role</li>
                     <li>Swipe-to-Apply or Auto-apply to 100 remote jobs (no form filling + credits never expire)</li>
                 </ul>
-                <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Automate Your Job Hunt for Free &rarr;</a>
+                <a href="signup.html" class="btn btn-primary" style="margin-top: 1.5rem;">Automate your job hunt for free &rarr;</a>
             </div>
         </div>
     </section>
 
     <!-- Collapsible FAQ Section -->
     <section id="faq" class="faq">
-        <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Frequently Asked Questions</h2>
+        <h2 class="section-title" style="text-align: center; margin-bottom: 3rem;">Frequently asked questions</h2>
         <div class="faq-grid">
             <details class="faq-item">
-                <summary>WHERE DOES THE AI CAREER AGENT FIND THE JOB OPPORTUNITIES?</summary>
+                <summary>What are hiring posts?</summary>
+                <p>Many recruiters and hiring managers announce roles in posts on LinkedIn, X and Facebook, often with an email address to apply to. Rover finds those posts, matches them to your profile, and shows them in the same swipe deck as career-page jobs.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Does Rover send emails without my approval?</summary>
+                <p>No. For hiring posts, Rover writes the email and builds your resume, then puts them in your Drafts. You review the draft, edit it if you want, and click Send Application.</p>
+            </details>
+            <details class="faq-item">
+                <summary>Where does the AI career agent find the job opportunities?</summary>
                 <p>It monitors company career pages across 50 countries.</p>
             </details>
             <details class="faq-item">
-                <summary>HOW DOES IT CREATE THE ATS FRIENDLY RESUME?</summary>
+                <summary>How does it create the ATS-friendly resume?</summary>
                 <p>Rover analyzes each job description, highlights your most relevant skills and experience, and creates ATS-friendly resumes and cover letters without changing your core facts.</p>
             </details>
             <details class="faq-item">
@@ -1561,7 +1244,7 @@
                 <p>Depending on your plan, our Auto-Apply Engine will apply to up to 100 relevant jobs within 1 to 30 days, dynamically adjusting the speed based on matching job availability to prevent spamming.</p>
             </details>
             <details class="faq-item">
-                <summary>DOES MY CREDIT EXPIRE?</summary>
+                <summary>Does my credit expire?</summary>
                 <p>Your credits have a lifetime guarantee and never expire.</p>
             </details>
         </div>
@@ -1572,8 +1255,8 @@
         <h2 class="reveal">Your next role has<br><span class="glow">already been posted.</span></h2>
         <p class="reveal">Somewhere in the 100,000 career pages Rover watches, a job with your name on it just went live. The only question is whether you're first in line — or number 400.</p>
         <div class="reveal">
-            <a href="signup.html" class="btn btn-primary" style="font-size: 1.25rem; padding: 1.25rem 3rem;">Automate Your Job Hunt for Free &rarr;</a>
-            <p style="color: #71717a; font-size: 0.85rem; margin-top: 1.25rem; font-weight: 600;">10 free automated applications · No credit card required</p>
+            <a href="signup.html" class="btn btn-primary" style="font-size: 1.25rem; padding: 1.25rem 3rem;">Automate your job hunt for free &rarr;</a>
+            <p style="color: #a1a1aa; font-size: 0.85rem; margin-top: 1.25rem; font-weight: 500;">10 free automated applications · No credit card required</p>
         </div>
     </section>
 
@@ -1585,6 +1268,71 @@
             <a href="refunds.html" style="color: var(--text-body); text-decoration: none; text-transform: uppercase; font-weight: 600;">Refunds</a>
         </div>
     </footer>
+
+    <!-- 1-Click Verify report modal (Social Hiring Posts demo card) -->
+    <div class="verify-modal-overlay" id="rr-verify-overlay" onclick="if (event.target === this) RRVerifyDemo.close()">
+        <div class="verify-modal" id="rr-verify-modal" role="dialog" aria-modal="true" aria-labelledby="rr-verify-title">
+            <div class="verify-modal-head">
+                <div class="verify-modal-head-text">
+                    <h3 id="rr-verify-title">1-Click Verification Report</h3>
+                    <p>Northwind Studio &middot; <span class="verify-email-chip">careers@northwindstudio.co</span></p>
+                </div>
+                <button type="button" class="verify-modal-close" id="rr-verify-close" aria-label="Close verification report">&times;</button>
+            </div>
+            <div class="verify-modal-body">
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">1. Company registration &amp; official website</span>
+                        <span class="verify-pill verify-pill-ok">Registered in Nigeria</span>
+                    </div>
+                    <div class="verify-check-facts">
+                        <div><b>Legal entity:</b> Northwind Studio Ltd (Active)</div>
+                        <div><b>Reg. number:</b> RC-1894732 &middot; Corporate Affairs Commission (CAC)</div>
+                        <div><b>Official website:</b> <span class="verify-link">northwindstudio.co</span></div>
+                    </div>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">2. Cross-platform social profiles</span>
+                        <span class="verify-pill verify-pill-info">3 verified links</span>
+                    </div>
+                    <div class="verify-social-links">
+                        <span class="verify-social-chip">🏢 Company LinkedIn ↗</span>
+                        <span class="verify-social-chip">👤 Poster LinkedIn ↗</span>
+                        <span class="verify-social-chip">🌐 northwindstudio.co ↗</span>
+                    </div>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">3. Brand impersonation check</span>
+                        <span class="verify-pill verify-pill-ok">Domain matches</span>
+                    </div>
+                    <p class="verify-check-summary">Contact email's domain matches the company's official website. No free-mail address (e.g. @gmail.com) is being used to represent this brand.</p>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">4. Email &amp; phone scam sweep</span>
+                        <span class="verify-pill verify-pill-ok">0 scam reports found</span>
+                    </div>
+                    <p class="verify-check-summary">No fraud warnings, fee demands, or scam complaints found anywhere on the web tied to this email address.</p>
+                </div>
+                <div class="verify-check">
+                    <div class="verify-check-head">
+                        <span class="verify-check-title">5. Contact web history</span>
+                        <span class="verify-pill verify-pill-info">2 web mentions</span>
+                    </div>
+                    <div class="verify-social-links">
+                        <span class="verify-social-chip">🔗 northwindstudio.co/careers ↗</span>
+                        <span class="verify-social-chip">🔗 linkedin.com/company/northwind-studio ↗</span>
+                    </div>
+                </div>
+            </div>
+            <div class="verify-modal-foot">
+                <span>Always decline any request for money, deposits, or paid training.</span>
+                <span class="verify-modal-tag">Example report — runs for real on every Social Hiring Posts match</span>
+            </div>
+        </div>
+    </div>
 
     <script>
         // Dynamic Pricing Logic
@@ -1632,7 +1380,7 @@
                         observer.unobserve(entry.target);
                     }
                 });
-            }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+            }, { threshold: 0, rootMargin: '0px 0px -8% 0px' });
             els.forEach(el => observer.observe(el));
         })();
     </script>
@@ -1642,195 +1390,111 @@
             document.getElementById('mobile-nav-overlay').classList.toggle('active');
         }
 
-        function toggleHiwVideo() {
-            var video = document.getElementById('hiw-demo-video');
-            var overlay = document.getElementById('hiw-video-overlay');
-            if (!video) return;
-            if (video.paused) {
-                video.play().then(function() {
-                    if (overlay) overlay.classList.add('playing');
-                }).catch(function() {
-                    video.muted = true;
-                    video.play().then(function() {
-                        if (overlay) overlay.classList.add('playing');
-                    });
-                });
-            } else {
-                video.pause();
-                if (overlay) overlay.classList.remove('playing');
+    </script>
+    <script>
+        // 1-Click Verify report modal (Social Hiring Posts demo card): static
+        // example of the real report shown in the app (swipe.html). No live
+        // lookup here — it is the same report every visitor sees.
+        var RRVerifyDemo = (function () {
+            var overlay, modal, closeBtn, lastFocused = null;
+            function els() {
+                overlay = overlay || document.getElementById('rr-verify-overlay');
+                modal = modal || document.getElementById('rr-verify-modal');
+                closeBtn = closeBtn || document.getElementById('rr-verify-close');
             }
-        }
-        (function() {
-            var hiwVid = document.getElementById('hiw-demo-video');
-            var hiwOverlay = document.getElementById('hiw-video-overlay');
-            if (hiwVid && hiwOverlay) {
-                hiwVid.addEventListener('ended', function() {
-                    hiwOverlay.classList.remove('playing');
-                });
+            function onKeydown(e) { if (e.key === 'Escape') close(); }
+            function open(trigger) {
+                els();
+                if (!overlay) return;
+                lastFocused = trigger || document.activeElement;
+                overlay.classList.add('active');
+                document.addEventListener('keydown', onKeydown);
+                if (closeBtn) closeBtn.focus();
             }
+            function close() {
+                els();
+                if (!overlay) return;
+                overlay.classList.remove('active');
+                document.removeEventListener('keydown', onKeydown);
+                if (lastFocused && typeof lastFocused.focus === 'function') lastFocused.focus();
+            }
+            document.addEventListener('DOMContentLoaded', function () {
+                els();
+                if (closeBtn) closeBtn.addEventListener('click', close);
+            });
+            return { open: open, close: close };
         })();
-
-        function updateHeroMuteUI(isMuted) {
-            var btn = document.getElementById('hero-mute-btn');
-            if (!btn) return;
-            var onIcon = btn.querySelector('.sound-on-icon');
-            var offIcon = btn.querySelector('.sound-off-icon');
-            var text = btn.querySelector('.mute-text');
-            if (isMuted) {
-                if (onIcon) onIcon.style.display = 'none';
-                if (offIcon) offIcon.style.display = 'block';
-                if (text) text.textContent = 'Muted';
-                btn.setAttribute('aria-label', 'Unmute sound');
+    </script>
+    <script>
+    // Hero deck: same stacked-card behaviour as swipe.html. Auto-advances; the buttons swipe by hand.
+    (function () {
+        var deck = document.getElementById('rr-deck');
+        if (!deck) return;
+        var stack = deck.querySelector('.rr-stack');
+        var order = [].slice.call(stack.querySelectorAll('.rr-card'));
+        var busy = false, timer = null;
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var swipedToast = document.getElementById('rr-swiped-toast'), swipedToastTimer = null;
+        function flashSwiped() {
+            if (!swipedToast) return;
+            swipedToast.classList.add('show');
+            clearTimeout(swipedToastTimer);
+            swipedToastTimer = setTimeout(function () { swipedToast.classList.remove('show'); }, 850);
+        }
+        function layout() {
+            order.forEach(function (c, i) {
+                var d = Math.min(i, 2);
+                c.style.zIndex = String(10 - i);
+                c.style.transform = 'translateY(' + (d * 10) + 'px) scale(' + (1 - d * 0.03) + ')';
+                c.style.opacity = i > 2 ? '0' : '1';
+                c.classList.remove('is-apply', 'is-pass');
+            });
+        }
+        function swipe(dir) {
+            if (busy) return;
+            busy = true;
+            var top = order[0];
+            if (dir === 'apply') { top.classList.add('is-apply'); flashSwiped(); }
+            if (dir === 'pass') { top.classList.add('is-pass'); flashSwiped(); }
+            if (dir === 'later') {
+                top.style.transform = 'translateY(-14px) scale(0.98)';
             } else {
-                if (onIcon) onIcon.style.display = 'block';
-                if (offIcon) offIcon.style.display = 'none';
-                if (text) text.textContent = 'Sound';
-                btn.setAttribute('aria-label', 'Mute sound');
+                var right = dir === 'apply';
+                top.style.transform = 'translateX(' + (right ? 130 : -130) + '%) rotate(' + (right ? 16 : -16) + 'deg)';
             }
+            top.style.opacity = '0';
+            setTimeout(function () {
+                order.push(order.shift());
+                top.style.transition = 'none';
+                layout();
+                void top.offsetWidth;
+                top.style.transition = '';
+                busy = false;
+            }, reduce ? 0 : 480);
         }
-
-        function toggleHeroVideoMute(e) {
-            if (e) e.stopPropagation();
-            var video = document.getElementById('hero-demo-video');
-            if (!video) return;
-            video.muted = !video.muted;
-            updateHeroMuteUI(video.muted);
+        // First 2 auto-swipes are quick (catches the eye on first load); from
+        // the 3rd card on it settles to a readable pace (founder call, 2026-11-06).
+        var FAST_MS = 900, NORMAL_MS = 4200, autoSwipeCount = 0;
+        function scheduleNext() {
+            if (reduce) return;
+            var delay = autoSwipeCount < 2 ? FAST_MS : NORMAL_MS;
+            timer = setTimeout(function () {
+                swipe('apply');
+                autoSwipeCount++;
+                scheduleNext();
+            }, delay);
         }
-
-        function formatTime(seconds) {
-            var s = Math.floor(seconds || 0);
-            var m = Math.floor(s / 60);
-            var remS = s % 60;
-            return m + ':' + (remS < 10 ? '0' : '') + remS;
-        }
-
-        function updatePlayerProgress() {
-            var video = document.getElementById('hero-demo-video');
-            var bar = document.getElementById('player-progress');
-            var timeDisplay = document.getElementById('player-time');
-            if (!video) return;
-            var current = video.currentTime || 0;
-            var total = video.duration || 38.2;
-            var pct = (current / total) * 100;
-            if (bar) bar.style.width = pct + '%';
-            if (timeDisplay) timeDisplay.textContent = formatTime(current) + ' / ' + formatTime(total);
-        }
-
-        var heroControlsTimer = null;
-
-        function showHeroControls() {
-            var controls = document.getElementById('hero-player-controls');
-            if (!controls) return;
-            controls.classList.add('visible');
-            clearTimeout(heroControlsTimer);
-            var video = document.getElementById('hero-demo-video');
-            if (video && !video.paused) {
-                heroControlsTimer = setTimeout(function() {
-                    controls.classList.remove('visible');
-                }, 2500);
-            }
-        }
-
-        function hideHeroControls() {
-            var video = document.getElementById('hero-demo-video');
-            var controls = document.getElementById('hero-player-controls');
-            if (!controls) return;
-            if (video && !video.paused) {
-                controls.classList.remove('visible');
-            }
-        }
-
-        function syncPlayerPlayUI(isPlaying) {
-            var overlay = document.getElementById('hero-video-overlay');
-            var controls = document.getElementById('hero-player-controls');
-            var ctrlPlayIcon = document.querySelector('.ctrl-play-icon');
-            var ctrlPauseIcon = document.querySelector('.ctrl-pause-icon');
-            var heroPlayIcon = document.querySelector('.hero-play-icon');
-            var heroPauseIcon = document.querySelector('.hero-pause-icon');
-            var playTag = document.querySelector('.hero-play-tag');
-
-            if (isPlaying) {
-                if (overlay) overlay.classList.add('playing');
-                if (ctrlPlayIcon) ctrlPlayIcon.style.display = 'none';
-                if (ctrlPauseIcon) ctrlPauseIcon.style.display = 'block';
-                if (heroPlayIcon) heroPlayIcon.style.display = 'none';
-                if (heroPauseIcon) heroPauseIcon.style.display = 'block';
-                if (playTag) playTag.textContent = 'Pause';
-                showHeroControls();
-            } else {
-                if (overlay) overlay.classList.remove('playing');
-                if (controls) controls.classList.add('visible');
-                if (ctrlPlayIcon) ctrlPlayIcon.style.display = 'block';
-                if (ctrlPauseIcon) ctrlPauseIcon.style.display = 'none';
-                if (heroPlayIcon) heroPlayIcon.style.display = 'block';
-                if (heroPauseIcon) heroPauseIcon.style.display = 'none';
-                if (playTag) playTag.textContent = 'Watch Demo (38s)';
-                clearTimeout(heroControlsTimer);
-            }
-        }
-
-        function toggleHeroVideoPlay(e) {
-            if (e) e.stopPropagation();
-            var video = document.getElementById('hero-demo-video');
-            if (!video) return;
-            if (video.paused) {
-                video.play().then(function() {
-                    syncPlayerPlayUI(true);
-                }).catch(function() {
-                    video.muted = true;
-                    updateHeroMuteUI(true);
-                    video.play().then(function() {
-                        syncPlayerPlayUI(true);
-                    });
-                });
-            } else {
-                video.pause();
-                syncPlayerPlayUI(false);
-            }
-        }
-
-        function skipHeroVideo(seconds, e) {
-            if (e) e.stopPropagation();
-            var video = document.getElementById('hero-demo-video');
-            if (!video) return;
-            var maxDur = video.duration || 38.2;
-            video.currentTime = Math.max(0, Math.min(maxDur, video.currentTime + seconds));
-            updatePlayerProgress();
-        }
-
-        function seekHeroVideo(e) {
-            if (e) e.stopPropagation();
-            var video = document.getElementById('hero-demo-video');
-            var scrub = e.currentTarget;
-            if (!video || !scrub) return;
-            var total = video.duration || 38.2;
-            var rect = scrub.getBoundingClientRect();
-            var clickX = e.clientX - rect.left;
-            var pct = Math.max(0, Math.min(1, clickX / rect.width));
-            video.currentTime = pct * total;
-            updatePlayerProgress();
-        }
-
-        (function() {
-            var video = document.getElementById('hero-demo-video');
-            if (video) {
-                video.addEventListener('play', function() {
-                    syncPlayerPlayUI(true);
-                });
-                video.addEventListener('pause', function() {
-                    syncPlayerPlayUI(false);
-                });
-                video.addEventListener('ended', function() {
-                    syncPlayerPlayUI(false);
-                    updatePlayerProgress();
-                });
-                video.addEventListener('timeupdate', updatePlayerProgress);
-                video.addEventListener('loadedmetadata', updatePlayerProgress);
-                video.addEventListener('volumechange', function() {
-                    updateHeroMuteUI(video.muted || video.volume === 0);
-                });
-            }
-        })();
+        function start() { if (!timer && !reduce) scheduleNext(); }
+        function stop() { clearTimeout(timer); timer = null; }
+        layout();
+        deck.querySelectorAll('.rr-btn').forEach(function (b) {
+            b.addEventListener('click', function () { stop(); swipe(b.getAttribute('data-dir')); setTimeout(start, 6000); });
+        });
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver(function (en) { if (en[0].isIntersecting) { start(); } else { stop(); } }, { threshold: 0.3 }).observe(deck);
+        } else { start(); }
+        document.addEventListener('visibilitychange', function () { if (document.hidden) { stop(); } else { start(); } });
+    })();
     </script>
 </body>
 </html>
