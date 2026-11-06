@@ -6477,6 +6477,24 @@
 
       const scamPillClass = c4.status === 'scam_reports_found' ? 'rr-sv-pill-danger' : 'rr-sv-pill-ok';
 
+      // Dynamic Social Profile list for advice
+      const foundSocialPlatforms = [];
+      if (c2.poster_linkedin || c2.company_linkedin) foundSocialPlatforms.push('LinkedIn');
+      if (c2.twitter_x) foundSocialPlatforms.push('X (Twitter)');
+      if (c2.facebook) foundSocialPlatforms.push('Facebook');
+      if (c2.instagram) foundSocialPlatforms.push('Instagram');
+      if (foundSocialPlatforms.length === 0) {
+        if (d.platform === 'linkedin') foundSocialPlatforms.push('LinkedIn');
+        else if (d.platform === 'x' || d.platform === 'twitter') foundSocialPlatforms.push('X (Twitter)');
+        else if (d.platform === 'facebook') foundSocialPlatforms.push('Facebook');
+        else foundSocialPlatforms.push('social media');
+      }
+      const socialPlatformLabel = foundSocialPlatforms.join(' / ');
+
+      // Check if lead is an individual poster with no registered company mentioned
+      const isIndividualPoster = !gr && !siteHost && !c1.official_website && !c1.exact_registered_legal_name && dirList.length === 0;
+
+
       const socialButtons = [
         [c2.company_linkedin, 'Company LinkedIn', '🏢'],
         [c2.poster_linkedin, 'Poster LinkedIn', '👤'],
@@ -6594,11 +6612,18 @@
                 ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : ''}
                 ${c1.verified_hq ? ` &middot; <b>HQ:</b> ${esc(c1.verified_hq)}` : ''}
                 <div style="margin-top:6px;color:#27272a;">${esc(c1.summary || 'No public government registration record matched.')}</div>
-                ${c1.what_to_ask_employer ? `
+                ${isIndividualPoster ? `
+                  <div style="margin-top:8px;padding:9px 12px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
+                    <b>💡 Individual / Unregistered Hiring Lead:</b><br>
+                    This job is posted by an individual with no registered company mentioned. Before applying, inspect their <b>${esc(socialPlatformLabel)}</b> profile:<br>
+                    &bull; <i>Does their profile look authentic with Real People Engaging them?</i><br><br>
+                    If their profile looks thin or doesn't feel right, we advise you to decline and move on &mdash; Rover continuously scans and will add fresh, verified jobs to your deck.
+                  </div>
+                ` : (c1.what_to_ask_employer ? `
                   <div style="margin-top:8px;padding:8px 11px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
                     <b>💡 What to Ask the Employer:</b> ${esc(c1.what_to_ask_employer)}
                   </div>
-                ` : ''}
+                ` : '')}
                 ${offReg && offReg.registry_url ? `
                   <div style="margin-top:8px;">
                     <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" class="rr-sv-social-a" style="font-size:0.75rem;padding:4px 10px;">
@@ -6648,7 +6673,9 @@
             </div>
             ${uniqueMentions.length
               ? `<div class="rr-sv-social-links">${mentionChips}</div>`
-              : '<div style="font-size:0.8rem;color:#3f3f46">Contact email is exclusive to official company domain with no external third-party listings.</div>'}
+              : (c3.status && c3.status.startsWith('free_email')
+                  ? '<div style="font-size:0.8rem;color:#3f3f46">0 external web mentions indexed for this free email address. Personal or newly created free email accounts typically have no historical public footprint on search engines.</div>'
+                  : '<div style="font-size:0.8rem;color:#3f3f46">Contact email is exclusive to official company domain with no external third-party listings.</div>')}
           </div>
         </div>
       `;
