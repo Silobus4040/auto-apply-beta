@@ -3091,9 +3091,9 @@
       const socialButtons = [
         [c2.company_linkedin, 'Company LinkedIn', '🏢'],
         [c2.poster_linkedin, 'Poster LinkedIn', '👤'],
-        [c2.twitter_x, 'X (Twitter)', '𝕏'],
-        [c2.facebook, 'Facebook Page', '📘'],
-        [c2.instagram, 'Instagram', '📸'],
+        [c2.twitter_x, 'Poster X (Twitter)', '👤'],
+        [c2.facebook, 'Poster Facebook', '👤'],
+        [c2.instagram, 'Poster Instagram', '👤'],
         [c2.website || c1.official_website, siteHost || 'Official Website', '🌐']
       ].filter(item => item[0] && /^https?:\/\//i.test(item[0]))
        .map(item => `<a class="rr-sv-social-a" href="${esc(item[0])}" target="_blank" rel="noopener noreferrer">${item[2]} ${esc(item[1])} ↗</a>`)
@@ -3208,7 +3208,7 @@
                 ${isIndividualPoster ? `
                   <div style="margin-top:8px;padding:9px 12px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
                     <b>💡 Individual / Unregistered Hiring Lead:</b><br>
-                    This job is posted by an individual with no registered company mentioned. Before applying, inspect their <b>${esc(socialPlatformLabel)}</b> profile:<br>
+                    This job is posted by an individual with no registered company mentioned. Before applying, inspect the poster's <b>${esc(socialPlatformLabel)}</b> profile:<br>
                     &bull; <i>Does their profile look authentic with Real People Engaging them?</i><br><br>
                     If their profile looks thin or doesn't feel right, we advise you to decline and move on &mdash; Rover continuously scans and will add fresh, verified jobs to your deck.
                   </div>
