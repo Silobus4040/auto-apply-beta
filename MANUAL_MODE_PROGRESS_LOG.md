@@ -1165,3 +1165,64 @@ deck_refill_state rows deleted, all 30 auth users deleted, 0 remaining
 This closes the gap flagged in section 34/35: a brand-new-signup burst at launch scale now
 succeeds for everyone within the page's own wait, at the same safe server settings that were
 already proven not to fail under load.
+
+## 37. HANDOFF — Free Job Deck arc (sections 22-36) + open nav/naming discussion (2026-11-06)
+
+Founder asked this to be written up so another agent/session can take over cleanly. Summary + the
+one thread that wasn't logged anywhere yet.
+
+**Shipped and live (sections 22-36), nothing further pending on any of it:**
+- Free Job Deck rebuilt as a real deck on the saved list (`job_queue_assignments`, same list
+  automation uses) via `rr_free_deck_ids` / `rr_free_deck_refill`, instead of re-running a full
+  search on every page view (§32). Throttled server-side (Postgres advisory locks, cap 5 -- NOT
+  Redis, and NOT raised past 5: cap 10 causes real statement-timeout failures under concurrent
+  load, proven twice).
+- CRITICAL bug fixed: Apply Manually no longer writes `decision='apply'` to `user_job_swipes`, so
+  it can never again be replayed into a real bot application by the n8n hourly backstop (§30-31).
+  `recordSwipe` in `jobs.html` now hard-refuses any decision other than `'skip'`.
+- "I applied" flow live: one-time notice, a post-click "Applied to X?" bar, and a reminder on
+  automation cards for jobs the user opened themselves (`rr_mark_manual_applied`). Auto-Apply
+  deliberately untouched.
+- Automation's LIVE scoring (while a user swipes, not just the hourly background sweep) now
+  respects `score_budget` too (§33) -- `score_budget` is a queue-size ceiling, not a daily call
+  counter (see memory `score-budget-is-queue-ceiling-not-daily-count`).
+- The Free Job Deck is open to every signed-in user now (§: gate removed from `jobs.html`,
+  `dashboard.html`, `swipe.html` -- the old mosco-only / `feature_access.manual_mode` check was
+  client-side only; `rr_free_deck_ids`/`rr_free_deck_refill` were already callable by any
+  authenticated user, confirmed against the Supabase RLS/API-security docs before removing it).
+- Retry patience raised from ~48s to ~142s (§35) so a burst of brand-new users all needing a
+  refill at once actually gets through instead of giving up early; re-verified for real (§36):
+  39/39 real accounts succeeded (was 23/39 under the old budget), 0 server errors, at the same
+  cap-5 setting.
+- mosco reverted to Lagos/Lagos/Nigeria (was New York for testing). His 10 credits charged by the
+  §30 bug are **still not refunded -- open, founder's own call, nobody should do this
+  unilaterally.**
+
+**OPEN, not logged anywhere else -- today's nav/naming discussion (not yet built, no code
+changed):** another agent/thread is building Social Hiring Posts (`swipe.html?mode=hiring`,
+scrapes Facebook/LinkedIn recruiter posts, drafts cold-outreach email + resume PDF into the
+Dedicated Mailbox). That work surfaced a real navigation problem: the 3-way toggle --
+"Employer Career Pages (158)" / "Social Hiring Posts (40)" / "Free Job Deck" -- mixes two
+different naming axes. Tabs 1 and 2 are named by WHERE the job came from (source); Tab 3 is named
+by HOW you apply + price (execution). Tabs 1 and 3 are often literally the *same underlying jobs*
+(career-portal scrapes), which the current naming hides rather than shows.
+
+Discussed and landed on (founder confirmed the direction, nothing built): name every tab by BOTH
+axes, source first, so the shared-source relationship between Tab 1 and Tab 3 is visible at a
+glance instead of hidden:
+- "🏢 Career Pages — Auto-Apply (158)" (was "Employer Career Pages")
+- "📱 Social Posts — Auto Outreach (40)" (was "Social Hiring Posts"; consider spelling out
+  "Facebook & LinkedIn Posts" if "Social Posts" is still too vague once it's actually built)
+- "🏢 Career Pages — Apply Yourself (Free)" (was "Free Job Deck")
+
+Also discussed, not decided: whether to additionally nest Tab 1 and Tab 3 under one shared
+"Career Pages" parent with an Auto-Apply/Apply-Yourself toggle inside it, now that the shared
+source is explicit in the label -- founder had not picked between flat-three-tabs-with-the-new-
+labels vs. the nested version when this was logged. Whoever picks this up should ask the founder
+which before building, not assume.
+
+On the free-vs-paid question raised in the same discussion: the free Manual Apply tab should stay
+(top-of-funnel, builds trust/data) but should keep its REAL friction honest rather than papering
+over it -- no AI fit score, no tailored resume, no auto-fill, user self-reports whether they
+applied. That's already exactly how the Free Job Deck works today (§31/32); nothing to change
+there, just don't accidentally remove that friction while reworking the nav.
