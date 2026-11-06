@@ -1859,7 +1859,7 @@
                 <a class="sidebar-nav-item" id="sidebar-hiring-posts-link" href="swipe.html?mode=hiring" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <i data-lucide="smartphone" class="sidebar-nav-icon"></i>
-                        <span>Social Hiring Posts</span>
+                        <span>Hiring Posts (Social Media)</span>
                     </div>
                     <span class="badge" style="font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40</span>
                 </a>
@@ -2025,7 +2025,7 @@
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">TOTAL JOBS FOUND</span>
                 <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">198</span>
-                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Company Career Pages · 40 Social Hiring Posts</div>
+                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Company Career Pages · 40 Hiring Posts (Social Media)</div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
@@ -2742,7 +2742,7 @@
               </div>
               <div class="rr-sv-body">
                 <div class="rr-sv-welcome-box">
-                  <span class="rr-sv-section-title">Social Hiring Posts</span>
+                  <span class="rr-sv-section-title">Hiring Posts (Social Media)</span>
                   <p style="margin:0 0 12px;">Every day, founders, small and medium-sized businesses (SMEs), and hiring managers post real job openings directly on Facebook, LinkedIn, and X (formerly Twitter).</p>
                   <p style="margin:0;">Unlike traditional job listings hosted on Applicant Tracking Systems like Greenhouse, Workday, Workable, etc., where applications are often filtered or screened first by AI, social hiring posts with emails give you a direct route to get your application reviewed by a human first instead of an AI.</p>
 
@@ -3751,10 +3751,10 @@
                 if (careerChevron) careerChevron.style.transform = 'rotate(-90deg)';
                 const title = document.querySelector('.page-title');
                 if (title) {
-                    title.innerHTML = 'Social Hiring Posts <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
+                    title.innerHTML = 'Hiring Posts (Social Media) <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
                 }
                 const mobileTitle = document.getElementById('mobile-page-title');
-                if (mobileTitle) mobileTitle.textContent = 'Social Hiring Posts';
+                if (mobileTitle) mobileTitle.textContent = 'Hiring Posts (Social Media)';
             } else {
                 if (careerParent) careerParent.classList.add('active');
                 if (hiringLink) hiringLink.classList.remove('active');
@@ -6063,7 +6063,7 @@
             el.textContent = totalCombined.toLocaleString();
             const breakdown = document.getElementById('stat-total-breakdown');
             if (breakdown) {
-                breakdown.textContent = `${portalCount.toLocaleString()} Company Career Pages · ${hiringCount} Social Hiring Posts`;
+                breakdown.textContent = `${portalCount.toLocaleString()} Company Career Pages · ${hiringCount} Hiring Posts (Social Media)`;
             }
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
