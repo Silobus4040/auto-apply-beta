@@ -1,0 +1,124 @@
+{
+  "_note": "ONE ROLE: Designer. Real public postings from the RoleRover job pool (queried 2026-11-05). fit_pct is ILLUSTRATIVE, not a real match score. salary only where the posting lists one.",
+  "role": "Designer",
+  "primary": [
+    {
+      "slot": "USA",
+      "company": "Figma",
+      "role": "Product Designer, AI Models",
+      "location": "San Francisco, CA • New York, NY • United States",
+      "workplace": "Remote",
+      "eligible_regions": [
+        "US"
+      ],
+      "salary": "$169,000 — $303,000 USD",
+      "ats": "Greenhouse",
+      "posted": "2026-07-30",
+      "apply_url": "https://boards.greenhouse.io/figma/jobs/5711913004?gh_jid=5711913004",
+      "fit_pct": 94,
+      "fit_is_illustrative": true
+    },
+    {
+      "slot": "EMEA / worldwide-friendly (remote)",
+      "company": "Canonical",
+      "role": "UX Designer - Design systems",
+      "location": "Home based - EMEA",
+      "workplace": "Remote",
+      "eligible_regions": [
+        "EMEA"
+      ],
+      "salary": null,
+      "ats": "Greenhouse",
+      "posted": "2026-07-30",
+      "apply_url": "https://job-boards.greenhouse.io/canonical/jobs/7043028",
+      "fit_pct": 91,
+      "fit_is_illustrative": true
+    },
+    {
+      "slot": "Nigeria (remote)",
+      "company": "Moniepoint",
+      "role": "Staff Product Designer",
+      "location": "Remote, Nigeria",
+      "workplace": "Remote",
+      "eligible_regions": [
+        "Nigeria"
+      ],
+      "salary": null,
+      "ats": "Greenhouse",
+      "posted": "2026-08-13",
+      "apply_url": "https://job-boards.eu.greenhouse.io/moniepoint/jobs/4710853101",
+      "fit_pct": 90,
+      "fit_is_illustrative": true
+    },
+    {
+      "slot": "Kenya (remote)",
+      "company": "Wikimedia Foundation",
+      "role": "Senior UX Designer",
+      "location": "Remote",
+      "workplace": "Remote",
+      "eligible_regions": [
+        "US",
+        "Brazil",
+        "Canada",
+        "Colombia",
+        "France",
+        "Germany",
+        "Ghana",
+        "India",
+        "Indonesia",
+        "Italy",
+        "Kenya",
+        "Mexico",
+        "Morocco",
+        "Netherlands",
+        "Poland",
+        "Singapore",
+        "South Africa",
+        "Spain",
+        "Switzerland",
+        "UK"
+      ],
+      "salary": "$116,633-$181,243/yr",
+      "ats": "Greenhouse",
+      "posted": "2026-10-29",
+      "apply_url": "https://job-boards.greenhouse.io/wikimedia/jobs/8319366",
+      "fit_pct": 92,
+      "fit_is_illustrative": true
+    },
+    {
+      "slot": "Ghana (remote)",
+      "company": "Wikimedia Foundation",
+      "role": "Lead Learning Experience Designer",
+      "location": "Remote",
+      "workplace": "Remote",
+      "eligible_regions": [
+        "US",
+        "Brazil",
+        "Canada",
+        "Colombia",
+        "France",
+        "Germany",
+        "Ghana",
+        "India",
+        "Indonesia",
+        "Italy",
+        "Kenya",
+        "Mexico",
+        "Morocco",
+        "Netherlands",
+        "Poland",
+        "Singapore",
+        "South Africa",
+        "Spain",
+        "Switzerland",
+        "United Kingdom"
+      ],
+      "salary": "US$117,437 to US$177,624",
+      "ats": "Greenhouse",
+      "posted": "2026-08-29",
+      "apply_url": "https://job-boards.greenhouse.io/wikimedia/jobs/8136610",
+      "fit_pct": 89,
+      "fit_is_illustrative": true
+    }
+  ]
+}
