@@ -7,49 +7,19 @@
     <title>AutoApply AI | Profile Setup</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <meta name="robots" content="noindex,nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/tokens.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.7.0/mammoth.browser.min.js"></script>
     <style>
-        :root {
-            --bg-color: #ffffff;
-            --surface-color: #ffffff;
-            --primary: #00FFCC;
-            --primary-hover: #00e6b8;
-            --secondary: #FF6B4A;
-            --text-heading: #000000;
-            --text-body: #27272A;
-            --border: #e4e4e7;
-        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
         html { overflow-x: clip; }
         body { background-color: var(--bg-color); color: var(--text-body); line-height: 1.6; min-height: 100vh; position: relative; width: 100%; max-width: 100%; overflow-x: clip; -webkit-overflow-scrolling: touch; }
 
-        /* Soft background glows */
-        body::before {
-            content: '';
-            position: absolute;
-            top: -10%; left: -10%;
-            width: 50vw; height: 50vw;
-            background: radial-gradient(circle, rgba(212,255,51,0.08) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-        body::after {
-            content: '';
-            position: absolute;
-            bottom: -10%; right: -10%;
-            width: 40vw; height: 40vw;
-            background: radial-gradient(circle, rgba(0,255,204,0.08) 0%, transparent 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid rgba(0,0,0,0.06); width: 100%; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
-        .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 5%; max-width: 1400px; margin: 0 auto; border-bottom: 1px solid var(--border); width: 100%; background: rgba(255,255,255,0.85); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
+        .logo { color: var(--text-heading); display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
 
         .container { width: 100%; max-width: 760px; margin: 2.5rem auto 4rem; padding: 0 1.5rem; position: relative; z-index: 1; box-sizing: border-box; }
         @media (max-width: 600px) {
@@ -63,38 +33,38 @@
         .form-step { width: 100%; padding: 0; box-sizing: border-box; }
         .form-step:last-child { display: none; }
 
-        .card { background: var(--surface-color); border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 3rem 2.75rem; box-shadow: 0 20px 40px rgba(0, 255, 204, 0.04); margin-bottom: 1.5rem; }
+        .card { background: var(--surface-color); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 3rem 2.75rem; box-shadow: none; margin-bottom: 1.5rem; }
         @media (max-width: 600px) {
-            .card { padding: 1.5rem; border-radius: 20px; }
+            .card { padding: 1.5rem; border-radius: var(--r-lg); }
         }
-        .card-title { color: #000000; font-size: 1.06rem; font-weight: 800; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
-        .card-title .num { background: #00FFCC; color: #000; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 900; flex-shrink: 0; border-radius: 50%; }
+        .card-title { color: var(--ink); font-size: 1.06rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.6rem; border-bottom: 1px solid var(--border); padding-bottom: 1rem; }
+        .card-title .num { background: var(--accent); color: var(--ink); width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; font-weight: 700; flex-shrink: 0; border-radius: 50%; }
 
         .form-group { margin-bottom: 1.5rem; }
-        .form-group label { display: block; margin-bottom: 0.5rem; color: #52525B; font-weight: 700; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="url"], .form-group input[type="tel"], .form-group input[type="date"], .job-title-input { width: 100%; height: 50px; padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; color: #000000; font-size: 1rem; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; -webkit-appearance: none; appearance: none; }
-        .form-group input:focus, .job-title-input:focus { outline: none !important; border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
+        .form-group label { display: block; margin-bottom: 0.5rem; color: var(--text-muted); font-weight: 600; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; }
+        .form-group input[type="text"], .form-group input[type="password"], .form-group input[type="email"], .form-group input[type="number"], .form-group input[type="url"], .form-group input[type="tel"], .form-group input[type="date"], .job-title-input { width: 100%; height: 50px; padding: 0.85rem 1rem; background: #ffffff; border: 1px solid var(--border); border-radius: var(--r-sm); color: var(--text-heading); font-size: 1rem; font-family: inherit; transition: border-color 0.2s, box-shadow 0.2s; box-sizing: border-box; -webkit-appearance: none; appearance: none; }
+        .form-group input:focus, .job-title-input:focus { outline: none !important; border-color: var(--ink) !important; box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08) !important; }
 
         .job-title-row { display: flex; gap: 0.75rem; align-items: center; width: 100%; }
-        .job-title-remove { flex: 0 0 auto; width: 44px; height: 50px; padding: 0; border: 1px solid var(--border); border-radius: 12px; background: #ffffff; color: #52525B; font-size: 1.35rem; line-height: 1; cursor: pointer; }
-        .job-title-remove:hover { background: #F4F4F5; color: #000000; }
+        .job-title-remove { flex: 0 0 auto; width: 44px; height: 50px; padding: 0; border: 1px solid var(--border); border-radius: var(--r-sm); background: #ffffff; color: var(--text-muted); font-size: 1.35rem; line-height: 1; cursor: pointer; }
+        .job-title-remove:hover { background: #F4F4F5; color: var(--ink); }
         @media (max-width: 600px) {
             .job-title-row { flex-direction: column; align-items: stretch !important; gap: 0.5rem; }
             .job-title-row .job-title-input { width: 100% !important; flex: 1 1 auto !important; }
             .job-title-row .select-wrapper { width: 100% !important; min-width: 0 !important; flex: 1 1 auto !important; }
             .job-title-row .job-title-remove { align-self: flex-end; height: 40px; }
         }
-        .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: 12px; color: #52525B; cursor: pointer; transition: all 0.2s; }
+        .form-group input[type="file"] { width: 100%; padding: 1.5rem 1rem; background: #ffffff; border: 2px dashed var(--border); border-radius: var(--r-sm); color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
         .form-group input[type="file"]:hover { border-color: #A1A1AA; }
-        .form-group input[type="file"]::file-selector-button { margin-right: 0.75rem; padding: 0.7rem 1rem; border: 0; border-radius: 8px; background: #111111; color: #ffffff; font: inherit; font-size: 0.85rem; font-weight: 800; cursor: pointer; }
-        
+        .form-group input[type="file"]::file-selector-button { margin-right: 0.75rem; padding: 0.7rem 1rem; border: 0; border-radius: var(--r-sm); background: var(--ink); color: #ffffff; font: inherit; font-size: 0.85rem; font-weight: 700; cursor: pointer; }
+
         .field-error, .select-wrapper.field-error select, .form-group input.field-error { border-color: #EF4444 !important; box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important; }
-        
+
         .choices { width: 100% !important; max-width: 100% !important; }
-        .choices__inner { position: relative !important; border-radius: 12px !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.4rem 2.2rem 0.4rem 0.6rem !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
+        .choices__inner { position: relative !important; border-radius: var(--r-sm) !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; padding: 0.4rem 2.2rem 0.4rem 0.6rem !important; width: 100% !important; max-width: 100% !important; box-sizing: border-box !important; }
         .choices__inner::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; }
-        .choices.is-focused .choices__inner { border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
-        .choices__list--multiple .choices__item { position: relative !important; display: inline-block !important; max-width: min(100%, 220px) !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; vertical-align: middle !important; background-color: #F4F4F5 !important; border: 1px solid #D4D4D8 !important; color: #000000 !important; border-radius: 8px !important; font-weight: 600 !important; font-size: 0.82rem !important; padding: 0.35rem 1.6rem 0.35rem 0.65rem !important; margin: 0.2rem 0.35rem 0.2rem 0 !important; line-height: 1.3 !important; }
+        .choices.is-focused .choices__inner { border-color: var(--ink) !important; box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08) !important; }
+        .choices__list--multiple .choices__item { position: relative !important; display: inline-block !important; max-width: min(100%, 220px) !important; overflow: hidden !important; text-overflow: ellipsis !important; white-space: nowrap !important; vertical-align: middle !important; background-color: #F4F4F5 !important; border: 1px solid #D4D4D8 !important; color: var(--ink) !important; border-radius: var(--r-sm) !important; font-weight: 600 !important; font-size: 0.82rem !important; padding: 0.35rem 1.6rem 0.35rem 0.65rem !important; margin: 0.2rem 0.35rem 0.2rem 0 !important; line-height: 1.3 !important; }
         .choices__item--selectable::after { display: none !important; }
         .choices__list--multiple .choices__button { position: absolute !important; top: 50% !important; right: 0.35rem !important; transform: translateY(-50%) !important; --choices-icon-cross: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; width: 14px !important; min-width: 14px !important; height: 14px !important; background-size: 10px !important; margin: 0 !important; padding: 0 !important; border: 0 !important; opacity: 0.8 !important; }
         .choices__list--multiple .choices__button:hover { opacity: 0.6 !important; }
@@ -103,65 +73,60 @@
         .choices__list--dropdown .choices__item--choice.is-disabled { display: none !important; }
         .choices[data-type*="select-one"] .choices__button { --choices-icon-cross-inverse: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='21' height='21' viewBox='0 0 21 21'%3E%3Cg fill='%23000000' fill-rule='evenodd'%3E%3Cpath d='M2.592.044l18.364 18.364-2.548 2.548L.044 2.592z'/%3E%3Cpath d='M0 18.364L18.364 0l2.548 2.548L2.548 20.912z'/%3E%3C/g%3E%3C/svg%3E") !important; opacity: 1 !important; margin-right: 1.5rem !important; }
         .choices[data-type*="select-one"] .choices__button:hover { opacity: 0.6 !important; }
-        .form-hint { font-size: 0.8rem; color: #6B7280; margin-top: 0.4rem; }
-        .category-guardrail { display: none; margin-top: 0.8rem; padding: 0.9rem 1rem; border: 1px solid rgba(0, 255, 204, 0.45); border-left: 4px solid #00FFCC; border-radius: 12px; background: #F0FFFC; color: #27272A; font-size: 0.85rem; font-weight: 500; line-height: 1.5; }
+        .form-hint { font-size: 0.8rem; color: var(--text-subtle); margin-top: 0.4rem; }
+        .category-guardrail { display: none; margin-top: 0.8rem; padding: 0.9rem 1rem; border: 1px solid rgba(0, 255, 204, 0.45); border-left: 4px solid var(--accent); border-radius: var(--r-md); background: var(--success-tint); color: var(--text); font-size: 0.85rem; font-weight: 500; line-height: 1.5; }
         .category-guardrail.is-visible { display: block; }
-        .category-guardrail strong { color: #000000; }
+        .category-guardrail strong { color: var(--ink); }
 
         .select-wrapper { position: relative; width: 100%; display: block; }
         .select-wrapper::after { content: ''; position: absolute; top: 50%; right: 1.1rem; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-65%) rotate(45deg); pointer-events: none; z-index: 2; }
-        .select-wrapper select, .job-level-select { width: 100%; height: 50px; padding: 0.85rem 2.5rem 0.85rem 1rem !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; border-radius: 12px !important; color: #000000 !important; font-size: 1rem !important; font-family: inherit !important; line-height: 1.4 !important; box-sizing: border-box !important; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; }
-        .select-wrapper select:focus, .job-level-select:focus { outline: none !important; border-color: #A1A1AA !important; box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.06) !important; }
+        .select-wrapper select, .job-level-select { width: 100%; height: 50px; padding: 0.85rem 2.5rem 0.85rem 1rem !important; background-color: #ffffff !important; border: 1px solid var(--border) !important; border-radius: var(--r-sm) !important; color: var(--text-heading) !important; font-size: 1rem !important; font-family: inherit !important; line-height: 1.4 !important; box-sizing: border-box !important; cursor: pointer; transition: border-color 0.2s, box-shadow 0.2s; -webkit-appearance: none !important; -moz-appearance: none !important; appearance: none !important; }
+        .select-wrapper select:focus, .job-level-select:focus { outline: none !important; border-color: var(--ink) !important; box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08) !important; }
 
         .industry-combobox { position: relative; width: 100%; }
         .industry-combobox #industry { padding-right: 3rem; }
-        .industry-toggle { position: absolute; top: 0; right: 0; width: 3rem; height: 100%; border: 0; background: transparent; cursor: pointer; border-radius: 0 12px 12px 0; display: flex; align-items: center; justify-content: center; }
+        .industry-toggle { position: absolute; top: 0; right: 0; width: 3rem; height: 100%; border: 0; background: transparent; cursor: pointer; border-radius: 0 var(--r-sm) var(--r-sm) 0; display: flex; align-items: center; justify-content: center; }
         .industry-toggle::after { content: ''; width: 8px; height: 8px; border-right: 2px solid #71717A; border-bottom: 2px solid #71717A; transform: translateY(-25%) rotate(45deg); pointer-events: none; }
-        .industry-options { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; z-index: 50; max-height: 260px; overflow-y: auto; padding: 0.4rem; background: #ffffff; border: 1px solid var(--border); border-radius: 12px; box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12); }
+        .industry-options { position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0; z-index: 50; max-height: 260px; overflow-y: auto; padding: 0.4rem; background: #ffffff; border: 1px solid var(--border); border-radius: var(--r-md); box-shadow: var(--shadow-md); }
         .industry-options[hidden] { display: none; }
-        .industry-option { display: block; width: 100%; padding: 0.75rem 0.9rem; border: 0; border-radius: 8px; background: transparent; color: #27272A; cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 600; line-height: 1.35; text-align: left; transition: background 0.15s ease; }
+        .industry-option { display: block; width: 100%; padding: 0.75rem 0.9rem; border: 0; border-radius: var(--r-sm); background: transparent; color: var(--text); cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 600; line-height: 1.35; text-align: left; transition: background 0.15s ease; }
         .industry-option[hidden] { display: none; }
-        .industry-option:hover, .industry-option.is-active { background: #F4F4F5; color: #000000; }
-        .industry-option[aria-selected="true"] { background: #E4E4E7; color: #000000; font-weight: 700; }
+        .industry-option:hover, .industry-option.is-active { background: #F4F4F5; color: var(--ink); }
+        .industry-option[aria-selected="true"] { background: #E4E4E7; color: var(--ink); font-weight: 700; }
 
-        .info-box { background: rgba(0, 255, 204, 0.04); border: 1px solid rgba(0, 255, 204, 0.2); border-left: 4px solid #00FFCC; padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-radius: 12px; }
-        .info-box p { color: #27272A; font-size: 0.93rem; line-height: 1.65; margin-bottom: 0.6rem; font-weight: 500; }
-        .info-box strong { color: #000000; }
+        .info-box { background: var(--success-tint); border: 1px solid rgba(0, 255, 204, 0.3); border-left: 4px solid var(--accent); padding: 1.25rem 1.5rem; margin-bottom: 1.5rem; border-radius: var(--r-md); }
+        .info-box p { color: var(--text); font-size: 0.93rem; line-height: 1.65; margin-bottom: 0.6rem; font-weight: 500; }
+        .info-box strong { color: var(--ink); }
 
-        .btn { padding: 0.8rem 1.6rem; border-radius: 50px; font-size: 0.88rem; font-weight: 800; cursor: pointer; border: none; width: 100%; display: block; text-align: center; text-transform: uppercase; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); letter-spacing: 0.4px; }
-        
-        /* Modern Liquid Motion Button */
-        @keyframes liquid-gradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .btn-primary { background: #00FFCC; color: #000000; border: none; box-shadow: 0 4px 15px rgba(0, 255, 204, 0.25); position: relative; }
-        .btn-primary:hover { transform: translateY(-2px) scale(1.01); box-shadow: 0 6px 20px rgba(0, 255, 204, 0.35); background: #00e6b8; }
+        .btn { padding: 0.8rem 1.6rem; border-radius: var(--r-pill); font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; width: 100%; display: block; text-align: center; transition: background var(--t-hover) ease, transform var(--t-hover) ease; min-height: 44px; }
+
+        .btn-primary { background: var(--accent); color: var(--ink); border: 1px solid rgba(10,10,10,0.08); box-shadow: none; position: relative; }
+        .btn-primary:hover { background: var(--accent-hover); }
+        .btn-primary:active { transform: translateY(1px); }
         .btn-compact { width: min(100%, 320px); margin-left: auto; margin-right: auto; padding: 0.75rem 1.5rem; font-size: 0.85rem; }
         .resume-continue { margin-top: 1.5rem; }
-        
-        .btn-secondary { background: #ffffff; color: #52525B; border: 1px solid var(--border); margin-bottom: 1rem; border-radius: 50px; }
-        .btn-secondary:hover { color: #FF6B4A; border-color: #FF6B4A; }
-        .finish-later { width: auto; margin: 1rem auto 0; padding: 0.25rem; background: transparent; border: 0; color: #71717A; font-size: 0.85rem; font-weight: 700; letter-spacing: 0; text-transform: none; text-decoration: underline; box-shadow: none; display: block; }
-        .finish-later:hover { color: #000000; transform: none; box-shadow: none; }
+
+        .btn-secondary { background: #ffffff; color: var(--text-muted); border: 1px solid var(--border); margin-bottom: 1rem; border-radius: var(--r-pill); }
+        .btn-secondary:hover { color: var(--ink); border-color: var(--ink); background: #F4F4F5; }
+        .finish-later { width: auto; margin: 1rem auto 0; padding: 0.25rem; background: transparent; border: 0; color: var(--text-subtle); font-size: 0.85rem; font-weight: 600; letter-spacing: 0; text-decoration: underline; box-shadow: none; display: block; }
+        .finish-later:hover { color: var(--ink); transform: none; box-shadow: none; }
         .profile-review { display: none; }
         .profile-review.is-visible { display: block; animation: reveal-profile 0.3s ease-out; }
-        .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1.25rem 0 0; border-top: 1px solid rgba(0, 255, 204, 0.25); background: transparent; }
+        .resume-extraction-panel { display: none; margin-top: 1rem; padding: 1.25rem 0 0; border-top: 1px solid var(--border); background: transparent; }
         .resume-extraction-panel.is-visible { display: block; }
-        .extraction-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; color: #000; font-size: 0.78rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase; }
-        .extraction-badge { padding: 0.25rem 0.55rem; border-radius: 999px; background: #00FFCC; font-size: 0.68rem; white-space: nowrap; }
+        .extraction-heading { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.75rem; color: var(--ink); font-size: 0.78rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+        .extraction-badge { padding: 0.25rem 0.55rem; border-radius: var(--r-pill); background: var(--accent); font-size: 0.68rem; white-space: nowrap; }
         .extraction-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.55rem; }
-        .extraction-item { min-width: 0; padding: 0.6rem 0.7rem; border-radius: 10px; background: rgba(255,255,255,0.82); border: 1px solid rgba(0,0,0,0.06); }
-        .extraction-label { display: block; margin-bottom: 0.2rem; color: #71717A; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
-        .extraction-value { display: block; overflow: hidden; color: #18181B; font-size: 0.82rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+        .extraction-item { min-width: 0; padding: 0.6rem 0.7rem; border-radius: var(--r-sm); background: rgba(255,255,255,0.82); border: 1px solid rgba(0,0,0,0.06); }
+        .extraction-label { display: block; margin-bottom: 0.2rem; color: var(--text-subtle); font-size: 0.65rem; font-weight: 700; text-transform: uppercase; }
+        .extraction-value { display: block; overflow: hidden; color: var(--ink); font-size: 0.82rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
         .extraction-stage-list { display: grid; gap: 0.55rem; }
-        .extraction-stage { display: flex; align-items: center; gap: 0.6rem; color: #71717A; font-size: 0.78rem; font-weight: 700; }
+        .extraction-stage { display: flex; align-items: center; gap: 0.6rem; color: var(--text-subtle); font-size: 0.78rem; font-weight: 600; }
         .extraction-stage::before { content: ''; width: 8px; height: 8px; flex: 0 0 8px; border-radius: 50%; background: #D4D4D8; }
-        .extraction-stage.active { color: #00695C; }
-        .extraction-stage.active::before { background: #00FFCC; box-shadow: 0 0 0 4px rgba(0,255,204,0.14); }
-        .extraction-stage.complete { color: #27272A; }
-        .extraction-stage.complete::before { content: '✓'; width: 16px; height: 16px; flex-basis: 16px; color: #00695C; background: #00FFCC; font-size: 0.65rem; font-weight: 900; text-align: center; line-height: 16px; }
+        .extraction-stage.active { color: var(--success-text); }
+        .extraction-stage.active::before { background: var(--accent); box-shadow: 0 0 0 4px rgba(0,255,204,0.14); }
+        .extraction-stage.complete { color: var(--text); }
+        .extraction-stage.complete::before { content: '✓'; width: 16px; height: 16px; flex-basis: 16px; color: var(--success-text); background: var(--accent); font-size: 0.65rem; font-weight: 900; text-align: center; line-height: 16px; }
         .extraction-profile { display: none; padding: 0.25rem 0 0.8rem; }
         .extraction-profile.is-visible { display: block; }
         .profile-identity { display: flex; align-items: center; gap: 0.7rem; padding-bottom: 0.8rem; border-bottom: 1px solid rgba(0,0,0,0.08); }
@@ -198,17 +163,17 @@
            second résumé editor. Detailed extraction stays in the backend. */
         #resume-sections, #extracted-skills, #extraction-grid, .profile-stats { display: none !important; }
         .extracted-skills { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.75rem; }
-        .skill-chip { padding: 0.3rem 0.55rem; border-radius: 999px; background: rgba(0,255,204,0.12); color: #00695C; font-size: 0.7rem; font-weight: 800; }
+        .skill-chip { padding: 0.3rem 0.55rem; border-radius: var(--r-pill); background: var(--success-tint); color: var(--success-ink); font-size: 0.7rem; font-weight: 700; }
         @media (max-width: 480px) { .extraction-grid { grid-template-columns: 1fr; } }
         @keyframes reveal-profile { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        .error-msg { background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); color: #EF4444; padding: 0.75rem 1rem; font-weight: 700; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; text-transform: uppercase; text-align: center; border-radius: 12px; }
-        
+        .error-msg { background: #FEF2F2; border: 1px solid #FECACA; color: #DC2626; padding: 0.75rem 1rem; font-weight: 600; font-size: 0.88rem; margin-bottom: 1.25rem; display: none; text-align: center; border-radius: var(--r-sm); }
+
         .loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.92); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 1rem; backdrop-filter: blur(5px); }
         .loading-overlay.active { display: flex; }
-        .spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: #FF6B4A; border-radius: 50%; animation: spin 0.8s linear infinite; }
+        .spinner { width: 48px; height: 48px; border: 4px solid var(--border); border-top-color: var(--ink); border-radius: 50%; animation: spin 0.8s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        .loading-text { color: #000000; font-weight: 900; font-size: 1.1rem; text-transform: uppercase; letter-spacing: 1px; }
+        .loading-text { color: var(--ink); font-weight: 600; font-size: 1.1rem; letter-spacing: 0; }
 
         .row-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
         @media(max-width: 600px) { .row-grid { grid-template-columns: 1fr; } }
@@ -245,7 +210,7 @@
     <nav>
 <a href="index.html" class="logo" style="text-decoration: none; display: flex; align-items: center; gap: 0px; color: var(--text-heading);">
   <img src="assets/role_rover_logo.png" alt="Role Rover" style="height: 42px; width: auto; display: inline-block; vertical-align: middle;" />
-  <span style="background: rgba(255, 107, 74, 0.1); color: #FF6B4A; border: 1px solid rgba(255, 107, 74, 0.3); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 800; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span>
+  <span style="background: #F4F4F5; color: var(--text-muted); border: 1px solid var(--border); font-size: 0.65rem; padding: 0.1rem 0.4rem; border-radius: 4px; font-weight: 700; letter-spacing: 1px; vertical-align: top; margin-left: 0.2rem; display: inline-block; position: relative; top: -0.2rem;">BETA</span>
 </a>
 <button class="mobile-nav-toggle" onclick="toggleMobileNav()" aria-label="Menu">
   <span></span><span></span><span></span>
@@ -286,7 +251,7 @@
                             </div>
 
                             <div class="form-group">
-                                <label>Upload Current Resume (PDF, DOC, or DOCX) <span style="color: #FF6B4A;">*</span></label>
+                                <label>Upload Current Resume (PDF, DOC, or DOCX) <span style="color: #DC2626;">*</span></label>
                                 <input type="file" id="resume-file" accept="application/pdf,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document">
                                 <p class="form-hint" id="resume-status" style="margin-top: 0.5rem; color: #008066; font-weight: 600; display: none;"></p>
                                 <div class="resume-extraction-panel" id="resume-extraction-panel" aria-live="polite">
@@ -312,7 +277,7 @@
                             <div class="card-title" style="font-size: 0.95rem; margin-top: 1.5rem;"><div class="num" style="background:#F4F4F5;">2</div> Set Your Job Preferences</div>
 
                             <div class="form-group">
-                                <label>Target Roles <span style="color: #FF6B4A;">*</span></label>
+                                <label>Target Roles <span style="color: #DC2626;">*</span></label>
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select up to 3 roles — maximum of one role per Career field. Choose a field or search by title to pick your role.</p>
                                 <div id="role-slots-container" style="display: flex; flex-direction: column; gap: 0.75rem;">
                                     <!-- Injected via JS: buildRoleSlots() -->
@@ -322,7 +287,7 @@
 
 
                             <div class="form-group">
-                                <label>Workplace Type <span style="color: #FF6B4A;">*</span></label>
+                                <label>Workplace Type <span style="color: #DC2626;">*</span></label>
                                 <p class="form-hint" style="margin-top: 0; margin-bottom: 0.8rem;">Select your workplace type(s).</p>
                                 <select id="workplace-select" name="workplace" multiple>
                                     <option value="Remote Local">Remote (Local)</option>
@@ -358,7 +323,7 @@
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>First Name <span style="color: #FF6B4A;">*</span></label>
+                                <label>First Name <span style="color: #DC2626;">*</span></label>
                                 <input type="text" id="first-name" required placeholder="John">
                             </div>
                             <div class="form-group">
@@ -369,23 +334,23 @@
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>City <span style="color: #FF6B4A;">*</span></label>
+                                <label>City <span style="color: #DC2626;">*</span></label>
                                 <input type="text" id="city" required placeholder="New York">
                             </div>
                             <div class="form-group">
-                                <label>State <span style="color: #FF6B4A;">*</span></label>
+                                <label>State <span style="color: #DC2626;">*</span></label>
                                 <input type="text" id="state" required placeholder="NY">
                             </div>
                         </div>
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>Country of Residence <span style="color: #FF6B4A;">*</span></label>
+                                <label>Country of Residence <span style="color: #DC2626;">*</span></label>
                                 <input type="text" id="country" required placeholder="United States">
                             </div>
 
                             <div class="form-group">
-                                <label>Nationality <span style="color: #FF6B4A;">*</span></label>
+                                <label>Nationality <span style="color: #DC2626;">*</span></label>
                                 <input type="text" id="nationality" required placeholder="American">
                             </div>
                         </div>
@@ -397,7 +362,7 @@
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>Phone Number <span style="color: #FF6B4A;">*</span></label>
+                                <label>Phone Number <span style="color: #DC2626;">*</span></label>
                                 <div style="display: flex; gap: 0.5rem; align-items: stretch;">
                                     <div class="select-wrapper" style="width: 140px; flex-shrink: 0;">
                                         <select id="phone-code" required>
@@ -588,7 +553,7 @@
                         </div>
 
                         <div class="form-group" style="margin-bottom: 1.25rem;">
-                            <label>Work Authorization &amp; Visa Status <span style="color: #FF6B4A;">*</span></label>
+                            <label>Work Authorization &amp; Visa Status <span style="color: #DC2626;">*</span></label>
                             <div class="select-wrapper">
                                 <select id="work-auth-status">
                                     <option value="remote_contract">International Remote Only (Contract / EOR — No Visa Needed)</option>
@@ -603,7 +568,7 @@
 
                         <!-- Shown only if user selects "Legally Authorized" -->
                         <div class="form-group" id="auth-country-group" style="display: none; margin-bottom: 1.25rem;">
-                            <label>Country Where You Hold Work Authorization <span style="color: #FF6B4A;">*</span></label>
+                            <label>Country Where You Hold Work Authorization <span style="color: #DC2626;">*</span></label>
                             <div class="industry-combobox" id="auth-country-combobox">
                                 <input type="text" id="auth-country-input" placeholder="Type country name (e.g. United States, Canada, United Kingdom)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="auth-countries-list">
                                 <button type="button" class="industry-toggle" id="auth-country-toggle" aria-label="Show country options" aria-controls="auth-countries-list" tabindex="-1"></button>
@@ -618,14 +583,14 @@
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>Desired Annual Salary <span style="color: #FF6B4A;">*</span></label>
+                                <label>Desired Annual Salary <span style="color: #DC2626;">*</span></label>
                                 <div style="position: relative;">
                                     <span id="salary-currency-symbol" style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: #D1D5DB; font-weight: 800; pointer-events: none; font-size: 1.1rem; white-space: nowrap;">$</span>
                                     <input type="text" id="salary" required placeholder="120000" style="width: 100%; padding-left: 2.2rem; text-align: left;" oninput="this.value = this.value.replace(/[^0-9]/g, '')">
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Target Currency <span style="color: #FF6B4A;">*</span></label>
+                                <label>Target Currency <span style="color: #DC2626;">*</span></label>
                                 <div class="select-wrapper">
                                     <select id="target-currency">
                                         <!-- Covers exactly the 38 currencies used across RoleRover's
@@ -680,7 +645,7 @@
                         <p class="form-hint" style="margin-bottom: 1.5rem;">We only use this if it is a mandatory requirement in a form. Otherwise, we leave it blank to protect your negotiating power. Tip: Set this slightly below your target to avoid ATS budget filters.</p>
 
                         <div class="form-group">
-                            <label>What industry do you work in? <span style="color: #FF6B4A;">*</span></label>
+                            <label>What industry do you work in? <span style="color: #DC2626;">*</span></label>
                             <div class="industry-combobox" id="industry-combobox">
                                 <input type="text" id="industry" placeholder="e.g. Technology / SaaS" required autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="industries-list">
                                 <button type="button" class="industry-toggle" id="industry-toggle" aria-label="Show industry options" aria-controls="industries-list" tabindex="-1"></button>
@@ -724,7 +689,7 @@
 
                         <div class="row-grid">
                             <div class="form-group">
-                                <label>Availability / Notice Period <span style="color: #FF6B4A;">*</span></label>
+                                <label>Availability / Notice Period <span style="color: #DC2626;">*</span></label>
                                 <div class="select-wrapper">
                                     <select id="notice-period">
                                         <option value="Immediate">Immediate (Available now)</option>
@@ -736,7 +701,7 @@
                                 </div>
                             </div>
                             <div class="form-group">
-                                <label>Earliest Available Start Date <span style="color: #FF6B4A;">*</span></label>
+                                <label>Earliest Available Start Date <span style="color: #DC2626;">*</span></label>
                                 <input type="date" id="start-date" required>
                             </div>
                         </div>
@@ -1400,7 +1365,6 @@
                 authCountriesList.appendChild(btn);
             });
         }
-        initAuthCountriesList();
 
         function syncAuthHiddenFields() {
             const status = workAuthSelect.value;
@@ -1787,6 +1751,12 @@
                 .filter(Boolean);
         }
         const KNOWN_COUNTRY_NAMES = getKnownCountryNames();
+        // Must run after KNOWN_COUNTRY_NAMES is declared above (was previously
+        // called right after its own definition near the top of this script,
+        // before KNOWN_COUNTRY_NAMES existed yet -- a temporal-dead-zone
+        // ReferenceError that silently aborted the rest of this script block
+        // on every page load, including the Continue-button wiring).
+        initAuthCountriesList();
 
         // Same dropdown, read for its calling-code values instead of its
         // names -- used to disambiguate a resume's leading "+N" digits from
@@ -2190,7 +2160,7 @@
                 localStorage.setItem('onb_resume_url', profile.resume_url);
                 const resumeStatus = document.getElementById('resume-status');
                 if (resumeStatus) {
-                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: #00FFCC; text-decoration: underline;">View Resume</a>`;
+                    resumeStatus.innerHTML = `✅ Saved Resume: <a href="${profile.resume_url}" target="_blank" style="color: var(--success-text); text-decoration: underline;">View Resume</a>`;
                     resumeStatus.style.display = 'block';
                 }
                 setReviewVisibility(true);
