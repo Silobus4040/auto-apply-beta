@@ -708,6 +708,10 @@
         }
         .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
         .sidebar-nav-item.active .sidebar-nav-icon { color: var(--secondary); }
+        .sidebar-section-label { font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: #a1a1aa; padding: 0.5rem 0.75rem 0.25rem; margin-top: 0.25rem; }
+        [data-theme="dark"] .sidebar-section-label { color: #71717a; }
+        .sidebar-cluster { display: flex; flex-direction: column; gap: 0.15rem; margin-bottom: 0.6rem; padding-bottom: 0.6rem; border-bottom: 1px solid rgba(0,0,0,0.06); }
+        [data-theme="dark"] .sidebar-cluster { border-bottom-color: rgba(255,255,255,0.08); }
         /* Log Out anchored to the bottom of the sidebar, separated from the
            main nav group -- standard modern layout instead of sitting inline
            as just another item after Settings. */
@@ -1278,7 +1282,7 @@
 
     <nav id="mobile-topbar" style="display: none;">
         <button class="hamburger-btn" style="display:block;" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
-        <span id="mobile-page-title" style="font-weight: 800; font-size: 1rem; color: var(--text-heading);">Career Pages</span>
+        <span id="mobile-page-title" style="font-weight: 800; font-size: 1rem; color: var(--text-heading);">Company Career Pages</span>
         <div style="width: 34px;"></div>
     </nav>
     <span id="nav-badge" style="display:none;">⏳ Free Trial</span>
@@ -1826,12 +1830,15 @@
                     <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
                 </a>
 
-                <!-- Career Pages: Single item with Auto-Apply and Apply Yourself sub-links -->
+                <div class="sidebar-cluster">
+                <div class="sidebar-section-label">Find Jobs</div>
+
+                <!-- Company Career Pages: Single item with Auto-Apply and Apply Manually sub-links -->
                 <div class="sidebar-nav-group" id="sidebar-career-pages-group" style="display: flex; flex-direction: column;">
                     <div class="sidebar-nav-item" id="sidebar-career-pages-parent" onclick="toggleCareerSubnav()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit;">
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i data-lucide="building-2" class="sidebar-nav-icon"></i>
-                            <span style="font-weight: 700;">Career Pages</span>
+                            <span style="font-weight: 700;">Company Career Pages</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.35rem;">
                             <span class="sidebar-badge" id="sidebar-career-count" style="background: rgba(0,0,0,0.06); color: var(--text-heading); font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 6px;">158</span>
@@ -1840,10 +1847,10 @@
                     </div>
                     <div class="sidebar-subnav" id="sidebar-career-pages-subnav" style="padding-left: 2rem; display: flex; flex-direction: column; gap: 2px; margin-top: 2px; margin-bottom: 6px;">
                         <a href="swipe.html" id="subnav-auto-apply" class="sidebar-subnav-item" style="padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 800; text-decoration: none; background: rgba(16, 185, 129, 0.12); color: #059669; border-left: 2px solid #059669; display: flex; align-items: center; gap: 0.4rem; transition: all 0.15s;">
-                            <span>⚡</span> Auto-Apply
+                            Auto-Apply
                         </a>
                         <a href="jobs.html" id="subnav-apply-free" class="sidebar-subnav-item" style="padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; color: #52525b; display: flex; align-items: center; gap: 0.4rem; transition: all 0.15s;">
-                            <span>📄</span> Apply Yourself (Free)
+                            Apply Manually (Free)
                         </a>
                     </div>
                 </div>
@@ -1852,11 +1859,11 @@
                 <a class="sidebar-nav-item" id="sidebar-hiring-posts-link" href="swipe.html?mode=hiring" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <i data-lucide="smartphone" class="sidebar-nav-icon"></i>
-                        <span>Social Posts — Auto Outreach</span>
+                        <span>Social Hiring Posts</span>
                     </div>
                     <span class="badge" style="font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40</span>
                 </a>
-
+                </div>
 
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
@@ -1990,7 +1997,7 @@
 
         <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Career Pages</h1>
+            <h1 class="page-title">Company Career Pages</h1>
             <div style="display: flex; align-items: center; gap: 0.85rem;">
                 <div id="credit-balance-block" class="credit-balance" style="display: none; align-items: center; text-align: right;">
                     <div>
@@ -2018,7 +2025,7 @@
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">TOTAL JOBS FOUND</span>
                 <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">198</span>
-                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Career Pages · 40 Social Posts</div>
+                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Company Career Pages · 40 Social Hiring Posts</div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
@@ -3744,10 +3751,10 @@
                 if (careerChevron) careerChevron.style.transform = 'rotate(-90deg)';
                 const title = document.querySelector('.page-title');
                 if (title) {
-                    title.innerHTML = 'Social Posts — Auto Outreach <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
+                    title.innerHTML = 'Social Hiring Posts <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
                 }
                 const mobileTitle = document.getElementById('mobile-page-title');
-                if (mobileTitle) mobileTitle.textContent = 'Social Posts — Auto Outreach';
+                if (mobileTitle) mobileTitle.textContent = 'Social Hiring Posts';
             } else {
                 if (careerParent) careerParent.classList.add('active');
                 if (hiringLink) hiringLink.classList.remove('active');
@@ -6056,7 +6063,7 @@
             el.textContent = totalCombined.toLocaleString();
             const breakdown = document.getElementById('stat-total-breakdown');
             if (breakdown) {
-                breakdown.textContent = `${portalCount.toLocaleString()} Career Pages · ${hiringCount} Social Posts`;
+                breakdown.textContent = `${portalCount.toLocaleString()} Company Career Pages · ${hiringCount} Social Hiring Posts`;
             }
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
