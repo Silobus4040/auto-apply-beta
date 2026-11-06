@@ -552,6 +552,10 @@
                             <input type="text" id="portfolio" placeholder="www.yourwebsite.com">
                         </div>
 
+                        <!-- Only relevant to someone open to a global remote role -- hidden
+                             entirely for on-site/hybrid/local-remote-only applicants
+                             (toggled by updateVisaQuestionVisibility, keyed off Workplace Type). -->
+                        <div id="visa-question-section" style="display: none;">
                         <div class="form-group" style="margin-bottom: 1.25rem;">
                             <label>Do you need a visa to work for this employer? <span style="color: #DC2626;">*</span></label>
                             <div class="select-wrapper">
@@ -571,6 +575,7 @@
                                 <button type="button" class="industry-toggle" id="auth-country-toggle" aria-label="Show country options" aria-controls="auth-countries-list" tabindex="-1"></button>
                                 <div id="auth-countries-list" class="industry-options" role="listbox" hidden></div>
                             </div>
+                        </div>
                         </div>
 
                         <!-- Preserved for ATS backend payload compatibility (work_authorization & requires_sponsorship) -->
@@ -864,13 +869,24 @@
         workplaceSelectEl.addEventListener('addItem', () => {
             workplaceChoices.hideDropdown();
         });
+        // The visa question only makes sense for someone open to a global remote
+        // role -- an on-site/hybrid/local-remote applicant isn't asking a
+        // foreign employer to sponsor anything.
+        function updateVisaQuestionVisibility() {
+            const selected = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
+            const section = document.getElementById('visa-question-section');
+            if (section) section.style.display = selected.includes('Remote Global') ? 'block' : 'none';
+        }
+
         const savedWorkplace = localStorage.getItem('onb_workplace');
         if (savedWorkplace) {
             try { workplaceChoices.setChoiceByValue(JSON.parse(savedWorkplace)); } catch(e) {}
         }
+        updateVisaQuestionVisibility();
         workplaceSelectEl.addEventListener('change', () => {
             const selected = Array.from(workplaceSelectEl.selectedOptions).map(opt => opt.value);
             localStorage.setItem('onb_workplace', JSON.stringify(selected));
+            updateVisaQuestionVisibility();
         });
 
         // --- Role slots (2026-10-17 redesign) ---
@@ -2618,9 +2634,11 @@
                 { id: 'start-date', label: 'Earliest Available Start Date' }
             ];
 
-            // If user selected "Legally Authorized", the authorized country input is also required
+            // Visa question (and its country follow-up) only applies to someone open
+            // to a global remote role -- see updateVisaQuestionVisibility().
+            const visaSectionVisible = document.getElementById('visa-question-section')?.style.display !== 'none';
             const authStatus = document.getElementById('work-auth-status')?.value;
-            if (authStatus === 'authorized') {
+            if (visaSectionVisible && authStatus === 'authorized') {
                 requiredFields.push({ id: 'auth-country-input', label: 'Country of Work Authorization' });
             }
 
