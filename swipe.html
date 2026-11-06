@@ -3090,10 +3090,10 @@
 
       const socialButtons = [
         [c2.company_linkedin, 'Company LinkedIn', '🏢'],
-        [c2.poster_linkedin, 'Poster LinkedIn', '👤'],
-        [c2.twitter_x, 'Poster X (Twitter)', '👤'],
-        [c2.facebook, 'Poster Facebook', '👤'],
-        [c2.instagram, 'Poster Instagram', '👤'],
+        [c2.poster_linkedin, "Poster's LinkedIn", '👤'],
+        [c2.twitter_x, "Poster's X (Twitter)", '👤'],
+        [c2.facebook, "Poster's Facebook", '👤'],
+        [c2.instagram, "Poster's Instagram", '👤'],
         [c2.website || c1.official_website, siteHost || 'Official Website', '🌐']
       ].filter(item => item[0] && /^https?:\/\//i.test(item[0]))
        .map(item => `<a class="rr-sv-social-a" href="${esc(item[0])}" target="_blank" rel="noopener noreferrer">${item[2]} ${esc(item[1])} ↗</a>`)
@@ -3266,7 +3266,7 @@
             ${uniqueMentions.length
               ? `<div class="rr-sv-social-links">${mentionChips}</div>`
               : (c3.status && c3.status.startsWith('free_email')
-                  ? '<div style="font-size:0.8rem;color:#3f3f46">0 external web mentions indexed for this free email address. Personal or newly created free email accounts typically have no historical public footprint on search engines.</div>'
+                  ? '<div style="font-size:0.8rem;color:#3f3f46">0 external web mentions indexed for this free email address. Personal or newly created free email accounts typically have no historical public footprint online.</div>'
                   : '<div style="font-size:0.8rem;color:#3f3f46">Contact email is exclusive to official company domain with no external third-party listings.</div>')}
           </div>
         </div>
