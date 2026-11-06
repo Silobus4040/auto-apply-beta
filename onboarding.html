@@ -297,6 +297,32 @@
                                 </select>
                             </div>
 
+                            <!-- Only relevant to someone open to a global remote role -- hidden
+                                 entirely for on-site/hybrid/local-remote-only applicants
+                                 (toggled by updateVisaQuestionVisibility, keyed off Workplace Type). -->
+                            <div id="visa-question-section" style="display: none;">
+                                <div class="form-group" style="margin-bottom: 1.25rem;">
+                                    <label>Do you need a visa to work for this employer? <span style="color: #DC2626;">*</span></label>
+                                    <div class="select-wrapper">
+                                        <select id="work-auth-status">
+                                            <option value="remote_contract">No — I just want remote work, I'm not relocating</option>
+                                            <option value="authorized">No — I'm already authorized to work there (citizen, resident, or valid work permit)</option>
+                                            <option value="need_sponsorship">Yes — I'd need them to sponsor a visa so I can relocate</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Shown only if user selects "Legally Authorized" -->
+                                <div class="form-group" id="auth-country-group" style="display: none; margin-bottom: 1.25rem;">
+                                    <label>Country Where You Hold Work Authorization <span style="color: #DC2626;">*</span></label>
+                                    <div class="industry-combobox" id="auth-country-combobox">
+                                        <input type="text" id="auth-country-input" placeholder="Type country name (e.g. United States, Canada, United Kingdom)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="auth-countries-list">
+                                        <button type="button" class="industry-toggle" id="auth-country-toggle" aria-label="Show country options" aria-controls="auth-countries-list" tabindex="-1"></button>
+                                        <div id="auth-countries-list" class="industry-options" role="listbox" hidden></div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <div class="form-group">
                                 <label style="margin-bottom: 0.8rem;">Commitment Types (Optional) <span style="color: #6B7280; font-weight: 500; font-size: 0.8rem; text-transform: none;">Leave blank to search all</span></label>
                                 <select id="commitment-select" name="commitment" multiple>
@@ -550,32 +576,6 @@
                         <div class="form-group">
                             <label>Portfolio / Website URL (Optional)</label>
                             <input type="text" id="portfolio" placeholder="www.yourwebsite.com">
-                        </div>
-
-                        <!-- Only relevant to someone open to a global remote role -- hidden
-                             entirely for on-site/hybrid/local-remote-only applicants
-                             (toggled by updateVisaQuestionVisibility, keyed off Workplace Type). -->
-                        <div id="visa-question-section" style="display: none;">
-                        <div class="form-group" style="margin-bottom: 1.25rem;">
-                            <label>Do you need a visa to work for this employer? <span style="color: #DC2626;">*</span></label>
-                            <div class="select-wrapper">
-                                <select id="work-auth-status">
-                                    <option value="remote_contract">No — I just want remote work, I'm not relocating</option>
-                                    <option value="authorized">No — I'm already authorized to work there (citizen, resident, or valid work permit)</option>
-                                    <option value="need_sponsorship">Yes — I'd need them to sponsor a visa so I can relocate</option>
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Shown only if user selects "Legally Authorized" -->
-                        <div class="form-group" id="auth-country-group" style="display: none; margin-bottom: 1.25rem;">
-                            <label>Country Where You Hold Work Authorization <span style="color: #DC2626;">*</span></label>
-                            <div class="industry-combobox" id="auth-country-combobox">
-                                <input type="text" id="auth-country-input" placeholder="Type country name (e.g. United States, Canada, United Kingdom)" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="auth-countries-list">
-                                <button type="button" class="industry-toggle" id="auth-country-toggle" aria-label="Show country options" aria-controls="auth-countries-list" tabindex="-1"></button>
-                                <div id="auth-countries-list" class="industry-options" role="listbox" hidden></div>
-                            </div>
-                        </div>
                         </div>
 
                         <!-- Preserved for ATS backend payload compatibility (work_authorization & requires_sponsorship) -->
