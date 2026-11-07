@@ -3749,7 +3749,7 @@
                 if (careerChevron) careerChevron.style.transform = 'rotate(-90deg)';
                 const title = document.querySelector('.page-title');
                 if (title) {
-                    title.innerHTML = 'Hiring Posts (Social Media) <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
+                    title.textContent = 'Hiring Posts (Social Media)';
                 }
                 const mobileTitle = document.getElementById('mobile-page-title');
                 if (mobileTitle) mobileTitle.textContent = 'Hiring Posts (Social Media)';
@@ -4049,7 +4049,7 @@
                                     <p style="color:#18181b;font-size:0.92rem;line-height:1.6;margin:0 0 20px;">
                                         Please complete the Social Hiring &amp; 1-Click Verification safety check to unlock your matched social posts. If you close or ignore the check, no social hiring posts will be shown.
                                     </p>
-                                    <button type="button" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck)" style="padding:11px 22px;border-radius:10px;border:1.5px solid #b8e600;background:#D4FF33;color:#09090b;font-weight:800;font-size:0.9rem;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(212,255,51,0.4);">
+                                    <button type="button" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck)" style="padding:11px 22px;border-radius:10px;border:1px solid rgba(10,10,10,0.08);background:#00FFCC;color:#09090b;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:inherit;box-shadow:none;">
                                         Complete Safety Check to Unlock Posts →
                                     </button>
                                 </div>
