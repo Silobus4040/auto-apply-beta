@@ -2953,27 +2953,18 @@
             // Manual Mode Feature Gate (Test Account only)
             checkManualModeAccess(user.id);
 
-            // Social Hiring (Facebook leads) Feature Gate (Test Account only)
+            // Social Hiring (Facebook leads) -- general feature, see checkSocialHiringAccess
             checkSocialHiringAccess(user.id);
         })();
 
         async function checkSocialHiringAccess(userId) {
+            // Social Hiring Posts is now a general feature for every user
+            // (was founder-only for staging/testing; promoted to general
+            // 2026-11-06, matching the same fix already made in swipe.html).
             try {
-                let isAllowed = (userId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e');
-                if (!isAllowed) {
-                    const { data } = await supabaseClient
-                        .from('feature_access')
-                        .select('enabled')
-                        .eq('user_id', userId)
-                        .eq('feature', 'social_hiring')
-                        .maybeSingle();
-                    if (data && data.enabled) isAllowed = true;
-                }
-                if (isAllowed) {
-                    await fetchAndRenderSocialApplications(userId);
-                    injectSocialHiringNavItems();
-                    await updateDraftsBadgeVisibility();
-                }
+                await fetchAndRenderSocialApplications(userId);
+                injectSocialHiringNavItems();
+                await updateDraftsBadgeVisibility();
             } catch (err) {
                 console.error('checkSocialHiringAccess failed', err);
             }
@@ -3430,6 +3421,13 @@
             if (breakdown) {
                 breakdown.textContent = `${portalCount.toLocaleString()} Career Pages · ${hiringCount} Social Posts`;
             }
+            // Sidebar badges were static placeholder text in the markup (158 / 40,
+            // never updated by any script) -- keep them in sync with the real
+            // counts shown just above, instead of two unrelated numbers.
+            const sidebarCareerCount = document.getElementById('sidebar-career-count');
+            if (sidebarCareerCount) sidebarCareerCount.textContent = portalCount.toLocaleString();
+            const sidebarHiringBadge = document.querySelector('#sidebar-hiring-posts-link .badge');
+            if (sidebarHiringBadge) sidebarHiringBadge.textContent = hiringCount;
             const bar = document.getElementById('stats-bar');
             if (bar && poolAvailableCount > 0) bar.style.display = 'flex';
             if (cachedUserId) {
@@ -5186,40 +5184,26 @@
         }
 
         
-        function isFounderTestAccount(optSession) {
-            const user = optSession?.user || optSession;
-            const uid = user?.id || (typeof cachedUserId !== 'undefined' ? cachedUserId : null);
-            const email = (user?.email || (typeof currentUserEmail !== 'undefined' ? currentUserEmail : '')).toLowerCase();
-            const profEmail = (typeof userProfile !== 'undefined' && userProfile?.Application_email) ? userProfile.Application_email.toLowerCase() : '';
-            const profId = (typeof userProfile !== 'undefined' && userProfile?.id) ? userProfile.id : '';
-            return uid === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ||
-                   profId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e' ||
-                   email === 'mosco@leadscompass.ai' ||
-                   profEmail === 'mosco@careermailing.com';
-        }
-
         async function updateDraftsBadgeVisibility(session) {
+            // Drafts tab and the Hiring Posts nav link are now shown for every
+            // user (was founder-only for staging/testing; promoted to general
+            // 2026-11-06, matching the same fix already made in swipe.html).
             if (!session && typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
                 try {
                     const res = await supabaseClient.auth.getSession();
                     session = res?.data?.session;
                 } catch(e) {}
             }
-            const isFounder = isFounderTestAccount(session);
-            
-            const draftsTab = document.getElementById('tab-drafts');
-            if (draftsTab) {
-                draftsTab.style.display = isFounder ? 'flex' : 'none';
-            }
-            const sidebarHiring = document.getElementById('sidebar-hiring-posts-link');
-            if (sidebarHiring) {
-                sidebarHiring.style.display = isFounder ? 'flex' : 'none';
-            }
 
-            if (!isFounder) return;
+            const draftsTab = document.getElementById('tab-drafts');
+            if (draftsTab) draftsTab.style.display = 'flex';
+            const sidebarHiring = document.getElementById('sidebar-hiring-posts-link');
+            if (sidebarHiring) sidebarHiring.style.display = 'flex';
+
+            const uid = session?.user?.id || (typeof cachedUserId !== 'undefined' ? cachedUserId : null);
+            if (!uid) return;
 
             try {
-                const uid = session?.user?.id || cachedUserId || 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e';
                 const { count } = await supabaseClient
                     .from('emails')
                     .select('id', { count: 'exact', head: true })
