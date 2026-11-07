@@ -2500,7 +2500,7 @@
     {
       id: 'no_sensitive_id',
       title: '4. Never Share Bank Details or Sensitive ID Before a Verified Offer',
-      body: 'Never share your bank account details, national ID, passport, driver\'s license, or any identity number until you have independently verified the employer and received a genuine written offer.'
+      body: 'Never share your bank account details, national ID, passport, driver\'s license, or any identity number until you have verified the employer and received a genuine written offer.'
     },
     {
       id: 'fake_checks_crypto',
@@ -2509,13 +2509,13 @@
     },
     {
       id: 'cv_revamp_ats_fee',
-      title: '6. Be Cautious of Paid CV Revamp or ATS Improvement Requests',
-      body: 'Be cautious if a recruiter asks you to pay for a CV revamp or ATS improvement. Role Rover will always tailor your CV per job posting to match the job description.'
+      title: '6. Be Cautious of Paid CV Revamp Requests',
+      body: 'Be cautious if a recruiter asks you to pay for a CV revamp or an "ATS score improvement" as a condition of applying or moving forward. RoleRover already tailors your CV to each job description, so you do not need to pay a recruiter for this service.'
     },
     {
       id: 'independent_verify',
       title: '7. The Final Decision Is Yours: Always Verify Before Applying',
-      body: 'RoleRover surfaces open social hiring posts and arms you with the 1-Click Verify tool so you never miss real opportunities. Always run 1-Click Verify and stop immediately if anyone asks for money.'
+      body: 'RoleRover surfaces open social hiring posts and arms you with the 1-Click Verify tool so you never miss real opportunities.'
     }
   ];
 
@@ -2785,7 +2785,7 @@
                     <li><b>Cross-Platform Social Bridge:</b> Finds and links the company's and poster's LinkedIn, X (Twitter), Facebook, and Instagram profiles for your peace of mind.</li>
                     <li><b>Brand Impersonation Check:</b> Checks if the contact email matches the company's official domain or if a free email (<code>@gmail.com</code>) is listed on their official website.</li>
                     <li><b>Email &amp; Phone Scam Sweep:</b> Searches public web sources for past fraud warnings, fee demands, or scam complaints tied to that email address or phone number.</li>
-                    <li><b>Contact Web History:</b> Shows where else online that exact email or phone number has posted jobs before, to help you quickly detect any scam pattern.</li>
+                    <li><b>Contact Web History:</b> Shows where else online that exact email or phone number has posted on social media to help you detect any scam pattern.</li>
                   </ol>
                 </div>
               </div>
@@ -2854,7 +2854,7 @@
                 <p>Click "I Understand" on each safety rule below to unlock your social hiring feed.</p>
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
-                <span id="rr-sv-ack-counter" style="color:#09090b;background:#D4FF33;padding:5px 12px;border-radius:99px;border:1px solid #b8e600;font-size:0.8rem;font-weight:800;">${ackSet.size} / ${SAFETY_RULES.length}</span>
+                <span id="rr-sv-ack-counter" style="color:#09090b;background:#00FFCC;padding:5px 12px;border-radius:99px;border:1px solid #00e6b8;font-size:0.8rem;font-weight:800;">${ackSet.size} / ${SAFETY_RULES.length}</span>
                 <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">Close</button>
               </div>
             </div>
@@ -3749,7 +3749,7 @@
                 if (careerChevron) careerChevron.style.transform = 'rotate(-90deg)';
                 const title = document.querySelector('.page-title');
                 if (title) {
-                    title.innerHTML = 'Hiring Posts (Social Media) <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
+                    title.textContent = 'Hiring Posts (Social Media)';
                 }
                 const mobileTitle = document.getElementById('mobile-page-title');
                 if (mobileTitle) mobileTitle.textContent = 'Hiring Posts (Social Media)';
@@ -4049,7 +4049,7 @@
                                     <p style="color:#18181b;font-size:0.92rem;line-height:1.6;margin:0 0 20px;">
                                         Please complete the Social Hiring &amp; 1-Click Verification safety check to unlock your matched social posts. If you close or ignore the check, no social hiring posts will be shown.
                                     </p>
-                                    <button type="button" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck)" style="padding:11px 22px;border-radius:10px;border:1.5px solid #b8e600;background:#D4FF33;color:#09090b;font-weight:800;font-size:0.9rem;cursor:pointer;font-family:inherit;box-shadow:0 4px 14px rgba(212,255,51,0.4);">
+                                    <button type="button" onclick="window.RR_SOCIAL_SAFETY.openWelcomeGate(false, window.__unlockSocialHiringDeck)" style="padding:11px 22px;border-radius:10px;border:1px solid rgba(10,10,10,0.08);background:#00FFCC;color:#09090b;font-weight:700;font-size:0.9rem;cursor:pointer;font-family:inherit;box-shadow:none;">
                                         Complete Safety Check to Unlock Posts →
                                     </button>
                                 </div>
