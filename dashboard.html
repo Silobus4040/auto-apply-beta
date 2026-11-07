@@ -3470,12 +3470,11 @@
                 document.getElementById('stat-offer').textContent = displayOffer;
             }
 
-            // Market Match: aggregate tool/skill demand vs resume for the
-            // user's own target role + experience level, via get_role_market_match()
-            // on Hetzner (stagehand_poc PROGRESS_LOG.md Run 218/219). Replaces the
-            // old rejected_jobs-driven version below it used to call -- that table
-            // has had zero writers since 2026-06-29 (confirmed dead).
-            fetchMarketMatch(userId);
+            // Market Intelligence is menu-triggered only (goToMarketIntel()) --
+            // do NOT auto-fetch/show it here. This function runs on every stats
+            // update (page load, realtime job changes), so calling it here made
+            // the section pop into the main dashboard unconditionally instead
+            // of staying behind the "Market Intelligence" nav item.
         }
 
         async function fetchMarketMatch(userId) {
