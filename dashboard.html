@@ -2153,6 +2153,15 @@
                         <!-- JS injected tools -->
                     </div>
                 </div>
+                <div>
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Typical Salary</h4>
+                    <div id="mi-salary-chips" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <!-- JS injected country chips -->
+                    </div>
+                    <div id="mi-salary-card">
+                        <!-- JS injected salary card / insufficient-data message -->
+                    </div>
+                </div>
             </div>
 
         </div>
@@ -3530,8 +3539,112 @@
                     ? toolGaps.map(renderGapRow).join('')
                     : '<p style="color: #A1A1AA; font-size: 0.85rem;">No tool gaps found for your target role right now.</p>';
 
+                initMarketSalary();
+
             } catch (err) {
                 console.error("Error fetching market match:", err);
+            }
+        }
+
+        // Covers the real distinct values seen in profiles.country, plus the
+        // 4 comparison markets (not every candidate's own country) -- not a
+        // general-purpose country library, just what this chip row needs.
+        const COUNTRY_ISO2 = {
+            'nigeria': 'NG', 'canada': 'CA', 'ghana': 'GH', 'kenya': 'KE',
+            'niger': 'NE', 'poland': 'PL', 'cameroon': 'CM', 'united states': 'US',
+            'united kingdom': 'GB', 'australia': 'AU'
+        };
+        const SALARY_COMPARE_MARKETS = [
+            { iso2: 'US', label: 'United States' },
+            { iso2: 'GB', label: 'United Kingdom' },
+            { iso2: 'CA', label: 'Canada' },
+            { iso2: 'AU', label: 'Australia' }
+        ];
+        let currentSalaryCountry = null;
+
+        function countryNameToIso2(name) {
+            if (!name) return null;
+            return COUNTRY_ISO2[String(name).trim().toLowerCase()] || null;
+        }
+
+        function formatUsd(n) {
+            return '$' + Math.round(n).toLocaleString('en-US');
+        }
+
+        function initMarketSalary() {
+            const detectedIso2 = countryNameToIso2(userProfile && userProfile.country);
+            // Own country first if it maps to a known code and isn't already
+            // one of the 4 compare markets (avoids a duplicate chip).
+            const chips = [];
+            if (detectedIso2 && !SALARY_COMPARE_MARKETS.some(m => m.iso2 === detectedIso2)) {
+                chips.push({ iso2: detectedIso2, label: userProfile.country });
+            }
+            chips.push(...SALARY_COMPARE_MARKETS);
+
+            document.getElementById('mi-salary-chips').innerHTML = chips.map(c => `
+                <button onclick="fetchSalaryForCountry('${c.iso2}', {})" id="mi-chip-${c.iso2}" style="background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 0.35rem 0.9rem; font-size: 0.8rem; font-weight: 700; cursor: pointer; color: #000;">${escapeHtml(c.label)}</button>
+            `).join('');
+
+            // Try the candidate's own country first; only auto-fall-back to the
+            // US on THIS initial load (never on a manual chip click -- if someone
+            // explicitly asks for a thin country, show them the honest "not
+            // enough data" message for that country, not a silent redirect).
+            if (detectedIso2) {
+                fetchSalaryForCountry(detectedIso2, { autoFallbackToUs: true });
+            } else {
+                fetchSalaryForCountry('US', {});
+            }
+        }
+
+        function setSalaryChipActive(iso2) {
+            document.querySelectorAll('#mi-salary-chips button').forEach(btn => {
+                const isActive = btn.id === `mi-chip-${iso2}`;
+                btn.style.background = isActive ? 'var(--primary)' : 'var(--surface-color)';
+                btn.style.borderColor = isActive ? 'var(--primary)' : 'var(--border)';
+            });
+        }
+
+        async function fetchSalaryForCountry(iso2, opts) {
+            opts = opts || {};
+            const cardEl = document.getElementById('mi-salary-card');
+            currentSalaryCountry = iso2;
+            cardEl.innerHTML = '<p style="color: #A1A1AA; font-size: 0.85rem;">Loading...</p>';
+            try {
+                const { data, error } = await supabaseClient.rpc('get_role_market_match_by_country', { p_country_iso2: iso2 });
+                if (error) throw error;
+
+                const entry = (data && data.by_country && data.by_country[0]) || null;
+
+                if (!entry) {
+                    if (opts.autoFallbackToUs && iso2 !== 'US') {
+                        return fetchSalaryForCountry('US', { cameFromFallback: true });
+                    }
+                    setSalaryChipActive(iso2);
+                    cardEl.innerHTML = `<p style="color: #71717A; font-size: 0.85rem;">Not enough postings for your target role in this country yet to show a reliable number.</p>`;
+                    return;
+                }
+
+                setSalaryChipActive(iso2);
+                const s = entry.salary;
+                const note = opts.cameFromFallback
+                    ? `<p style="color: #A1A1AA; font-size: 0.78rem; margin-bottom: 0.5rem;">Not enough data for your own country yet -- showing the United States, the largest market in the pool.</p>`
+                    : '';
+
+                if (!s || s.insufficient_data) {
+                    cardEl.innerHTML = `${note}<p style="color: #71717A; font-size: 0.85rem;">${s ? s.jobs_with_salary : 0} of ${entry.jobs_analyzed} postings disclose pay here -- too few yet for a reliable typical salary.</p>`;
+                    return;
+                }
+
+                cardEl.innerHTML = `
+                    ${note}
+                    <div style="background: #ffffff; padding: 1rem 1.25rem; border: 1px solid var(--border); border-radius: 8px;">
+                        <div style="font-size: 1.4rem; font-weight: 900; color: #000;">${formatUsd(s.median_annualized_usd)} <span style="font-size: 0.8rem; font-weight: 700; color: #71717A;">/ year (median, USD)</span></div>
+                        <div style="font-size: 0.8rem; color: #71717A; margin-top: 0.35rem;">Based on ${s.jobs_with_salary} of ${entry.jobs_analyzed} postings that disclose pay (${s.pct_disclosed}%)</div>
+                    </div>
+                `;
+            } catch (err) {
+                console.error("Error fetching salary:", err);
+                cardEl.innerHTML = '<p style="color: #A1A1AA; font-size: 0.85rem;">Could not load salary data.</p>';
             }
         }
 
