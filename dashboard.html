@@ -2139,30 +2139,34 @@
             <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
             <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
                 A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: #B45309;">Market Intelligence</strong> problem.
-                We analyzed <strong id="mi-total-analyzed" style="color: #000000;">0</strong> jobs for you. Here is exactly what the market is demanding that you are currently missing.
+                We analyzed <strong id="mi-total-analyzed" style="color: #000000;">0</strong> jobs for your target role — here's exactly what the market pays, and which skills and tools it's asking for that your resume doesn't show yet.
             </p>
-            
-            <div style="display: grid; grid-template-columns: 1fr; gap: 2rem;">
-                <div>
-                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Top Missing Skills</h4>
-                    <div id="mi-skills-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                        <!-- JS injected skills -->
-                    </div>
+
+            <div style="display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;">
+                <button class="mi-tab-btn" id="mi-tab-btn-skills" onclick="switchMarketIntelTab('skills')" style="background: none; border: none; cursor: pointer; padding: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: var(--secondary); border-bottom: 2px solid var(--secondary); margin-bottom: -1px;">Skills</button>
+                <button class="mi-tab-btn" id="mi-tab-btn-tools" onclick="switchMarketIntelTab('tools')" style="background: none; border: none; cursor: pointer; padding: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: #A1A1AA; border-bottom: 2px solid transparent; margin-bottom: -1px;">Tools</button>
+                <button class="mi-tab-btn" id="mi-tab-btn-salary" onclick="switchMarketIntelTab('salary')" style="background: none; border: none; cursor: pointer; padding: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: #A1A1AA; border-bottom: 2px solid transparent; margin-bottom: -1px;">Salary</button>
+            </div>
+
+            <div id="mi-tab-panel-skills" class="mi-tab-panel">
+                <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Top Missing Skills</h4>
+                <div id="mi-skills-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <!-- JS injected skills -->
                 </div>
-                <div>
-                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Top Missing Tools</h4>
-                    <div id="mi-tools-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                        <!-- JS injected tools -->
-                    </div>
+            </div>
+            <div id="mi-tab-panel-tools" class="mi-tab-panel" style="display: none;">
+                <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Top Missing Tools</h4>
+                <div id="mi-tools-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                    <!-- JS injected tools -->
                 </div>
-                <div>
-                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Typical Salary</h4>
-                    <div id="mi-salary-chips" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                        <!-- JS injected country chips -->
-                    </div>
-                    <div id="mi-salary-card">
-                        <!-- JS injected salary card / insufficient-data message -->
-                    </div>
+            </div>
+            <div id="mi-tab-panel-salary" class="mi-tab-panel" style="display: none;">
+                <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Typical Salary</h4>
+                <div id="mi-salary-chips" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                    <!-- JS injected country chips -->
+                </div>
+                <div id="mi-salary-card">
+                    <!-- JS injected salary card / insufficient-data message -->
                 </div>
             </div>
 
@@ -3571,6 +3575,18 @@
 
         function formatUsd(n) {
             return '$' + Math.round(n).toLocaleString('en-US');
+        }
+
+        function switchMarketIntelTab(tab) {
+            ['skills', 'tools', 'salary'].forEach(t => {
+                const panel = document.getElementById(`mi-tab-panel-${t}`);
+                const btn = document.getElementById(`mi-tab-btn-${t}`);
+                if (!panel || !btn) return;
+                const active = t === tab;
+                panel.style.display = active ? 'block' : 'none';
+                btn.style.color = active ? 'var(--secondary)' : '#A1A1AA';
+                btn.style.borderBottomColor = active ? 'var(--secondary)' : 'transparent';
+            });
         }
 
         function initMarketSalary() {
