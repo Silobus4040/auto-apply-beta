@@ -2363,7 +2363,7 @@
     height: 6px; border-radius: 99px; background: #e4e4e7; width: 22px; transition: all 0.2s ease;
   }
   .rr-sv-step-dot.active {
-    background: #D4FF33; border: 1px solid #a3e635; width: 34px;
+    background: #00FFCC; border: 1px solid #00e6b8; width: 34px;
   }
   .rr-sv-step-dot.done {
     background: #18181b;
@@ -2382,7 +2382,7 @@
     display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
   }
   .rr-sv-welcome-box {
-    background: #fafafa; border: 1px solid #e4e4e7; border-left: 4px solid #D4FF33;
+    background: #fafafa; border: 1px solid #e4e4e7; border-left: 4px solid #00FFCC;
     border-radius: 14px; padding: 20px 22px; font-size: 0.94rem; line-height: 1.7; color: #18181b;
   }
   .rr-sv-welcome-box b, .rr-sv-welcome-box strong { color: #09090b; font-weight: 800; }
@@ -2417,14 +2417,15 @@
     background: #D4FF33; color: #09090b; border-color: #b8e600;
   }
   .rr-sv-unlock-btn {
-    border: 1.5px solid #b8e600; border-radius: 10px; padding: 11px 22px; font-size: 0.9rem; font-weight: 800;
-    cursor: pointer; background: #D4FF33; color: #09090b; font-family: inherit;
-    box-shadow: 0 4px 14px rgba(212, 255, 51, 0.45);
-    transition: all 0.15s ease;
+    border: 1px solid rgba(10,10,10,0.08); border-radius: 10px; padding: 11px 22px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; background: #00FFCC; color: #09090b; font-family: inherit;
+    box-shadow: none;
+    transition: background 0.15s ease, transform 0.15s ease;
   }
-  .rr-sv-unlock-btn:hover:not(:disabled) { background: #c8f526; transform: translateY(-1px); }
+  .rr-sv-unlock-btn:hover:not(:disabled) { background: #00e6b8; }
+  .rr-sv-unlock-btn:active:not(:disabled) { transform: translateY(1px); }
   .rr-sv-unlock-btn:disabled {
-    background: #18181b; color: #D4FF33; border-color: #18181b; box-shadow: none; cursor: not-allowed;
+    background: #18181b; color: #00FFCC; border-color: #18181b; box-shadow: none; cursor: not-allowed;
   }
   .rr-sv-btn-trigger {
     display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
@@ -2735,18 +2736,15 @@
               </div>
               <div class="rr-sv-body">
                 <div class="rr-sv-welcome-box">
-                  <span class="rr-sv-section-title">Social Hiring Posts</span>
-                  <p style="margin:0 0 12px;">Every day, founders, small and medium-sized businesses (SMEs), and hiring managers post real job openings directly on Facebook, LinkedIn, and X (formerly Twitter).</p>
-                  <p style="margin:0;">Unlike traditional job listings hosted on Applicant Tracking Systems like Greenhouse, Workday, Workable, etc., where applications are often filtered or screened first by AI, social hiring posts with emails give you a direct route to get your application reviewed by a human first instead of an AI.</p>
+                  <span class="rr-sv-section-title">Hiring Posts (Social Media)</span>
+                  <p style="margin:0 0 12px;">Every day, founders, small and medium-sized businesses (SMEs), and hiring managers share job openings directly on LinkedIn, Facebook, and X (formerly Twitter).</p>
+                  <p style="margin:0;">Many of these posts include an application email address, giving you a more direct way to reach the person hiring. Instead of applying through a company's career page, you can send your CV to the email address listed in the post.</p>
 
                   <span class="rr-sv-section-title">Post Vetting</span>
-                  <p style="margin:0;">In RoleRover's ATS Career Pages feed, every job comes from a pre-vetted corporate career portal by the ATS vendor (Greenhouse, Workable, Zoho Recruit, etc.), so there is minimal to zero likelihood of scam job postings. However, social media is different: some open roles are posted by individuals such as recruiters, career coaches, founders, and even <span style="color:#dc2626;font-weight:700;">scam actors</span>.</p>
+                  <p style="margin:0;">Individuals running employment fraud syndicates can also publish convincing hiring posts on social media to deceive unsuspecting victims.</p>
                 </div>
               </div>
-              <div class="rr-sv-foot">
-                <div style="font-size:0.84rem;color:#18181b;font-weight:600;">
-                  Next: See how RoleRover arms you to verify every post.
-                </div>
+              <div class="rr-sv-foot" style="justify-content: flex-end;">
                 <button type="button" class="rr-sv-unlock-btn" id="rr-sv-next-step2">
                   See How Rover Protects You →
                 </button>
