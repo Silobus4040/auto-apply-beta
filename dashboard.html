@@ -1936,7 +1936,7 @@
                     <span class="sidebar-badge" id="sidebar-inbox-badge" style="display:none;">0</span>
                 </button>
                 <button class="sidebar-nav-item" onclick="goToMarketIntel(); if(window.innerWidth<=768) toggleSidebar();">
-                    <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Skill gap
+                    <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Market Intelligence
                 </button>
                 <button class="sidebar-nav-item" onclick="openSettingsModal(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="sliders" class="sidebar-nav-icon"></i> Job Filters
@@ -2147,11 +2147,14 @@
                         <!-- JS injected skills -->
                     </div>
                 </div>
+                <div>
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.5rem; letter-spacing: 0.5px;">Top Missing Tools</h4>
+                    <div id="mi-tools-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        <!-- JS injected tools -->
+                    </div>
+                </div>
             </div>
 
-            <div style="margin-top: 1.75rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
-                <button onclick="document.getElementById('skill-gap-modal').classList.add('active')" style="background: transparent; border: none; color: var(--secondary); font-size: 0.85rem; font-weight: 800; cursor: pointer; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px dashed var(--secondary); transition: color 0.2s;">🔍 Curious to see the actual postings? Click here</button>
-            </div>
         </div>
 
         <!-- Info Strip (Search Criteria) -->
@@ -3467,101 +3470,69 @@
                 document.getElementById('stat-offer').textContent = displayOffer;
             }
 
-            // Old rejected_jobs-driven inline section retired for now -- nav
-            // click opens the "Skill Gap - coming soon" modal instead. Re-enable
-            // once the market-wide Skill Gap rebuild (see market intel.txt) ships.
-            // fetchMarketIntelligence(userId);
+            // Market Match: aggregate tool/skill demand vs resume for the
+            // user's own target role + experience level, via get_role_market_match()
+            // on Hetzner (stagehand_poc PROGRESS_LOG.md Run 218/219). Replaces the
+            // old rejected_jobs-driven version below it used to call -- that table
+            // has had zero writers since 2026-06-29 (confirmed dead).
+            fetchMarketMatch(userId);
         }
 
-        async function fetchMarketIntelligence(userId) {
+        async function fetchMarketMatch(userId) {
             try {
-                const { data: rejectedJobs, error } = await supabaseClient
-                    .from('rejected_jobs')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false });
-
+                const { data, error } = await supabaseClient.rpc('get_role_market_match', {});
                 if (error) throw error;
 
                 const miSection = document.getElementById('market-intel-section');
-                if (!rejectedJobs || rejectedJobs.length === 0) {
+                if (!data || data.error || !data.total_jobs_analyzed) {
+                    miSection.style.display = 'none';
+                    return;
+                }
+
+                // tool/skill names are LLM-extracted from job descriptions, i.e.
+                // untrusted external text -- escapeHtml() before any DOM insertion,
+                // same rule this file already applies to rejected_jobs/email content.
+                // Kept as two separate lists (not merged) -- skills_required vs
+                // tools_required is a deliberate split on the backend (Run 217),
+                // and merging them let skills bury tools under one combined
+                // top-5 (e.g. a real Product Designer case showed only 1 tool
+                // among 5 results). Plain job-posting counts instead of a
+                // percentage, per founder: easier to read at a glance.
+                const skillGaps = (data.top_skills || [])
+                    .filter(x => x.on_resume === false)
+                    .sort((a, b) => b.job_count - a.job_count)
+                    .slice(0, 5);
+                const toolGaps = (data.top_tools || [])
+                    .filter(x => x.on_resume === false)
+                    .sort((a, b) => b.job_count - a.job_count)
+                    .slice(0, 5);
+
+                if (skillGaps.length === 0 && toolGaps.length === 0) {
                     miSection.style.display = 'none';
                     return;
                 }
 
                 miSection.style.display = 'block';
-                document.getElementById('mi-total-analyzed').textContent = rejectedJobs.length;
+                document.getElementById('mi-total-analyzed').textContent = data.total_jobs_analyzed;
 
-                const skillCounts = {};
-                rejectedJobs.forEach(job => {
-                    if (job.missing_skills && Array.isArray(job.missing_skills)) {
-                        job.missing_skills.forEach(skill => {
-                            const s = skill.trim();
-                            if (s) {
-                                skillCounts[s] = (skillCounts[s] || 0) + 1;
-                            }
-                        });
-                    }
-                });
+                const renderGapRow = (g) => `
+                    <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px;">
+                        <span style="font-weight: 700; color: #000000; font-size: 0.9rem;">${escapeHtml(g.name)}</span>
+                        <span style="background: #FFFBEB; color: #B45309; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">${g.job_count} job postings require this</span>
+                    </div>
+                `;
 
-                const sortedSkills = Object.entries(skillCounts)
-                    .sort((a, b) => b[1] - a[1])
-                    .slice(0, 5);
-
-                if (sortedSkills.length === 0) {
-                    miSection.style.display = 'none';
-                    return;
-                }
-
-                const skillsListHtml = sortedSkills.map(([skill, count]) => {
-                    const percentage = Math.round((count / rejectedJobs.length) * 100);
-                    return `
-                        <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px;">
-                            <span style="font-weight: 700; color: #000000; font-size: 0.9rem;">${escapeHtml(skill)}</span>
-                            <span style="background: #FFFBEB; color: #B45309; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">Missed in ${percentage}% of jobs</span>
-                        </div>
-                    `;
-                }).join('');
-
-                document.getElementById('mi-skills-list').innerHTML = skillsListHtml;
-
-                // job.company, job.job_title, job.missing_skills, job.reason and
-                // job.apply_url all ultimately come from the `rejected_jobs` table,
-                // which (per its RLS policy) currently accepts inserts from any role
-                // -- not just the service role its policy name implies. Treat every
-                // field here as untrusted: escape text content and only allow safe
-                // http(s) URLs through to an href.
-                const isSafeHttpUrl = (u) => {
-                    if (!u || u === '#') return false;
-                    try {
-                        const parsed = new URL(u, window.location.href);
-                        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
-                    } catch (e) {
-                        return false;
-                    }
-                };
-
-                const tbody = document.getElementById('mi-jobs-tbody');
-                tbody.innerHTML = rejectedJobs.map(job => {
-                    const skillsStr = (job.missing_skills || []).map(s => escapeHtml(s)).join(', ');
-                    const safeUrl = isSafeHttpUrl(job.apply_url) ? job.apply_url : null;
-                    return `
-                        <tr>
-                            <td>
-                                <strong style="color: #000; display: block;">${escapeHtml(job.company || 'Unknown')}</strong>
-                                <span style="font-weight: 600; font-size: 0.8rem; color: #52525B;">${escapeHtml(job.job_title || 'Unknown')}</span>
-                            </td>
-                            <td style="color: #B45309; font-weight: 600; font-size: 0.8rem;">${skillsStr || 'None listed'}</td>
-                            <td style="font-size: 0.8rem; color: #3f3f46; line-height: 1.5;">${escapeHtml(job.reason || 'No reason provided.')}</td>
-                            <td>
-                                ${safeUrl ? `<a href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer" class="table-btn table-btn-sm" style="background: var(--primary); color: #000; border: none; padding: 0.4rem 0.8rem;">View Job</a>` : '<span style="color: #A1A1AA; font-size: 0.8rem;">N/A</span>'}
-                            </td>
-                        </tr>
-                    `;
-                }).join('');
+                const skillsListEl = document.getElementById('mi-skills-list');
+                const toolsListEl = document.getElementById('mi-tools-list');
+                skillsListEl.innerHTML = skillGaps.length
+                    ? skillGaps.map(renderGapRow).join('')
+                    : '<p style="color: #A1A1AA; font-size: 0.85rem;">No skill gaps found for your target role right now.</p>';
+                toolsListEl.innerHTML = toolGaps.length
+                    ? toolGaps.map(renderGapRow).join('')
+                    : '<p style="color: #A1A1AA; font-size: 0.85rem;">No tool gaps found for your target role right now.</p>';
 
             } catch (err) {
-                console.error("Error fetching market intelligence:", err);
+                console.error("Error fetching market match:", err);
             }
         }
 
@@ -3578,8 +3549,20 @@
 
         let currentResumeObjectUrl = null;
 
-        function goToMarketIntel() {
-            document.getElementById('skill-gap-info-modal').classList.add('active');
+        async function goToMarketIntel() {
+            // Market Match is live now (get_role_market_match()) -- refresh on
+            // demand and jump to the real section. Falls back to the "coming
+            // soon" info modal only when there's genuinely nothing to show yet
+            // (no target role set, or not enough jobs analyzed for it).
+            if (cachedUserId) {
+                try { await fetchMarketMatch(cachedUserId); } catch (e) {}
+            }
+            const miSection = document.getElementById('market-intel-section');
+            if (miSection && miSection.style.display !== 'none') {
+                miSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            } else {
+                document.getElementById('skill-gap-info-modal').classList.add('active');
+            }
         }
         if (location.hash === '#skill-gap') goToMarketIntel();
             if (location.hash === '#drafts') setTimeout(() => openEmailClient('drafts'), 600);
