@@ -708,6 +708,10 @@
         }
         .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
         .sidebar-nav-item.active .sidebar-nav-icon { color: var(--secondary); }
+        .sidebar-section-label { font-size: 0.72rem; font-weight: 700; color: #a1a1aa; padding: 0.5rem 0.75rem 0.25rem; margin-top: 0.25rem; }
+        [data-theme="dark"] .sidebar-section-label { color: #71717a; }
+        .sidebar-cluster { display: flex; flex-direction: column; gap: 0.15rem; margin-top: 0.5rem; margin-bottom: 0.6rem; padding-top: 0.5rem; padding-bottom: 0.6rem; border-top: 1px solid rgba(0,0,0,0.12); border-bottom: 1px solid rgba(0,0,0,0.12); }
+        [data-theme="dark"] .sidebar-cluster { border-top-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
         /* Log Out anchored to the bottom of the sidebar, separated from the
            main nav group -- standard modern layout instead of sitting inline
            as just another item after Settings. */
@@ -1278,7 +1282,7 @@
 
     <nav id="mobile-topbar" style="display: none;">
         <button class="hamburger-btn" style="display:block;" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
-        <span id="mobile-page-title" style="font-weight: 800; font-size: 1rem; color: var(--text-heading);">Career Pages</span>
+        <span id="mobile-page-title" style="font-weight: 800; font-size: 1rem; color: var(--text-heading);">Company Career Pages</span>
         <div style="width: 34px;"></div>
     </nav>
     <span id="nav-badge" style="display:none;">⏳ Free Trial</span>
@@ -1826,12 +1830,15 @@
                     <i data-lucide="layout-dashboard" class="sidebar-nav-icon"></i> Dashboard
                 </a>
 
-                <!-- Career Pages: Single item with Auto-Apply and Apply Yourself sub-links -->
+                <div class="sidebar-cluster">
+                <div class="sidebar-section-label">Find Jobs</div>
+
+                <!-- Company Career Pages: Single item with Auto-Apply and Apply Manually sub-links -->
                 <div class="sidebar-nav-group" id="sidebar-career-pages-group" style="display: flex; flex-direction: column;">
                     <div class="sidebar-nav-item" id="sidebar-career-pages-parent" onclick="toggleCareerSubnav()" style="cursor: pointer; display: flex; align-items: center; justify-content: space-between; text-decoration: none; color: inherit;">
                         <div style="display: flex; align-items: center; gap: 0.75rem;">
                             <i data-lucide="building-2" class="sidebar-nav-icon"></i>
-                            <span style="font-weight: 700;">Career Pages</span>
+                            <span style="font-weight: 700;">Company Career Pages</span>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.35rem;">
                             <span class="sidebar-badge" id="sidebar-career-count" style="background: rgba(0,0,0,0.06); color: var(--text-heading); font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 6px;">158</span>
@@ -1840,10 +1847,10 @@
                     </div>
                     <div class="sidebar-subnav" id="sidebar-career-pages-subnav" style="padding-left: 2rem; display: flex; flex-direction: column; gap: 2px; margin-top: 2px; margin-bottom: 6px;">
                         <a href="swipe.html" id="subnav-auto-apply" class="sidebar-subnav-item" style="padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 800; text-decoration: none; background: rgba(16, 185, 129, 0.12); color: #059669; border-left: 2px solid #059669; display: flex; align-items: center; gap: 0.4rem; transition: all 0.15s;">
-                            <span>⚡</span> Auto-Apply
+                            Auto-Apply
                         </a>
                         <a href="jobs.html" id="subnav-apply-free" class="sidebar-subnav-item" style="padding: 0.35rem 0.65rem; border-radius: 6px; font-size: 0.8rem; font-weight: 600; text-decoration: none; color: #52525b; display: flex; align-items: center; gap: 0.4rem; transition: all 0.15s;">
-                            <span>📄</span> Apply Yourself (Free)
+                            Apply Manually (Free)
                         </a>
                     </div>
                 </div>
@@ -1852,11 +1859,11 @@
                 <a class="sidebar-nav-item" id="sidebar-hiring-posts-link" href="swipe.html?mode=hiring" style="text-decoration: none; color: inherit; display: flex; align-items: center; justify-content: space-between;">
                     <div style="display: flex; align-items: center; gap: 0.75rem;">
                         <i data-lucide="smartphone" class="sidebar-nav-icon"></i>
-                        <span>Social Posts — Auto Outreach</span>
+                        <span>Hiring Posts (Social Media)</span>
                     </div>
                     <span class="badge" style="font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40</span>
                 </a>
-
+                </div>
 
                 <button class="sidebar-nav-item" onclick="openEmailClient(); if(window.innerWidth<=768) toggleSidebar();">
                     <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
@@ -1990,7 +1997,7 @@
 
         <!-- Page Header -->
         <div class="page-header">
-            <h1 class="page-title">Career Pages</h1>
+            <h1 class="page-title">Company Career Pages</h1>
             <div style="display: flex; align-items: center; gap: 0.85rem;">
                 <div id="credit-balance-block" class="credit-balance" style="display: none; align-items: center; text-align: right;">
                     <div>
@@ -2018,7 +2025,7 @@
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">TOTAL JOBS FOUND</span>
                 <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">198</span>
-                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Career Pages · 40 Social Posts</div>
+                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Company Career Pages · 40 Hiring Posts (Social Media)</div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
@@ -3068,12 +3075,30 @@
 
       const scamPillClass = c4.status === 'scam_reports_found' ? 'rr-sv-pill-danger' : 'rr-sv-pill-ok';
 
+      // Dynamic Social Profile list for advice
+      const foundSocialPlatforms = [];
+      if (c2.poster_linkedin || c2.company_linkedin) foundSocialPlatforms.push('LinkedIn');
+      if (c2.twitter_x) foundSocialPlatforms.push('X (Twitter)');
+      if (c2.facebook) foundSocialPlatforms.push('Facebook');
+      if (c2.instagram) foundSocialPlatforms.push('Instagram');
+      if (foundSocialPlatforms.length === 0) {
+        if (d.platform === 'linkedin') foundSocialPlatforms.push('LinkedIn');
+        else if (d.platform === 'x' || d.platform === 'twitter') foundSocialPlatforms.push('X (Twitter)');
+        else if (d.platform === 'facebook') foundSocialPlatforms.push('Facebook');
+        else foundSocialPlatforms.push('social media');
+      }
+      const socialPlatformLabel = foundSocialPlatforms.join(' / ');
+
+      // Check if lead is an individual poster with no registered company mentioned
+      const isIndividualPoster = !gr && !siteHost && !c1.official_website && !c1.exact_registered_legal_name && dirList.length === 0;
+
+
       const socialButtons = [
         [c2.company_linkedin, 'Company LinkedIn', '🏢'],
-        [c2.poster_linkedin, 'Poster LinkedIn', '👤'],
-        [c2.twitter_x, 'X (Twitter)', '𝕏'],
-        [c2.facebook, 'Facebook Page', '📘'],
-        [c2.instagram, 'Instagram', '📸'],
+        [c2.poster_linkedin, "Poster's LinkedIn", '👤'],
+        [c2.twitter_x, "Poster's X (Twitter)", '👤'],
+        [c2.facebook, "Poster's Facebook", '👤'],
+        [c2.instagram, "Poster's Instagram", '👤'],
         [c2.website || c1.official_website, siteHost || 'Official Website', '🌐']
       ].filter(item => item[0] && /^https?:\/\//i.test(item[0]))
        .map(item => `<a class="rr-sv-social-a" href="${esc(item[0])}" target="_blank" rel="noopener noreferrer">${item[2]} ${esc(item[1])} ↗</a>`)
@@ -3185,11 +3210,18 @@
                 ${c1.official_website ? `<b>Official Website:</b> <a href="${esc(c1.official_website)}" target="_blank" rel="noopener noreferrer" style="color:#09090b;font-weight:800;text-decoration:underline;text-decoration-color:#a3e635">${esc(siteHost)} ↗</a>` : ''}
                 ${c1.verified_hq ? ` &middot; <b>HQ:</b> ${esc(c1.verified_hq)}` : ''}
                 <div style="margin-top:6px;color:#27272a;">${esc(c1.summary || 'No public government registration record matched.')}</div>
-                ${c1.what_to_ask_employer ? `
+                ${isIndividualPoster ? `
+                  <div style="margin-top:8px;padding:9px 12px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
+                    <b>💡 Individual / Unregistered Hiring Lead:</b><br>
+                    This job is posted by an individual with no registered company mentioned. Before applying, inspect the poster's <b>${esc(socialPlatformLabel)}</b> profile:<br>
+                    &bull; <i>Does their profile look authentic with Real People Engaging them?</i><br><br>
+                    If their profile looks thin or doesn't feel right, we advise you to decline and move on &mdash; Rover continuously scans and will add fresh, verified jobs to your deck.
+                  </div>
+                ` : (c1.what_to_ask_employer ? `
                   <div style="margin-top:8px;padding:8px 11px;background:#fef3c7;border:1px solid #fde047;border-radius:8px;color:#78350f;font-size:0.79rem;line-height:1.45;">
                     <b>💡 What to Ask the Employer:</b> ${esc(c1.what_to_ask_employer)}
                   </div>
-                ` : ''}
+                ` : '')}
                 ${offReg && offReg.registry_url ? `
                   <div style="margin-top:8px;">
                     <a href="${esc(offReg.registry_url)}" target="_blank" rel="noopener noreferrer" style="display:inline-flex;align-items:center;gap:5px;background:#f4f4f5;border:1px solid #d4d4d8;color:#09090b;padding:5px 10px;border-radius:6px;font-weight:700;font-size:0.77rem;text-decoration:none;">
@@ -3238,7 +3270,9 @@
             </div>
             ${uniqueMentions.length
               ? `<div class="rr-sv-social-links">${mentionChips}</div>`
-              : '<div style="font-size:0.8rem;color:#3f3f46">Contact email is exclusive to official company domain with no external third-party listings.</div>'}
+              : (c3.status && c3.status.startsWith('free_email')
+                  ? '<div style="font-size:0.8rem;color:#3f3f46">0 external web mentions indexed for this free email address. Personal or newly created free email accounts typically have no historical public footprint online.</div>'
+                  : '<div style="font-size:0.8rem;color:#3f3f46">Contact email is exclusive to official company domain with no external third-party listings.</div>')}
           </div>
         </div>
       `;
@@ -3715,10 +3749,10 @@
                 if (careerChevron) careerChevron.style.transform = 'rotate(-90deg)';
                 const title = document.querySelector('.page-title');
                 if (title) {
-                    title.innerHTML = 'Social Posts — Auto Outreach <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
+                    title.innerHTML = 'Hiring Posts (Social Media) <button type="button" onclick="window.RR_SOCIAL_SAFETY && window.RR_SOCIAL_SAFETY.openWelcomeGate(true)" style="margin-left:10px;padding:5px 12px;border-radius:999px;font-size:12px;font-weight:800;background:#f7fee7;color:#09090b;border:1px solid #a3e635;cursor:pointer;vertical-align:middle;font-family:inherit;">Safety &amp; 1-Click Verify Guide</button>';
                 }
                 const mobileTitle = document.getElementById('mobile-page-title');
-                if (mobileTitle) mobileTitle.textContent = 'Social Posts — Auto Outreach';
+                if (mobileTitle) mobileTitle.textContent = 'Hiring Posts (Social Media)';
             } else {
                 if (careerParent) careerParent.classList.add('active');
                 if (hiringLink) hiringLink.classList.remove('active');
@@ -3972,7 +4006,7 @@
                             const es = document.getElementById('deck-empty-state');
                             if (es) {
                                 es.style.display = '';
-                                es.innerHTML = '<h3>No social posts right now</h3><p>Rover is watching Facebook, LinkedIn, and X and will add matching recruiter posts here.</p>';
+                                es.innerHTML = '<h3>No social posts right now</h3><p>Rover is watching LinkedIn, X (Twitter), and Facebook 24/7 for new hiring posts.</p>';
                             }
                         }
                         return;
@@ -5300,7 +5334,7 @@
                             <div>
                                 <span style="font-size: 2rem; display: block; margin-bottom: 0.75rem;">🎉</span>
                                 <h4 style="font-weight: 800; margin-bottom: 0.35rem;">You're all caught up</h4>
-                                <p style="color: #71717a; font-size: 0.85rem;">Rover is watching Facebook groups 24/7 for new recruiter posts.</p>
+                                <p style="color: #71717a; font-size: 0.85rem;">Rover is watching LinkedIn, X (Twitter), and Facebook 24/7 for new hiring posts.</p>
                             </div>
                         </div>`;
                 } else {
@@ -6027,7 +6061,7 @@
             el.textContent = totalCombined.toLocaleString();
             const breakdown = document.getElementById('stat-total-breakdown');
             if (breakdown) {
-                breakdown.textContent = `${portalCount.toLocaleString()} Career Pages · ${hiringCount} Social Posts`;
+                breakdown.textContent = `${portalCount.toLocaleString()} Company Career Pages · ${hiringCount} Hiring Posts (Social Media)`;
             }
             // Sidebar badges were static placeholder text in the markup (158 / 40,
             // never updated by any script) -- keep them in sync with the real

@@ -218,6 +218,18 @@
         }
         document.getElementById('user-email').textContent = pendingEmail || '';
 
+        if (otpFlow === 'login') {
+            const h1 = document.querySelector('.header h1');
+            if (h1) h1.textContent = 'Reset Your Password';
+            const p = document.querySelector('.header p');
+            if (p) p.innerHTML = 'We sent a verification code to <span class="email-highlight" id="user-email">' + (pendingEmail || 'your email') + '</span>. Enter it below to set a new password.';
+            const backLink = document.querySelector('.back-link a');
+            if (backLink) {
+                backLink.href = 'login.html';
+                backLink.innerHTML = '&larr; Back to Log In';
+            }
+        }
+
         // ─── OTP Input Logic ───
         const inputs = document.querySelectorAll('.otp-input');
         const otpInput = document.getElementById('otp-code');
