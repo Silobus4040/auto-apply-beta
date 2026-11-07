@@ -15,7 +15,8 @@
     <title>AutoApply AI | Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
     <meta name="robots" content="noindex,nofollow">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="assets/tokens.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @keyframes rover-spin {
@@ -29,15 +30,13 @@
             margin-bottom: 0.25rem;
         }
         :root {
-            --bg-color: #ffffff;
-            --surface-color: #ffffff;
-            --primary: #D4FF33;
-            --primary-hover: #bde62b;
-            --secondary: #10B981;
-            --accent: #FF6B4A;
-            --text-heading: #000000;
-            --text-body: #27272A;
-            --border: #e4e4e7;
+            /* Not covered by tokens.css's legacy name mapping: --secondary was
+               emerald (sidebar active state, credits badge, salary chip) --
+               remapped to the one teal accent. --accent was coral (Skill Gap
+               highlight only, 3 call sites) -- kept as amber, a caution color,
+               not the brand action color. */
+            --secondary: var(--accent);
+            --skill-gap-color: #B45309;
         }
         [data-theme="dark"] {
             --bg-color: #18181b;
@@ -63,20 +62,19 @@
         }
 
         nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; border-bottom: 1px solid rgba(0, 0, 0, 0.06); background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); position: sticky; top: 0; z-index: 100; }
-        .logo { color: var(--text-heading); font-size: 1.5rem; font-weight: 900; letter-spacing: -1px; text-decoration: none; text-transform: uppercase; display: flex; align-items: center; gap: 0.5rem; }
-        .logo span { background: linear-gradient(135deg, #D4FF33, #00FFCC); color: #000000; padding: 0.2rem 0.6rem; margin-left: 0.35rem; font-size: 1.1rem; font-weight: 800; border-radius: 8px; display: inline-block; vertical-align: middle; box-shadow: 0 4px 10px rgba(212, 255, 51, 0.15); }
+        .logo { color: var(--text-heading); display: flex; align-items: center; gap: 0.5rem; text-decoration: none; }
         .nav-user { display: flex; align-items: center; gap: 1rem; }
-        .nav-credits { background: rgba(16, 185, 129, 0.06); color: var(--secondary); border: 1px solid rgba(16, 185, 129, 0.2); padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+        .nav-credits { background: rgba(0, 255, 204, 0.1); color: var(--success-text); border: 1px solid rgba(0, 255, 204, 0.3); padding: 0.5rem 1.1rem; border-radius: var(--r-pill); font-size: 0.85rem; font-weight: 600; }
         .nav-avatar { width: 34px; height: 34px; border-radius: 50%; background: #000000; color: #ffffff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; border: 1px solid var(--border); transition: all 0.2s; }
-        .nav-avatar:hover { border-color: var(--primary); cursor: pointer; box-shadow: 0 0 10px rgba(212,255,51,0.2); }
+        .nav-avatar:hover { border-color: var(--ink); cursor: pointer; box-shadow: none; }
         .nav-logout { background: transparent; border: 1px solid rgba(239, 68, 68, 0.2); color: #EF4444; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; text-transform: uppercase; transition: all 0.2s; }
         .nav-logout:hover { background: rgba(239,68,68,0.08); border-color: rgba(239, 68, 68, 0.4); }
 
         .container { max-width: 100%; margin: 0; padding: 1.1rem 2.5rem 2rem; }
 
         /* Search Section */
-        .search-section { background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2.5rem; margin-bottom: 2rem; box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03); }
-        .search-section h2 { color: var(--text-heading); font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 850; letter-spacing: -0.5px; text-transform: uppercase; }
+        .search-section { background: var(--surface-color); border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2.5rem; margin-bottom: 2rem; box-shadow: none; }
+        .search-section h2 { color: var(--text-heading); font-size: 1.5rem; margin-bottom: 0.5rem; font-weight: 600; letter-spacing: -0.02em; }
         .search-section p { color: var(--text-body); margin-bottom: 1.75rem; font-size: 0.95rem; }
 
         .search-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1.25rem; align-items: end; }
@@ -98,8 +96,8 @@
 
         .field { display: flex; flex-direction: column; gap: 0.5rem; }
         .field label { color: #52525B; font-weight: 750; font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .field input, .field select { padding: 0.85rem 1rem; background: var(--bg-color); border: 1px solid var(--border); border-radius: 8px; color: var(--text-body); font-size: 0.95rem; transition: all 0.2s; }
-        .field input:focus, .field select:focus { outline: none; border-color: #00FFCC; box-shadow: 0 0 0 3px rgba(0, 255, 204, 0.15); }
+        .field input, .field select { padding: 0.85rem 1rem; background: var(--bg-color); border: 1px solid var(--border); border-radius: var(--r-sm); color: var(--text-body); font-size: 0.95rem; transition: all 0.2s; }
+        .field input:focus, .field select:focus { outline: none; border-color: var(--ink); box-shadow: 0 0 0 3px rgba(10, 10, 10, 0.08); }
         .field select option { background: var(--bg-color); color: var(--text-body); }
 
         /* Prevent browser autofill from overriding dark styles */
@@ -116,34 +114,32 @@
         .filter-row { display: flex; gap: 1rem; margin-top: 1.25rem; align-items: center; flex-wrap: wrap; }
         .filter-label { color: #52525B; font-weight: 750; font-size: 0.8rem; white-space: nowrap; text-transform: uppercase; letter-spacing: 0.5px; }
         .filter-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
-        .chip { padding: 0.4rem 1.1rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface-color); color: var(--text-body); transition: all 0.2s; user-select: none; text-transform: uppercase; }
+        .chip { padding: 0.4rem 1.1rem; border-radius: var(--r-pill); font-size: 0.8rem; font-weight: 600; cursor: pointer; border: 1px solid var(--border); background: var(--surface-color); color: var(--text-body); transition: all 0.2s; user-select: none; }
         .chip:hover { border-color: #a1a1aa; color: #000000; }
-        .chip.active { background: var(--primary); border-color: var(--primary); color: #000000; font-weight: 700; }
+        .chip.active { background: var(--accent); border-color: var(--accent); color: #000000; font-weight: 700; }
         .chip .chip-count { color: inherit; font-size: 0.75rem; font-weight: 700; margin-left: 0.3rem; opacity: 0.8; }
 
-        .search-btn { padding: 0.85rem 2rem; border-radius: 8px; font-size: 0.95rem; font-weight: 800; cursor: pointer; border: none; background: var(--primary); color: #000000; transition: all 0.2s; white-space: nowrap; height: fit-content; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: 0 4px 15px rgba(212, 255, 51, 0.25); }
-        .search-btn:hover { background: var(--primary-hover); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(212, 255, 51, 0.35); }
+        .search-btn { padding: 0.85rem 2rem; border-radius: var(--r-pill); font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; background: var(--accent); color: #000000; transition: background var(--t-hover) ease, transform var(--t-hover) ease; white-space: nowrap; height: fit-content; box-shadow: none; }
+        .search-btn:hover { background: var(--accent-hover); transform: translateY(-1px); box-shadow: none; }
         .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
         /* Stats Bar */
         .stats-bar { display: flex; gap: 1rem; margin-bottom: 2rem; flex-wrap: wrap; }
         .stat { display: flex; align-items: baseline; gap: 0.6rem; background: var(--surface-color); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.75rem; min-width: 160px; box-shadow: 0 2px 8px rgba(0,0,0,0.03); flex: 1; }
         .stat-number { color: var(--text-heading); font-size: 2rem; font-weight: 900; line-height: 1; }
-        .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; }
-        /* The deck is the next meaningful step after users see their available
-           jobs, so it uses a contained deep-teal action rather than black or
-           a bright gradient. */
+        .stat-label { color: #71717A; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; font-weight: 600; }
+        /* Matches the one teal accent used everywhere else now, rather than a
+           separate deep-teal tone that read as a second, competing color. */
         .stat-view-btn {
-            background: #0f5c52;
-            border: 1px solid #0f5c52;
-            color: #ffffff;
-            padding: 0.3rem 0.65rem;
+            background: var(--accent);
+            border: 1px solid rgba(10,10,10,0.08);
+            color: #000000;
+            padding: 0.3rem 0.8rem;
             font-size: 0.78rem;
             font-weight: 600;
             cursor: pointer;
-            border-radius: 8px;
-            text-transform: uppercase;
-            transition: all 0.2s;
+            border-radius: var(--r-pill);
+            transition: background var(--t-hover) ease;
             display: inline-flex;
             align-items: center;
             justify-content: center;
@@ -151,12 +147,10 @@
             white-space: nowrap;
         }
         .stat-view-btn:hover {
-            background: #064e45;
-            border-color: #064e45;
-            color: #ffffff;
+            background: var(--accent-hover);
+            border-color: rgba(10,10,10,0.08);
+            color: #000000;
         }
-        [data-theme="dark"] .stat-view-btn { background: #167c6f; border-color: #167c6f; color: #ffffff; }
-        [data-theme="dark"] .stat-view-btn:hover { background: #1d9383; border-color: #1d9383; color: #ffffff; }
 
         /* Upgrade as the ONE filled primary CTA -- applied by JS only once a
            real checkout URL exists (see UPGRADE_URL). Uses the landing page's
@@ -187,10 +181,10 @@
             width: 100%;
             overflow-x: auto;
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: var(--r-md);
             background: var(--surface-color);
             margin-bottom: 2rem;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.03);
+            box-shadow: none;
         }
         .jobs-table {
             width: 100%;
@@ -246,13 +240,13 @@
             margin-top: 0.2rem;
         }
         .table-salary {
-            color: #10B981;
+            color: var(--success-text);
             font-weight: 600;
             font-size: 0.875rem;
-            background: rgba(16, 185, 129, 0.06);
+            background: var(--success-tint);
             padding: 0.2rem 0.6rem;
-            border-radius: 4px;
-            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: var(--r-sm);
+            border: 1px solid rgba(0, 255, 204, 0.3);
             display: inline-block;
         }
         .table-ats {
@@ -386,7 +380,7 @@
            matching that here instead of inventing a new value. */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(8px); z-index: 1000; justify-content: center; align-items: center; padding: 1rem; }
         .modal-overlay.active { display: flex; }
-        .desc-modal { background: #ffffff; border: 1px solid rgba(0, 255, 204, 0.2); border-radius: 24px; padding: 2.5rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 50px rgba(0,0,0,0.08); }
+        .desc-modal { background: #ffffff; border: 1px solid var(--border); border-radius: var(--r-lg); padding: 2.5rem; max-width: 700px; width: 100%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: var(--shadow-md); }
         /* Title was text-transform:uppercase, which turns a long role name into a
            shouty unreadable block ("ASSOCIATE MANAGER, STRATEGY & OPERATIONS FOR
            MARKETING PRODUCTS, IN-STORE"). Sentence case reads far faster. */
@@ -476,7 +470,7 @@
         .blob-1 {
             top: -100px;
             left: -100px;
-            background: #D4FF33;
+            background: #00FFCC;
         }
         .blob-2 {
             bottom: -100px;
@@ -498,22 +492,22 @@
             .email-list { flex: 1; min-width: 310px; }
         }
         .email-sidebar-header { padding: 1.25rem; border-bottom: 1px solid var(--border); background: #fff; display: flex; justify-content: space-between; align-items: center; }
-        .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 800; color: #000; text-transform: uppercase; letter-spacing: -0.5px; margin: 0; }
+        .email-sidebar-header h3 { font-size: 1.1rem; font-weight: 600; color: #000; letter-spacing: -0.02em; margin: 0; }
         .email-mailbox-main { display: flex; flex: 1; min-width: 0; min-height: 0; }
         .email-folder-nav { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; position: static; top: auto; z-index: auto; width: 200px; min-width: 180px; flex: 0 0 200px; padding: 0.8rem; border: 0; border-right: 1px solid var(--border); background: #fafafa; backdrop-filter: none; overflow-y: auto; box-sizing: border-box; }
         .email-folder-label { margin: 0.35rem 0.7rem 0.65rem; color: #71717a; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
         .email-folder-btn { width: 100%; flex: 0 0 auto; display: flex; align-items: center; justify-content: flex-start; gap: 0.65rem; padding: 0.72rem 0.8rem; border: 0; border-radius: 8px; background: transparent; color: #52525b; font: inherit; font-size: 0.88rem; font-weight: 650; text-align: left; cursor: pointer; transition: background 0.15s, color 0.15s; }
         .email-folder-btn:hover { background: #f1f5f4; color: #111827; }
-        .email-folder-btn.active { background: rgba(16, 185, 129, 0.12); color: #111827; font-weight: 800; }
+        .email-folder-btn.active { background: var(--success-tint); color: #111827; font-weight: 800; }
         #tab-interviews.active, #tab-inbox.active,
         #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active, #tab-drafts.active {
-            background: rgba(5, 150, 105, 0.12);
-            color: #059669;
+            background: var(--success-tint);
+            color: var(--success-text);
         }
         @media (max-width: 768px) {
             #tab-interviews.active, #tab-inbox.active,
             #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active, #tab-drafts.active {
-                border-bottom: 2px solid #059669;
+                border-bottom: 2px solid var(--success-text);
             }
         }
         .email-folder-btn i { width: 16px; height: 16px; }
@@ -522,8 +516,8 @@
         .email-list { flex: 1; min-width: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior-y: contain; touch-action: pan-y; }
         .email-item { padding: 0.85rem 1rem; border-bottom: 1px solid #f1f5f9; cursor: pointer; transition: background 0.15s ease; position: relative; display: flex; flex-direction: column; gap: 0.2rem; box-sizing: border-box; background: #fff; }
         .email-item:hover { background: #f8fafc; }
-        .email-item.active { background: #f0fdf4 !important; border-left: 3px solid #059669; padding-left: calc(1rem - 3px); }
-        .email-item.unread::before { content: ''; position: absolute; top: 1rem; left: 0.35rem; width: 6px; height: 6px; background: #10b981; border-radius: 50%; }
+        .email-item.active { background: var(--success-tint) !important; border-left: 3px solid var(--success-text); padding-left: calc(1rem - 3px); }
+        .email-item.unread::before { content: ''; position: absolute; top: 1rem; left: 0.35rem; width: 6px; height: 6px; background: var(--success-text); border-radius: 50%; }
         .email-item:not(.unread)::before { display: none !important; }
         .email-item-header { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; width: 100%; }
         .email-sender { font-size: 0.88rem; font-weight: 750; color: #09090b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3; flex: 1; min-width: 0; padding-right: 0; margin-bottom: 0; }
@@ -586,7 +580,7 @@
  @media (max-width: 768px) {
             #tab-interviews.active, #tab-inbox.active,
             #tab-rejections.active, #tab-offers.active, #tab-sent.active, #tab-codes.active {
-                border-bottom: 2px solid #059669;
+                border-bottom: 2px solid var(--success-text);
             }
         }
         .email-folder-btn i { width: 16px; height: 16px; }
@@ -646,7 +640,7 @@
         .email-pill-btn { background: #fff; color: #3c4043; border: 1px solid #dadce0; padding: 0.55rem 1.4rem; border-radius: 999px; font-weight: 600; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem; font-family: inherit; transition: background 0.15s, border-color 0.15s, box-shadow 0.15s; }
         .email-pill-btn:hover { background: #f8f9fa; border-color: #c6c9cc; box-shadow: 0 1px 2px rgba(60,64,67,0.15); }
         .email-pill-btn i { width: 16px; height: 16px; stroke-width: 2.2; }
-        .email-reply-btn { background: #059669 !important; color: #ffffff !important; }
+        .email-reply-btn { background: var(--accent) !important; color: #000000 !important; }
         .email-action-icon { width: 17px; height: 17px; stroke-width: 2.4; flex-shrink: 0; }
         .email-iframe-container { flex: 1; padding: 0; background: #fff; overflow: hidden; position: relative; }
         .email-iframe { width: 100%; height: 100%; border: none; }
@@ -807,10 +801,10 @@
             .reply-field input { min-width: 0 !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
             .reply-lock-label { font-size: 0.75rem !important; white-space: nowrap; }
             .reply-composer-footer { padding: 1rem 1.25rem !important; }
-            .reply-send-btn { width: 100%; justify-content: center; background: #059669 !important; color: #ffffff !important; box-shadow: 0 4px 14px rgba(5,150,105,0.2) !important; }
+            .reply-send-btn { width: 100%; justify-content: center; background: var(--accent) !important; color: #000000 !important; box-shadow: none !important; }
         }
-        
-        .nav-inbox-btn { background: #000; color: #fff; padding: 0.5rem 1.1rem; border-radius: 6px; font-size: 0.85rem; font-weight: 700; text-transform: uppercase; cursor: pointer; transition: all 0.2s; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 0.4rem; }
+
+        .nav-inbox-btn { background: #000; color: #fff; padding: 0.5rem 1.1rem; border-radius: var(--r-pill); font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s; border: none; box-shadow: none; display: flex; align-items: center; gap: 0.4rem; }
         .nav-inbox-btn:hover { background: #27272a; transform: translateY(-1px); }
         .nav-inbox-btn .badge { background: var(--primary); color: #000; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 10px; font-weight: 900; }
 
@@ -831,8 +825,8 @@
             width: 150px !important; height: auto !important; display: block !important;
         }
         .sidebar-logo-icon {
-            width: 32px; height: 32px; background: linear-gradient(135deg, #D4FF33, #00FFCC);
-            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            width: 32px; height: 32px; background: #00FFCC;
+            border-radius: var(--r-sm); display: flex; align-items: center; justify-content: center;
             font-weight: 900; font-size: 1rem; color: #000;
         }
         .sidebar-logo-text { font-weight: 800; font-size: 1rem; color: #000; letter-spacing: -0.5px; }
@@ -852,7 +846,7 @@
         [data-theme="dark"] .sidebar-cluster { border-top-color: rgba(255,255,255,0.14); border-bottom-color: rgba(255,255,255,0.14); }
         [data-theme="dark"] .app-sidebar { background: var(--bg-color); }
         .sidebar-nav-item.active {
-            background: rgba(16, 185, 129, 0.08); color: var(--text-heading); font-weight: 700;
+            background: rgba(0, 255, 204, 0.1); color: var(--text-heading); font-weight: 700;
             border-left: 3px solid var(--secondary);
         }
         .sidebar-nav-icon { width: 18px; height: 18px; stroke-width: 2px; flex-shrink: 0; color: #71717a; }
@@ -933,18 +927,8 @@
         #pref-roles .pref-chip,
         #pref-countries .pref-chip,
         #pref-workplaces .pref-chip {
-            background: rgba(16, 185, 129, 0.08); color: #047857;
-            border: 1px solid rgba(16, 185, 129, 0.2);
-        }
-        [data-theme="dark"] .pref-chip {
-            background: rgba(255, 255, 255, 0.1); color: var(--text-heading);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
-        [data-theme="dark"] #pref-roles .pref-chip,
-        [data-theme="dark"] #pref-countries .pref-chip,
-        [data-theme="dark"] #pref-workplaces .pref-chip {
-            background: rgba(16, 185, 129, 0.15); color: var(--secondary);
-            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: var(--success-tint); color: var(--success-text);
+            border: 1px solid rgba(0, 255, 204, 0.3);
         }
         .info-strip-edit {
             position: absolute; bottom: 1rem; right: 1.5rem; font-size: 0.8rem;
@@ -960,7 +944,7 @@
         .credit-balance-limit { color: #71717a; font-size: 0.78rem; font-weight: 700; }
         .credit-balance-toggle { background: none; border: none; padding: 0; cursor: pointer; color: #a1a1aa; display: flex; align-items: center; }
         .credit-balance-track { height: 5px; width: 100%; background: var(--border); border-radius: 999px; overflow: hidden; }
-        .credit-balance-bar { height: 100%; width: 0%; background: linear-gradient(90deg, #8edb56, #45c6a5); border-radius: inherit; transition: width 0.3s; }
+        .credit-balance-bar { height: 100%; width: 0%; background: var(--accent); border-radius: inherit; transition: width 0.3s; }
         [data-theme="dark"] .credit-balance-label,
         [data-theme="dark"] .credit-balance-limit { color: #a1a1aa; }
 
@@ -1222,9 +1206,9 @@
                  2. View Submitted Form -- secondary, keeps the outline
                  3. Resume / Cover Letter -- tertiary, de-emphasised documents */
             .jobs-table td[data-label="Career Page"] .table-btn {
-                background: #059669;
-                border-color: #059669;
-                color: #ffffff;
+                background: var(--accent);
+                border-color: var(--accent);
+                color: #000000;
                 font-weight: 700;
             }
             .jobs-table td[data-label="Resume & Cover Letter"] .table-btn {
@@ -1363,8 +1347,8 @@
     
         /* Founder Direct Chat Interface */
         .founder-unread-badge {
-            background: #10b981;
-            color: #ffffff;
+            background: var(--accent);
+            color: #000000;
             font-size: 0.7rem;
             font-weight: 700;
             line-height: 1;
@@ -1375,7 +1359,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 1px 4px rgba(16, 185, 129, 0.4);
+            box-shadow: 0 1px 4px rgba(0, 255, 204, 0.4);
             animation: founderBadgePulse 2s infinite ease-in-out;
             margin-left: auto;
         }
@@ -1762,7 +1746,7 @@
     height: 6px; border-radius: 99px; background: #e4e4e7; width: 22px; transition: all 0.2s ease;
   }
   .rr-sv-step-dot.active {
-    background: #D4FF33; border: 1px solid #a3e635; width: 34px;
+    background: #00FFCC; border: 1px solid #00e6b8; width: 34px;
   }
   .rr-sv-step-dot.done {
     background: #18181b;
@@ -1781,7 +1765,7 @@
     display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap;
   }
   .rr-sv-welcome-box {
-    background: #fafafa; border: 1px solid #e4e4e7; border-left: 4px solid #D4FF33;
+    background: #fafafa; border: 1px solid #e4e4e7; border-left: 4px solid #00FFCC;
     border-radius: 14px; padding: 20px 22px; font-size: 0.94rem; line-height: 1.7; color: #18181b;
   }
   .rr-sv-welcome-box b, .rr-sv-welcome-box strong { color: #09090b; font-weight: 800; }
@@ -1802,7 +1786,7 @@
   }
   .rr-sv-rule-item:hover { border-color: #cbd5e1; }
   .rr-sv-rule-item.acked {
-    background: #f7fee7; border-color: #a3e635;
+    background: #E6FBF6; border-color: rgba(0, 255, 204, 0.5);
   }
   .rr-sv-rule-text { font-size: 0.87rem; line-height: 1.55; color: #18181b; flex: 1; }
   .rr-sv-rule-text b { color: #09090b; font-weight: 800; }
@@ -1813,33 +1797,34 @@
   }
   .rr-sv-ack-btn:hover { border-color: #09090b; background: #f4f4f5; }
   .rr-sv-ack-btn.acked {
-    background: #D4FF33; color: #09090b; border-color: #b8e600;
+    background: #00FFCC; color: #09090b; border-color: #00e6b8;
   }
   .rr-sv-unlock-btn {
-    border: 1.5px solid #b8e600; border-radius: 10px; padding: 11px 22px; font-size: 0.9rem; font-weight: 800;
-    cursor: pointer; background: #D4FF33; color: #09090b; font-family: inherit;
-    box-shadow: 0 4px 14px rgba(212, 255, 51, 0.45);
-    transition: all 0.15s ease;
+    border: 1px solid rgba(10,10,10,0.08); border-radius: 10px; padding: 11px 22px; font-size: 0.9rem; font-weight: 700;
+    cursor: pointer; background: #00FFCC; color: #09090b; font-family: inherit;
+    box-shadow: none;
+    transition: background 0.15s ease, transform 0.15s ease;
   }
-  .rr-sv-unlock-btn:hover:not(:disabled) { background: #c8f526; transform: translateY(-1px); }
+  .rr-sv-unlock-btn:hover:not(:disabled) { background: #00e6b8; }
+  .rr-sv-unlock-btn:active:not(:disabled) { transform: translateY(1px); }
   .rr-sv-unlock-btn:disabled {
-    background: #18181b; color: #D4FF33; border-color: #18181b; box-shadow: none; cursor: not-allowed;
+    background: #18181b; color: #00FFCC; border-color: #18181b; box-shadow: none; cursor: not-allowed;
   }
   .rr-sv-btn-trigger {
     display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 8px;
     font-size: 12px; font-weight: 800; cursor: pointer;
-    background: #f7fee7; color: #18181b; border: 1px solid #a3e635; text-decoration: none;
+    background: #E6FBF6; color: #18181b; border: 1px solid rgba(0, 255, 204, 0.5); text-decoration: none;
     transition: all 0.15s ease; font-family: inherit;
   }
   .rr-sv-btn-trigger:hover {
-    background: #D4FF33; color: #09090b; border-color: #b8e600;
+    background: #00FFCC; color: #09090b; border-color: #00e6b8;
   }
   .rr-sv-dossier-grid { display: flex; flex-direction: column; gap: 10px; }
   .rr-sv-check-card {
-    background: #ffffff; border: 1.5px solid #a3e635; border-radius: 12px; padding: 13px 16px;
+    background: #ffffff; border: 1px solid var(--border); border-radius: 12px; padding: 13px 16px;
     transition: all 0.15s ease;
   }
-  .rr-sv-check-card:hover { border-color: #84cc16; }
+  .rr-sv-check-card:hover { border-color: #D4D4D8; }
   .rr-sv-check-head {
     display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 4px;
   }
@@ -1848,7 +1833,7 @@
     display: inline-flex; align-items: center; gap: 5px; padding: 3px 10px; border-radius: 99px;
     font-size: 0.72rem; font-weight: 800; text-decoration: none;
   }
-  .rr-sv-pill-ok { background: #f7fee7; color: #09090b; border: 1px solid #a3e635; }
+  .rr-sv-pill-ok { background: var(--success-tint); color: var(--success-ink); border: 1px solid rgba(0, 255, 204, 0.4); }
   .rr-sv-pill-warn { background: #fffbeb; color: #b45309; border: 1px solid #fcd34d; }
   .rr-sv-pill-danger { background: #fef2f2; color: #dc2626; border: 1px solid #fecaca; }
   .rr-sv-pill-info { background: #f4f4f5; color: #18181b; border: 1px solid #d4d4d8; }
@@ -1863,7 +1848,7 @@
     font-size: 0.76rem; font-weight: 700; background: #ffffff; border: 1px solid #d4d4d8;
     color: #09090b; text-decoration: none; transition: all 0.15s;
   }
-  .rr-sv-social-a:hover { border-color: #b8e600; color: #09090b; background: #D4FF33; }
+  .rr-sv-social-a:hover { border-color: #00e6b8; color: #09090b; background: #00FFCC; }
 </style>
 </head>
 <body>
@@ -1942,7 +1927,7 @@
                         <i data-lucide="smartphone" class="sidebar-nav-icon"></i>
                         <span>Hiring Posts (Social Media)</span>
                     </div>
-                    <span class="badge" style="font-size:0.68rem; background:#ecfdf5; color:#059669; border:1px solid #a7f3d0; padding:2px 7px; border-radius:6px; font-weight:800;">40</span>
+                    <span class="badge" style="font-size:0.68rem; background:#E6FBF6; color:var(--success-ink); border:1px solid rgba(0, 255, 204, 0.4); padding:2px 7px; border-radius:6px; font-weight:800;">40</span>
                 </a>
                 </div>
 
@@ -2049,7 +2034,7 @@
                         <div style="font-size: 0.8rem; color: #ef4444; font-weight: 600;">Recording voice message...</div>
                         <div style="display: flex; gap: 0.5rem; align-items: center; margin-left: auto;">
                             <button class="founder-voice-cancel-btn" onclick="cancelVoiceRecording()" title="Cancel">Cancel</button>
-                            <button id="founder-voice-send-btn" class="founder-send-btn" onclick="sendVoiceRecording()" title="Send voice note" style="background: #10b981;">
+                            <button id="founder-voice-send-btn" class="founder-send-btn" onclick="sendVoiceRecording()" title="Send voice note" style="background: #00FFCC; color: #000000;">
                                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                                     <line x1="22" y1="2" x2="11" y2="13"></line>
                                     <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
@@ -2151,7 +2136,7 @@
             <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
             <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
             <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
-                A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: var(--accent);">Skill Gap</strong>. 
+                A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: #B45309;">Skill Gap</strong>.
                 We analyzed <strong id="mi-total-analyzed" style="color: #000000;">0</strong> jobs for you. Here is exactly what the market is demanding that you are currently missing.
             </p>
             
@@ -2906,9 +2891,9 @@
             
             if (isPremium) {
                 badgeEl.innerHTML = '✅ Premium Active';
-                badgeEl.style.background = 'rgba(16, 185, 129, 0.06)';
-                badgeEl.style.color = '#10B981';
-                badgeEl.style.borderColor = 'rgba(16, 185, 129, 0.2)';
+                badgeEl.style.background = 'rgba(0, 255, 204, 0.1)';
+                badgeEl.style.color = 'var(--success-text)';
+                badgeEl.style.borderColor = 'rgba(0, 255, 204, 0.3)';
                 // Premium users can still buy more jobs (the modal already
                 // supports this -- see openUpgradeModal's isPremium branch,
                 // slider min drops to 10). Hiding the button entirely left no
@@ -3103,7 +3088,7 @@
             const text = document.getElementById('scanning-text');
             if (isScanningActive && jobCount === 0) {
                 if (indicator) {
-                    indicator.style.background = 'rgba(212, 255, 51, 0.03)';
+                    indicator.style.background = 'rgba(0, 255, 204, 0.05)';
                     indicator.style.borderColor = 'var(--primary)';
                 }
                 if (dot) {
@@ -3533,7 +3518,7 @@
                     return `
                         <div style="display: flex; align-items: center; justify-content: space-between; background: #ffffff; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 8px;">
                             <span style="font-weight: 700; color: #000000; font-size: 0.9rem;">${escapeHtml(skill)}</span>
-                            <span style="background: rgba(255, 107, 74, 0.1); color: var(--accent); padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">Missed in ${percentage}% of jobs</span>
+                            <span style="background: #FFFBEB; color: #B45309; padding: 0.2rem 0.6rem; border-radius: 20px; font-size: 0.75rem; font-weight: 800;">Missed in ${percentage}% of jobs</span>
                         </div>
                     `;
                 }).join('');
@@ -3566,7 +3551,7 @@
                                 <strong style="color: #000; display: block;">${escapeHtml(job.company || 'Unknown')}</strong>
                                 <span style="font-weight: 600; font-size: 0.8rem; color: #52525B;">${escapeHtml(job.job_title || 'Unknown')}</span>
                             </td>
-                            <td style="color: var(--accent); font-weight: 600; font-size: 0.8rem;">${skillsStr || 'None listed'}</td>
+                            <td style="color: #B45309; font-weight: 600; font-size: 0.8rem;">${skillsStr || 'None listed'}</td>
                             <td style="font-size: 0.8rem; color: #3f3f46; line-height: 1.5;">${escapeHtml(job.reason || 'No reason provided.')}</td>
                             <td>
                                 ${safeUrl ? `<a href="${escapeAttr(safeUrl)}" target="_blank" rel="noopener noreferrer" class="table-btn table-btn-sm" style="background: var(--primary); color: #000; border: none; padding: 0.4rem 0.8rem;">View Job</a>` : '<span style="color: #A1A1AA; font-size: 0.8rem;">N/A</span>'}
@@ -3673,8 +3658,8 @@
                     container.innerHTML = `
                         <div class="rover-loading">
                             <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <circle cx="28" cy="28" r="26" fill="#10B981"/>
-                                <path d="M18 28l7 7 13-13" stroke="white" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                                <circle cx="28" cy="28" r="26" fill="#00FFCC"/>
+                                <path d="M18 28l7 7 13-13" stroke="#000000" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
                             <p style="margin-top: 1rem; font-size: 1.1rem; font-weight: 800; color: #000000; margin-bottom: 0.3rem;">${dCount} ${label} matched your preferences</p>
                             ${deckCta}
@@ -4144,8 +4129,8 @@
                 }
                 
                 btn.textContent = 'Activated!';
-                btn.style.background = '#10B981';
-                btn.style.color = '#fff';
+                btn.style.background = '#00FFCC';
+                btn.style.color = '#000000';
                 
                 setTimeout(() => {
                     closeModal('inbox-modal');
@@ -4364,7 +4349,7 @@
             let bubbleContent = '';
             if (voiceUrl) {
                 bubbleContent = `
-                    <div style="font-size: 0.75rem; margin-bottom: 0.35rem; color: #059669; font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
+                    <div style="font-size: 0.75rem; margin-bottom: 0.35rem; color: var(--success-text); font-weight: 600; display: flex; align-items: center; gap: 0.35rem;">
                         <span>🎙️ Voice Note from Obruche</span>
                     </div>
                     <audio controls src="${escapeHtml(voiceUrl)}" style="height: 36px; max-width: 240px; display: block; margin-top: 4px;"></audio>
@@ -4377,7 +4362,7 @@
             cluster.innerHTML = `
                 <div class="founder-msg-avatar">OS</div>
                 <div class="founder-msg-bubbles">
-                    <div class="founder-bubble" style="border-left: 3px solid #10b981; padding: 0.6rem 0.85rem;">${bubbleContent}</div>
+                    <div class="founder-bubble" style="border-left: 3px solid #00FFCC; padding: 0.6rem 0.85rem;">${bubbleContent}</div>
                     <span class="founder-msg-time">Obruche • ${timeStr}</span>
                 </div>
             `;
@@ -4637,7 +4622,7 @@
                     <div style="margin-bottom: 0.75rem; color: #000;"><i data-lucide="inbox" style="width: 44px; height: 44px;"></i></div>
                     <h3 style="font-size: 1.25rem; font-weight: 800; color: #000; margin-bottom: 0.35rem; letter-spacing: -0.02em;">This is your dedicated job-hunt email</h3>
                     <div style="font-weight: 800; color: #000; font-size: 1.05rem; margin-bottom: 0.75rem; word-break: break-all;">${email}</div>
-                    <p style="max-width: 440px; text-align: center; line-height: 1.5; font-size: 0.88rem; font-weight: 600; color: #059669; margin: 0 auto 0.75rem auto;">
+                    <p style="max-width: 440px; text-align: center; line-height: 1.5; font-size: 0.88rem; font-weight: 600; color: var(--success-text); margin: 0 auto 0.75rem auto;">
                         This email is your two-way communications hub to receive and reply to recruiter messages.
                     </p>
                     <p style="max-width: 440px; text-align: center; line-height: 1.5; font-size: 0.88rem; color: #52525b; margin: 0 auto 0.45rem auto;">
@@ -4869,7 +4854,7 @@
                         <div style="padding:2.5rem 1.5rem;text-align:center;">
                             <div style="font-size:1.05rem;font-weight:800;color:#09090b;margin-bottom:0.5rem;">Session Expired</div>
                             <div style="font-size:0.85rem;color:#71717a;margin-bottom:1.25rem;">Your secure login token expired. Please log in again to continue.</div>
-                            <button onclick="window.location.href='login.html'" style="background:#059669;color:#fff;border:none;padding:0.6rem 1.4rem;border-radius:8px;font-weight:700;font-size:0.88rem;cursor:pointer;">Log in</button>
+                            <button onclick="window.location.href='login.html'" style="background:#00FFCC;color:#000000;border:none;padding:0.6rem 1.4rem;border-radius:999px;font-weight:700;font-size:0.88rem;cursor:pointer;">Log in</button>
                         </div>
                     `;
                 } else {
@@ -5398,7 +5383,7 @@
                             </div>
                         </div>
                         <div style="display: flex; align-items: center; gap: 0.6rem;">
-                            <button id="send-draft-btn-${index}" onclick="sendDraftApplication(${index})" style="background: #059669; color: #fff; border: none; padding: 0.75rem 1.6rem; border-radius: 8px; font-weight: 800; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: 0 4px 14px rgba(5,150,105,0.25); transition: opacity 0.2s;">
+                            <button id="send-draft-btn-${index}" onclick="sendDraftApplication(${index})" style="background: #00FFCC; color: #000000; border: none; padding: 0.75rem 1.6rem; border-radius: 999px; font-weight: 700; font-size: 0.95rem; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; box-shadow: none; transition: opacity 0.2s;">
                                 <i data-lucide="send"></i> Send Application
                             </button>
                             <button id="edit-draft-btn-${index}" onclick="toggleEditDraft(${index})" style="background: #f4f4f5; color: #18181b; border: 1px solid #e4e4e7; padding: 0.75rem 1.1rem; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer; display: flex; align-items: center; gap: 0.4rem;">
@@ -5750,7 +5735,7 @@
                         </div>
                     </div>
                     <div class="reply-composer-footer" style="padding: 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end;">
-                        <button id="send-reply-btn" class="reply-send-btn" onclick="sendReply(${index})" style="background: #059669; color: #fff; border: none; padding: 0.85rem 2rem; border-radius: 8px; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(5,150,105,0.2); transition: opacity 0.2s;">
+                        <button id="send-reply-btn" class="reply-send-btn" onclick="sendReply(${index})" style="background: #00FFCC; color: #000000; border: none; padding: 0.85rem 2rem; border-radius: 999px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 0.5rem; font-family: inherit; font-size: 0.95rem; box-shadow: none; transition: opacity 0.2s;">
                             Send Securely
                         </button>
                     </div>
@@ -6246,7 +6231,7 @@
                 <p>Click "I Understand" on each safety rule below to unlock your social hiring feed.</p>
               </div>
               <div style="display:flex;align-items:center;gap:8px;">
-                <span id="rr-sv-ack-counter" style="color:#09090b;background:#D4FF33;padding:5px 12px;border-radius:99px;border:1px solid #b8e600;font-size:0.8rem;font-weight:800;">${ackSet.size} / ${SAFETY_RULES.length}</span>
+                <span id="rr-sv-ack-counter" style="color:#09090b;background:#00FFCC;padding:5px 12px;border-radius:99px;border:1px solid #00e6b8;font-size:0.8rem;font-weight:800;">${ackSet.size} / ${SAFETY_RULES.length}</span>
                 <button type="button" class="rr-sv-ack-btn" id="rr-sv-close-guide">Close</button>
               </div>
             </div>
