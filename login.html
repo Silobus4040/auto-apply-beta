@@ -281,7 +281,7 @@
             // verify.html navigation, which an in-memory flag cannot.
             const _rrKey = 'rr_recovery_sent_' + email.toLowerCase();
             if (Date.now() - Number(localStorage.getItem(_rrKey) || 0) < 60000) {
-                successMsg.textContent = '✅ Reset link already sent to ' + email + '. Check your email (and spam) and click the NEWEST link.';
+                successMsg.textContent = '✅ Reset code already sent to ' + email + '. Check your email (and spam folder) for your verification code.';
                 successMsg.style.display = 'block';
                 return;
             }
@@ -292,10 +292,10 @@
             });
 
             if (error) {
-                errorMsg.textContent = '❌ ' + (error.message || 'Could not send reset link. Please contact support.');
+                errorMsg.textContent = '❌ ' + (error.message || 'Could not send reset code. Please contact support.');
                 errorMsg.style.display = 'block';
             } else {
-                successMsg.textContent = '✅ Password reset link sent to ' + email + '! Check your email and click the link to set a new password.';
+                successMsg.textContent = '✅ Password reset code sent to ' + email + '! Check your email (and spam folder) for your verification code.';
                 successMsg.style.display = 'block';
             }
         }
