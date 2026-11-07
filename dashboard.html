@@ -2048,17 +2048,19 @@
             </div>
         </div>
 
-        <!-- Skill Gap info modal (feature not built yet) -->
+        <!-- Market Intelligence info modal: shown only as a genuine fallback when
+             there's no data to display yet (no target role set, or not enough
+             tracked postings for this role+level combo) -- NOT a "coming soon"
+             teaser, the feature is live. Copy must stay honest about why. -->
         <div class="modal-overlay" id="skill-gap-info-modal">
             <div class="desc-modal" style="max-width: 480px; text-align: left; padding: 2.5rem;">
                 <button class="close-modal" onclick="closeModal('skill-gap-info-modal')">&times;</button>
-                <span style="display: inline-block; background: rgba(0,0,0,0.06); color: #52525B; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; padding: 0.3rem 0.7rem; border-radius: 999px; margin-bottom: 1rem;">Coming soon</span>
-                <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -0.5px;">📊 Skill Gap</h2>
+                <h2 style="font-size: 1.4rem; font-weight: 900; margin-bottom: 0.75rem; text-transform: uppercase; letter-spacing: -0.5px;">📊 Market Intelligence</h2>
                 <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6;">
-                    Skill Gap will accumulate the exact skills the market is asking for in your target roles pulled from every live job posting we track — and which ones your resume is currently missing. No more guessing why you're not matching; just a clear list of what to learn next.
+                    Market Intelligence shows the exact skills and tools the market is asking for in your target role, pulled from every live job posting we track — and which ones your resume is currently missing.
                 </p>
                 <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6; margin-top: 0.75rem;">
-                    We're building this now. Check back soon.
+                    We don't have enough data to show this yet for your profile — either your target role isn't set, or we're not tracking enough postings for that role and experience level yet. Set or confirm your target role in your profile, or check back soon as we track more jobs.
                 </p>
             </div>
         </div>
@@ -2136,7 +2138,7 @@
             <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
             <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
             <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
-                A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: #B45309;">Skill Gap</strong>.
+                A lack of matching jobs isn't a lack of opportunity. It's a <strong style="color: #B45309;">Market Intelligence</strong> problem.
                 We analyzed <strong id="mi-total-analyzed" style="color: #000000;">0</strong> jobs for you. Here is exactly what the market is demanding that you are currently missing.
             </p>
             
@@ -3678,6 +3680,11 @@
         }
         if (location.hash === '#skill-gap') goToMarketIntel();
             if (location.hash === '#drafts') setTimeout(() => openEmailClient('drafts'), 600);
+            // Other pages (jobs.html) link here with these hashes for nav items
+            // they don't have local modals for -- same pattern as #skill-gap/#drafts.
+            if (location.hash === '#inbox') setTimeout(() => openEmailClient(), 600);
+            if (location.hash === '#filters') setTimeout(() => openSettingsModal(), 600);
+            if (location.hash === '#founder-chat') setTimeout(() => openFounderChat(), 600);
 
         const STATUS_FILTER_DEFS = [
             { key: 'all', label: 'All' },

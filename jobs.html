@@ -662,6 +662,24 @@
                 </a>
                 </div>
 
+                <!-- This page has no local email/settings/founder-chat modals
+                     (only dashboard.html and swipe.html do) -- route through
+                     dashboard.html's existing hash handlers instead of calling
+                     an undefined function, same pattern swipe.html already
+                     uses for Market Intelligence (dashboard.html#skill-gap). -->
+                <a class="sidebar-nav-item" href="dashboard.html#inbox" style="text-decoration: none; color: inherit;">
+                    <i data-lucide="mail" class="sidebar-nav-icon"></i> Dedicated mailbox
+                </a>
+                <a class="sidebar-nav-item" href="dashboard.html#skill-gap" style="text-decoration: none; color: inherit;">
+                    <i data-lucide="trending-up" class="sidebar-nav-icon"></i> Market Intelligence
+                </a>
+                <a class="sidebar-nav-item" href="dashboard.html#filters" style="text-decoration: none; color: inherit;">
+                    <i data-lucide="sliders" class="sidebar-nav-icon"></i> Job Filters
+                </a>
+                <a class="sidebar-nav-item" href="dashboard.html#founder-chat" style="text-decoration: none; color: inherit;">
+                    <i data-lucide="message-circle" class="sidebar-nav-icon"></i> Message Founder
+                </a>
+
                 <button class="sidebar-nav-item" onclick="logout()" style="margin-top: auto;">
                     <i data-lucide="log-out" class="sidebar-nav-icon"></i> Log Out
                 </button>
