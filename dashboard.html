@@ -2059,7 +2059,7 @@
                 <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6;">
                     Market Intelligence shows the exact skills and tools the market is asking for in your target role, pulled from every live job posting we track — and which ones your resume is currently missing.
                 </p>
-                <p style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6; margin-top: 0.75rem;">
+                <p id="skill-gap-info-modal-reason" style="color: var(--text-body); font-size: 0.95rem; line-height: 1.6; margin-top: 0.75rem;">
                     We don't have enough data to show this yet for your profile — either your target role isn't set, or we're not tracking enough postings for that role and experience level yet. Set or confirm your target role in your profile, or check back soon as we track more jobs.
                 </p>
             </div>
@@ -2636,6 +2636,13 @@
         let lastIsScanning = false;
         let poolAvailableCount = null;
         let cachedUserId = null;
+        // Resolves once authGuard() has set cachedUserId. Clicking a nav item
+        // that depends on cachedUserId (e.g. Market Intelligence) right after
+        // login/refresh could otherwise race ahead of authGuard's first await
+        // and silently see cachedUserId still null -- confirmed real bug,
+        // 2026-11-09 (reproduced after logout->login->refresh, not a cache issue).
+        let resolveAuthGuardReady;
+        const authGuardReady = new Promise(resolve => { resolveAuthGuardReady = resolve; });
 
         function getCachedPoolCount() {
             if (!cachedUserId) return null;
@@ -2768,6 +2775,7 @@
             const user = session.user;
             currentUserEmail = user.email;
             cachedUserId = user.id;
+            resolveAuthGuardReady();
             // Demo account: start on "applied" filter so the dashboard opens straight
             // into applied jobs — user can then click other status chips to explore.
             if (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') activeStatusFilter = 'applied';
@@ -3494,15 +3502,20 @@
             // of staying behind the "Market Intelligence" nav item.
         }
 
+        // Returns 'ok' (real data rendered), 'empty' (genuinely nothing to show
+        // for this profile -- no target role, or not enough tracked postings),
+        // or 'error' (the fetch itself failed -- network/auth/RPC error). The
+        // caller needs this distinction to show an honest message instead of
+        // the same "no data" copy for both a real failure and real emptiness.
         async function fetchMarketMatch(userId) {
+            const miSection = document.getElementById('market-intel-section');
             try {
                 const { data, error } = await supabaseClient.rpc('get_role_market_match', {});
                 if (error) throw error;
 
-                const miSection = document.getElementById('market-intel-section');
                 if (!data || data.error || !data.total_jobs_analyzed) {
                     miSection.style.display = 'none';
-                    return;
+                    return 'empty';
                 }
 
                 // tool/skill names are LLM-extracted from job descriptions, i.e.
@@ -3525,7 +3538,7 @@
 
                 if (skillGaps.length === 0 && toolGaps.length === 0) {
                     miSection.style.display = 'none';
-                    return;
+                    return 'empty';
                 }
 
                 miSection.style.display = 'block';
@@ -3548,9 +3561,12 @@
                     : '<p style="color: #A1A1AA; font-size: 0.85rem;">No tool gaps found for your target role right now.</p>';
 
                 initMarketSalary();
+                return 'ok';
 
             } catch (err) {
                 console.error("Error fetching market match:", err);
+                miSection.style.display = 'none';
+                return 'error';
             }
         }
 
@@ -3682,19 +3698,40 @@
         let currentResumeObjectUrl = null;
 
         async function goToMarketIntel() {
-            // Market Match is live now (get_role_market_match()) -- refresh on
-            // demand and jump to the real section. Falls back to the "coming
-            // soon" info modal only when there's genuinely nothing to show yet
-            // (no target role set, or not enough jobs analyzed for it).
-            if (cachedUserId) {
-                try { await fetchMarketMatch(cachedUserId); } catch (e) {}
+            // Market Match is live (get_role_market_match()) -- refresh on demand
+            // and jump to the real section. Two distinct fallback reasons, not
+            // one: genuinely no data for this profile, vs. the fetch itself
+            // failing (session not ready yet, network error, etc). Confirmed
+            // real bug 2026-11-09: clicking this right after login/refresh could
+            // run before authGuard() had set cachedUserId, silently skipping the
+            // fetch and always landing on the "no data" modal even when real
+            // data existed -- not a caching issue, reproduced after a clean
+            // logout/login/refresh. Now waits for cachedUserId (capped at 5s so
+            // a genuinely broken session doesn't hang the click forever).
+            let status;
+            try {
+                await Promise.race([
+                    authGuardReady,
+                    new Promise(resolve => setTimeout(resolve, 5000))
+                ]);
+                status = cachedUserId ? await fetchMarketMatch(cachedUserId) : 'error';
+            } catch (e) {
+                status = 'error';
             }
+
             const miSection = document.getElementById('market-intel-section');
             if (miSection && miSection.style.display !== 'none') {
                 miSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            } else {
-                document.getElementById('skill-gap-info-modal').classList.add('active');
+                return;
             }
+
+            const reasonEl = document.getElementById('skill-gap-info-modal-reason');
+            if (status === 'error') {
+                reasonEl.textContent = "Something went wrong loading this -- it's likely a connection hiccup or your session needing a refresh, not a lack of data. Try again in a moment; if it keeps happening, let us know.";
+            } else {
+                reasonEl.textContent = "We don't have enough data to show this yet for your profile — either your target role isn't set, or we're not tracking enough postings for that role and experience level yet. Set or confirm your target role in your profile, or check back soon as we track more jobs.";
+            }
+            document.getElementById('skill-gap-info-modal').classList.add('active');
         }
         if (location.hash === '#skill-gap') goToMarketIntel();
             if (location.hash === '#drafts') setTimeout(() => openEmailClient('drafts'), 600);
