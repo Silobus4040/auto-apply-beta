@@ -2025,7 +2025,7 @@
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">TOTAL JOBS FOUND</span>
                 <span class="stat-number" id="stat-total" style="font-size: 1.6rem;">198</span>
-                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">158 Company Career Pages · 40 Hiring Posts (Social Media)</div>
+                <div id="stat-total-breakdown" style="font-size: 0.65rem; color: #71717a; font-weight: 700; margin-top: 0.15rem; white-space: nowrap;">Loading...</div>
             </div>
             <div class="stat" style="flex-direction: column; align-items: flex-start; gap: 0.15rem; padding: 0.7rem 1.1rem;">
                 <span class="stat-label" style="font-size: 0.7rem; margin-bottom: 0.25rem;">APPLIED</span>
@@ -3426,6 +3426,11 @@
         let userProfile = null;
         let currentUserEmail = '';
         let poolAvailableCount = null;
+        // Was hardcoded to 40 everywhere (never a real query) -- now a live
+        // count against social_hiring_lead_matches, the same table
+        // loadSocialLeadsIntoDeck() below actually reads from for the real
+        // Hiring Posts deck (?mode=hiring).
+        let hiringAvailableCount = null;
         let cachedUserId = null;
 
         function getCachedPoolCount() {
@@ -3434,6 +3439,32 @@
                 const raw = localStorage.getItem(`poolCount_${cachedUserId}`);
                 return raw !== null ? Number(raw) : null;
             } catch (e) { return null; }
+        }
+
+        function getCachedHiringCount() {
+            if (!cachedUserId) return null;
+            try {
+                const raw = localStorage.getItem(`hiringCount_${cachedUserId}`);
+                return raw !== null ? Number(raw) : null;
+            } catch (e) { return null; }
+        }
+
+        async function fetchHiringCount(userId) {
+            try {
+                const { count, error } = await supabaseClient
+                    .from('social_hiring_lead_matches')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('profile_id', userId)
+                    .eq('decision', 'pending');
+                if (error) return;
+                hiringAvailableCount = count || 0;
+                applyPoolAvailableToStats();
+                if (cachedUserId) {
+                    try { localStorage.setItem(`hiringCount_${cachedUserId}`, String(hiringAvailableCount)); } catch (e) {}
+                }
+            } catch (e) {
+                console.error('fetchHiringCount failed', e);
+            }
         }
 
         function toggleSidebar() {
@@ -3622,6 +3653,14 @@
                 poolAvailableCount = cached;
                 applyPoolAvailableToStats();
             }
+
+            const cachedHiring = getCachedHiringCount();
+            if (cachedHiring !== null) {
+                hiringAvailableCount = cachedHiring;
+                applyPoolAvailableToStats();
+            }
+            fetchHiringCount(user.id);
+
             // Restore cached deck jobs for instant render on re-login
             // -- no loading spinner for returning users.
             const cachedDeck = HIRING_MODE ? null : loadCachedDeckJobs(user.id);
@@ -6056,7 +6095,7 @@
             const el = document.getElementById('stat-total');
             if (!el) return;
             const portalCount = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') ? 158 : poolAvailableCount;
-            const hiringCount = 40;
+            const hiringCount = hiringAvailableCount ?? 0;
             const totalCombined = portalCount + hiringCount;
             el.textContent = totalCombined.toLocaleString();
             const breakdown = document.getElementById('stat-total-breakdown');

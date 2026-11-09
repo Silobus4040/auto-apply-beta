@@ -2654,6 +2654,10 @@
         let jobSearchQuery = '';
         let lastIsScanning = false;
         let poolAvailableCount = null;
+        // Was hardcoded to 40 everywhere (never a real query) -- now a live
+        // count against social_hiring_lead_matches, the same table the
+        // Hiring Posts deck (swipe.html?mode=hiring) actually reads from.
+        let hiringAvailableCount = null;
         let cachedUserId = null;
         // Resolves once authGuard() has set cachedUserId. Clicking a nav item
         // that depends on cachedUserId (e.g. Market Intelligence) right after
@@ -2667,6 +2671,14 @@
             if (!cachedUserId) return null;
             try {
                 const raw = localStorage.getItem(`poolCount_${cachedUserId}`);
+                return raw !== null ? Number(raw) : null;
+            } catch (e) { return null; }
+        }
+
+        function getCachedHiringCount() {
+            if (!cachedUserId) return null;
+            try {
+                const raw = localStorage.getItem(`hiringCount_${cachedUserId}`);
                 return raw !== null ? Number(raw) : null;
             } catch (e) { return null; }
         }
@@ -2978,6 +2990,13 @@
                 applyPoolAvailableToStats();
             }
             if (!profile.launch_waitlisted_at) fetchPoolCount(user.id);
+
+            const cachedHiring = getCachedHiringCount();
+            if (cachedHiring !== null) {
+                hiringAvailableCount = cachedHiring;
+                applyPoolAvailableToStats();
+            }
+            fetchHiringCount(user.id);
 
             await fetchUserJobs(user, profile);
             setupRealtime(user.id);
@@ -3448,12 +3467,36 @@
             }
         }
 
+        // Real count against the same table the Hiring Posts deck itself reads
+        // from (loadSocialLeadsIntoDeck in swipe.html): profile_id = this user,
+        // decision = 'pending' (not yet swiped). Matches that query's filters
+        // exactly except the deck's own client-side location-verification pass,
+        // so this is the available-supply count, same relationship
+        // poolAvailableCount already has to the career-pages deck.
+        async function fetchHiringCount(userId) {
+            try {
+                const { count, error } = await supabaseClient
+                    .from('social_hiring_lead_matches')
+                    .select('id', { count: 'exact', head: true })
+                    .eq('profile_id', userId)
+                    .eq('decision', 'pending');
+                if (error) return;
+                hiringAvailableCount = count || 0;
+                applyPoolAvailableToStats();
+                if (cachedUserId) {
+                    try { localStorage.setItem(`hiringCount_${cachedUserId}`, String(hiringAvailableCount)); } catch (e) {}
+                }
+            } catch (e) {
+                console.error('fetchHiringCount failed', e);
+            }
+        }
+
         function applyPoolAvailableToStats() {
             if (poolAvailableCount === null) return;
             const el = document.getElementById('stat-total');
             if (!el) return;
             const portalCount = (cachedUserId === 'cbc2ad35-f715-466d-a9e3-e8ee4d60058e') ? 158 : poolAvailableCount;
-            const hiringCount = 40;
+            const hiringCount = hiringAvailableCount ?? 0;
             const totalCombined = portalCount + hiringCount;
             el.textContent = totalCombined.toLocaleString();
             const breakdown = document.getElementById('stat-total-breakdown');
