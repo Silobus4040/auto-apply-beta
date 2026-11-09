@@ -2134,7 +2134,15 @@
 
 
         <!-- Market Intelligence / Skill Gap Analyzer -->
-        <div id="market-intel-section" style="display: none; background: var(--surface-color); border: 1px solid var(--border); border-radius: 20px; padding: 2rem 2.5rem; margin-bottom: 2rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(0,0,0,0.02);">
+        <!-- Market Intelligence is a MODAL, not an inline dashboard block -- it
+             used to sit permanently in the page flow once shown (display:block,
+             never reset to none), pushing the real dashboard stats/job list
+             down with no way to dismiss it. Matches how the other 3 sidebar
+             items (mailbox, filters, founder chat) already behave: open on
+             click, close via the X, dashboard underneath untouched. -->
+        <div class="modal-overlay" id="market-intel-section">
+          <div class="desc-modal" style="max-width: 900px; width: 95%; padding: 2rem 2.5rem; position: relative;">
+            <button class="close-modal" onclick="closeModal('market-intel-section')">&times;</button>
             <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
             <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
             <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1rem; max-width: 800px; line-height: 1.5;">
@@ -2172,6 +2180,7 @@
                 </div>
             </div>
 
+          </div>
         </div>
 
         <!-- Info Strip (Search Criteria) -->
@@ -3514,7 +3523,7 @@
                 if (error) throw error;
 
                 if (!data || data.error || !data.total_jobs_analyzed) {
-                    miSection.style.display = 'none';
+                    miSection.classList.remove('active');
                     return 'empty';
                 }
 
@@ -3537,11 +3546,11 @@
                     .slice(0, 5);
 
                 if (skillGaps.length === 0 && toolGaps.length === 0) {
-                    miSection.style.display = 'none';
+                    miSection.classList.remove('active');
                     return 'empty';
                 }
 
-                miSection.style.display = 'block';
+                miSection.classList.add('active');
                 document.getElementById('mi-total-analyzed').textContent = data.total_jobs_analyzed;
 
                 const renderGapRow = (g) => `
@@ -3565,7 +3574,7 @@
 
             } catch (err) {
                 console.error("Error fetching market match:", err);
-                miSection.style.display = 'none';
+                miSection.classList.remove('active');
                 return 'error';
             }
         }
@@ -3719,9 +3728,11 @@
                 status = 'error';
             }
 
+            // Market Intelligence is a modal now (see its HTML comment) --
+            // fetchMarketMatch() already opened it via classList on success, no
+            // scrollIntoView needed for a centered fixed overlay.
             const miSection = document.getElementById('market-intel-section');
-            if (miSection && miSection.style.display !== 'none') {
-                miSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (miSection && miSection.classList.contains('active')) {
                 return;
             }
 
