@@ -2141,42 +2141,52 @@
              items (mailbox, filters, founder chat) already behave: open on
              click, close via the X, dashboard underneath untouched. -->
         <div class="modal-overlay" id="market-intel-section">
-          <div class="desc-modal" style="max-width: 900px; width: 95%; padding: 2rem 2.5rem; position: relative;">
+          <!-- Fixed header (title, intro, tabs, close button) + a separately
+               scrolling body -- the close button is OUTSIDE the scrolling
+               region on purpose. It previously sat inside the one scrollable
+               .desc-modal, so it scrolled away with the content and sat right
+               under the scrollbar track -- real bug, founder-reported,
+               reproduced by reading the CSS (position:absolute inside an
+               overflow-y:auto ancestor scrolls with it, same trap resume-modal
+               avoids with this flex header/body split). -->
+          <div class="desc-modal" style="max-width: 900px; width: 95%; max-height: 90vh; padding: 2rem 2.5rem; position: relative; display: flex; flex-direction: column;">
             <button class="close-modal" onclick="closeModal('market-intel-section')">&times;</button>
-            <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem;">🧠</div>
-            <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px;">Market Intelligence</h3>
-            <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1rem; max-width: 800px; line-height: 1.5;">
+            <div style="position: absolute; top: -20px; right: -10px; opacity: 0.04; font-size: 10rem; pointer-events: none;">🧠</div>
+            <h3 style="font-size: 1.15rem; font-weight: 900; color: #000000; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: -0.5px; flex-shrink: 0;">Market Intelligence</h3>
+            <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1rem; max-width: 800px; line-height: 1.5; flex-shrink: 0;">
                 We analyze <strong id="mi-total-analyzed" style="color: #000000;">0</strong> live job postings for your target role to show you what employers are paying, which skills and tools come up again and again, and which ones your resume does not yet demonstrate.
             </p>
-            <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5;">
+            <p style="color: var(--text-body); font-size: 0.95rem; margin-bottom: 1.5rem; max-width: 800px; line-height: 1.5; flex-shrink: 0;">
                 The result is a clear, prioritized path: know what the market wants, see where you stand, and focus on what will actually improve your chances — so you don't rely on random advice from Friends &amp; ChatGPT 😊, or guesswork.
             </p>
 
-            <div style="display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem;">
+            <div style="display: flex; gap: 1.5rem; border-bottom: 1px solid var(--border); margin-bottom: 1.5rem; flex-shrink: 0;">
                 <button class="mi-tab-btn" id="mi-tab-btn-skills" onclick="switchMarketIntelTab('skills')" style="background: none; border: none; cursor: pointer; padding: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: var(--secondary); border-bottom: 2px solid var(--secondary); margin-bottom: -1px;">Skills</button>
                 <button class="mi-tab-btn" id="mi-tab-btn-tools" onclick="switchMarketIntelTab('tools')" style="background: none; border: none; cursor: pointer; padding: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: #A1A1AA; border-bottom: 2px solid transparent; margin-bottom: -1px;">Tools</button>
                 <button class="mi-tab-btn" id="mi-tab-btn-salary" onclick="switchMarketIntelTab('salary')" style="background: none; border: none; cursor: pointer; padding: 0 0 0.75rem 0; font-size: 0.85rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px; color: #A1A1AA; border-bottom: 2px solid transparent; margin-bottom: -1px;">Salary</button>
             </div>
 
-            <div id="mi-tab-panel-skills" class="mi-tab-panel">
-                <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Top Missing Skills</h4>
-                <div id="mi-skills-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                    <!-- JS injected skills -->
+            <div style="flex: 1; min-height: 0; overflow-y: auto;">
+                <div id="mi-tab-panel-skills" class="mi-tab-panel">
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Top Missing Skills</h4>
+                    <div id="mi-skills-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        <!-- JS injected skills -->
+                    </div>
                 </div>
-            </div>
-            <div id="mi-tab-panel-tools" class="mi-tab-panel" style="display: none;">
-                <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Top Missing Tools</h4>
-                <div id="mi-tools-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
-                    <!-- JS injected tools -->
+                <div id="mi-tab-panel-tools" class="mi-tab-panel" style="display: none;">
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Top Missing Tools</h4>
+                    <div id="mi-tools-list" style="display: flex; flex-direction: column; gap: 0.85rem;">
+                        <!-- JS injected tools -->
+                    </div>
                 </div>
-            </div>
-            <div id="mi-tab-panel-salary" class="mi-tab-panel" style="display: none;">
-                <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Typical Salary</h4>
-                <div id="mi-salary-chips" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
-                    <!-- JS injected country chips -->
-                </div>
-                <div id="mi-salary-card">
-                    <!-- JS injected salary card / insufficient-data message -->
+                <div id="mi-tab-panel-salary" class="mi-tab-panel" style="display: none;">
+                    <h4 style="font-size: 0.75rem; text-transform: uppercase; font-weight: 800; color: #71717A; margin-bottom: 1rem; letter-spacing: 0.5px;">Typical Salary</h4>
+                    <div id="mi-salary-chips" style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                        <!-- JS injected country chips -->
+                    </div>
+                    <div id="mi-salary-card">
+                        <!-- JS injected salary card / insufficient-data message -->
+                    </div>
                 </div>
             </div>
 
