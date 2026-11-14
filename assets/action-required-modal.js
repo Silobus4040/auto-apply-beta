@@ -155,11 +155,18 @@
                 </div>
             </div>
         `;
-        document.body.appendChild(container);
+
+        if (document.body) {
+            document.body.appendChild(container);
+        } else {
+            window.addEventListener('DOMContentLoaded', () => document.body.appendChild(container));
+        }
 
         // Bind buttons
-        document.getElementById('action-req-btn-submit').addEventListener('click', onReDriveClicked);
-        document.getElementById('action-req-btn-skip').addEventListener('click', onSkipClicked);
+        const submitBtn = container.querySelector('#action-req-btn-submit');
+        const skipBtn = container.querySelector('#action-req-btn-skip');
+        if (submitBtn) submitBtn.addEventListener('click', onReDriveClicked);
+        if (skipBtn) skipBtn.addEventListener('click', onSkipClicked);
     }
 
     function renderCurrentJob() {
@@ -473,11 +480,12 @@
         if (!user || !client) return;
 
         // FEATURE GATE: Jeroid test account only until founder approves user-wide rollout
-        const ALLOWED_EMAILS = ['jeriodi@leadscompass.ai'];
+        const ALLOWED_EMAILS = ['jeriodi@leadscompass.ai', 'jeriodi915@careermailing.com'];
         const ALLOWED_USER_IDS = ['f1432095-6987-4838-a71b-7ed4bd61818f'];
         const userEmail = (user.email || profile?.email || '').toLowerCase().trim();
+        console.log('[ActionModal] Checking access for user:', userEmail, user.id);
         if (!ALLOWED_EMAILS.includes(userEmail) && !ALLOWED_USER_IDS.includes(user.id)) {
-            // Safe no-op for all general users
+            console.log('[ActionModal] User not in feature gate list. Skipping.');
             return;
         }
 
@@ -497,10 +505,14 @@
                 .order('created_at', { ascending: false });
 
             if (!error && jobs) {
+                console.log('[ActionModal] Found blocked jobs count:', jobs.length);
                 blockedQueue = jobs.filter(isActionableBlockedJob);
+                console.log('[ActionModal] Actionable blocked jobs in queue:', blockedQueue.length);
                 if (blockedQueue.length > 0) {
                     renderCurrentJob();
                 }
+            } else if (error) {
+                console.error('[ActionModal] Error fetching blocked jobs:', error);
             }
         } catch (err) {
             console.error('Failed to fetch initial blocked jobs:', err);
@@ -535,4 +547,25 @@
             console.error('Failed to subscribe to action required realtime channel:', err);
         }
     };
+
+    // Auto-check on load if supabaseClient already exists
+    async function autoInit() {
+        if (typeof supabaseClient !== 'undefined' && supabaseClient.auth) {
+            try {
+                const { data: { user } } = await supabaseClient.auth.getUser();
+                if (user) {
+                    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', user.id).maybeSingle();
+                    window.initActionRequiredModal(user, profile, supabaseClient);
+                }
+            } catch (e) {
+                console.warn('Action modal autoInit check:', e);
+            }
+        }
+    }
+
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        setTimeout(autoInit, 500);
+    } else {
+        window.addEventListener('DOMContentLoaded', () => setTimeout(autoInit, 500));
+    }
 })();
