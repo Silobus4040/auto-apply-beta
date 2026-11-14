@@ -1,0 +1,395 @@
+/* ==========================================================================
+   Role Rover - Action Required Disruptive Modal
+   Interrupts the user when an employer requires missing input (DOB, PC specs,
+   video intro, typing test, etc.) so the candidate can act or drop.
+   ========================================================================== */
+
+.action-req-backdrop {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 999999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+    box-sizing: border-box;
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+
+.action-req-backdrop.active {
+    display: flex;
+    opacity: 1;
+}
+
+.action-req-card {
+    background: #ffffff;
+    width: 100%;
+    max-width: 520px;
+    border-radius: 22px;
+    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.3), 0 0 0 1px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    animation: actionReqSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    color: #0f172a;
+    font-family: inherit;
+}
+
+@keyframes actionReqSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Header & Queue progress bar */
+.action-req-header {
+    padding: 1.5rem 1.75rem 1.2rem;
+    border-bottom: 1px solid #f1f5f9;
+    position: relative;
+    background: #ffffff;
+}
+
+.action-req-meta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.75rem;
+}
+
+.action-req-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: #fef2f2;
+    color: #dc2626;
+    border: 1px solid #fecaca;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    text-transform: uppercase;
+}
+
+.action-req-badge-dot {
+    width: 7px;
+    height: 7px;
+    background: #dc2626;
+    border-radius: 50%;
+    display: inline-block;
+    animation: actionReqPulse 1.8s infinite;
+}
+
+@keyframes actionReqPulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+}
+
+.action-req-queue-pill {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    background: #f1f5f9;
+    padding: 0.28rem 0.65rem;
+    border-radius: 999px;
+}
+
+.action-req-job-title {
+    font-size: 1.25rem;
+    font-weight: 800;
+    line-height: 1.3;
+    color: #0f172a;
+    margin: 0 0 0.25rem;
+    letter-spacing: -0.3px;
+}
+
+.action-req-company {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #0d9488;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+}
+
+/* Prompt Context Box */
+.action-req-body {
+    padding: 1.5rem 1.75rem;
+    overflow-y: auto;
+    max-height: calc(85vh - 200px);
+}
+
+.action-req-prompt-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 1rem 1.15rem;
+    margin-bottom: 1.25rem;
+}
+
+.action-req-prompt-title {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.action-req-prompt-desc {
+    font-size: 0.94rem;
+    font-weight: 500;
+    color: #1e293b;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Form Widgets */
+.action-req-field-group {
+    margin-bottom: 1.25rem;
+}
+
+.action-req-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #334155;
+    margin-bottom: 0.45rem;
+}
+
+.action-req-input {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border-radius: 10px;
+    border: 1.5px solid #cbd5e1;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #0f172a;
+    background: #ffffff;
+    box-sizing: border-box;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.action-req-input:focus {
+    outline: none;
+    border-color: #00cc99;
+    box-shadow: 0 0 0 3px rgba(0, 204, 153, 0.18);
+}
+
+/* Drag and Drop Zone */
+.action-req-dropzone {
+    border: 2px dashed #cbd5e1;
+    border-radius: 14px;
+    padding: 1.5rem 1rem;
+    text-align: center;
+    background: #f8fafc;
+    cursor: pointer;
+    transition: border-color 0.15s, background-color 0.15s;
+    position: relative;
+}
+
+.action-req-dropzone:hover,
+.action-req-dropzone.dragover {
+    border-color: #00cc99;
+    background: #f0fdf4;
+}
+
+.action-req-dropzone-icon {
+    font-size: 2rem;
+    color: #64748b;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.action-req-dropzone-text {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.2rem;
+}
+
+.action-req-dropzone-hint {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.action-req-file-preview {
+    display: none;
+    align-items: center;
+    gap: 0.75rem;
+    background: #f0fdf4;
+    border: 1px solid #86efac;
+    padding: 0.75rem 1rem;
+    border-radius: 12px;
+    margin-top: 0.75rem;
+}
+
+.action-req-file-preview.active {
+    display: flex;
+}
+
+.action-req-file-name {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #166534;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.action-req-file-remove {
+    background: none;
+    border: none;
+    color: #991b1b;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.2rem 0.5rem;
+}
+
+/* Save to Profile Toggle */
+.action-req-checkbox-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.6rem;
+    margin-top: 0.85rem;
+    cursor: pointer;
+}
+
+.action-req-checkbox {
+    width: 17px;
+    height: 17px;
+    margin-top: 0.15rem;
+    accent-color: #00cc99;
+    cursor: pointer;
+}
+
+.action-req-checkbox-label {
+    font-size: 0.82rem;
+    font-weight: 500;
+    color: #475569;
+    line-height: 1.4;
+    cursor: pointer;
+}
+
+/* Actions Footer */
+.action-req-footer {
+    padding: 1.25rem 1.75rem;
+    background: #f8fafc;
+    border-top: 1px solid #f1f5f9;
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+}
+
+.action-req-btn-submit {
+    width: 100%;
+    padding: 0.85rem 1.25rem;
+    background: linear-gradient(135deg, #00b38f, #009973);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: transform 0.15s, opacity 0.15s, box-shadow 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 12px rgba(0, 179, 143, 0.28);
+}
+
+.action-req-btn-submit:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(0, 179, 143, 0.35);
+}
+
+.action-req-btn-submit:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.action-req-btn-skip {
+    width: 100%;
+    padding: 0.75rem 1.25rem;
+    background: transparent;
+    color: #64748b;
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+    text-align: center;
+}
+
+.action-req-btn-skip:hover {
+    background: #fef2f2;
+    color: #dc2626;
+    border-color: #fecaca;
+}
+
+/* Dark Mode Overrides */
+[data-theme="dark"] .action-req-card {
+    background: #18181b;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: #f4f4f5;
+}
+[data-theme="dark"] .action-req-header {
+    background: #18181b;
+    border-bottom-color: #27272a;
+}
+[data-theme="dark"] .action-req-job-title {
+    color: #f4f4f5;
+}
+[data-theme="dark"] .action-req-queue-pill {
+    background: #27272a;
+    color: #a1a1aa;
+}
+[data-theme="dark"] .action-req-prompt-box {
+    background: #27272a;
+    border-color: #3f3f46;
+}
+[data-theme="dark"] .action-req-prompt-title {
+    color: #a1a1aa;
+}
+[data-theme="dark"] .action-req-prompt-desc {
+    color: #e4e4e7;
+}
+[data-theme="dark"] .action-req-input {
+    background: #27272a;
+    border-color: #3f3f46;
+    color: #f4f4f5;
+}
+[data-theme="dark"] .action-req-dropzone {
+    background: #27272a;
+    border-color: #3f3f46;
+}
+[data-theme="dark"] .action-req-dropzone-text {
+    color: #f4f4f5;
+}
+[data-theme="dark"] .action-req-footer {
+    background: #18181b;
+    border-top-color: #27272a;
+}
+[data-theme="dark"] .action-req-btn-skip {
+    border-color: #3f3f46;
+    color: #a1a1aa;
+}

@@ -17,6 +17,7 @@
     <meta name="robots" content="noindex,nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/tokens.css">
+    <link rel="stylesheet" href="assets/action-required-modal.css">
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @keyframes rover-spin {
@@ -3000,6 +3001,9 @@
 
             await fetchUserJobs(user, profile);
             setupRealtime(user.id);
+            if (window.initActionRequiredModal) {
+                window.initActionRequiredModal(user, profile, supabaseClient);
+            }
 
             if (profile.resume_invalid) {
                 document.getElementById('resume-invalid-reason').textContent = profile.resume_invalid_reason || '';
@@ -6887,6 +6891,7 @@
   };
 })();
 </script>
+<script src="assets/action-required-modal.js"></script>
 </body>
 </html>
 
