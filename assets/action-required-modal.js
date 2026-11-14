@@ -60,15 +60,45 @@
             };
         }
 
-        // 4. Typing Test or Voice Sample URL
-        if (reason.includes('typing') || reason.includes('vocaroo') || reason.includes('voice') || reason.includes('audio')) {
+        // 4. Typing Test and/or Voice Sample URL (Dual or Single)
+        const hasTyping = reason.includes('typing') || reason.includes('typingtest');
+        const hasVoice = reason.includes('vocaroo') || reason.includes('voice') || reason.includes('audio');
+
+        if (hasTyping && hasVoice) {
             return {
-                type: 'audio_typing',
-                title: 'Assessment / Audio Link Required',
-                description: 'This employer requires a typing test score certificate or voice sample link to submit.',
+                type: 'typing_and_voice',
+                title: 'Typing Test & Voice Intro Required',
+                description: 'Catch Creation requires both a 1-minute typing test score link and a short voice introduction link.',
+                inputType: 'typing_and_voice',
+                fieldKey: 'typing_and_voice',
+                isPermanent: true,
+                checkboxLabel: 'Save both to my profile so future applications apply automatically'
+            };
+        }
+
+        if (hasTyping) {
+            return {
+                type: 'typing_test',
+                title: 'Typing Test Result URL Required',
+                description: 'This employer requires your 1-minute typing test score link (e.g. from TypingTest.com).',
                 inputType: 'url',
-                placeholder: 'e.g. https://www.typingtest.com/score/... or https://vocaroo.com/...',
+                label: 'Typing Test Result URL',
+                placeholder: 'https://www.typingtest.com/...',
                 fieldKey: 'typing_test_url',
+                isPermanent: true,
+                checkboxLabel: 'Save to my profile for future applications'
+            };
+        }
+
+        if (hasVoice) {
+            return {
+                type: 'voice_sample',
+                title: 'Voice Sample / Intro URL Required',
+                description: 'This employer requires a voice introduction link (e.g. recorded via Vocaroo.com).',
+                inputType: 'url',
+                label: 'Voice Intro Link (Vocaroo / Audio URL)',
+                placeholder: 'https://vocaroo.com/...',
+                fieldKey: 'default_voice_sample_url',
                 isPermanent: true,
                 checkboxLabel: 'Save to my profile for future applications'
             };
@@ -243,11 +273,31 @@
             `;
             fieldContainer.appendChild(group);
             bindDropzone(group.querySelector('#action-req-dropzone'), group.querySelector('#action-req-file-hidden'), meta.accept);
+        } else if (meta.inputType === 'typing_and_voice') {
+            const group = document.createElement('div');
+            group.className = 'action-req-field-group';
+            group.innerHTML = `
+                <div style="margin-bottom: 1.1rem;">
+                    <label class="action-req-label" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>1. Typing Test Result Link</span>
+                        <a href="https://www.typingtest.com" target="_blank" style="color: #0d9488; font-size: 0.78rem; text-decoration: underline; font-weight: 600;">Open TypingTest.com ↗</a>
+                    </label>
+                    <input type="url" class="action-req-input" id="action-req-input-typing" placeholder="https://www.typingtest.com/..." required />
+                </div>
+                <div>
+                    <label class="action-req-label" style="display: flex; justify-content: space-between; align-items: center;">
+                        <span>2. Voice Introduction Link</span>
+                        <a href="https://vocaroo.com" target="_blank" style="color: #0d9488; font-size: 0.78rem; text-decoration: underline; font-weight: 600;">Open Vocaroo.com ↗</a>
+                    </label>
+                    <input type="url" class="action-req-input" id="action-req-input-voice" placeholder="https://vocaroo.com/..." required />
+                </div>
+            `;
+            fieldContainer.appendChild(group);
         } else if (meta.inputType === 'url') {
             const group = document.createElement('div');
             group.className = 'action-req-field-group';
             group.innerHTML = `
-                <label class="action-req-label">Enter Assessment / Voice URL</label>
+                <label class="action-req-label">${meta.label || 'Enter Assessment / Voice URL'}</label>
                 <input type="url" class="action-req-input" id="action-req-input-link" placeholder="${meta.placeholder}" required />
             `;
             fieldContainer.appendChild(group);
@@ -365,6 +415,21 @@
                 alert('Please upload a video file or paste a video link.');
                 return;
             }
+        } else if (meta.inputType === 'typing_and_voice') {
+            const typingInput = document.getElementById('action-req-input-typing');
+            const voiceInput = document.getElementById('action-req-input-voice');
+            const typingVal = typingInput ? typingInput.value.trim() : '';
+            const voiceVal = voiceInput ? voiceInput.value.trim() : '';
+
+            if (!typingVal) {
+                alert('Please enter your Typing Test result link.');
+                return;
+            }
+            if (!voiceVal) {
+                alert('Please enter your Vocaroo voice introduction link.');
+                return;
+            }
+            valueProvided = { typing_test_url: typingVal, vocaroo_url: voiceVal };
         } else if (meta.inputType === 'url') {
             const input = document.getElementById('action-req-input-link');
             if (!input || !input.value.trim()) {
@@ -403,7 +468,12 @@
                 if (meta.type === 'dob') profileUpdate.date_of_birth = valueProvided;
                 if (meta.type === 'pc_specs') profileUpdate.pc_specs_url = valueProvided;
                 if (meta.type === 'video') profileUpdate.default_intro_video_url = valueProvided;
-                if (meta.type === 'audio_typing') profileUpdate.typing_test_url = valueProvided;
+                if (meta.type === 'typing_test') profileUpdate.typing_test_url = valueProvided;
+                if (meta.type === 'voice_sample') profileUpdate.default_voice_sample_url = valueProvided;
+                if (meta.type === 'typing_and_voice') {
+                    profileUpdate.typing_test_url = valueProvided.typing_test_url;
+                    profileUpdate.default_voice_sample_url = valueProvided.vocaroo_url;
+                }
 
                 if (Object.keys(profileUpdate).length > 0) {
                     await supabase.from('profiles').update(profileUpdate).eq('id', currentUser.id);
@@ -412,7 +482,13 @@
 
             // 2. Temporal save to job_applications
             const currentAttachments = activeJob.attachments || {};
-            const updatedAttachments = { ...currentAttachments, [meta.fieldKey]: valueProvided };
+            let updatedAttachments = { ...currentAttachments };
+            if (meta.type === 'typing_and_voice') {
+                updatedAttachments.typing_test_url = valueProvided.typing_test_url;
+                updatedAttachments.vocaroo_url = valueProvided.vocaroo_url;
+            } else {
+                updatedAttachments[meta.fieldKey] = valueProvided;
+            }
 
             await supabase.from('job_applications').update({
                 attachments: updatedAttachments,
