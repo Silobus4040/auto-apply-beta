@@ -510,19 +510,17 @@
                 blocked_user_label: null
             }).eq('id', activeJob.id);
 
-            // 3. Trigger Re-Drive Webhook
+            // 3. Trigger Re-Drive via direct Supabase RPC
             submitText.textContent = 'Re-Driving Application...';
             try {
-                await fetch(REDRIVE_WEBHOOK_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        application_id: activeJob.id,
-                        user_id: currentUser.id
-                    })
-                });
-            } catch (netErr) {
-                console.warn('Re-drive webhook dispatched (queued in DB):', netErr);
+                const { data: rpcRes, error: rpcErr } = await supabase.rpc('redrive_application', { p_application_id: activeJob.id });
+                if (rpcErr) {
+                    console.warn('[ActionModal] RPC redrive warning:', rpcErr);
+                } else {
+                    console.log('[ActionModal] RPC redrive success:', rpcRes);
+                }
+            } catch (rpcErr) {
+                console.warn('[ActionModal] RPC redrive exception:', rpcErr);
             }
 
             // Advance queue
