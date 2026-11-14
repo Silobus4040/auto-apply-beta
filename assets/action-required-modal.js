@@ -68,7 +68,7 @@
             return {
                 type: 'typing_and_voice',
                 title: 'Typing Test & Voice Intro Required',
-                description: 'Catch Creation requires both a 1-minute typing test score link and a short voice introduction link.',
+                description: 'Catch Creation requires a 1-minute typing test link from https://www.typingtest.com and a short voice introduction link recorded via https://vocaroo.com/. Click the buttons below to open each site, complete them, and paste your links.',
                 inputType: 'typing_and_voice',
                 fieldKey: 'typing_and_voice',
                 isPermanent: true,
@@ -115,6 +115,15 @@
             isPermanent: false,
             checkboxLabel: 'Save to my profile'
         };
+    }
+
+    function urlify(text) {
+        if (!text) return '';
+        const urlPattern = /(https?:\/\/[^\s<>"']+)/g;
+        return text.replace(urlPattern, (url) => {
+            const clean = url.replace(/[.,;:)\]]+$/, '');
+            return `<a href="${clean}" target="_blank" rel="noopener noreferrer" style="color: #0d9488; font-weight: 700; text-decoration: underline;">${clean} ↗</a>`;
+        });
     }
 
     function cleanTechnicalReason(rawReason) {
@@ -214,7 +223,7 @@
         document.getElementById('action-req-job-title').textContent = activeJob.title || 'Role Application';
         document.getElementById('action-req-company').textContent = activeJob.companyName || 'Employer';
         document.getElementById('action-req-prompt-title').textContent = meta.title;
-        document.getElementById('action-req-prompt-desc').textContent = meta.description;
+        document.getElementById('action-req-prompt-desc').innerHTML = urlify(meta.description);
 
         // Checkbox
         const checkboxRow = document.getElementById('action-req-checkbox-row');
@@ -277,19 +286,23 @@
             const group = document.createElement('div');
             group.className = 'action-req-field-group';
             group.innerHTML = `
-                <div style="margin-bottom: 1.1rem;">
-                    <label class="action-req-label" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>1. Typing Test Result Link</span>
-                        <a href="https://www.typingtest.com" target="_blank" style="color: #0d9488; font-size: 0.78rem; text-decoration: underline; font-weight: 600;">Open TypingTest.com ↗</a>
-                    </label>
-                    <input type="url" class="action-req-input" id="action-req-input-typing" placeholder="https://www.typingtest.com/..." required />
+                <div style="margin-bottom: 1.25rem;">
+                    <div style="background: rgba(13, 148, 136, 0.08); border: 1px solid rgba(13, 148, 136, 0.25); border-radius: 10px; padding: 0.6rem 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a;">1. Typing Test Result</span>
+                        <a href="https://www.typingtest.com" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.25rem; background: #0d9488; color: #ffffff; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none;">
+                            Open TypingTest.com ↗
+                        </a>
+                    </div>
+                    <input type="url" class="action-req-input" id="action-req-input-typing" placeholder="Paste your result link (e.g. https://www.typingtest.com/...)" required />
                 </div>
                 <div>
-                    <label class="action-req-label" style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>2. Voice Introduction Link</span>
-                        <a href="https://vocaroo.com" target="_blank" style="color: #0d9488; font-size: 0.78rem; text-decoration: underline; font-weight: 600;">Open Vocaroo.com ↗</a>
-                    </label>
-                    <input type="url" class="action-req-input" id="action-req-input-voice" placeholder="https://vocaroo.com/..." required />
+                    <div style="background: rgba(13, 148, 136, 0.08); border: 1px solid rgba(13, 148, 136, 0.25); border-radius: 10px; padding: 0.6rem 0.85rem; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                        <span style="font-size: 0.82rem; font-weight: 700; color: #0f172a;">2. Voice Introduction</span>
+                        <a href="https://vocaroo.com" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.25rem; background: #0d9488; color: #ffffff; padding: 0.35rem 0.75rem; border-radius: 8px; font-size: 0.78rem; font-weight: 700; text-decoration: none;">
+                            Open Vocaroo.com ↗
+                        </a>
+                    </div>
+                    <input type="url" class="action-req-input" id="action-req-input-voice" placeholder="Paste your voice note link (e.g. https://vocaroo.com/...)" required />
                 </div>
             `;
             fieldContainer.appendChild(group);
