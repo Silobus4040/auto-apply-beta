@@ -173,9 +173,25 @@
         clean = clean.replace(/Application not submitted -?/i, '');
         clean = clean.replace(/["“”]/g, '').trim();
 
+        const ignoredPatterns = [
+            /form stayed on screen/i,
+            /no confirmation message/i,
+            /validation error/i,
+            /execution context/i,
+            /target page/i,
+            /browser.*closed/i,
+            /aborting submit/i,
+            /stopped the bot/i,
+            /application not submitted/i,
+            /candidate profile has no/i,
+            /never fabricating or guessing/i
+        ];
+
         // Split by semicolons, asterisks, or newlines
         let parts = clean.split(/;\s*|\n+/).map(p => p.trim()).filter(Boolean);
-        return parts.map(p => p.replace(/^\*\s*/, '').replace(/^[•-]\s*/, '').trim()).filter(p => p.length > 2);
+        return parts
+            .map(p => p.replace(/^\*\s*/, '').replace(/^[•-]\s*/, '').trim())
+            .filter(p => p.length > 2 && !ignoredPatterns.some(regex => regex.test(p)));
     }
 
     function urlify(text) {
@@ -206,8 +222,22 @@
         if (job.blocked_user_label === 'Candidate declined requirement') return false;
         
         const r = (job.failure_reason || '').toLowerCase();
-        // Ignore pure bot infra errors (these auto-retry or are terminal without candidate action)
-        if (r.includes('no longer available') || r.includes('captcha') || r.includes('tunnel_connection_failed') || r.includes('timeout 30000ms')) {
+        // Ignore pure bot infra/technical errors (these auto-retry or are internal diagnostics, never candidate prompts)
+        if (
+            r.includes('no longer available') ||
+            r.includes('captcha') ||
+            r.includes('tunnel_connection_failed') ||
+            r.includes('timeout') ||
+            r.includes('form stayed on screen') ||
+            r.includes('no confirmation message') ||
+            r.includes('validation error') ||
+            r.includes('execution context') ||
+            r.includes('browser has been closed') ||
+            r.includes('target page') ||
+            r.includes('bot crashed') ||
+            r.includes('locator.') ||
+            r.includes('element not found')
+        ) {
             return false;
         }
 
