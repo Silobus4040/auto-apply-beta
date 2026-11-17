@@ -1858,7 +1858,11 @@
     <div class="background-blob blob-2"></div>
 
     <nav id="mobile-topbar" style="display: none;">
-        <button class="hamburger-btn" style="display:block;" onclick="toggleSidebar()" aria-label="Toggle Menu">☰</button>
+        <button class="hamburger-btn" id="mobile-hamburger-btn" style="display:inline-flex; align-items:center; gap:6px; position:relative;" onclick="toggleSidebar()" aria-label="Toggle Menu">
+            <span>☰</span>
+            <span id="mobile-menu-text" style="display:none; font-size:0.85rem; font-weight:800; letter-spacing:-0.2px;">Menu</span>
+            <span class="founder-unread-badge" id="mobile-hamburger-badge" style="display:none; margin-left:2px;">0</span>
+        </button>
         <span style="font-weight: 800; font-size: 1rem; color: #000;">Dashboard</span>
         <div style="width: 34px;"></div>
     </nav>
@@ -1949,6 +1953,17 @@
                     </div>
                     <span class="founder-unread-badge" id="founder-unread-badge" style="display: none;">0</span>
                 </button>
+                <button class="sidebar-nav-item" id="sidebar-report-bug-item" onclick="openFounderChat(true); if(window.innerWidth<=768) toggleSidebar();" style="display: none; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.5); border-radius: 10px; padding: 0.6rem 0.75rem; margin-top: 4px; text-align: left; cursor: pointer;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                        <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 800; color: #0A0A0A;">
+                            🐞 Report Bug / Error
+                        </span>
+                        <span style="background: #00FFCC; color: #000000; font-size: 0.65rem; font-weight: 800; padding: 2px 7px; border-radius: 999px;">+20 Free Credits</span>
+                    </div>
+                    <span style="font-size: 0.7rem; color: #115E59; line-height: 1.35; font-weight: 500; white-space: normal;">
+                        Help us make Role Rover better for you and other job seekers — report any bug/error found and get 20 free Application credits.
+                    </span>
+                </button>
                 <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
                     <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
                     Log Out
@@ -1999,6 +2014,9 @@
                             </div>
                             <div class="founder-bubble">
                                 Your opinion matters and it helps me decide what to keep, fix, or build next. Thanks!
+                            </div>
+                            <div class="founder-bubble" id="founder-bug-bounty-bubble" style="display: none; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.55); color: #0A0A0A;">
+                                🎁 <strong>Help us make Role Rover better for you and other job seekers:</strong> Report any bug or error found and you get <strong>20 free Application credits</strong>!
                             </div>
                             <span class="founder-msg-time">Founder Message</span>
                         </div>
@@ -4430,15 +4448,67 @@
             updateFounderUnreadBadge(current + 1);
         }
 
+        function isFounderTestAccount(userId) {
+            const ALLOWED_IDS = ['f1432095-6987-4838-a71b-7ed4bd61818f'];
+            const ALLOWED_EMAILS = ['jeroidi@leadscompass.ai', 'jeriodi@leadscompass.ai', 'jeriodi915@careermailing.com'];
+            const email = ((typeof userProfile !== 'undefined' && (userProfile?.email || userProfile?.Application_email)) || '').toLowerCase().trim();
+            return ALLOWED_IDS.includes(userId) || ALLOWED_EMAILS.includes(email);
+        }
+
+        function showFounderSignInToast(unreadCount) {
+            if (document.getElementById('founder-signin-toast')) return;
+            const fname = (typeof userProfile !== 'undefined' && userProfile?.first_name) ? userProfile.first_name.trim() : 'there';
+            const toast = document.createElement('div');
+            toast.id = 'founder-signin-toast';
+            toast.style.cssText = 'position:fixed; top:14px; left:50%; transform:translateX(-50%) translateY(-20px); opacity:0; z-index:9999; width:min(94vw, 430px); background:#ffffff; border:1.5px solid #00FFCC; border-radius:16px; box-shadow:0 12px 32px rgba(0,0,0,0.14); padding:0.85rem 1rem; display:flex; align-items:flex-start; gap:0.75rem; cursor:pointer; transition:all 0.35s cubic-bezier(0.22,1,0.36,1); font-family:Inter,sans-serif;';
+            toast.innerHTML = `
+                <div style="position:relative; flex-shrink:0;">
+                    <div style="width:40px; height:40px; border-radius:50%; background:#0A0A0A; color:#00FFCC; font-weight:800; font-size:0.85rem; display:flex; align-items:center; justify-content:center;">OS</div>
+                    <span style="position:absolute; bottom:0; right:0; width:11px; height:11px; border-radius:50%; background:#10b981; border:2px solid #fff;"></span>
+                </div>
+                <div style="flex:1; min-width:0;" onclick="openFounderChat()">
+                    <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; margin-bottom:2px;">
+                        <span style="font-size:0.82rem; font-weight:800; color:#0A0A0A;">Obruche Siloko • Founder</span>
+                        <span style="background:#00FFCC; color:#000; font-size:0.65rem; font-weight:800; padding:2px 7px; border-radius:999px;">${unreadCount} Unread</span>
+                    </div>
+                    <div style="font-size:0.78rem; color:#27272A; line-height:1.35;">
+                        Hi <strong>${fname}</strong> 👋 I sent you a personal message! Tap here or open <strong>☰ Menu → Message Founder</strong> to read it.
+                    </div>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); const t=document.getElementById('founder-signin-toast'); if(t) t.remove();" style="background:none; border:none; color:#71717A; font-size:1.1rem; line-height:1; padding:2px 4px; cursor:pointer;" aria-label="Dismiss">&times;</button>
+            `;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => {
+                setTimeout(() => {
+                    toast.style.transform = 'translateX(-50%) translateY(0)';
+                    toast.style.opacity = '1';
+                    playFounderMessageChime();
+                }, 400);
+            });
+        }
+
         function markFounderChatRead(userId) {
             if (!userId) return;
             localStorage.setItem('founder_chat_last_read_' + userId, Date.now().toString());
+            localStorage.setItem('founder_welcome_read_v3_' + userId, Date.now().toString());
             updateFounderUnreadBadge(0);
+            const toast = document.getElementById('founder-signin-toast');
+            if (toast) toast.remove();
         }
 
         async function checkFounderUnreadCount(userId) {
             if (!userId) return;
             try {
+                const isTest = isFounderTestAccount(userId);
+                if (isTest) {
+                    const menuText = document.getElementById('mobile-menu-text');
+                    if (menuText) menuText.style.display = 'inline';
+                    const bugItem = document.getElementById('sidebar-report-bug-item');
+                    if (bugItem) bugItem.style.display = 'flex';
+                    const bugBubble = document.getElementById('founder-bug-bounty-bubble');
+                    if (bugBubble) bugBubble.style.display = 'block';
+                }
+
                 const lastRead = parseInt(localStorage.getItem('founder_chat_last_read_' + userId) || '0', 10);
                 const { data: messages, error } = await supabaseClient
                     .from('feedback')
@@ -4446,16 +4516,23 @@
                     .eq('user_id', userId)
                     .eq('sender', 'founder');
                 
-                if (error || !messages) return;
-                
-                const unread = messages.filter(m => new Date(m.created_at).getTime() > lastRead).length;
-                updateFounderUnreadBadge(unread);
+                const dbUnread = (!error && messages)
+                    ? messages.filter(m => new Date(m.created_at).getTime() > lastRead).length
+                    : 0;
+
+                const welcomeUnread = (isTest && !localStorage.getItem('founder_welcome_read_v3_' + userId)) ? 1 : 0;
+                const totalUnread = dbUnread + welcomeUnread;
+
+                updateFounderUnreadBadge(totalUnread);
+                if (isTest && totalUnread > 0) {
+                    showFounderSignInToast(totalUnread);
+                }
             } catch (e) {
                 console.warn('Error checking unread badge', e);
             }
         }
 
-        function openFounderChat() {
+        function openFounderChat(fromBugReport) {
             const modal = document.getElementById('feedback-modal');
             if (!modal) return;
             const nameEl = document.getElementById('founder-chat-user-name');
@@ -4466,7 +4543,12 @@
             modal.classList.add('active');
             setTimeout(() => {
                 const input = document.getElementById('feedback-text');
-                if (input) input.focus();
+                if (input) {
+                    if (fromBugReport) {
+                        input.placeholder = 'Describe the bug or error you found to claim your 20 free credits...';
+                    }
+                    input.focus();
+                }
                 const body = document.getElementById('founder-chat-body');
                 if (body) body.scrollTop = body.scrollHeight;
             }, 100);
