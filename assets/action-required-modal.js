@@ -109,13 +109,26 @@
         if (multiItems.length > 1) {
             return {
                 type: 'multi_checklist',
-                title: 'Application Requirements Checklist',
-                description: 'The employer requires confirmation for the following items:',
+                title: 'Screening Questions',
+                description: 'The employer requires your answers to the following questions before submitting:',
                 items: multiItems,
                 inputType: 'checklist',
-                fieldKey: 'custom_answer',
+                fieldKey: 'screening_answers',
                 isPermanent: false,
-                checkboxLabel: 'Save my response'
+                checkboxLabel: 'Save my responses'
+            };
+        }
+
+        if (multiItems.length === 1 && getQuestionType(multiItems[0]) === 'yes_no') {
+            return {
+                type: 'multi_checklist',
+                title: 'Screening Question',
+                description: 'The employer requires your confirmation on this question before submitting:',
+                items: multiItems,
+                inputType: 'checklist',
+                fieldKey: 'screening_answers',
+                isPermanent: false,
+                checkboxLabel: 'Save my responses'
             };
         }
 
@@ -129,6 +142,27 @@
             isPermanent: false,
             checkboxLabel: 'Save to my profile'
         };
+    }
+
+    function getQuestionType(text) {
+        const t = (text || '').toLowerCase();
+        if (t.includes('location') || t.includes('city') || t.includes('state') || t.includes('preferred branch') || t.includes('where are you') || t.includes('address') || t.includes('where do you live') || t.includes('country')) {
+            return 'location';
+        }
+        if (t.includes('salary') || t.includes('compensation') || t.includes('pay expectation') || t.includes('notice period') || t.includes('how many years') || t.includes('current ctc') || t.includes('expected ctc')) {
+            return 'text';
+        }
+        return 'yes_no';
+    }
+
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
     }
 
     function parseRequirementItems(rawReason) {
@@ -260,17 +294,7 @@
 
         if (meta.type === 'multi_checklist') {
             document.getElementById('action-req-prompt-desc').innerHTML = `
-                <div style="font-size: 0.82rem; color: #475569; margin-bottom: 0.65rem; font-weight: 500;">
-                    The employer form paused on these <strong>${meta.items.length} required questions</strong>:
-                </div>
-                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.65rem 0.75rem; max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem;">
-                    ${meta.items.map((item, idx) => `
-                        <div style="display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.82rem; color: #1e293b; line-height: 1.45; background: #ffffff; padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid #eef2f6; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
-                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(13, 148, 136, 0.12); color: #0d9488; font-size: 0.72rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;">✓</span>
-                            <span>${urlify(item)}</span>
-                        </div>
-                    `).join('')}
-                </div>
+                The employer requires your answers to <strong>${meta.items.length} required questions</strong> before submitting. Please review and confirm your responses below:
             `;
             if (checkboxRow) checkboxRow.style.display = 'none';
         } else {
@@ -365,13 +389,63 @@
             `;
             fieldContainer.appendChild(group);
         } else if (meta.inputType === 'checklist') {
-            const group = document.createElement('div');
-            group.className = 'action-req-field-group';
-            group.innerHTML = `
-                <label class="action-req-label">Optional Location Preference or Note</label>
-                <input type="text" class="action-req-input" id="action-req-input-text" placeholder="e.g. Preferred location: Ikeja (or leave empty for automatic)" />
-            `;
-            fieldContainer.appendChild(group);
+            const listGroup = document.createElement('div');
+            listGroup.className = 'action-req-questions-list';
+
+            const defaultCandidateLoc = (currentProfile && [currentProfile.city, currentProfile.state, currentProfile.country].filter(Boolean).join(', ')) || (currentProfile && currentProfile.target_location) || 'Ikeja, Lagos, Nigeria';
+
+            meta.items.forEach((item, idx) => {
+                const qType = getQuestionType(item);
+                const qCard = document.createElement('div');
+                qCard.className = 'action-req-question-card';
+                qCard.dataset.idx = idx;
+                qCard.dataset.question = item;
+                qCard.dataset.type = qType;
+
+                if (qType === 'yes_no') {
+                    qCard.innerHTML = `
+                        <div class="action-req-question-label">
+                            <span class="action-req-req-star">*</span> ${escapeHtml(item)}
+                        </div>
+                        <div class="action-req-choice-group">
+                            <button type="button" class="action-req-choice-btn active yes-btn" data-value="Yes">YES</button>
+                            <button type="button" class="action-req-choice-btn no-btn" data-value="No">NO</button>
+                        </div>
+                    `;
+
+                    const yesBtn = qCard.querySelector('.yes-btn');
+                    const noBtn = qCard.querySelector('.no-btn');
+
+                    yesBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        yesBtn.classList.add('active');
+                        noBtn.classList.remove('active');
+                    });
+                    noBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        noBtn.classList.add('active');
+                        yesBtn.classList.remove('active');
+                    });
+                } else if (qType === 'location') {
+                    qCard.innerHTML = `
+                        <div class="action-req-question-label">
+                            <span class="action-req-req-star">*</span> ${escapeHtml(item)}
+                        </div>
+                        <input type="text" class="action-req-input action-req-question-location" value="${escapeHtml(defaultCandidateLoc)}" placeholder="e.g. Ikeja, Lagos, Nigeria" />
+                    `;
+                } else {
+                    qCard.innerHTML = `
+                        <div class="action-req-question-label">
+                            <span class="action-req-req-star">*</span> ${escapeHtml(item)}
+                        </div>
+                        <input type="text" class="action-req-input action-req-question-text" placeholder="Enter your answer..." />
+                    `;
+                }
+
+                listGroup.appendChild(qCard);
+            });
+
+            fieldContainer.appendChild(listGroup);
         } else {
             const group = document.createElement('div');
             group.className = 'action-req-field-group';
@@ -508,6 +582,35 @@
                 return;
             }
             valueProvided = input.value.trim();
+        } else if (meta.inputType === 'checklist') {
+            const questionCards = document.querySelectorAll('.action-req-question-card');
+            const answersMap = {};
+            const answersArray = [];
+
+            questionCards.forEach(card => {
+                const qText = card.dataset.question;
+                const activeBtn = card.querySelector('.action-req-choice-btn.active');
+                const locInput = card.querySelector('.action-req-question-location');
+                const txtInput = card.querySelector('.action-req-question-text');
+
+                let ans = 'Yes';
+                if (activeBtn) {
+                    ans = activeBtn.getAttribute('data-value') || 'Yes';
+                } else if (locInput) {
+                    ans = locInput.value.trim() || 'Ikeja, Lagos, Nigeria';
+                } else if (txtInput) {
+                    ans = txtInput.value.trim() || 'Yes';
+                }
+
+                answersMap[qText] = ans;
+                answersArray.push({ question: qText, answer: ans });
+            });
+
+            valueProvided = {
+                answers: answersMap,
+                list: answersArray,
+                summary: answersArray.map(a => `${a.question}: ${a.answer}`).join('; ')
+            };
         } else {
             const input = document.getElementById('action-req-input-text');
             valueProvided = input ? input.value.trim() : '';
@@ -557,6 +660,10 @@
             if (meta.type === 'typing_and_voice') {
                 updatedAttachments.typing_test_url = valueProvided.typing_test_url;
                 updatedAttachments.vocaroo_url = valueProvided.vocaroo_url;
+            } else if (meta.type === 'multi_checklist') {
+                updatedAttachments.screening_answers = valueProvided.answers;
+                updatedAttachments.screening_summary = valueProvided.summary;
+                updatedAttachments.screening_list = valueProvided.list;
             } else {
                 updatedAttachments[meta.fieldKey] = valueProvided;
             }
