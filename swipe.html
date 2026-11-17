@@ -7,10 +7,17 @@
     <meta name="color-scheme" content="light">
     <title>AutoApply AI | Dashboard</title>
     <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="manifest" href="/manifest.json">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Role Rover">
+    <link rel="apple-touch-icon" sizes="180x180" href="/assets/apple-touch-icon.png">
+    <meta name="theme-color" content="#FFFFFF">
     <meta name="robots" content="noindex,nofollow">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/action-required-modal.css?v=20261117_7">
     <script src="assets/action-required-modal.js?v=20261117_9"></script>
+    <script src="assets/pwa-push.js?v=20261117_1"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @keyframes rover-spin {
@@ -1895,6 +1902,12 @@
                         Help us make Role Rover better for you and other job seekers — report any bug/error found and get 20 free Application credits.
                     </span>
                 </button>
+                <button class="sidebar-nav-item" id="sidebar-push-alerts-btn" onclick="if(window.rrOpenPushSetup) window.rrOpenPushSetup(); if(window.innerWidth<=768) toggleSidebar();" style="display: none; align-items: center; justify-content: space-between; width: 100%;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                        <i data-lucide="bell" class="sidebar-nav-icon"></i> Phone Alerts
+                    </div>
+                    <span id="sidebar-push-alerts-pill" style="font-size: 0.68rem; font-weight: 800; padding: 2px 7px; border-radius: 6px; background: #00FFCC; color: #000000;">Off</span>
+                </button>
                 <button class="sidebar-nav-item sidebar-nav-logout" onclick="logout()">
                     <div class="sidebar-account-avatar" id="sidebar-account-avatar"></div>
                     Log Out
@@ -3664,6 +3677,9 @@
             setupRealtime(user.id);
             if (window.initActionRequiredModal) {
                 window.initActionRequiredModal(user, profile, supabaseClient);
+            }
+            if (window.initRoleRoverPush) {
+                window.initRoleRoverPush(supabaseClient, user.id);
             }
 
             claimAndTriggerInitialScrape(user, profile);
