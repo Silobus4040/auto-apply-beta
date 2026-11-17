@@ -210,6 +210,12 @@
         if (r.includes('no longer available') || r.includes('captcha') || r.includes('tunnel_connection_failed') || r.includes('timeout 30000ms')) {
             return false;
         }
+
+        // Ignore historical false-positive blocks that were actually successful submissions or duplicate notices
+        if (r.includes('success!') || r.includes('thanks for your application') || r.includes('thank you!.') || r.includes('someone from our team will reach out') || r.includes('duplicate application alert')) {
+            return false;
+        }
+
         return true;
     }
 
