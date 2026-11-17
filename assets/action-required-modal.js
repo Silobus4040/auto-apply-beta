@@ -226,6 +226,7 @@
         if (
             r.includes('no longer available') ||
             r.includes('captcha') ||
+            r.includes('turnstile') ||
             r.includes('tunnel_connection_failed') ||
             r.includes('timeout') ||
             r.includes('form stayed on screen') ||
@@ -236,7 +237,9 @@
             r.includes('target page') ||
             r.includes('bot crashed') ||
             r.includes('locator.') ||
-            r.includes('element not found')
+            r.includes('element not found') ||
+            r.includes('security code email') ||
+            r.includes('otp')
         ) {
             return false;
         }
@@ -764,16 +767,6 @@
     // Public Initializer
     window.initActionRequiredModal = async function (user, profile, client) {
         if (!user || !client) return;
-
-        // FEATURE GATE: Jeroid test account only until founder approves user-wide rollout
-        const ALLOWED_EMAILS = ['jeriodi@leadscompass.ai', 'jeriodi915@careermailing.com'];
-        const ALLOWED_USER_IDS = ['f1432095-6987-4838-a71b-7ed4bd61818f'];
-        const userEmail = (user.email || profile?.email || '').toLowerCase().trim();
-        console.log('[ActionModal] Checking access for user:', userEmail, user.id);
-        if (!ALLOWED_EMAILS.includes(userEmail) && !ALLOWED_USER_IDS.includes(user.id)) {
-            console.log('[ActionModal] User not in feature gate list. Skipping.');
-            return;
-        }
 
         currentUser = user;
         currentProfile = profile;
