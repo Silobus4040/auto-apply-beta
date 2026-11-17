@@ -21,6 +21,14 @@
             (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
     }
 
+    function isIosChrome() {
+        return isIos() && /CriOS/i.test(navigator.userAgent || '');
+    }
+
+    function isIosInApp() {
+        return isIos() && /FBAN|FBAV|Instagram|LinkedInApp|Snapchat|BytedanceWebview|Twitter/i.test(navigator.userAgent || '');
+    }
+
     function isAndroid() {
         return /Android/i.test(navigator.userAgent || '');
     }
@@ -31,7 +39,11 @@
     }
 
     function getPlatform() {
-        if (isIos()) return isStandalone() ? 'ios-pwa' : 'ios-safari';
+        if (isIos()) {
+            if (isStandalone()) return 'ios-pwa';
+            if (isIosChrome()) return 'ios-chrome';
+            return 'ios-safari';
+        }
         if (isAndroid()) return isStandalone() ? 'android-pwa' : 'android';
         return isStandalone() ? 'desktop-pwa' : 'desktop';
     }
@@ -377,6 +389,23 @@
         const existing = document.getElementById('rr-push-banner');
         if (existing) existing.remove();
 
+        const shareChip = `<span class="rr-inline-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</span>`;
+        let subText = "iPhone only sends lock-screen alerts once added to your Home Screen. Do these 3 steps using Safari's bar below:";
+        let step1Html = `Tap <span class="rr-inline-chip">•••</span> (bottom-right of Safari) → tap ${shareChip} <span style="color:#64748B; font-weight:500;">(or Share directly if shown)</span>`;
+        let step2Html = `Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong>`;
+        let hintHtml = `Start by tapping <strong>•••</strong> below ↘`;
+
+        if (isIosChrome()) {
+            subText = "iPhone only sends lock-screen alerts once added to your Home Screen. Do these 3 steps in Chrome:";
+            step1Html = `Tap ${shareChip} at the <strong>top-right</strong> next to Chrome's address bar`;
+            hintHtml = `Start by tapping <strong>Share</strong> at top-right ↗`;
+        } else if (isIosInApp()) {
+            subText = "iPhone lock-screen alerts require opening Role Rover in Safari first:";
+            step1Html = `Tap <span class="rr-inline-chip">•••</span> or the Safari icon → <strong>Open in Safari</strong>`;
+            step2Html = `In Safari, tap ${shareChip} → <span class="rr-inline-chip">+ Add to Home Screen</span>`;
+            hintHtml = `Tap <strong>Open in Safari</strong> first`;
+        }
+
         const banner = document.createElement('div');
         banner.id = 'rr-push-banner';
         banner.innerHTML = `
@@ -387,7 +416,7 @@
                     </div>
                     <div>
                         <div class="rr-push-title">Install Role Rover for Phone Alerts</div>
-                        <div class="rr-push-sub">iPhone only sends lock-screen alerts once added to your Home Screen. Do these 3 steps using Safari's bar below:</div>
+                        <div class="rr-push-sub">${subText}</div>
                     </div>
                 </div>
                 <button type="button" class="rr-push-close" aria-label="Close" onclick="window.rrDismissPushBanner(48)">&times;</button>
@@ -395,11 +424,11 @@
             <div class="rr-ios-steps">
                 <div class="rr-ios-step">
                     <span class="rr-step-num">1</span>
-                    <span>Tap <span class="rr-inline-chip">•••</span> (bottom-right of Safari) → tap <span class="rr-inline-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</span> <span style="color:#64748B; font-weight:500;">(or Share directly if shown)</span></span>
+                    <span>${step1Html}</span>
                 </div>
                 <div class="rr-ios-step">
                     <span class="rr-step-num">2</span>
-                    <span>Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong></span>
+                    <span>${step2Html}</span>
                 </div>
                 <div class="rr-ios-step">
                     <span class="rr-step-num">3</span>
@@ -407,7 +436,7 @@
                 </div>
             </div>
             <div class="rr-push-actions" style="justify-content: space-between;">
-                <span style="font-size:0.74rem; font-weight:700; color:#0F766E;">Start by tapping <strong>•••</strong> below ↘</span>
+                <span style="font-size:0.74rem; font-weight:700; color:#0F766E;">${hintHtml}</span>
                 <button type="button" class="rr-btn-ghost" onclick="window.rrDismissPushBanner(72)">Later</button>
             </div>
         `;
