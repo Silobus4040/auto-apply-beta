@@ -104,7 +104,21 @@
             };
         }
 
-        // 5. Generic screening question requirement
+        // 5. Generic screening question requirement or multi-item checklist
+        const multiItems = parseRequirementItems(job.failure_reason);
+        if (multiItems.length > 1) {
+            return {
+                type: 'multi_checklist',
+                title: 'Application Requirements Checklist',
+                description: 'The employer requires confirmation for the following items:',
+                items: multiItems,
+                inputType: 'checklist',
+                fieldKey: 'custom_answer',
+                isPermanent: false,
+                checkboxLabel: 'Save my response'
+            };
+        }
+
         return {
             type: 'generic',
             title: 'Additional Information Required',
@@ -115,6 +129,19 @@
             isPermanent: false,
             checkboxLabel: 'Save to my profile'
         };
+    }
+
+    function parseRequirementItems(rawReason) {
+        if (!rawReason) return [];
+        let clean = rawReason.replace(/rec-form_\w+/g, '').replace(/rec-easyresume_\w+/g, '');
+        clean = clean.replace(/Field\(s\) rejected by the form:?/i, '');
+        clean = clean.replace(/Pre-submit gate stopped the bot because required fields were still empty:?/i, '');
+        clean = clean.replace(/Application not submitted -?/i, '');
+        clean = clean.replace(/["“”]/g, '').trim();
+
+        // Split by semicolons, asterisks, or newlines
+        let parts = clean.split(/;\s*|\n+/).map(p => p.trim()).filter(Boolean);
+        return parts.map(p => p.replace(/^\*\s*/, '').replace(/^[•-]\s*/, '').trim()).filter(p => p.length > 2);
     }
 
     function urlify(text) {
@@ -130,9 +157,11 @@
         if (!rawReason) return 'This employer requires additional details before your application can be submitted.';
         // Strip DOM selectors, JSON, or stack traces
         let clean = rawReason.replace(/rec-form_\w+/g, '').replace(/rec-easyresume_\w+/g, '');
-        clean = clean.replace(/Field\(s\) rejected by the form:?/i, '').replace(/Pre-submit gate stopped the bot because required fields were still empty:?/i, '');
+        clean = clean.replace(/Field\(s\) rejected by the form:?/i, '');
+        clean = clean.replace(/Pre-submit gate stopped the bot because required fields were still empty:?/i, '');
         clean = clean.replace(/Application not submitted -/i, '');
         clean = clean.replace(/["“”]/g, '').trim();
+        clean = clean.replace(/^\*\s*/, '');
         if (clean.length < 10) return 'This employer requires additional information to complete your application.';
         return `Employer requirement: ${clean}`;
     }
@@ -223,14 +252,35 @@
         document.getElementById('action-req-job-title').textContent = activeJob.title || 'Role Application';
         document.getElementById('action-req-company').textContent = activeJob.companyName || 'Employer';
         document.getElementById('action-req-prompt-title').textContent = meta.title;
-        document.getElementById('action-req-prompt-desc').innerHTML = urlify(meta.description);
 
         // Checkbox
         const checkboxRow = document.getElementById('action-req-checkbox-row');
         const checkbox = document.getElementById('action-req-checkbox');
         const checkboxLabel = document.getElementById('action-req-checkbox-label');
-        checkboxLabel.textContent = meta.checkboxLabel;
-        checkbox.checked = meta.isPermanent; // Permanent items default to checked
+
+        if (meta.type === 'multi_checklist') {
+            document.getElementById('action-req-prompt-desc').innerHTML = `
+                <div style="font-size: 0.82rem; color: #475569; margin-bottom: 0.65rem; font-weight: 500;">
+                    The employer form paused on these <strong>${meta.items.length} required questions</strong>:
+                </div>
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 0.65rem 0.75rem; max-height: 240px; overflow-y: auto; display: flex; flex-direction: column; gap: 0.45rem;">
+                    ${meta.items.map((item, idx) => `
+                        <div style="display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.82rem; color: #1e293b; line-height: 1.45; background: #ffffff; padding: 0.55rem 0.7rem; border-radius: 8px; border: 1px solid #eef2f6; box-shadow: 0 1px 2px rgba(0,0,0,0.03);">
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: rgba(13, 148, 136, 0.12); color: #0d9488; font-size: 0.72rem; font-weight: 800; flex-shrink: 0; margin-top: 1px;">✓</span>
+                            <span>${urlify(item)}</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            if (checkboxRow) checkboxRow.style.display = 'none';
+        } else {
+            document.getElementById('action-req-prompt-desc').innerHTML = urlify(meta.description);
+            if (checkboxRow) {
+                checkboxRow.style.display = 'flex';
+                checkboxLabel.textContent = meta.checkboxLabel;
+                checkbox.checked = meta.isPermanent;
+            }
+        }
 
         // Render input widget
         const fieldContainer = document.getElementById('action-req-field-container');
@@ -312,6 +362,14 @@
             group.innerHTML = `
                 <label class="action-req-label">${meta.label || 'Enter Assessment / Voice URL'}</label>
                 <input type="url" class="action-req-input" id="action-req-input-link" placeholder="${meta.placeholder}" required />
+            `;
+            fieldContainer.appendChild(group);
+        } else if (meta.inputType === 'checklist') {
+            const group = document.createElement('div');
+            group.className = 'action-req-field-group';
+            group.innerHTML = `
+                <label class="action-req-label">Optional Location Preference or Note</label>
+                <input type="text" class="action-req-input" id="action-req-input-text" placeholder="e.g. Preferred location: Ikeja (or leave empty for automatic)" />
             `;
             fieldContainer.appendChild(group);
         } else {
@@ -506,8 +564,7 @@
             await supabase.from('job_applications').update({
                 attachments: updatedAttachments,
                 status: 'In Queue',
-                failure_reason: null,
-                blocked_user_label: null
+                failure_reason: null
             }).eq('id', activeJob.id);
 
             // 3. Trigger Re-Drive via direct Supabase RPC
@@ -547,7 +604,6 @@
         try {
             await supabase.from('job_applications').update({
                 status: 'rejected',
-                blocked_user_label: 'Candidate declined requirement',
                 failure_reason: 'Application dropped by candidate: unwilling to provide required item.'
             }).eq('id', activeJob.id);
 
