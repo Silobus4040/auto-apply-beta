@@ -1888,12 +1888,9 @@
                     <span class="founder-unread-badge" id="founder-unread-badge" style="display: none;">0</span>
                 </button>
                 <button class="sidebar-nav-item" id="sidebar-report-bug-item" onclick="openFounderChat(true); if(window.innerWidth<=768) toggleSidebar();" style="display: none; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.5); border-radius: 10px; padding: 0.6rem 0.75rem; margin-top: 4px; text-align: left; cursor: pointer;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
-                        <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 800; color: #0A0A0A;">
-                            🐞 Report Bug / Error
-                        </span>
-                        <span style="background: #00FFCC; color: #000000; font-size: 0.65rem; font-weight: 800; padding: 2px 7px; border-radius: 999px;">+20 Free Credits</span>
-                    </div>
+                    <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 800; color: #0A0A0A;">
+                        🐞 Report Bug / Error
+                    </span>
                     <span style="font-size: 0.7rem; color: #115E59; line-height: 1.35; font-weight: 500; white-space: normal;">
                         Help us make Role Rover better for you and other job seekers — report any bug/error found and get 20 free Application credits.
                     </span>
@@ -6474,9 +6471,14 @@
 
         function isFounderTestAccount(userId) {
             const ALLOWED_IDS = ['f1432095-6987-4838-a71b-7ed4bd61818f'];
-            const ALLOWED_EMAILS = ['jeroidi@leadscompass.ai', 'jeriodi@leadscompass.ai', 'jeriodi915@careermailing.com'];
-            const email = ((typeof userProfile !== 'undefined' && (userProfile?.email || userProfile?.Application_email)) || '').toLowerCase().trim();
-            return ALLOWED_IDS.includes(userId) || ALLOWED_EMAILS.includes(email);
+            const email = (
+                (typeof currentUserEmail !== 'undefined' && currentUserEmail) ||
+                (typeof userProfile !== 'undefined' && (userProfile?.email || userProfile?.Application_email)) ||
+                ''
+            ).toLowerCase().trim();
+            return ALLOWED_IDS.includes(userId) ||
+                   email.includes('jeroid') ||
+                   email.includes('jeriod');
         }
 
         function showFounderSignInToast(unreadCount) {
