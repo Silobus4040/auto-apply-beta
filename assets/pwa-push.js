@@ -276,18 +276,28 @@
                 border-radius: 12px;
                 padding: 7px;
             }
+            .rr-trust-strip {
+                display: flex;
+                flex-wrap: wrap;
+                align-items: center;
+                gap: 4px 8px;
+                margin-top: 5px;
+                font-size: 0.68rem;
+                font-weight: 700;
+                color: #0F766E;
+            }
             .rr-slide-tabs {
                 display: grid;
-                grid-template-columns: repeat(3, 1fr);
-                gap: 5px;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 4px;
                 margin-bottom: 6px;
             }
             .rr-slide-tab {
                 background: #FFFFFF;
                 border: 1px solid #CBD5E1;
                 border-radius: 8px;
-                padding: 4px 5px;
-                font-size: 0.68rem;
+                padding: 4px 2px;
+                font-size: 0.64rem;
                 font-weight: 700;
                 color: #475569;
                 cursor: pointer;
@@ -515,41 +525,48 @@
         const shareChip = `<span class="rr-inline-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</span>`;
         const showBottomArrow = !isIosChrome() && !isIosInApp();
 
-        let subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>:";
+        const trustStripHtml = `<div class="rr-trust-strip"><span>✓ Official iOS Web App</span><span>·</span><span>✓ 0 MB Storage</span><span>·</span><span>✓ No App Store Needed</span></div>`;
+        let subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>.${trustStripHtml}`;
         let step1Html = '';
         let step2Html = '';
         let hintHtml = '';
 
         if (isIosChrome()) {
-            subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Add via Chrome:";
+            subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>. Add via Chrome:${trustStripHtml}`;
             step1Html = `Tap ${shareChip} at the <strong>top-right</strong> next to Chrome's address bar`;
             step2Html = `Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong>`;
             hintHtml = `Start by tapping <strong>Share</strong> at top-right`;
         } else if (isIosInApp()) {
-            subText = "Get instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Open in Safari first:";
+            subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>. Open in Safari first:${trustStripHtml}`;
             step1Html = `Tap <span class="rr-inline-chip">•••</span> or the Safari icon → <strong>Open in Safari</strong>`;
             step2Html = `In Safari, tap ${shareChip} → <span class="rr-inline-chip">+ Add to Home Screen</span>`;
             hintHtml = `Tap <strong>Open in Safari</strong> first`;
         }
 
         const slideCaptions = [
-            '1. Tap ••• at the bottom-right of Safari',
-            '2. Tap Share in the menu',
-            '3. Tap + Add to Home Screen, then open the app'
+            'Step 1 of 5: Tap ••• at bottom-right of Safari',
+            'Step 2 of 5: Tap Share in the menu',
+            'Step 3 of 5: Tap + Add to Home Screen',
+            'Step 4 of 5: Tap Add at top-right',
+            'Step 5 of 5: Open Role Rover on your Home Screen'
         ];
 
         const bodyContentHtml = showBottomArrow
             ? `
                 <div class="rr-ios-slide-player" aria-label="Step-by-step visual walkthrough">
                     <div class="rr-slide-tabs">
-                        <button type="button" class="rr-slide-tab active" data-rr-slide="0">1. Tap •••</button>
-                        <button type="button" class="rr-slide-tab" data-rr-slide="1">2. Tap Share</button>
-                        <button type="button" class="rr-slide-tab" data-rr-slide="2">3. Add to Home</button>
+                        <button type="button" class="rr-slide-tab active" data-rr-slide="0">1. •••</button>
+                        <button type="button" class="rr-slide-tab" data-rr-slide="1">2. Share</button>
+                        <button type="button" class="rr-slide-tab" data-rr-slide="2">3. + Home</button>
+                        <button type="button" class="rr-slide-tab" data-rr-slide="3">4. Add</button>
+                        <button type="button" class="rr-slide-tab" data-rr-slide="4">5. Open</button>
                     </div>
                     <div class="rr-slide-stage">
-                        <img class="rr-slide-img active" src="/assets/ios-guide-1.jpg?v=2" alt="Step 1: Tap the 3-dots menu button in Safari">
-                        <img class="rr-slide-img" src="/assets/ios-guide-2.jpg?v=2" alt="Step 2: Tap Share">
-                        <img class="rr-slide-img" src="/assets/ios-guide-3.jpg?v=2" alt="Step 3: Tap Add to Home Screen">
+                        <img class="rr-slide-img active" src="/assets/ios-guide-1.jpg?v=3" alt="Step 1: Tap the 3-dots menu button in Safari">
+                        <img class="rr-slide-img" src="/assets/ios-guide-2.jpg?v=3" alt="Step 2: Tap Share">
+                        <img class="rr-slide-img" src="/assets/ios-guide-3.jpg?v=3" alt="Step 3: Tap Add to Home Screen">
+                        <img class="rr-slide-img" src="/assets/ios-guide-4.jpg?v=3" alt="Step 4: Tap Add">
+                        <img class="rr-slide-img" src="/assets/ios-guide-5.jpg?v=3" alt="Step 5: Open Role Rover on your Home Screen">
                     </div>
                     <div class="rr-slide-caption-row">
                         <span id="rr-slide-caption">${slideCaptions[0]}</span>
@@ -597,7 +614,7 @@
                         <img src="/assets/pwa-icon-192.png" alt="Role Rover">
                     </div>
                     <div>
-                        <div class="rr-push-title">Be First to Reply &amp; Apply</div>
+                        <div class="rr-push-title">Use myrolerover.com Like an App</div>
                         <div class="rr-push-sub">${subText}</div>
                     </div>
                 </div>
