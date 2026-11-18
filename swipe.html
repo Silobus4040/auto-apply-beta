@@ -18,6 +18,7 @@
     <link rel="stylesheet" href="assets/action-required-modal.css?v=20261117_7">
     <script src="assets/action-required-modal.js?v=20261117_9"></script>
     <script src="assets/pwa-push.js?v=20261118_1"></script>
+    <script src="assets/bug-report-modal.js?v=20261118_1"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @keyframes rover-spin {
@@ -1933,7 +1934,7 @@
                     </div>
                     <span class="founder-unread-badge" id="founder-unread-badge" style="display: none;">0</span>
                 </button>
-                <button class="sidebar-nav-item" id="sidebar-report-bug-item" onclick="openFounderChat(true); if(window.innerWidth<=768) toggleSidebar();" style="display: none; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.5); border-radius: 10px; padding: 0.6rem 0.75rem; margin-top: 4px; text-align: left; cursor: pointer;">
+                <button class="sidebar-nav-item" id="sidebar-report-bug-item" onclick="if(window.openBugReportModal) window.openBugReportModal(); if(window.innerWidth<=768) toggleSidebar();" style="display: none; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.5); border-radius: 10px; padding: 0.6rem 0.75rem; margin-top: 4px; text-align: left; cursor: pointer;">
                     <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 800; color: #0A0A0A;">
                         🐞 Report Bug / Error
                     </span>
@@ -1997,9 +1998,6 @@
                             </div>
                             <div class="founder-bubble">
                                 Your opinion matters and it helps me decide what to keep, fix, or build next. Thanks!
-                            </div>
-                            <div class="founder-bubble" id="founder-bug-bounty-bubble" style="display: none; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.55); color: #0A0A0A;">
-                                🎁 <strong>Help us make Role Rover better for you and other job seekers:</strong> Report any bug or error found and you get <strong>20 free Application credits</strong>!
                             </div>
                             <span class="founder-msg-time">Founder Message</span>
                         </div>
@@ -6586,8 +6584,6 @@
                     if (menuText) menuText.style.display = 'inline';
                     const bugItem = document.getElementById('sidebar-report-bug-item');
                     if (bugItem) bugItem.style.display = 'flex';
-                    const bugBubble = document.getElementById('founder-bug-bounty-bubble');
-                    if (bugBubble) bugBubble.style.display = 'block';
                 }
 
                 const lastRead = parseInt(localStorage.getItem('founder_chat_last_read_' + userId) || '0', 10);
@@ -6613,7 +6609,7 @@
             }
         }
 
-        function openFounderChat(fromBugReport) {
+        function openFounderChat() {
             const modal = document.getElementById('feedback-modal');
             if (!modal) return;
             const nameEl = document.getElementById('founder-chat-user-name');
@@ -6624,13 +6620,8 @@
             modal.classList.add('active');
             setTimeout(() => {
                 const input = document.getElementById('feedback-text');
-                if (input) {
-                    if (fromBugReport) {
-                        input.placeholder = 'Describe the bug or error you found to claim your 20 free credits...';
-                    }
-                    if (window.innerWidth > 768) {
-                        input.focus();
-                    }
+                if (input && window.innerWidth > 768) {
+                    input.focus();
                 }
                 const body = document.getElementById('founder-chat-body');
                 if (body) body.scrollTop = body.scrollHeight;
