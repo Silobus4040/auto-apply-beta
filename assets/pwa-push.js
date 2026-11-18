@@ -15,7 +15,7 @@
     let _userId = null;
     let _swReg = null;
     let _initialized = false;
-    let _slideTimer = null;
+    let _viewportCleanup = null;
 
     function isIos() {
         return /iPhone|iPad|iPod/i.test(navigator.userAgent || '') ||
@@ -94,18 +94,22 @@
         const style = document.createElement('style');
         style.id = 'rr-pwa-push-styles';
         style.textContent = `
+            #rr-push-banner,
+            #rr-push-banner * {
+                box-sizing: border-box;
+            }
             #rr-push-banner {
                 position: fixed;
                 bottom: 16px;
                 left: 50%;
                 transform: translateX(-50%) translateY(130%);
-                width: calc(100% - 28px);
-                max-width: 440px;
+                width: calc(100vw - 24px);
+                max-width: min(440px, calc(100vw - 24px));
                 background: #FFFFFF;
                 border: 1.5px solid rgba(0, 255, 204, 0.7);
                 border-radius: 16px;
                 box-shadow: 0 18px 45px rgba(0, 0, 0, 0.16), 0 0 0 1px rgba(0, 0, 0, 0.04);
-                padding: 1rem 1.1rem;
+                padding: var(--rr-card-pad, 0.85rem 0.95rem);
                 z-index: 99990;
                 opacity: 0;
                 transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.3s ease;
@@ -123,8 +127,8 @@
                 gap: 0.75rem;
             }
             .rr-push-icon-badge {
-                width: 40px;
-                height: 40px;
+                width: var(--rr-badge-sz, 38px);
+                height: var(--rr-badge-sz, 38px);
                 border-radius: 11px;
                 background: #E6FBF6;
                 border: 1px solid rgba(0, 255, 204, 0.55);
@@ -135,22 +139,22 @@
                 overflow: hidden;
             }
             .rr-push-icon-badge img {
-                width: 30px;
-                height: 30px;
+                width: 75%;
+                height: 75%;
                 object-fit: contain;
                 border-radius: 6px;
             }
             .rr-push-title {
-                font-size: 0.92rem;
+                font-size: var(--rr-title-fs, 0.9rem);
                 font-weight: 800;
                 color: #0A0A0A;
                 line-height: 1.25;
                 margin-bottom: 3px;
             }
             .rr-push-sub {
-                font-size: 0.78rem;
+                font-size: var(--rr-sub-fs, 0.75rem);
                 color: #52525B;
-                line-height: 1.4;
+                line-height: 1.35;
             }
             .rr-push-close {
                 background: none;
@@ -278,13 +282,22 @@
             }
             .rr-trust-strip {
                 display: flex;
-                flex-wrap: wrap;
+                flex-wrap: nowrap;
                 align-items: center;
-                gap: 4px 8px;
-                margin-top: 5px;
-                font-size: 0.68rem;
+                justify-content: center;
+                gap: 3px;
+                width: 100%;
+                margin-top: 6px;
+                padding: 4px 5px;
+                background: #F0FDFA;
+                border: 1px solid #CCFBF1;
+                border-radius: 8px;
+                font-size: var(--rr-trust-fs, 0.56rem);
                 font-weight: 700;
+                letter-spacing: -0.015em;
                 color: #0F766E;
+                white-space: nowrap;
+                overflow: hidden;
             }
             .rr-slide-tabs {
                 display: grid;
@@ -296,8 +309,8 @@
                 background: #FFFFFF;
                 border: 1px solid #CBD5E1;
                 border-radius: 8px;
-                padding: 4px 2px;
-                font-size: 0.64rem;
+                padding: 4px 1px;
+                font-size: var(--rr-tab-fs, clamp(0.56rem, 2.35vw, 0.64rem));
                 font-weight: 700;
                 color: #475569;
                 cursor: pointer;
@@ -317,7 +330,8 @@
                 width: 100%;
                 aspect-ratio: 473 / 300;
                 height: auto;
-                max-height: 195px;
+                max-height: var(--rr-stage-max-h, 170px);
+                touch-action: pan-y;
                 border-radius: 9px;
                 overflow: hidden;
                 background: #FFFFFF;
@@ -328,9 +342,9 @@
                 inset: 0;
                 width: 100%;
                 height: 100%;
-                object-fit: cover;
+                object-fit: contain;
                 opacity: 0;
-                transition: opacity 0.35s ease;
+                transition: opacity 0.28s ease;
                 pointer-events: none;
             }
             .rr-slide-img.active {
@@ -340,22 +354,43 @@
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 8px;
+                gap: 6px;
                 margin-top: 7px;
                 padding: 0 2px;
             }
             #rr-slide-caption {
-                font-size: 0.76rem;
+                font-size: var(--rr-caption-fs, 0.72rem);
                 font-weight: 700;
                 color: #0F172A;
                 line-height: 1.3;
                 flex: 1;
                 min-width: 0;
             }
+            .rr-slide-nav-btns {
+                display: inline-flex;
+                align-items: center;
+                gap: 5px;
+                flex-shrink: 0;
+            }
+            .rr-btn-next-step {
+                background: #0A0A0A;
+                color: #00FFCC;
+                border: 1px solid #00FFCC;
+                border-radius: 8px;
+                padding: 0.34rem 0.62rem;
+                font-size: 0.71rem;
+                font-weight: 800;
+                cursor: pointer;
+                white-space: nowrap;
+                transition: transform 0.12s ease;
+            }
+            .rr-btn-next-step:active {
+                transform: scale(0.96);
+            }
             @media (max-width: 768px) {
                 #rr-push-banner {
                     bottom: 12px;
-                    padding: 0.85rem 0.95rem;
+                    padding: var(--rr-card-pad, 0.85rem 0.95rem);
                 }
                 #rr-push-banner.rr-has-bottom-arrow {
                     bottom: 44px;
@@ -373,10 +408,63 @@
         document.head.appendChild(style);
     }
 
+    function applyNativeScreenMetrics(banner) {
+        if (!banner) return;
+        const vv = window.visualViewport;
+        const vw = Math.round(vv ? vv.width : window.innerWidth);
+        const vh = Math.round(vv ? vv.height : window.innerHeight);
+
+        const stageMaxH = vh <= 620 ? '132px' : vh <= 700 ? '150px' : vh <= 780 ? '164px' : '176px';
+        const cardPad = (vh <= 700 || vw <= 380) ? '0.68rem 0.75rem' : '0.8rem 0.9rem';
+        const titleFs = vw <= 375 ? '0.84rem' : '0.9rem';
+        const subFs = vw <= 375 ? '0.7rem' : '0.75rem';
+        const badgeSz = vw <= 375 ? '34px' : '38px';
+        const captionFs = vw <= 375 ? '0.66rem' : '0.72rem';
+        const trustFs = vw <= 375 ? '0.52rem' : vw <= 400 ? '0.55rem' : '0.62rem';
+        const tabFs = vw <= 375 ? '0.57rem' : '0.63rem';
+
+        banner.style.setProperty('--rr-stage-max-h', stageMaxH);
+        banner.style.setProperty('--rr-card-pad', cardPad);
+        banner.style.setProperty('--rr-title-fs', titleFs);
+        banner.style.setProperty('--rr-sub-fs', subFs);
+        banner.style.setProperty('--rr-badge-sz', badgeSz);
+        banner.style.setProperty('--rr-caption-fs', captionFs);
+        banner.style.setProperty('--rr-trust-fs', trustFs);
+        banner.style.setProperty('--rr-tab-fs', tabFs);
+    }
+
+    function bindNativeViewportMetrics(banner) {
+        if (_viewportCleanup) {
+            _viewportCleanup();
+            _viewportCleanup = null;
+        }
+        applyNativeScreenMetrics(banner);
+        const onResize = () => {
+            if (!document.body.contains(banner)) {
+                if (_viewportCleanup) {
+                    _viewportCleanup();
+                    _viewportCleanup = null;
+                }
+                return;
+            }
+            applyNativeScreenMetrics(banner);
+        };
+        window.addEventListener('resize', onResize, { passive: true });
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', onResize, { passive: true });
+        }
+        _viewportCleanup = () => {
+            window.removeEventListener('resize', onResize);
+            if (window.visualViewport) {
+                window.visualViewport.removeEventListener('resize', onResize);
+            }
+        };
+    }
+
     function removeBanner() {
-        if (_slideTimer) {
-            clearInterval(_slideTimer);
-            _slideTimer = null;
+        if (_viewportCleanup) {
+            _viewportCleanup();
+            _viewportCleanup = null;
         }
         const el = document.getElementById('rr-push-banner');
         if (el) {
@@ -526,18 +614,18 @@
         const showBottomArrow = !isIosChrome() && !isIosInApp();
 
         const trustStripHtml = `<div class="rr-trust-strip"><span>✓ Official iOS Web App</span><span>·</span><span>✓ 0 MB Storage</span><span>·</span><span>✓ No App Store Needed</span></div>`;
-        let subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>.${trustStripHtml}`;
+        let subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>.`;
         let step1Html = '';
         let step2Html = '';
         let hintHtml = '';
 
         if (isIosChrome()) {
-            subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>. Add via Chrome:${trustStripHtml}`;
+            subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>. Add via Chrome:`;
             step1Html = `Tap ${shareChip} at the <strong>top-right</strong> next to Chrome's address bar`;
             step2Html = `Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong>`;
             hintHtml = `Start by tapping <strong>Share</strong> at top-right`;
         } else if (isIosInApp()) {
-            subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>. Open in Safari first:${trustStripHtml}`;
+            subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>. Open in Safari first:`;
             step1Html = `Tap <span class="rr-inline-chip">•••</span> or the Safari icon → <strong>Open in Safari</strong>`;
             step2Html = `In Safari, tap ${shareChip} → <span class="rr-inline-chip">+ Add to Home Screen</span>`;
             hintHtml = `Tap <strong>Open in Safari</strong> first`;
@@ -570,7 +658,10 @@
                     </div>
                     <div class="rr-slide-caption-row">
                         <span id="rr-slide-caption">${slideCaptions[0]}</span>
-                        <button type="button" class="rr-btn-ghost" style="padding:0.35rem 0.65rem; font-size:0.72rem;" onclick="window.rrDismissPushBanner(72)">Later</button>
+                        <div class="rr-slide-nav-btns">
+                            <button type="button" class="rr-btn-ghost" style="padding:0.34rem 0.58rem; font-size:0.71rem;" onclick="window.rrDismissPushBanner(72)">Later</button>
+                            <button type="button" id="rr-next-slide-btn" class="rr-btn-next-step">Next &rarr;</button>
+                        </div>
                     </div>
                 </div>
             `
@@ -599,17 +690,12 @@
             ? `<div class="rr-dots-arrow-callout" aria-hidden="true"><span>Tap ••• here</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00FFCC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>`
             : '';
 
-        if (_slideTimer) {
-            clearInterval(_slideTimer);
-            _slideTimer = null;
-        }
-
         const banner = document.createElement('div');
         banner.id = 'rr-push-banner';
         if (showBottomArrow) banner.classList.add('rr-has-bottom-arrow');
         banner.innerHTML = `
             <div class="rr-push-header">
-                <div style="display:flex; align-items:flex-start; gap:0.7rem;">
+                <div style="display:flex; align-items:flex-start; gap:0.65rem;">
                     <div class="rr-push-icon-badge">
                         <img src="/assets/pwa-icon-192.png" alt="Role Rover">
                     </div>
@@ -620,9 +706,11 @@
                 </div>
                 <button type="button" class="rr-push-close" aria-label="Close" onclick="window.rrDismissPushBanner(48)">&times;</button>
             </div>
+            ${trustStripHtml}
             ${bodyContentHtml}
             ${bottomArrowHtml}
         `;
+        bindNativeViewportMetrics(banner);
         document.body.appendChild(banner);
 
         if (showBottomArrow) {
@@ -630,30 +718,38 @@
             const tabs = banner.querySelectorAll('.rr-slide-tab');
             const imgs = banner.querySelectorAll('.rr-slide-img');
             const captionEl = banner.querySelector('#rr-slide-caption');
+            const nextBtn = banner.querySelector('#rr-next-slide-btn');
+            const stageEl = banner.querySelector('.rr-slide-stage');
             const setSlide = (idx) => {
-                activeIdx = idx;
-                tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
-                imgs.forEach((img, i) => img.classList.toggle('active', i === idx));
-                if (captionEl) captionEl.textContent = slideCaptions[idx] || slideCaptions[0];
-            };
-            const startCycle = () => {
-                if (_slideTimer) clearInterval(_slideTimer);
-                _slideTimer = setInterval(() => {
-                    if (!document.body.contains(banner)) {
-                        clearInterval(_slideTimer);
-                        _slideTimer = null;
-                        return;
-                    }
-                    setSlide((activeIdx + 1) % imgs.length);
-                }, 2400);
+                const count = imgs.length;
+                activeIdx = ((idx % count) + count) % count;
+                tabs.forEach((t, i) => t.classList.toggle('active', i === activeIdx));
+                imgs.forEach((img, i) => img.classList.toggle('active', i === activeIdx));
+                if (captionEl) captionEl.textContent = slideCaptions[activeIdx] || slideCaptions[0];
+                if (nextBtn) nextBtn.textContent = activeIdx === count - 1 ? '↻ Step 1' : 'Next →';
             };
             tabs.forEach((tab, idx) => {
-                tab.onclick = () => {
-                    setSlide(idx);
-                    startCycle();
-                };
+                tab.onclick = () => setSlide(idx);
             });
-            startCycle();
+            if (nextBtn) {
+                nextBtn.onclick = () => setSlide(activeIdx + 1);
+            }
+            if (stageEl) {
+                let touchStartX = null;
+                stageEl.addEventListener('touchstart', (e) => {
+                    if (e.touches && e.touches.length === 1) {
+                        touchStartX = e.touches[0].clientX;
+                    }
+                }, { passive: true });
+                stageEl.addEventListener('touchend', (e) => {
+                    if (touchStartX === null || !e.changedTouches || !e.changedTouches.length) return;
+                    const dx = e.changedTouches[0].clientX - touchStartX;
+                    touchStartX = null;
+                    if (Math.abs(dx) >= 35) {
+                        setSlide(dx < 0 ? activeIdx + 1 : activeIdx - 1);
+                    }
+                }, { passive: true });
+            }
         }
 
         requestAnimationFrame(() => {
