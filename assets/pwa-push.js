@@ -390,17 +390,17 @@
         if (existing) existing.remove();
 
         const shareChip = `<span class="rr-inline-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</span>`;
-        let subText = "iPhone only sends lock-screen alerts once added to your Home Screen. Do these 3 steps using Safari's bar below:";
+        let subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong> so you never apply or reply late. Add to Home Screen:";
         let step1Html = `Tap <span class="rr-inline-chip">•••</span> (bottom-right of Safari) → tap ${shareChip} <span style="color:#64748B; font-weight:500;">(or Share directly if shown)</span>`;
         let step2Html = `Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong>`;
         let hintHtml = `Start by tapping <strong>•••</strong> below ↘`;
 
         if (isIosChrome()) {
-            subText = "iPhone only sends lock-screen alerts once added to your Home Screen. Do these 3 steps in Chrome:";
+            subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong> so you never apply or reply late. Add via Chrome:";
             step1Html = `Tap ${shareChip} at the <strong>top-right</strong> next to Chrome's address bar`;
             hintHtml = `Start by tapping <strong>Share</strong> at top-right ↗`;
         } else if (isIosInApp()) {
-            subText = "iPhone lock-screen alerts require opening Role Rover in Safari first:";
+            subText = "Get instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Open in Safari first:";
             step1Html = `Tap <span class="rr-inline-chip">•••</span> or the Safari icon → <strong>Open in Safari</strong>`;
             step2Html = `In Safari, tap ${shareChip} → <span class="rr-inline-chip">+ Add to Home Screen</span>`;
             hintHtml = `Tap <strong>Open in Safari</strong> first`;
@@ -415,7 +415,7 @@
                         <img src="/assets/pwa-icon-192.png" alt="Role Rover">
                     </div>
                     <div>
-                        <div class="rr-push-title">Install Role Rover for Phone Alerts</div>
+                        <div class="rr-push-title">Be First to Reply &amp; Apply</div>
                         <div class="rr-push-sub">${subText}</div>
                     </div>
                 </div>
@@ -432,7 +432,7 @@
                 </div>
                 <div class="rr-ios-step">
                     <span class="rr-step-num">3</span>
-                    <span>Open the <strong>Role Rover</strong> icon on your Home Screen &amp; tap <strong>Enable Alerts</strong></span>
+                    <span>Open the <strong>Role Rover</strong> icon on your Home Screen &amp; tap <strong>Get Instant Alerts</strong></span>
                 </div>
             </div>
             <div class="rr-push-actions" style="justify-content: space-between;">
@@ -468,7 +468,7 @@
                         <div class="rr-push-icon-badge"><img src="/assets/pwa-icon-192.png" alt="Role Rover"></div>
                         <div>
                             <div class="rr-push-title">Notifications Are Blocked</div>
-                            <div class="rr-push-sub">Notifications were previously blocked in your browser/device settings. Enable notifications for Role Rover in your device Settings to receive instant interview &amp; founder alerts.</div>
+                            <div class="rr-push-sub">Notifications were previously blocked in your browser or device settings. Enable them in Settings to get instant alerts for New Jobs, Recruiter Emails, and Important Updates.</div>
                         </div>
                     </div>
                     <button type="button" class="rr-push-close" aria-label="Close" onclick="window.rrDismissPushBanner(24)">&times;</button>
@@ -484,7 +484,7 @@
                         <div class="rr-push-icon-badge"><img src="/assets/pwa-icon-192.png" alt="Role Rover"></div>
                         <div>
                             <div class="rr-push-title">Phone Alerts Are Active</div>
-                            <div class="rr-push-sub">You'll receive instant alerts for Founder messages, employer emails, and applications needing your input.</div>
+                            <div class="rr-push-sub">You'll receive instant lock-screen alerts for New Jobs, Recruiter Emails, and Important Updates.</div>
                         </div>
                     </div>
                     <button type="button" class="rr-push-close" aria-label="Close" onclick="window.rrDismissPushBanner(0)">&times;</button>
@@ -500,14 +500,14 @@
                     <div style="display:flex; align-items:flex-start; gap:0.7rem;">
                         <div class="rr-push-icon-badge"><img src="/assets/pwa-icon-192.png" alt="Role Rover"></div>
                         <div>
-                            <div class="rr-push-title">Never Miss a Reply or Job Alert</div>
-                            <div class="rr-push-sub">Turn on push alerts so you know right away when Obruche messages you, an employer replies, or an app needs input.</div>
+                            <div class="rr-push-title">Be First to Reply &amp; Apply</div>
+                            <div class="rr-push-sub">Instant lock-screen alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Important Updates</strong> so you never apply or reply late.</div>
                         </div>
                     </div>
                     <button type="button" class="rr-push-close" aria-label="Close" onclick="window.rrDismissPushBanner(48)">&times;</button>
                 </div>
                 <div class="rr-push-actions">
-                    <button type="button" class="rr-btn-primary" id="rr-enable-push-btn" onclick="window.rrEnablePushAlerts()">Enable Alerts</button>
+                    <button type="button" class="rr-btn-primary" id="rr-enable-push-btn" onclick="window.rrEnablePushAlerts()">Get Instant Alerts</button>
                     <button type="button" class="rr-btn-ghost" onclick="window.rrDismissPushBanner(72)">Later</button>
                 </div>
             `;
