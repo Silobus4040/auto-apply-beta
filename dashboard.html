@@ -1910,7 +1910,7 @@
     <nav id="mobile-topbar" style="display: none;">
         <button class="hamburger-btn" id="mobile-hamburger-btn" style="display:inline-flex; align-items:center; gap:6px; position:relative;" onclick="toggleSidebar()" aria-label="Toggle Menu">
             <span>☰</span>
-            <span id="mobile-menu-text" style="display:none; font-size:0.85rem; font-weight:800; letter-spacing:-0.2px;">Menu</span>
+            <span id="mobile-menu-text" style="display:inline; font-size:0.85rem; font-weight:800; letter-spacing:-0.2px;">Menu</span>
             <span class="founder-unread-badge" id="mobile-hamburger-badge" style="display:none; margin-left:2px;">0</span>
         </button>
         <span style="font-weight: 800; font-size: 1rem; color: #000;">Dashboard</span>
@@ -2003,7 +2003,7 @@
                     </div>
                     <span class="founder-unread-badge" id="founder-unread-badge" style="display: none;">0</span>
                 </button>
-                <button class="sidebar-nav-item" id="sidebar-report-bug-item" onclick="if(window.openBugReportModal) window.openBugReportModal(); if(window.innerWidth<=768) toggleSidebar();" style="display: none; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.5); border-radius: 10px; padding: 0.6rem 0.75rem; margin-top: 4px; text-align: left; cursor: pointer;">
+                <button class="sidebar-nav-item" id="sidebar-report-bug-item" onclick="if(window.openBugReportModal) window.openBugReportModal(); if(window.innerWidth<=768) toggleSidebar();" style="display: flex; flex-direction: column; align-items: flex-start; gap: 4px; width: 100%; background: #E6FBF6; border: 1px solid rgba(0, 255, 204, 0.5); border-radius: 10px; padding: 0.6rem 0.75rem; margin-top: 4px; text-align: left; cursor: pointer;">
                     <span style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.8rem; font-weight: 800; color: #0A0A0A;">
                         🐞 Report Bug / Error
                     </span>
@@ -4510,18 +4510,6 @@
             updateFounderUnreadBadge(current + 1);
         }
 
-        function isFounderTestAccount(userId) {
-            const ALLOWED_IDS = ['f1432095-6987-4838-a71b-7ed4bd61818f'];
-            const email = (
-                (typeof currentUserEmail !== 'undefined' && currentUserEmail) ||
-                (typeof userProfile !== 'undefined' && (userProfile?.email || userProfile?.Application_email)) ||
-                ''
-            ).toLowerCase().trim();
-            return ALLOWED_IDS.includes(userId) ||
-                   email.includes('jeroid') ||
-                   email.includes('jeriod');
-        }
-
         function showFounderSignInToast(unreadCount) {
             if (document.getElementById('founder-signin-toast')) return;
             const fname = (typeof userProfile !== 'undefined' && userProfile?.first_name) ? userProfile.first_name.trim() : 'there';
@@ -4566,14 +4554,6 @@
         async function checkFounderUnreadCount(userId) {
             if (!userId) return;
             try {
-                const isTest = isFounderTestAccount(userId);
-                if (isTest) {
-                    const menuText = document.getElementById('mobile-menu-text');
-                    if (menuText) menuText.style.display = 'inline';
-                    const bugItem = document.getElementById('sidebar-report-bug-item');
-                    if (bugItem) bugItem.style.display = 'flex';
-                }
-
                 const lastRead = parseInt(localStorage.getItem('founder_chat_last_read_' + userId) || '0', 10);
                 const { data: messages, error } = await supabaseClient
                     .from('feedback')
@@ -4585,11 +4565,11 @@
                     ? messages.filter(m => new Date(m.created_at).getTime() > lastRead).length
                     : 0;
 
-                const welcomeUnread = (isTest && !localStorage.getItem('founder_welcome_read_v3_' + userId)) ? 1 : 0;
+                const welcomeUnread = (!lastRead && !localStorage.getItem('founder_welcome_read_v3_' + userId)) ? 1 : 0;
                 const totalUnread = dbUnread + welcomeUnread;
 
                 updateFounderUnreadBadge(totalUnread);
-                if (isTest && totalUnread > 0) {
+                if (totalUnread > 0) {
                     showFounderSignInToast(totalUnread);
                 }
             } catch (e) {
