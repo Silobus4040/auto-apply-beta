@@ -6,6 +6,10 @@
  * - Persists subscriptions in public.push_subscriptions and offers 1-tap test push
  */
 (function () {
+    if (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1') {
+        window.location.replace('https://' + window.location.host + window.location.pathname + window.location.search + window.location.hash);
+        return;
+    }
     const VAPID_PUBLIC_KEY = 'BNWJQJNlr0AV0Nmznfo3kwRuwZm-idpeyEnTgHylL0OFKDDk_BiP_Mr819dPACAY4WTdJDQ5B_CwFuV2g5bPeCY';
     const PUSH_NOTIFY_FN_URL = 'https://core-ffnrirrrrnwoo3837q2b9x.myrolerover.com/functions/v1/push-notify';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlzcyI6InN1cGFiYXNlIiwiaWF0IjoxNzkzNjM1MjQxLCJleHAiOjE5NTEzMTUyNDF9.fBMO3bKfgpe2o-Y87baP1PHbgN14BBosx75QdAAQL0k';

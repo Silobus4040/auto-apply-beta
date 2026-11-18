@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>if (window.location.hostname === 'jobs.leadscompass.ai') window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search);</script>
+    <script>if (window.location.hostname === 'jobs.leadscompass.ai' || (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search + window.location.hash);</script>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RoleRover | You're on the Waitlist</title>

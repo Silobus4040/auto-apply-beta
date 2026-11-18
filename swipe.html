@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script>if (window.location.hostname === 'jobs.leadscompass.ai') window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search);</script>
+    <script>if (window.location.hostname === 'jobs.leadscompass.ai' || (window.location.protocol === 'http:' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1')) window.location.replace('https://myrolerover.com' + window.location.pathname + window.location.search + window.location.hash);</script>
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light">
@@ -17,7 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="assets/action-required-modal.css?v=20261117_7">
     <script src="assets/action-required-modal.js?v=20261117_9"></script>
-    <script src="assets/pwa-push.js?v=20261118_7"></script>
+    <script src="assets/pwa-push.js?v=20261118_8"></script>
     <script src="assets/bug-report-modal.js?v=20261118_1"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
