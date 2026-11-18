@@ -305,7 +305,9 @@
             .rr-slide-stage {
                 position: relative;
                 width: 100%;
-                height: 225px;
+                aspect-ratio: 473 / 300;
+                height: auto;
+                max-height: 195px;
                 border-radius: 9px;
                 overflow: hidden;
                 background: #FFFFFF;
@@ -316,13 +318,29 @@
                 inset: 0;
                 width: 100%;
                 height: 100%;
-                object-fit: contain;
+                object-fit: cover;
                 opacity: 0;
                 transition: opacity 0.35s ease;
                 pointer-events: none;
             }
             .rr-slide-img.active {
                 opacity: 1;
+            }
+            .rr-slide-caption-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                margin-top: 7px;
+                padding: 0 2px;
+            }
+            #rr-slide-caption {
+                font-size: 0.76rem;
+                font-weight: 700;
+                color: #0F172A;
+                line-height: 1.3;
+                flex: 1;
+                min-width: 0;
             }
             @media (max-width: 768px) {
                 #rr-push-banner {
@@ -488,22 +506,24 @@
 
     function showIosInstallBanner(forceShow) {
         if (!forceShow && isDismissed()) return;
+        const founderToast = document.getElementById('founder-signin-toast');
+        if (founderToast) founderToast.remove();
         injectStyles();
         const existing = document.getElementById('rr-push-banner');
         if (existing) existing.remove();
 
         const shareChip = `<span class="rr-inline-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</span>`;
-        const inlineArrowDownRight = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></svg>`;
         const showBottomArrow = !isIosChrome() && !isIosInApp();
 
-        let subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Follow these 3 quick steps:";
-        let step1Html = `Tap <span class="rr-inline-chip">•••</span> (bottom-right of Safari) → tap ${shareChip} <span style="color:#64748B; font-weight:500;">(or Share directly if shown)</span>`;
-        let step2Html = `Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong>`;
-        let hintHtml = `Start by tapping <strong>•••</strong> below ${inlineArrowDownRight}`;
+        let subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>:";
+        let step1Html = '';
+        let step2Html = '';
+        let hintHtml = '';
 
         if (isIosChrome()) {
-            subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong> so you never apply or reply late. Add via Chrome:";
+            subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Add via Chrome:";
             step1Html = `Tap ${shareChip} at the <strong>top-right</strong> next to Chrome's address bar`;
+            step2Html = `Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong>`;
             hintHtml = `Start by tapping <strong>Share</strong> at top-right`;
         } else if (isIosInApp()) {
             subText = "Get instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Open in Safari first:";
@@ -512,7 +532,13 @@
             hintHtml = `Tap <strong>Open in Safari</strong> first`;
         }
 
-        const slidePlayerHtml = showBottomArrow
+        const slideCaptions = [
+            '1. Tap ••• at the bottom-right of Safari',
+            '2. Tap Share in the menu',
+            '3. Tap + Add to Home Screen, then open the app'
+        ];
+
+        const bodyContentHtml = showBottomArrow
             ? `
                 <div class="rr-ios-slide-player" aria-label="Step-by-step visual walkthrough">
                     <div class="rr-slide-tabs">
@@ -521,13 +547,36 @@
                         <button type="button" class="rr-slide-tab" data-rr-slide="2">3. Add to Home</button>
                     </div>
                     <div class="rr-slide-stage">
-                        <img class="rr-slide-img active" src="/assets/ios-guide-1.jpg?v=1" alt="Step 1: Tap the 3-dots menu button in Safari">
-                        <img class="rr-slide-img" src="/assets/ios-guide-2.jpg?v=1" alt="Step 2: Tap Share">
-                        <img class="rr-slide-img" src="/assets/ios-guide-3.jpg?v=1" alt="Step 3: Tap Add to Home Screen">
+                        <img class="rr-slide-img active" src="/assets/ios-guide-1.jpg?v=2" alt="Step 1: Tap the 3-dots menu button in Safari">
+                        <img class="rr-slide-img" src="/assets/ios-guide-2.jpg?v=2" alt="Step 2: Tap Share">
+                        <img class="rr-slide-img" src="/assets/ios-guide-3.jpg?v=2" alt="Step 3: Tap Add to Home Screen">
+                    </div>
+                    <div class="rr-slide-caption-row">
+                        <span id="rr-slide-caption">${slideCaptions[0]}</span>
+                        <button type="button" class="rr-btn-ghost" style="padding:0.35rem 0.65rem; font-size:0.72rem;" onclick="window.rrDismissPushBanner(72)">Later</button>
                     </div>
                 </div>
             `
-            : '';
+            : `
+                <div class="rr-ios-steps">
+                    <div class="rr-ios-step">
+                        <span class="rr-step-num">1</span>
+                        <span>${step1Html}</span>
+                    </div>
+                    <div class="rr-ios-step">
+                        <span class="rr-step-num">2</span>
+                        <span>${step2Html}</span>
+                    </div>
+                    <div class="rr-ios-step">
+                        <span class="rr-step-num">3</span>
+                        <span>Open the <strong>Role Rover</strong> icon on your Home Screen &amp; tap <strong>Get Instant Alerts</strong></span>
+                    </div>
+                </div>
+                <div class="rr-push-actions" style="justify-content: space-between;">
+                    <span style="font-size:0.74rem; font-weight:700; color:#0F766E;">${hintHtml}</span>
+                    <button type="button" class="rr-btn-ghost" onclick="window.rrDismissPushBanner(72)">Later</button>
+                </div>
+            `;
 
         const bottomArrowHtml = showBottomArrow
             ? `<div class="rr-dots-arrow-callout" aria-hidden="true"><span>Tap ••• here</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00FFCC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>`
@@ -554,25 +603,7 @@
                 </div>
                 <button type="button" class="rr-push-close" aria-label="Close" onclick="window.rrDismissPushBanner(48)">&times;</button>
             </div>
-            ${slidePlayerHtml}
-            <div class="rr-ios-steps">
-                <div class="rr-ios-step">
-                    <span class="rr-step-num">1</span>
-                    <span>${step1Html}</span>
-                </div>
-                <div class="rr-ios-step">
-                    <span class="rr-step-num">2</span>
-                    <span>${step2Html}</span>
-                </div>
-                <div class="rr-ios-step">
-                    <span class="rr-step-num">3</span>
-                    <span>Open the <strong>Role Rover</strong> icon on your Home Screen &amp; tap <strong>Get Instant Alerts</strong></span>
-                </div>
-            </div>
-            <div class="rr-push-actions" style="justify-content: space-between;">
-                <span style="font-size:0.74rem; font-weight:700; color:#0F766E;">${hintHtml}</span>
-                <button type="button" class="rr-btn-ghost" onclick="window.rrDismissPushBanner(72)">Later</button>
-            </div>
+            ${bodyContentHtml}
             ${bottomArrowHtml}
         `;
         document.body.appendChild(banner);
@@ -581,10 +612,12 @@
             let activeIdx = 0;
             const tabs = banner.querySelectorAll('.rr-slide-tab');
             const imgs = banner.querySelectorAll('.rr-slide-img');
+            const captionEl = banner.querySelector('#rr-slide-caption');
             const setSlide = (idx) => {
                 activeIdx = idx;
                 tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
                 imgs.forEach((img, i) => img.classList.toggle('active', i === idx));
+                if (captionEl) captionEl.textContent = slideCaptions[idx] || slideCaptions[0];
             };
             const startCycle = () => {
                 if (_slideTimer) clearInterval(_slideTimer);
@@ -617,6 +650,8 @@
         const perm = Notification.permission;
         if (perm === 'denied' && !forceShow) return;
 
+        const founderToast = document.getElementById('founder-signin-toast');
+        if (founderToast) founderToast.remove();
         injectStyles();
         const existing = document.getElementById('rr-push-banner');
         if (existing) existing.remove();
@@ -684,9 +719,18 @@
         });
     }
 
+    window.rrShouldDeferFounderToast = function () {
+        if (isDismissed()) return false;
+        if (isIos() && !isStandalone()) return true;
+        return supportsPush() && Notification.permission === 'default';
+    };
+
     window.rrDismissPushBanner = function (hours) {
         if (hours > 0) dismissForHours(hours);
         removeBanner();
+        if (typeof window.maybeShowDeferredFounderToast === 'function') {
+            setTimeout(() => window.maybeShowDeferredFounderToast(), 400);
+        }
     };
 
     window.rrOpenPushSetup = function () {
@@ -717,7 +761,12 @@
             if (btn) {
                 btn.textContent = 'Alerts Enabled! Test Sent';
             }
-            setTimeout(() => removeBanner(), 1800);
+            setTimeout(() => {
+                removeBanner();
+                if (typeof window.maybeShowDeferredFounderToast === 'function') {
+                    setTimeout(() => window.maybeShowDeferredFounderToast(), 400);
+                }
+            }, 1800);
         } catch (err) {
             console.warn('[PWA] Enable push error:', err);
             if (btn) {
@@ -768,7 +817,7 @@
             return;
         }
 
-        // Delay banner slightly so it doesn't collide with page boot / Founder toast
+        // Prioritize Phone Alerts setup on load when pending; Founder toast defers cleanly
         setTimeout(() => {
             if (document.getElementById('rr-push-banner')) return;
             if (isIos() && !isStandalone()) {
@@ -776,6 +825,6 @@
             } else if (supportsPush() && Notification.permission === 'default') {
                 showEnablePushBanner(false);
             }
-        }, 2800);
+        }, 1200);
     };
 })();
