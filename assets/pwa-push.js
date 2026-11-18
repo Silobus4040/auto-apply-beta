@@ -30,6 +30,15 @@
         return isIos() && /FBAN|FBAV|Instagram|LinkedInApp|Snapchat|BytedanceWebview|Twitter/i.test(navigator.userAgent || '');
     }
 
+    function getIosMajorVersion() {
+        const ua = navigator.userAgent || '';
+        const verMatch = ua.match(/Version\/(\d+)/);
+        const osMatch = ua.match(/OS (\d+)_/);
+        const v1 = verMatch ? parseInt(verMatch[1], 10) : 0;
+        const v2 = osMatch ? parseInt(osMatch[1], 10) : 0;
+        return Math.max(v1, v2);
+    }
+
     function isAndroid() {
         return /Android/i.test(navigator.userAgent || '');
     }
@@ -265,9 +274,19 @@
                 animation: rrBounceDown 1s infinite ease-in-out;
                 white-space: nowrap;
             }
+            .rr-dots-arrow-callout.rr-center-arrow {
+                right: auto;
+                left: 50%;
+                transform: translateX(-50%);
+                animation: rrBounceDownCenter 1s infinite ease-in-out;
+            }
             @keyframes rrBounceDown {
                 0%, 100% { transform: translateY(0); }
                 50% { transform: translateY(5px); }
+            }
+            @keyframes rrBounceDownCenter {
+                0%, 100% { transform: translateX(-50%) translateY(0); }
+                50% { transform: translateX(-50%) translateY(5px); }
             }
             @keyframes rrPulseRing {
                 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.7); }
@@ -299,11 +318,36 @@
                 white-space: nowrap;
                 overflow: hidden;
             }
+            .rr-toolbar-switch-row {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 6px;
+                margin-bottom: 5px;
+                padding: 0 2px;
+                font-size: 0.64rem;
+                color: #64748B;
+                font-weight: 600;
+            }
+            .rr-toolbar-switch-btn {
+                background: none;
+                border: none;
+                padding: 0;
+                font-size: 0.64rem;
+                font-weight: 800;
+                color: #0F766E;
+                text-decoration: underline;
+                cursor: pointer;
+                white-space: nowrap;
+            }
             .rr-slide-tabs {
                 display: grid;
                 grid-template-columns: repeat(5, 1fr);
                 gap: 4px;
                 margin-bottom: 6px;
+            }
+            .rr-slide-tabs.rr-tabs-4 {
+                grid-template-columns: repeat(4, 1fr);
             }
             .rr-slide-tab {
                 background: #FFFFFF;
@@ -602,7 +646,7 @@
         }
     }
 
-    function showIosInstallBanner(forceShow) {
+    function showIosInstallBanner(forceShow, overrideMode) {
         if (!forceShow && isDismissed()) return;
         const founderToast = document.getElementById('founder-signin-toast');
         if (founderToast) founderToast.remove();
@@ -612,6 +656,57 @@
 
         const shareChip = `<span class="rr-inline-chip"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share</span>`;
         const showBottomArrow = !isIosChrome() && !isIosInApp();
+
+        const iosMajor = getIosMajorVersion();
+        const defaultMode = (iosMajor > 0 && iosMajor < 19) ? 'classic' : 'compact';
+        const toolbarMode = (overrideMode === 'classic' || overrideMode === 'compact') ? overrideMode : defaultMode;
+        const isClassic = toolbarMode === 'classic';
+
+        const stepsConfig = isClassic
+            ? {
+                tabsClass: 'rr-tabs-4',
+                tabs: ['1. Share', '2. + Home', '3. Add', '4. Open'],
+                slides: [
+                    { src: '/assets/ios-guide-classic-1.jpg?v=1', alt: 'Step 1: Tap Share at the bottom-center of Safari' },
+                    { src: '/assets/ios-guide-classic-2.jpg?v=1', alt: 'Step 2: Tap Add to Home Screen' },
+                    { src: '/assets/ios-guide-classic-3.jpg?v=1', alt: 'Step 3: Tap Add' },
+                    { src: '/assets/ios-guide-classic-4.jpg?v=1', alt: 'Step 4: Open Role Rover on your Home Screen' }
+                ],
+                captions: [
+                    'Step 1 of 4: Tap Share [↑] at bottom-center',
+                    'Step 2 of 4: Tap + Add to Home Screen',
+                    'Step 3 of 4: Tap Add at top-right',
+                    'Step 4 of 4: Open Role Rover on your Home Screen'
+                ],
+                switchHint: 'Bar has Share [↑] in center',
+                switchBtnLabel: 'See ••• instead?',
+                nextMode: 'compact',
+                arrowClass: 'rr-center-arrow',
+                arrowHtml: `<span>Tap <svg style="vertical-align:-2px;margin:0 1px;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg> Share here</span>`
+            }
+            : {
+                tabsClass: '',
+                tabs: ['1. •••', '2. Share', '3. + Home', '4. Add', '5. Open'],
+                slides: [
+                    { src: '/assets/ios-guide-1.jpg?v=3', alt: 'Step 1: Tap the 3-dots menu button in Safari' },
+                    { src: '/assets/ios-guide-2.jpg?v=3', alt: 'Step 2: Tap Share' },
+                    { src: '/assets/ios-guide-3.jpg?v=3', alt: 'Step 3: Tap Add to Home Screen' },
+                    { src: '/assets/ios-guide-4.jpg?v=3', alt: 'Step 4: Tap Add' },
+                    { src: '/assets/ios-guide-5.jpg?v=3', alt: 'Step 5: Open Role Rover on your Home Screen' }
+                ],
+                captions: [
+                    'Step 1 of 5: Tap ••• at bottom-right of Safari',
+                    'Step 2 of 5: Tap Share in the menu',
+                    'Step 3 of 5: Tap + Add to Home Screen',
+                    'Step 4 of 5: Tap Add at top-right',
+                    'Step 5 of 5: Open Role Rover on your Home Screen'
+                ],
+                switchHint: 'Safari ••• menu (bottom-right)',
+                switchBtnLabel: "Don't see •••?",
+                nextMode: 'classic',
+                arrowClass: '',
+                arrowHtml: `<span>Tap ••• here</span>`
+            };
 
         const trustStripHtml = `<div class="rr-trust-strip"><span>✓ Official iOS Web App</span><span>·</span><span>✓ 0 MB Storage</span><span>·</span><span>✓ No App Store Needed</span></div>`;
         let subText = `Get faster access and turn on alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong>, and <strong>Updates</strong>.`;
@@ -631,30 +726,26 @@
             hintHtml = `Tap <strong>Open in Safari</strong> first`;
         }
 
-        const slideCaptions = [
-            'Step 1 of 5: Tap ••• at bottom-right of Safari',
-            'Step 2 of 5: Tap Share in the menu',
-            'Step 3 of 5: Tap + Add to Home Screen',
-            'Step 4 of 5: Tap Add at top-right',
-            'Step 5 of 5: Open Role Rover on your Home Screen'
-        ];
+        const slideCaptions = stepsConfig.captions;
+        const tabsHtml = stepsConfig.tabs
+            .map((label, i) => `<button type="button" class="rr-slide-tab${i === 0 ? ' active' : ''}" data-rr-slide="${i}">${label}</button>`)
+            .join('');
+        const imgsHtml = stepsConfig.slides
+            .map((s, i) => `<img class="rr-slide-img${i === 0 ? ' active' : ''}" src="${s.src}" alt="${s.alt}">`)
+            .join('');
 
         const bodyContentHtml = showBottomArrow
             ? `
                 <div class="rr-ios-slide-player" aria-label="Step-by-step visual walkthrough">
-                    <div class="rr-slide-tabs">
-                        <button type="button" class="rr-slide-tab active" data-rr-slide="0">1. •••</button>
-                        <button type="button" class="rr-slide-tab" data-rr-slide="1">2. Share</button>
-                        <button type="button" class="rr-slide-tab" data-rr-slide="2">3. + Home</button>
-                        <button type="button" class="rr-slide-tab" data-rr-slide="3">4. Add</button>
-                        <button type="button" class="rr-slide-tab" data-rr-slide="4">5. Open</button>
+                    <div class="rr-toolbar-switch-row">
+                        <span>${stepsConfig.switchHint}</span>
+                        <button type="button" id="rr-switch-bar-btn" class="rr-toolbar-switch-btn">${stepsConfig.switchBtnLabel}</button>
+                    </div>
+                    <div class="rr-slide-tabs ${stepsConfig.tabsClass}">
+                        ${tabsHtml}
                     </div>
                     <div class="rr-slide-stage">
-                        <img class="rr-slide-img active" src="/assets/ios-guide-1.jpg?v=3" alt="Step 1: Tap the 3-dots menu button in Safari">
-                        <img class="rr-slide-img" src="/assets/ios-guide-2.jpg?v=3" alt="Step 2: Tap Share">
-                        <img class="rr-slide-img" src="/assets/ios-guide-3.jpg?v=3" alt="Step 3: Tap Add to Home Screen">
-                        <img class="rr-slide-img" src="/assets/ios-guide-4.jpg?v=3" alt="Step 4: Tap Add">
-                        <img class="rr-slide-img" src="/assets/ios-guide-5.jpg?v=3" alt="Step 5: Open Role Rover on your Home Screen">
+                        ${imgsHtml}
                     </div>
                     <div class="rr-slide-caption-row">
                         <span id="rr-slide-caption">${slideCaptions[0]}</span>
@@ -687,7 +778,7 @@
             `;
 
         const bottomArrowHtml = showBottomArrow
-            ? `<div class="rr-dots-arrow-callout" aria-hidden="true"><span>Tap ••• here</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00FFCC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>`
+            ? `<div class="rr-dots-arrow-callout ${stepsConfig.arrowClass}" aria-hidden="true">${stepsConfig.arrowHtml}<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00FFCC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>`
             : '';
 
         const banner = document.createElement('div');
@@ -720,6 +811,7 @@
             const captionEl = banner.querySelector('#rr-slide-caption');
             const nextBtn = banner.querySelector('#rr-next-slide-btn');
             const stageEl = banner.querySelector('.rr-slide-stage');
+            const switchBtn = banner.querySelector('#rr-switch-bar-btn');
             const setSlide = (idx) => {
                 const count = imgs.length;
                 activeIdx = ((idx % count) + count) % count;
@@ -733,6 +825,9 @@
             });
             if (nextBtn) {
                 nextBtn.onclick = () => setSlide(activeIdx + 1);
+            }
+            if (switchBtn) {
+                switchBtn.onclick = () => showIosInstallBanner(true, stepsConfig.nextMode);
             }
             if (stageEl) {
                 let touchStartX = null;
@@ -750,6 +845,13 @@
                     }
                 }, { passive: true });
             }
+        }
+
+        if (overrideMode) {
+            banner.style.transition = 'none';
+            banner.classList.add('rr-visible');
+            requestAnimationFrame(() => { banner.style.transition = ''; });
+            return;
         }
 
         requestAnimationFrame(() => {
