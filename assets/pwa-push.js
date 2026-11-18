@@ -15,6 +15,7 @@
     let _userId = null;
     let _swReg = null;
     let _initialized = false;
+    let _slideTimer = null;
 
     function isIos() {
         return /iPhone|iPad|iPod/i.test(navigator.userAgent || '') ||
@@ -268,82 +269,76 @@
                 0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(0, 255, 204, 0.7); }
                 50% { transform: scale(1.08); box-shadow: 0 0 0 5px rgba(0, 255, 204, 0); }
             }
-            @keyframes rrStepCycle1 {
-                0%, 30% { border-color: #00FFCC; background: #E6FBF6; transform: translateY(-1px); }
-                34%, 100% { border-color: #E2E8F0; background: #F8FAFC; transform: translateY(0); }
+            .rr-ios-slide-player {
+                margin-top: 0.65rem;
+                background: #F8FAFC;
+                border: 1px solid #E2E8F0;
+                border-radius: 12px;
+                padding: 7px;
             }
-            @keyframes rrStepCycle2 {
-                0%, 32% { border-color: #E2E8F0; background: #F8FAFC; transform: translateY(0); }
-                34%, 64% { border-color: #00FFCC; background: #E6FBF6; transform: translateY(-1px); }
-                68%, 100% { border-color: #E2E8F0; background: #F8FAFC; transform: translateY(0); }
-            }
-            @keyframes rrStepCycle3 {
-                0%, 65% { border-color: #E2E8F0; background: #F8FAFC; transform: translateY(0); }
-                68%, 97% { border-color: #00FFCC; background: #E6FBF6; transform: translateY(-1px); }
-                100% { border-color: #E2E8F0; background: #F8FAFC; transform: translateY(0); }
-            }
-            .rr-ios-anim-demo {
+            .rr-slide-tabs {
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 6px;
-                margin-top: 0.7rem;
-            }
-            .rr-anim-card {
-                border: 1.5px solid #E2E8F0;
-                background: #F8FAFC;
-                border-radius: 10px;
-                padding: 6px 5px;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: space-between;
                 gap: 5px;
+                margin-bottom: 6px;
+            }
+            .rr-slide-tab {
+                background: #FFFFFF;
+                border: 1px solid #CBD5E1;
+                border-radius: 8px;
+                padding: 4px 5px;
+                font-size: 0.68rem;
+                font-weight: 700;
+                color: #475569;
+                cursor: pointer;
                 text-align: center;
                 transition: all 0.2s ease;
-                min-width: 0;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
             }
-            .rr-anim-card-1 { animation: rrStepCycle1 4.8s infinite ease-in-out; }
-            .rr-anim-card-2 { animation: rrStepCycle2 4.8s infinite ease-in-out; }
-            .rr-anim-card-3 { animation: rrStepCycle3 4.8s infinite ease-in-out; }
-            .rr-anim-screen {
+            .rr-slide-tab.active {
+                background: #0A0A0A;
+                border-color: #00FFCC;
+                color: #00FFCC;
+            }
+            .rr-slide-stage {
+                position: relative;
                 width: 100%;
-                height: 30px;
+                height: 225px;
+                border-radius: 9px;
+                overflow: hidden;
                 background: #FFFFFF;
                 border: 1px solid #E2E8F0;
-                border-radius: 7px;
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 0 5px;
-                box-sizing: border-box;
-                font-size: 0.62rem;
-                font-weight: 700;
-                color: #64748B;
             }
-            .rr-anim-target {
-                display: inline-flex;
-                align-items: center;
-                justify-content: center;
-                border-radius: 999px;
-                border: 1.5px solid #00FFCC;
-                background: #0A0A0A;
-                color: #00FFCC;
-                font-weight: 800;
-                animation: rrPulseRing 1.4s infinite ease-in-out;
-                flex-shrink: 0;
+            .rr-slide-img {
+                position: absolute;
+                inset: 0;
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                opacity: 0;
+                transition: opacity 0.35s ease;
+                pointer-events: none;
             }
-            .rr-anim-label {
-                font-size: 0.65rem;
-                font-weight: 700;
-                color: #0F172A;
-                line-height: 1.2;
+            .rr-slide-img.active {
+                opacity: 1;
             }
             @media (max-width: 768px) {
                 #rr-push-banner {
                     bottom: 12px;
+                    padding: 0.85rem 0.95rem;
                 }
                 #rr-push-banner.rr-has-bottom-arrow {
                     bottom: 44px;
+                }
+                .rr-ios-steps {
+                    margin-top: 0.55rem;
+                    padding: 0.55rem 0.7rem;
+                    gap: 0.4rem;
+                }
+                .rr-push-actions {
+                    margin-top: 0.6rem;
                 }
             }
         `;
@@ -351,6 +346,10 @@
     }
 
     function removeBanner() {
+        if (_slideTimer) {
+            clearInterval(_slideTimer);
+            _slideTimer = null;
+        }
         const el = document.getElementById('rr-push-banner');
         if (el) {
             el.classList.remove('rr-visible');
@@ -497,65 +496,47 @@
         const inlineArrowDownRight = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0F766E" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;"><line x1="7" y1="7" x2="17" y2="17"/><polyline points="17 7 17 17 7 17"/></svg>`;
         const showBottomArrow = !isIosChrome() && !isIosInApp();
 
-        let subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong> so you never apply or reply late. Add to Home Screen:";
+        let subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Follow these 3 quick steps:";
         let step1Html = `Tap <span class="rr-inline-chip">•••</span> (bottom-right of Safari) → tap ${shareChip} <span style="color:#64748B; font-weight:500;">(or Share directly if shown)</span>`;
         let step2Html = `Scroll down, tap <span class="rr-inline-chip">+ Add to Home Screen</span> → tap <strong>Add</strong>`;
         let hintHtml = `Start by tapping <strong>•••</strong> below ${inlineArrowDownRight}`;
-        let step1Visual = `
-            <div class="rr-anim-screen">
-                <span style="opacity:0.45;">&lt;</span>
-                <span style="font-size:0.56rem; opacity:0.6;">rolerover</span>
-                <span class="rr-anim-target" style="width:19px; height:19px; font-size:0.65rem;">•••</span>
-            </div>
-            <div class="rr-anim-label">1. Tap ••• → Share</div>
-        `;
 
         if (isIosChrome()) {
             subText = "Instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong> so you never apply or reply late. Add via Chrome:";
             step1Html = `Tap ${shareChip} at the <strong>top-right</strong> next to Chrome's address bar`;
             hintHtml = `Start by tapping <strong>Share</strong> at top-right`;
-            step1Visual = `
-                <div class="rr-anim-screen">
-                    <span style="font-size:0.56rem; opacity:0.6;">rolerover</span>
-                    <span class="rr-anim-target" style="width:19px; height:19px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg></span>
-                </div>
-                <div class="rr-anim-label">1. Tap Share ↗</div>
-            `;
         } else if (isIosInApp()) {
             subText = "Get instant alerts for <strong>New Jobs</strong>, <strong>Recruiter Emails</strong> &amp; <strong>Important Updates</strong>. Open in Safari first:";
             step1Html = `Tap <span class="rr-inline-chip">•••</span> or the Safari icon → <strong>Open in Safari</strong>`;
             step2Html = `In Safari, tap ${shareChip} → <span class="rr-inline-chip">+ Add to Home Screen</span>`;
             hintHtml = `Tap <strong>Open in Safari</strong> first`;
-            step1Visual = `
-                <div class="rr-anim-screen" style="justify-content:center;">
-                    <span class="rr-anim-target" style="padding:2px 6px; font-size:0.56rem;">Open Safari</span>
-                </div>
-                <div class="rr-anim-label">1. Open Safari</div>
-            `;
         }
 
-        const animStripHtml = `
-            <div class="rr-ios-anim-demo" aria-hidden="true">
-                <div class="rr-anim-card rr-anim-card-1">${step1Visual}</div>
-                <div class="rr-anim-card rr-anim-card-2">
-                    <div class="rr-anim-screen" style="justify-content:center;">
-                        <span class="rr-anim-target" style="padding:2px 6px; font-size:0.55rem;">+ Home Screen</span>
+        const slidePlayerHtml = showBottomArrow
+            ? `
+                <div class="rr-ios-slide-player" aria-label="Step-by-step visual walkthrough">
+                    <div class="rr-slide-tabs">
+                        <button type="button" class="rr-slide-tab active" data-rr-slide="0">1. Tap •••</button>
+                        <button type="button" class="rr-slide-tab" data-rr-slide="1">2. Tap Share</button>
+                        <button type="button" class="rr-slide-tab" data-rr-slide="2">3. Add to Home</button>
                     </div>
-                    <div class="rr-anim-label">2. Add to Home</div>
-                </div>
-                <div class="rr-anim-card rr-anim-card-3">
-                    <div class="rr-anim-screen" style="justify-content:center; gap:4px;">
-                        <img src="/assets/pwa-icon-192.png" alt="" style="width:16px; height:16px; border-radius:4px;">
-                        <span class="rr-anim-target" style="padding:2px 5px; font-size:0.54rem;">Alerts On</span>
+                    <div class="rr-slide-stage">
+                        <img class="rr-slide-img active" src="/assets/ios-guide-1.jpg?v=1" alt="Step 1: Tap the 3-dots menu button in Safari">
+                        <img class="rr-slide-img" src="/assets/ios-guide-2.jpg?v=1" alt="Step 2: Tap Share">
+                        <img class="rr-slide-img" src="/assets/ios-guide-3.jpg?v=1" alt="Step 3: Tap Add to Home Screen">
                     </div>
-                    <div class="rr-anim-label">3. Open &amp; Allow</div>
                 </div>
-            </div>
-        `;
+            `
+            : '';
 
         const bottomArrowHtml = showBottomArrow
             ? `<div class="rr-dots-arrow-callout" aria-hidden="true"><span>Tap ••• here</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#00FFCC" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="4" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg></div>`
             : '';
+
+        if (_slideTimer) {
+            clearInterval(_slideTimer);
+            _slideTimer = null;
+        }
 
         const banner = document.createElement('div');
         banner.id = 'rr-push-banner';
@@ -573,7 +554,7 @@
                 </div>
                 <button type="button" class="rr-push-close" aria-label="Close" onclick="window.rrDismissPushBanner(48)">&times;</button>
             </div>
-            ${animStripHtml}
+            ${slidePlayerHtml}
             <div class="rr-ios-steps">
                 <div class="rr-ios-step">
                     <span class="rr-step-num">1</span>
@@ -595,6 +576,36 @@
             ${bottomArrowHtml}
         `;
         document.body.appendChild(banner);
+
+        if (showBottomArrow) {
+            let activeIdx = 0;
+            const tabs = banner.querySelectorAll('.rr-slide-tab');
+            const imgs = banner.querySelectorAll('.rr-slide-img');
+            const setSlide = (idx) => {
+                activeIdx = idx;
+                tabs.forEach((t, i) => t.classList.toggle('active', i === idx));
+                imgs.forEach((img, i) => img.classList.toggle('active', i === idx));
+            };
+            const startCycle = () => {
+                if (_slideTimer) clearInterval(_slideTimer);
+                _slideTimer = setInterval(() => {
+                    if (!document.body.contains(banner)) {
+                        clearInterval(_slideTimer);
+                        _slideTimer = null;
+                        return;
+                    }
+                    setSlide((activeIdx + 1) % imgs.length);
+                }, 2400);
+            };
+            tabs.forEach((tab, idx) => {
+                tab.onclick = () => {
+                    setSlide(idx);
+                    startCycle();
+                };
+            });
+            startCycle();
+        }
+
         requestAnimationFrame(() => {
             setTimeout(() => banner.classList.add('rr-visible'), 60);
         });
